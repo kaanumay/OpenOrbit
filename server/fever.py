@@ -35,7 +35,7 @@ def _hm(s):
 def cfg(now=None):
     """Geçerli takım: sürmekte olan tarih aralıklı set ('setler'; her 52 haftada tekrar) ya da varsayılan takım (D)."""
     d = datetime.date.fromtimestamp(time.time() if now is None else now)
-    for s in D.get('setler', []):
+    for s in D.get('sets', []):
         a, b = datetime.date.fromisoformat(s['bas']), datetime.date.fromisoformat(s['bit'])
         if d >= a and (d - a).days % 364 <= (b - a).days:
             return s
@@ -45,7 +45,7 @@ def cfg(now=None):
 def slot_for(now=None):
     """Bugünün dilimi (gün 1 = pazartesi) ya da None."""
     t = datetime.datetime.fromtimestamp(time.time() if now is None else now)
-    return next((s for s in cfg(now).get('gunler', []) if s['gun'] == t.isoweekday()), None)
+    return next((s for s in cfg(now).get('days', []) if s['gun'] == t.isoweekday()), None)
 
 
 def window(now=None):
@@ -73,7 +73,7 @@ def ship_matches(slot, loot):
 
 def map_matches(map_id, now=None):
     c, cls = cfg(now), H.map_class(map_id)
-    return cls in c.get('haritalar', []) or int(map_id) in c.get('harita_kimlikleri', [])
+    return cls in c.get('haritalar', []) or int(map_id) in c.get('map_ids', [])
 
 
 class Fever:
@@ -95,14 +95,14 @@ class Fever:
         """Fever şu an oyuncunun gemisine uygulanıyor mu (gün, saat, gemi, harita)."""
         s = slot_for(now)
         return bool(s and self.active(now) and ship_matches(s, self.p.ship()['lootId'])
-                    and map_matches(self.p.d['konum'].get('mapId', 0), now))
+                    and map_matches(self.p.d['position'].get('mapId', 0), now))
 
     def compute(self, now=None):
         """Gemiye uygulanan etkiler (profil.mods() sıcak yolda: tick'te saniyede bir hesaplanıp saklanır)."""
         if not self.boosted(now):
             return {}
         out = {}
-        for a, v in slot_for(now)['etkiler'].items():
+        for a, v in slot_for(now)['effects'].items():
             k = MODS.get(a.upper())
             if k:
                 out[k] = out.get(k, 0) + v / 100.0
@@ -116,9 +116,9 @@ class Fever:
 
     def module(self, s, now=None):
         return {'_': 'ShipBoostEventModule', 'day': s['gun'], 'startTime': s['bas'], 'endTime': s['bit'], 'shipTypes': list(s['gemiler']),
-                'eventNameTextKeys': list(cfg(now).get('olaylar', [])),
+                'eventNameTextKeys': list(cfg(now).get('events', [])),
                 'attributeBoosts': [{'_': 'ShipBoostEventAttributeModule', 'attribute': a, 'boostValue': float(v)}
-                                    for a, v in s['etkiler'].items()]}
+                                    for a, v in s['effects'].items()]}
 
     def update_cmd(self, now=None):
         on, left = window(now)
@@ -128,7 +128,7 @@ class Fever:
                 'boostInfo': {'_': 'ShipBoostEventBoostInfoCommand', 'isShipBoosted': self.boosted(now)}}
 
     def info_cmd(self, now=None):
-        return ('ShipBoostEventInfoCommand', {'shipBoostSlots': [self.module(s, now) for s in cfg(now).get('gunler', [])],
+        return ('ShipBoostEventInfoCommand', {'shipBoostSlots': [self.module(s, now) for s in cfg(now).get('days', [])],
                                              'boostUpdateInfo': self.update_cmd(now)})
 
     def login_msgs(self):

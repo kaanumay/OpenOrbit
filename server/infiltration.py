@@ -88,13 +88,13 @@ class Infiltration:
 
     def start_round(self, now):
         cls = random.choice(D.get('haritalar', ['X-2', 'X-3', 'X-4', 'X-5', 'X-6', 'X-7', 'X-8']))
-        pool = D.get('turler', ['75', '73', '76', '78', '81'])
+        pool = D.get('kinds', ['75', '73', '76', '78', '81'])
         n = D.get('adet', 6)
         kinds = [random.choice(pool) for _ in range(n)]
-        boss = D.get('gizli_patron')
-        if boss and random.random() < boss['olasilik']:      # gizli Boss Kristallon: bir komandonun yerine (Uber Kristallon'un ganimeti)
+        boss = D.get('hidden_boss')
+        if boss and random.random() < boss['probability']:      # gizli Boss Kristallon: bir komandonun yerine (Uber Kristallon'un ganimeti)
             kinds[random.randrange(n)] = boss['tur']
-        self.round = dict(harita=self.map_for(cls), sinif=cls, turler=kinds, adet=n, killed=0,
+        self.round = dict(harita=self.map_for(cls), sinif=cls, kinds=kinds, adet=n, killed=0,
                           bitis=now + D.get('sure_sn', 600), spawned=False)
         self.log('   Infiltration: komando takımı %s (%d)' % (H.name(self.round['harita']), n))
         msgs = [legacy('0|A|STM|msg_infiltration_spawned_map_single|%%MAP%%|%s' % H.name(self.round['harita'])), self.status_cmd(now)]
@@ -110,21 +110,21 @@ class Infiltration:
         r['spawned'] = True
         mw, mh = H.map_size(w.map_id)
         cx, cy = random.randint(int(mw * 0.15), int(mw * 0.85)), random.randint(int(mh * 0.15), int(mh * 0.85))
-        r['kimlikler'] = []
-        for tip in r['turler'][r['killed']:]:
+        r['ids'] = []
+        for tip in r['kinds'][r['killed']:]:
             if tip not in w.CFG_TYPES:
                 continue
 
             def prep(n):
                 n.hidden = True
-                n.reward_multiplier = D.get('odul_carpani', 2)
+                n.reward_multiplier = D.get('reward_multiplier', 2)
                 n.infiltration = self                     # takımın sahibi (arkadaş sunucusunda öteki oyuncu da vurabilir)
                 n.passive = True                     # komandolar ateş etmez (resmî SSS 2013)
-                n.summoned = tip == D.get('gizli_patron', {}).get('tur')       # gizli patron ölünce yeniden doğmaz (etkinlik harita kontrolü de silmez)
+                n.summoned = tip == D.get('hidden_boss', {}).get('tur')       # gizli patron ölünce yeniden doğmaz (etkinlik harita kontrolü de silmez)
             n = w.spawn_npc_at(tip, cx + random.randint(-400, 400), cy + random.randint(-400, 400), prep=prep)
             if n is not None:
                 n.engaged = False
-                r['kimlikler'].append(n.id)
+                r['ids'].append(n.id)
 
     def attach(self, world):
         self.world = world
@@ -175,9 +175,9 @@ class Infiltration:
             self.log('   Infiltration: takım kaçtı (%d/%d)' % (r['killed'], r['adet']))
             msgs = [legacy('0|A|STM|msg_infiltration_defeat')]
             w = self.world
-            if w and r.get('kimlikler'):
+            if w and r.get('ids'):
                 with w.lock:
-                    for uid in r['kimlikler']:
+                    for uid in r['ids']:
                         n = w.npcs.get(uid)
                         if n and n.alive:
                             w.send(w.remove_npc(n))        # takım kaçtı

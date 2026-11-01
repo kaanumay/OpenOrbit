@@ -97,7 +97,7 @@ def _lang_expr(promises, extra=False):
 # konuşur (COK_DILLI), İngilizce süzgeç onları görmez
 _HARMFUL_LANG = _lang_expr([w for d in SPC.LANGUAGES.values() for w in d.get('zararli', ())])
 # mesaj türleri öteki dillerde (bot/languages/<kod>.json tepki): kutlama, veda, dönüş, yoklama; oyun sözcükleri soruyu oyun sorusu yapar
-_REACTION_LANG = {t: _lang_expr([w for d in SPC.LANGUAGES.values() for w in d.get('tepki', {}).get(t, ())], extra=t == 'oyun')
+_REACTION_LANG = {t: _lang_expr([w for d in SPC.LANGUAGES.values() for w in d.get('reaction', {}).get(t, ())], extra=t == 'oyun')
               for t in ('kutlama', 'veda', 'donus', 'yoklama', 'oyun')}
 
 
@@ -222,12 +222,12 @@ def _memories_note(b, y):
 def event_text(o):
     t = o['tur']
     return {'olum': 'got killed by %s' % (o.get('killer') or 'aliens'), 'oyuncu_oldurdum': 'killed the player %s' % o.get('ad'),
-            'oldurdum': 'killed the player %s' % o.get('kurban'), 'seviye': 'reached level %s' % o.get('seviye'),
+            'oldurdum': 'killed the player %s' % o.get('victim'), 'seviye': 'reached level %s' % o.get('seviye'),
             'yeni_gemi': 'bought a %s' % str(o.get('esya', '')).replace('ship_', ''), 'gorev_bitti': 'finished a quest',
             'klan_kurdu': 'founded the clan %s' % o.get('ad'), 'klana_girdi': 'joined the clan %s' % o.get('klan'),
             'gruba_girdi': 'grouped up with %s' % o.get('ad'), 'kacti': 'fled from map %s' % o.get('harita'),
             'patron_oldurdum': 'killed the boss alien %s' % o.get('ad'),
-            'tanik': ('saw %s kill the boss %s right next to you' % (o.get('kim'), o.get('ad')) if o.get('alt') == 'patron'
+            'tanik': ('saw %s kill the boss %s right next to you' % (o.get('kim'), o.get('ad')) if o.get('sub') == 'patron'
                       else 'saw %s get destroyed right next to you' % o.get('ad'))}.get(t, '')
 
 
@@ -611,8 +611,8 @@ class Brain:
         once = self.usage_trace[0][1] if self.usage_trace else {}
         hour = {k: now.get(k, 0) - once.get(k, 0) for k in ('istek', 'girdi', 'onbellek', 'cikti')}
         duration = (time.time() - self.usage_trace[0][0]) if self.usage_trace else 0
-        return {'saat': hour, 'sure_dk': round(duration / 60), 'toplam': now, 'sinir': self.y.setting('llm_saatlik', 200) or 0,
-                'sinirda': self.at_limit(), 'saglayici': getattr(self.server, 'name', ''), 'hazir': self.ready}
+        return {'saat': hour, 'duration_min': round(duration / 60), 'toplam': now, 'sinir': self.y.setting('llm_saatlik', 200) or 0,
+                'at_limit': self.at_limit(), 'provider': getattr(self.server, 'name', ''), 'hazir': self.ready}
 
     def add(self, priority, job):
         if self.at_limit():
@@ -663,7 +663,7 @@ class Brain:
         try:
             r, duration = self.server.ask(system, user, schema=schema, max_count=max_count, temperature=temperature)
         except ValueError:                                   # yanıt sınırda kesildi ya da bozuk JSON: bir kez daha, daha sakin
-            self.stats['yeniden'] = self.stats.get('yeniden', 0) + 1
+            self.stats['regenerate'] = self.stats.get('regenerate', 0) + 1
             r, duration = self.server.ask(system, user, schema=schema, max_count=int(max_count * 1.5), temperature=0.6)
         self.stats['sure'] += duration
         return r
@@ -845,7 +845,7 @@ class Brain:
                                              'metin': {'type': 'string', 'maxLength': 90}},
             'required': ['bot', 'metin']}}}, 'required': ['yanitlar']}
         if responders:
-            m = H.name(responders[0].k['niyet']['plan']['harita']) if (responders[0].k.get('niyet') or {}).get('plan') else 'there'
+            m = H.name(responders[0].k['intent']['plan']['harita']) if (responders[0].k.get('intent') or {}).get('plan') else 'there'
             rule = ('These pilots decided to fly to %s to fight the enemy players (not aliens) attacking %s; each says in his own '
                      'words and his own chat language that he is coming: %s.') % (m, name, ', '.join(b.name for b in responders))
         elif intent == 'yardim':
@@ -908,7 +908,7 @@ class Brain:
 
     def _mail(self, job):
         y, b, r, dec = self.y, job['bot'], job['posta'], job.get('decision')
-        name = r['gonderen']
+        name = r['sender']
         schema = {'type': 'object', 'properties': {'metin': {'type': 'string', 'maxLength': 240}}, 'required': ['metin']}
         contents = '%s %s' % (r.get('konu', ''), r.get('metin', ''))
         game = message_kind(contents) == 'soru_oyun' or (is_question(contents) and GAME.search(contents))
@@ -1059,7 +1059,7 @@ class Brain:
         except Exception:
             human = []
         names = {k.name.lower() for k in human}
-        maps = {int(k.profile.d['konum'].get('mapId', 0)) for k in human}
+        maps = {int(k.profile.d['position'].get('mapId', 0)) for k in human}
         speakers = {a for a, _ in self.conversations}
         self._near = {id(b) for b in y.bots if b.body is not None or b.game_map in maps or b.name.lower() in speakers
                        or any(abs(b.memory.relation(a, now)) >= 0.15 for a in names)
@@ -1094,7 +1094,7 @@ class Brain:
             if not reason:
                 continue
             b._llm_decision = b._agent_busy = now
-            if not self.add(DECISION, {'t': now, 'fn': self._agent, 'bot': b, 'sebep': reason, 'iptal': refund}):
+            if not self.add(DECISION, {'t': now, 'fn': self._agent, 'bot': b, 'reason': reason, 'iptal': refund}):
                 b._agent_busy = 0
                 refund()
                 return
@@ -1106,7 +1106,7 @@ class Brain:
         b, y = job['bot'], self.y
         try:
             if b.online:
-                AGT.think(self, b, job['sebep'], int(y.setting('llm_ajan_adim', AGT.STEPS) or AGT.STEPS))
+                AGT.think(self, b, job['reason'], int(y.setting('llm_ajan_adim', AGT.STEPS) or AGT.STEPS))
         finally:
             b._agent_busy = 0
 
@@ -1190,7 +1190,7 @@ class Brain:
         if t['arac'] in ('duello', 'yardima_git', 'takip_et') and not game_map:
             import community as TP
             person = TP.find(name=name)
-            game_map = H.name(int(person.profile.d['konum'].get('mapId', 0))) if person is not None else ''
+            game_map = H.name(int(person.profile.d['position'].get('mapId', 0))) if person is not None else ''
         tool = t['arac']
         if tool in ('duello', 'yardima_git', 'takip_et'):     # ulaşamayacağı yere "geliyorum" demesin (canlı: MMO botu EIC'nin 2-1'ine)
             m = TL._game_map(game_map) if game_map else None
@@ -1218,7 +1218,7 @@ class Brain:
                 if tool in ('duello', 'yardima_git') and game_map:
                     arg['harita'] = game_map
                 y.actions.append((y.now + SPC.typing_time(text or 'ok', b) + b.r.uniform(1, 3), b, (tool, arg)))
-            t['sonuc'] = text or ''
+            t['result'] = text or ''
 
     # ------------------------------------------------------------ yardımcılar
     def _text(self, b, text, echo=None):
@@ -1270,5 +1270,5 @@ class Brain:
         text = re.sub(r'\bmmo+t?\b', 'mmo', re.sub(r'\bvru[d]\b', 'vru', re.sub(r'\biec\b', 'eic', text, flags=re.I), flags=re.I),
                        flags=re.I)                           # modelin firma adlarını bozması (mmoo, iec)
         u = dict(b.k['kisilik'].get('uslup') or {})
-        u.update(emoji=0.0, noktalama=0.0, buyuk_harf=0.0, hata=u.get('hata', 0.05) * 0.4)
+        u.update(emoji=0.0, punctuation=0.0, uppercase=0.0, hata=u.get('hata', 0.05) * 0.4)
         return SPC.apply_style(text, u, b.r, SPC.lang(b) if MULTILINGUAL else 'en')

@@ -22,8 +22,8 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(os.path.dirname(HERE))
 SERVER = os.path.join(ROOT, 'server')
 DATA = os.path.join(SERVER, 'data')
-VDIR = os.path.join(DATA, 'protokol')
-VERSION = os.path.join(VDIR, 'surum.txt')
+VDIR = os.path.join(DATA, 'protocols')
+VERSION = os.path.join(VDIR, 'version.txt')
 FILES = ('protocol.json', 'protocol_read.json')
 DEFAULT_VERSION = '1.1.116'
 
@@ -160,7 +160,7 @@ def run(folder, do_apply=False, log=print):
     rep = os.path.join(ROOT, 'belgeler', 'istemci', 'protokol_farki_%s.md' % give)
     write_report(give, d, fixed, left, server_names(), rep)
     summary = {k: len(v) for k, v in d.items()}
-    summary.update(duzeltilen=len(fixed), belirsiz=len(left), surum=give, rapor=rep)
+    summary.update(duzeltilen=len(fixed), ambiguous=len(left), surum=give, rapor=rep)
     log('   fark: %s' % json.dumps({k: v for k, v in summary.items() if k not in ('rapor', 'surum')}, ensure_ascii=False))
     log('   rapor: %s' % rep)
     if do_apply:

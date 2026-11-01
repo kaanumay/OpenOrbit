@@ -170,20 +170,20 @@ def process_info(pid):
             name, command = ps('comm='), ps('args=')
         except (OSError, subprocess.SubprocessError):
             name = command = ''
-        return {'pid': pid, 'ad': os.path.basename(name) or '?', 'komut': command}
+        return {'pid': pid, 'ad': os.path.basename(name) or '?', 'command': command}
     try:
         cmd = ('$p = Get-CimInstance Win32_Process -Filter "ProcessId=%d"; if ($p) { $p.Name; $p.CommandLine }' % int(pid))
         r = subprocess.run(['powershell', '-NoProfile', '-NonInteractive', '-Command', cmd], capture_output=True, text=True,
                            timeout=15, creationflags=NO_WINDOW, encoding='utf8', errors='replace')
         lines = r.stdout.splitlines()
-        return {'pid': pid, 'ad': lines[0].strip() if lines else '?', 'komut': lines[1].strip() if len(lines) > 1 else ''}
+        return {'pid': pid, 'ad': lines[0].strip() if lines else '?', 'command': lines[1].strip() if len(lines) > 1 else ''}
     except Exception:
-        return {'pid': pid, 'ad': '?', 'komut': ''}
+        return {'pid': pid, 'ad': '?', 'command': ''}
 
 
 def is_our_server(info):
     """Bu projenin web.py / game.py süreci mi (komut satırından)?"""
-    c = (info.get('komut') or '').lower().replace('/', '\\')
+    c = (info.get('command') or '').lower().replace('/', '\\')
     return 'python' in (info.get('ad') or '').lower() and any(os.path.join(SERVER, s).lower() in c or
                                                              ('\\server\\%s' % s) in c for s in SCRIPTS.values())
 
@@ -417,9 +417,9 @@ class Manager:
             pid = owners.get(port)
             if pid in ours:
                 continue
-            info = process_info(pid) if pid else {'pid': None, 'ad': '?', 'komut': ''}
-            out.append({'port': port, 'ad': _(PORT_NAMES[port]), 'pid': pid, 'process': info['ad'], 'komut': info['komut'][:300],
-                        'bizim': is_our_server(info)})
+            info = process_info(pid) if pid else {'pid': None, 'ad': '?', 'command': ''}
+            out.append({'port': port, 'ad': _(PORT_NAMES[port]), 'pid': pid, 'process': info['ad'], 'command': info['command'][:300],
+                        'ours': is_our_server(info)})
         return out
 
     def needs_restart(self, profile, friend=None, multi=None, world=None, bot=None):
@@ -538,7 +538,7 @@ class Manager:
         code = proc.wait()
         stop = time.time() - (self.client_started or time.time())
         early = stop < EARLY_EXIT_SEC
-        self.last_client = {'sure_sn': int(stop), 'early': early, 'kod': code, 'zaman': time.strftime('%H:%M:%S')}
+        self.last_client = {'sure_sn': int(stop), 'early': early, 'code': code, 'time': time.strftime('%H:%M:%S')}
         self.log('istemci kapandı (%d sn, kod %s)%s' % (stop, code, ' — erken kapandı, sunucular açık kalır' if early else ''))
         if self.on_client_exit:
             try:
@@ -555,7 +555,7 @@ class Manager:
         srv = {name: (s.status() if s else {'durum': 'kapali'}) for name, s in ((a, self.servers.get(a)) for a in ('web', 'oyun'))}
         table = listeners()
         for name, st in srv.items():
-            st['portlar'] = {p: listening(p, table) for p in PORTS[name]}
+            st['ports'] = {p: listening(p, table) for p in PORTS[name]}
         cl = {'durum': 'acik' if self.client_alive() else 'kapali'}
         if self.client_alive():
             cl.update(pid=self.client.pid, sure_sn=int(time.time() - self.client_started))

@@ -49060,7 +49060,7 @@
    "width": 300
   }
  ],
- "tohum": {
+ "seed": {
   "UserSettingsCommand": {
    "displaySettingsModule": {
     "_": "DisplaySettingsModule",
@@ -52345,8 +52345,8 @@
     "rocket": []
    }
   },
-  "aktif_konfig": 1,
-  "gemi_kimlik": {
+  "active_config": 1,
+  "ship_ids": {
    "shipId": 3710086,
    "hangarId": 615176
   },

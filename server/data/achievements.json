@@ -1,6 +1,6 @@
 {
- "_kaynak": "İstemcinin başarım XML'leri (tools/basarimlar.py). seviyeler: koşul sınıfı, islec/deger ya da kume (CheckSet öğeleri, eslesme ALL), olay (achievementEvent), parametreler, ic (iç koşullar), saklanir (store), olumde_sifir (resetOnDeath); puan, unvan, odul (eylemler); derece: XML'deki grade sıradan farklıysa (kazanma satırı 0|A|ACG|<başarım>_<derece>). unvanlar: unvan anahtarı -> kimlik (kayıttakiler korunur, ötekiler 1000'den).",
- "basarimlar": {
+ "_kaynak": "İstemcinin başarım XML'leri (tools/basarimlar.py). seviyeler: koşul sınıfı, islec/deger ya da kume (CheckSet öğeleri, eslesme ALL), olay (achievementEvent), parametreler, ic (iç koşullar), saklanir (store), reset_on_death (resetOnDeath); puan, unvan, odul (eylemler); derece: XML'deki grade sıradan farklıysa (kazanma satırı 0|A|ACG|<başarım>_<derece>). unvanlar: unvan anahtarı -> kimlik (kayıttakiler korunur, ötekiler 1000'den).",
+ "achievements": {
   "achievement_seasonpass_202307": {
    "grup": "SEASONPASS_Q2",
    "etkin": true,
@@ -8,7 +8,7 @@
    "seviyeler": [
     {
      "sinif": "LevelAbsolute",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 50,
      "olay": "SEASONPASS_Q2",
      "parametreler": {
@@ -28,7 +28,7 @@
    "seviyeler": [
     {
      "sinif": "LevelAbsolute",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 50,
      "olay": "SEASONPASS_Q3",
      "parametreler": {
@@ -48,7 +48,7 @@
    "seviyeler": [
     {
      "sinif": "LevelAbsolute",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 50,
      "olay": "SEASONPASS_Q4",
      "parametreler": {
@@ -68,7 +68,7 @@
    "seviyeler": [
     {
      "sinif": "LevelAbsolute",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 50,
      "olay": "SEASONPASS_Q5",
      "parametreler": {
@@ -81,7 +81,7 @@
     },
     {
      "sinif": "LevelAbsolute",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 80,
      "olay": "SEASONPASS_Q5",
      "parametreler": {
@@ -101,7 +101,7 @@
    "seviyeler": [
     {
      "sinif": "Level",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 50,
      "olay": "SEASONPASS_Q6",
      "parametreler": {
@@ -114,7 +114,7 @@
     },
     {
      "sinif": "Level",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 80,
      "olay": "SEASONPASS_Q6",
      "parametreler": {
@@ -134,7 +134,7 @@
    "seviyeler": [
     {
      "sinif": "Level",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 50,
      "olay": "SEASONPASS_Q7",
      "parametreler": {
@@ -147,7 +147,7 @@
     },
     {
      "sinif": "Level",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 80,
      "olay": "SEASONPASS_Q7",
      "parametreler": {
@@ -167,7 +167,7 @@
    "seviyeler": [
     {
      "sinif": "Level",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 50,
      "olay": "SEASONPASS_Q8",
      "parametreler": {
@@ -180,7 +180,7 @@
     },
     {
      "sinif": "Level",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 80,
      "olay": "SEASONPASS_Q8",
      "parametreler": {
@@ -200,7 +200,7 @@
    "seviyeler": [
     {
      "sinif": "Level",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 50,
      "olay": "SEASONPASS_Q9",
      "parametreler": {
@@ -213,7 +213,7 @@
     },
     {
      "sinif": "Level",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 80,
      "olay": "SEASONPASS_Q9",
      "parametreler": {
@@ -233,7 +233,7 @@
    "seviyeler": [
     {
      "sinif": "LevelAbsolute",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 50,
      "olay": "SEASONPASS_Q10",
      "parametreler": {
@@ -246,7 +246,7 @@
     },
     {
      "sinif": "LevelAbsolute",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 80,
      "olay": "SEASONPASS_Q10",
      "parametreler": {
@@ -266,7 +266,7 @@
    "seviyeler": [
     {
      "sinif": "LevelAbsolute",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 50,
      "olay": "SEASONPASS_Q11",
      "parametreler": {
@@ -279,7 +279,7 @@
     },
     {
      "sinif": "LevelAbsolute",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 80,
      "olay": "SEASONPASS_Q11",
      "parametreler": {
@@ -299,7 +299,7 @@
    "seviyeler": [
     {
      "sinif": "LevelAbsolute",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 50,
      "olay": "SEASONPASS_Q12",
      "parametreler": {
@@ -312,7 +312,7 @@
     },
     {
      "sinif": "LevelAbsolute",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 80,
      "olay": "SEASONPASS_Q12",
      "parametreler": {
@@ -332,7 +332,7 @@
    "seviyeler": [
     {
      "sinif": "LevelAbsolute",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 50,
      "olay": "SEASONPASS_Q13",
      "parametreler": {
@@ -345,7 +345,7 @@
     },
     {
      "sinif": "LevelAbsolute",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 80,
      "olay": "SEASONPASS_Q13",
      "parametreler": {
@@ -365,7 +365,7 @@
    "seviyeler": [
     {
      "sinif": "LevelAbsolute",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 50,
      "olay": "SEASONPASS_Q14",
      "parametreler": {
@@ -378,7 +378,7 @@
     },
     {
      "sinif": "LevelAbsolute",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 80,
      "olay": "SEASONPASS_Q14",
      "parametreler": {
@@ -398,7 +398,7 @@
    "seviyeler": [
     {
      "sinif": "Uses3D",
-     "islec": ">",
+     "operator": ">",
      "deger": 0,
      "olay": "USES_3D",
      "unvan": "title_achievement_multi-dimensional-pilot",
@@ -413,7 +413,7 @@
    "seviyeler": [
     {
      "sinif": "AvatarTypeKill",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 50,
      "olay": "DESTROY",
      "parametreler": {
@@ -425,7 +425,7 @@
     },
     {
      "sinif": "AvatarTypeKill",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 250,
      "olay": "DESTROY",
      "parametreler": {
@@ -437,7 +437,7 @@
     },
     {
      "sinif": "AvatarTypeKill",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 1000,
      "olay": "DESTROY",
      "parametreler": {
@@ -450,7 +450,7 @@
     },
     {
      "sinif": "AvatarTypeKill",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 100000,
      "olay": "DESTROY",
      "parametreler": {
@@ -462,7 +462,7 @@
     },
     {
      "sinif": "AvatarTypeKill",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 1000000,
      "olay": "DESTROY",
      "parametreler": {
@@ -482,7 +482,7 @@
    "seviyeler": [
     {
      "sinif": "AssetCollect",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 100000,
      "olay": "COLLECT",
      "parametreler": {
@@ -491,7 +491,7 @@
       ]
      },
      "puan": 10,
-     "derece": 2
+     "grade": 2
     }
    ]
   },
@@ -502,7 +502,7 @@
    "seviyeler": [
     {
      "sinif": "Buy",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 100000,
      "parametreler": {
       "ammo": [
@@ -512,7 +512,7 @@
       ]
      },
      "puan": 10,
-     "derece": 2
+     "grade": 2
     }
    ]
   },
@@ -523,7 +523,7 @@
    "seviyeler": [
     {
      "sinif": "AvatarTypeKill",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 1,
      "olay": "DESTROY",
      "parametreler": {
@@ -536,7 +536,7 @@
      },
      "unvan": "title_achievement_event_summer2014_assaulter",
      "puan": 400,
-     "derece": 5
+     "grade": 5
     }
    ]
   },
@@ -547,7 +547,7 @@
    "seviyeler": [
     {
      "sinif": "MetaAchievement",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 3,
      "olay": "METAACHIEVED",
      "parametreler": {
@@ -557,7 +557,7 @@
      },
      "unvan": "title_achievement_event_battle-for-influence-legend",
      "puan": 20,
-     "derece": 5
+     "grade": 5
     }
    ]
   },
@@ -568,14 +568,14 @@
    "seviyeler": [
     {
      "sinif": "Influence",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 2500,
      "olay": "INFLUENCE_GAINED",
      "puan": 5
     },
     {
      "sinif": "Influence",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 10000,
      "olay": "INFLUENCE_GAINED",
      "unvan": "title_achievement_event_battle-for-influence-points-1",
@@ -583,7 +583,7 @@
     },
     {
      "sinif": "Influence",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 20000,
      "olay": "INFLUENCE_GAINED",
      "unvan": "title_achievement_event_battle-for-influence-points-2",
@@ -611,11 +611,11 @@
       "512010",
       "512011"
      ],
-     "eslesme": "ALL",
+     "matches": "ALL",
      "olay": "QUEST",
      "unvan": "title_achievement_event_battle-for-influence-quests",
      "puan": 15,
-     "derece": 5
+     "grade": 5
     }
    ]
   },
@@ -633,7 +633,7 @@
      },
      "puan": 50,
      "unvan": "title_achievement_beacon-keeper",
-     "derece": 5
+     "grade": 5
     }
    ]
   },
@@ -644,7 +644,7 @@
    "seviyeler": [
     {
      "sinif": "Collect",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 100,
      "olay": "COLLECT",
      "parametreler": {
@@ -656,7 +656,7 @@
     },
     {
      "sinif": "Collect",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 1000,
      "olay": "COLLECT",
      "parametreler": {
@@ -668,7 +668,7 @@
     },
     {
      "sinif": "Collect",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 10000,
      "olay": "COLLECT",
      "parametreler": {
@@ -681,7 +681,7 @@
     },
     {
      "sinif": "Collect",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 100000,
      "olay": "COLLECT",
      "parametreler": {
@@ -693,7 +693,7 @@
     },
     {
      "sinif": "Collect",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 1000000,
      "olay": "COLLECT",
      "parametreler": {
@@ -713,7 +713,7 @@
    "seviyeler": [
     {
      "sinif": "Collect",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 500,
      "olay": "COLLECT",
      "parametreler": {
@@ -745,7 +745,7 @@
       "17",
       "18"
      ],
-     "eslesme": "ALL",
+     "matches": "ALL",
      "olay": "USED",
      "puan": 5
     }
@@ -770,7 +770,7 @@
       "9",
       "10"
      ],
-     "eslesme": "ALL",
+     "matches": "ALL",
      "olay": "USED",
      "puan": 5
     }
@@ -783,8 +783,8 @@
    "seviyeler": [
     {
      "sinif": "TechFactory",
-     "saklanir": false,
-     "islec": ">=",
+     "stored": false,
+     "operator": ">=",
      "deger": 3,
      "puan": 25
     }
@@ -807,7 +807,7 @@
      },
      "unvan": "title_achievement_event_summer2014_builders-guild",
      "puan": 100,
-     "derece": 4
+     "grade": 4
     }
    ]
   },
@@ -818,8 +818,8 @@
    "seviyeler": [
     {
      "sinif": "AvatarTypeKill",
-     "saklanir": false,
-     "islec": ">=",
+     "stored": false,
+     "operator": ">=",
      "deger": 1,
      "olay": "DESTROY",
      "parametreler": {
@@ -831,7 +831,7 @@
       ]
      },
      "puan": 10,
-     "derece": 2
+     "grade": 2
     }
    ]
   },
@@ -842,8 +842,8 @@
    "seviyeler": [
     {
      "sinif": "ChainImpulse",
-     "saklanir": false,
-     "islec": ">=",
+     "stored": false,
+     "operator": ">=",
      "deger": 5,
      "olay": "DESTROY",
      "puan": 5
@@ -857,8 +857,8 @@
    "seviyeler": [
     {
      "sinif": "ClanCreate",
-     "saklanir": false,
-     "islec": ">=",
+     "stored": false,
+     "operator": ">=",
      "deger": 1,
      "puan": 10
     }
@@ -871,8 +871,8 @@
    "seviyeler": [
     {
      "sinif": "ClanJoin",
-     "saklanir": false,
-     "islec": ">=",
+     "stored": false,
+     "operator": ">=",
      "deger": 1,
      "puan": 5
     }
@@ -885,22 +885,22 @@
    "seviyeler": [
     {
      "sinif": "ClanMember",
-     "saklanir": false,
-     "islec": ">=",
+     "stored": false,
+     "operator": ">=",
      "deger": 5,
      "puan": 10
     },
     {
      "sinif": "ClanMember",
-     "saklanir": false,
-     "islec": ">=",
+     "stored": false,
+     "operator": ">=",
      "deger": 25,
      "puan": 25
     },
     {
      "sinif": "ClanMember",
-     "saklanir": false,
-     "islec": ">=",
+     "stored": false,
+     "operator": ">=",
      "deger": 50,
      "unvan": "title_achievement_social_clan-member",
      "puan": 50
@@ -925,7 +925,7 @@
    "seviyeler": [
     {
      "sinif": "Currency",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 1000000,
      "olay": "COLLECT",
      "parametreler": {
@@ -937,7 +937,7 @@
     },
     {
      "sinif": "Currency",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 5000000,
      "olay": "COLLECT",
      "parametreler": {
@@ -949,7 +949,7 @@
     },
     {
      "sinif": "Currency",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 7500000,
      "olay": "COLLECT",
      "parametreler": {
@@ -962,7 +962,7 @@
     },
     {
      "sinif": "Currency",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 15500000,
      "olay": "COLLECT",
      "parametreler": {
@@ -974,7 +974,7 @@
     },
     {
      "sinif": "Currency",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 25500000,
      "olay": "COLLECT",
      "parametreler": {
@@ -994,7 +994,7 @@
    "seviyeler": [
     {
      "sinif": "Login",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 15,
      "puan": 5
     }
@@ -1007,21 +1007,21 @@
    "seviyeler": [
     {
      "sinif": "Damage",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 5000000,
      "olay": "CAUSED",
      "puan": 5
     },
     {
      "sinif": "Damage",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 250000000,
      "olay": "CAUSED",
      "puan": 10
     },
     {
      "sinif": "Damage",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 1000000000,
      "olay": "CAUSED",
      "unvan": "title_achievement_damagedealer-1",
@@ -1029,14 +1029,14 @@
     },
     {
      "sinif": "Damage",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 10000000000,
      "olay": "CAUSED",
      "puan": 50
     },
     {
      "sinif": "Damage",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 15000000000,
      "olay": "CAUSED",
      "unvan": "title_achievement_damagedealer-2",
@@ -1051,7 +1051,7 @@
    "seviyeler": [
     {
      "sinif": "NPCSelectionKill",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 5,
      "olay": "DESTROY",
      "parametreler": {
@@ -1063,7 +1063,7 @@
     },
     {
      "sinif": "NPCSelectionKill",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 25,
      "olay": "DESTROY",
      "parametreler": {
@@ -1076,7 +1076,7 @@
     },
     {
      "sinif": "NPCSelectionKill",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 50,
      "olay": "DESTROY",
      "parametreler": {
@@ -1089,7 +1089,7 @@
     },
     {
      "sinif": "NPCSelectionKill",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 100,
      "olay": "DESTROY",
      "parametreler": {
@@ -1109,8 +1109,8 @@
    "seviyeler": [
     {
      "sinif": "DestroyAdmin",
-     "saklanir": false,
-     "islec": ">=",
+     "stored": false,
+     "operator": ">=",
      "deger": 1,
      "olay": "DESTROY",
      "parametreler": {
@@ -1119,7 +1119,7 @@
       ]
      },
      "puan": 10,
-     "derece": 2
+     "grade": 2
     }
    ]
   },
@@ -1167,7 +1167,7 @@
       "37",
       "38"
      ],
-     "eslesme": "ALL",
+     "matches": "ALL",
      "olay": "DESTROY",
      "puan": 5
     }
@@ -1180,7 +1180,7 @@
    "seviyeler": [
     {
      "sinif": "AvatarTypeKill",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 25,
      "olay": "DESTROY",
      "parametreler": {
@@ -1204,8 +1204,8 @@
    "seviyeler": [
     {
      "sinif": "AvatarTypeKill",
-     "olumde_sifir": true,
-     "islec": ">=",
+     "reset_on_death": true,
+     "operator": ">=",
      "deger": 20,
      "olay": "DESTROY",
      "parametreler": {
@@ -1214,7 +1214,7 @@
       ]
      },
      "puan": 25,
-     "derece": 3
+     "grade": 3
     }
    ]
   },
@@ -1225,7 +1225,7 @@
    "seviyeler": [
     {
      "sinif": "DestroyedByAmmunitionType",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 25,
      "olay": "DESTROY",
      "parametreler": {
@@ -1237,7 +1237,7 @@
       ]
      },
      "puan": 10,
-     "derece": 2
+     "grade": 2
     }
    ]
   },
@@ -1259,7 +1259,7 @@
       "12",
       "13"
      ],
-     "eslesme": "ALL",
+     "matches": "ALL",
      "olay": "DESTROY",
      "parametreler": {
       "avatar": [
@@ -1267,7 +1267,7 @@
       ]
      },
      "puan": 10,
-     "derece": 2
+     "grade": 2
     }
    ]
   },
@@ -1278,7 +1278,7 @@
    "seviyeler": [
     {
      "sinif": "AvatarTypeKill",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 2,
      "olay": "DESTROY",
      "parametreler": {
@@ -1293,11 +1293,11 @@
       ]
      },
      "puan": 10,
-     "derece": 2
+     "grade": 2
     },
     {
      "sinif": "AvatarTypeKill",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 5,
      "olay": "DESTROY",
      "parametreler": {
@@ -1313,7 +1313,7 @@
      },
      "unvan": "title_achievement_pvp_destroy-player-timed-1",
      "puan": 25,
-     "derece": 3
+     "grade": 3
     }
    ]
   },
@@ -1324,7 +1324,7 @@
    "seviyeler": [
     {
      "sinif": "AvatarTypeKill",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 10,
      "olay": "DESTROY",
      "parametreler": {
@@ -1336,7 +1336,7 @@
     },
     {
      "sinif": "AvatarTypeKill",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 50,
      "olay": "DESTROY",
      "parametreler": {
@@ -1348,7 +1348,7 @@
     },
     {
      "sinif": "AvatarTypeKill",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 500,
      "olay": "DESTROY",
      "parametreler": {
@@ -1361,7 +1361,7 @@
     },
     {
      "sinif": "AvatarTypeKill",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 1000,
      "olay": "DESTROY",
      "parametreler": {
@@ -1373,7 +1373,7 @@
     },
     {
      "sinif": "AvatarTypeKill",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 10000,
      "olay": "DESTROY",
      "parametreler": {
@@ -1404,10 +1404,10 @@
       "12",
       "13"
      ],
-     "eslesme": "ALL",
+     "matches": "ALL",
      "olay": "DESTROY",
      "puan": 10,
-     "derece": 2
+     "grade": 2
     }
    ]
   },
@@ -1418,8 +1418,8 @@
    "seviyeler": [
     {
      "sinif": "Destruction",
-     "saklanir": false,
-     "islec": ">=",
+     "stored": false,
+     "operator": ">=",
      "deger": 1,
      "olay": "DESTROYED",
      "parametreler": {
@@ -1438,8 +1438,8 @@
    "seviyeler": [
     {
      "sinif": "KilledByAvatarType",
-     "saklanir": false,
-     "islec": ">=",
+     "stored": false,
+     "operator": ">=",
      "deger": 1,
      "olay": "DESTROYED",
      "parametreler": {
@@ -1461,28 +1461,28 @@
    "seviyeler": [
     {
      "sinif": "Distance",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 100000,
      "olay": "DISTANCE",
      "puan": 5
     },
     {
      "sinif": "Distance",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 1000000,
      "olay": "DISTANCE",
      "puan": 10
     },
     {
      "sinif": "Distance",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 10000000,
      "olay": "DISTANCE",
      "puan": 25
     },
     {
      "sinif": "Distance",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 100000000,
      "olay": "DISTANCE",
      "unvan": "title_achievement_discover_distance-2",
@@ -1498,14 +1498,14 @@
     {
      "sinif": "DominationBeaconTakeover",
      "olay": "DOMINATION_BEACON_TAKEOVER_ASSIST_ALL",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 10,
      "puan": 5
     },
     {
      "sinif": "DominationBeaconTakeover",
      "olay": "DOMINATION_BEACON_TAKEOVER_ASSIST_ALL",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 100,
      "puan": 20,
      "unvan": "title_achievement_event_domination-4"
@@ -1532,7 +1532,7 @@
       "511010",
       "511011"
      ],
-     "eslesme": "ATLEAST",
+     "matches": "ATLEAST",
      "olay": "QUEST",
      "puan": 25,
      "unvan": "title_achievement_event_domination-2"
@@ -1549,7 +1549,7 @@
      "kume": [
       "122000"
      ],
-     "eslesme": "ALL",
+     "matches": "ALL",
      "olay": "QUEST",
      "puan": 100,
      "unvan": "title_achievement_event_domination_reoccurring-cubikon-gravekeeper"
@@ -1566,7 +1566,7 @@
      "kume": [
       "122005"
      ],
-     "eslesme": "ALL",
+     "matches": "ALL",
      "olay": "QUEST",
      "puan": 100,
      "unvan": "title_achievement_event_domination_reoccurring-hidden-hunter"
@@ -1583,7 +1583,7 @@
      "kume": [
       "122004"
      ],
-     "eslesme": "ALL",
+     "matches": "ALL",
      "olay": "QUEST",
      "puan": 100,
      "unvan": "title_achievement_event_domination_reoccurring-immoveable-object"
@@ -1600,7 +1600,7 @@
      "kume": [
       "122006"
      ],
-     "eslesme": "ALL",
+     "matches": "ALL",
      "olay": "QUEST",
      "puan": 100,
      "unvan": "title_achievement_event_domination_reoccurring-lord-of-dead"
@@ -1617,7 +1617,7 @@
      "kume": [
       "122003"
      ],
-     "eslesme": "ALL",
+     "matches": "ALL",
      "olay": "QUEST",
      "puan": 100,
      "unvan": "title_achievement_event_domination_reoccurring-unstoppable-force"
@@ -1631,7 +1631,7 @@
    "seviyeler": [
     {
      "sinif": "LaserDamage",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 5000000,
      "olay": "DAMAGING",
      "parametreler": {
@@ -1651,7 +1651,7 @@
    "seviyeler": [
     {
      "sinif": "MetaAchievement",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 2,
      "olay": "METAACHIEVED",
      "parametreler": {
@@ -1674,7 +1674,7 @@
      "olay": "DOMINATION_TAKEOVER",
      "unvan": "title_achievement_event_summer2014_dominator",
      "puan": 500,
-     "derece": 5
+     "grade": 5
     }
    ]
   },
@@ -1685,7 +1685,7 @@
    "seviyeler": [
     {
      "sinif": "AbilityType",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 75,
      "olay": "USED",
      "parametreler": {
@@ -1697,7 +1697,7 @@
     },
     {
      "sinif": "AbilityType",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 275,
      "olay": "USED",
      "parametreler": {
@@ -1709,7 +1709,7 @@
     },
     {
      "sinif": "AbilityType",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 500,
      "olay": "USED",
      "parametreler": {
@@ -1722,7 +1722,7 @@
     },
     {
      "sinif": "AbilityType",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 1200,
      "olay": "USED",
      "parametreler": {
@@ -1734,7 +1734,7 @@
     },
     {
      "sinif": "AbilityType",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 2500,
      "olay": "USED",
      "parametreler": {
@@ -1754,7 +1754,7 @@
    "seviyeler": [
     {
      "sinif": "AbilityType",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 150,
      "olay": "USED",
      "parametreler": {
@@ -1766,7 +1766,7 @@
     },
     {
      "sinif": "AbilityType",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 350,
      "olay": "USED",
      "parametreler": {
@@ -1778,7 +1778,7 @@
     },
     {
      "sinif": "AbilityType",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 800,
      "olay": "USED",
      "parametreler": {
@@ -1791,7 +1791,7 @@
     },
     {
      "sinif": "AbilityType",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 1600,
      "olay": "USED",
      "parametreler": {
@@ -1803,7 +1803,7 @@
     },
     {
      "sinif": "AbilityType",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 3400,
      "olay": "USED",
      "parametreler": {
@@ -1823,7 +1823,7 @@
    "seviyeler": [
     {
      "sinif": "EggTriggerCount",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 1,
      "olay": "EGG_TRIGGER",
      "parametreler": {
@@ -1833,7 +1833,7 @@
      },
      "unvan": "title_achievement_event_easter-eggs-galaxy-gate-firework",
      "puan": 20,
-     "derece": 5
+     "grade": 5
     }
    ]
   },
@@ -1844,7 +1844,7 @@
    "seviyeler": [
     {
      "sinif": "EggTriggerCount",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 1,
      "olay": "EGG_TRIGGER",
      "parametreler": {
@@ -1853,7 +1853,7 @@
       ]
      },
      "puan": 20,
-     "derece": 5
+     "grade": 5
     }
    ]
   },
@@ -1864,7 +1864,7 @@
    "seviyeler": [
     {
      "sinif": "EggTriggerCount",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 1,
      "olay": "EGG_TRIGGER",
      "parametreler": {
@@ -1874,7 +1874,7 @@
      },
      "unvan": "title_achievement_event_easter-eggs-minimap-ping",
      "puan": 20,
-     "derece": 5
+     "grade": 5
     }
    ]
   },
@@ -1885,7 +1885,7 @@
    "seviyeler": [
     {
      "sinif": "EggTriggerCount",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 1,
      "olay": "EGG_TRIGGER",
      "parametreler": {
@@ -1895,7 +1895,7 @@
      },
      "unvan": "title_achievement_event_easter-eggs-rainbow-laser",
      "puan": 20,
-     "derece": 5
+     "grade": 5
     }
    ]
   },
@@ -1906,7 +1906,7 @@
    "seviyeler": [
     {
      "sinif": "DesignMutationCount",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 200,
      "olay": "CAUSED",
      "parametreler": {
@@ -1927,7 +1927,7 @@
     },
     {
      "sinif": "DesignMutationCount",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 500,
      "olay": "CAUSED",
      "parametreler": {
@@ -1948,7 +1948,7 @@
     },
     {
      "sinif": "DesignMutationCount",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 1000,
      "olay": "CAUSED",
      "parametreler": {
@@ -1976,8 +1976,8 @@
    "seviyeler": [
     {
      "sinif": "Equipment",
-     "saklanir": false,
-     "islec": ">=",
+     "stored": false,
+     "operator": ">=",
      "deger": 6,
      "parametreler": {
       "petprotocol": [
@@ -1997,8 +1997,8 @@
    "seviyeler": [
     {
      "sinif": "Equipment",
-     "saklanir": false,
-     "islec": ">=",
+     "stored": false,
+     "operator": ">=",
      "deger": 6,
      "parametreler": {
       "petgear": [
@@ -2018,8 +2018,8 @@
    "seviyeler": [
     {
      "sinif": "Equipment",
-     "saklanir": false,
-     "islec": ">=",
+     "stored": false,
+     "operator": ">=",
      "deger": 15,
      "parametreler": {
       "generator": [
@@ -2039,8 +2039,8 @@
    "seviyeler": [
     {
      "sinif": "Equipment",
-     "saklanir": false,
-     "islec": ">=",
+     "stored": false,
+     "operator": ">=",
      "deger": 15,
      "parametreler": {
       "generator": [
@@ -2060,8 +2060,8 @@
    "seviyeler": [
     {
      "sinif": "Equipment",
-     "saklanir": false,
-     "islec": ">=",
+     "stored": false,
+     "operator": ">=",
      "deger": 15,
      "parametreler": {
       "weapon": [
@@ -2081,8 +2081,8 @@
    "seviyeler": [
     {
      "sinif": "Equipment",
-     "saklanir": false,
-     "islec": ">=",
+     "stored": false,
+     "operator": ">=",
      "deger": 15,
      "puan": 25
     }
@@ -2095,8 +2095,8 @@
    "seviyeler": [
     {
      "sinif": "Equipment",
-     "saklanir": false,
-     "islec": ">=",
+     "stored": false,
+     "operator": ">=",
      "deger": 1,
      "parametreler": {
       "ship": [
@@ -2116,7 +2116,7 @@
    "seviyeler": [
     {
      "sinif": "Equipment",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 5,
      "parametreler": {
       "ship": [
@@ -2136,7 +2136,7 @@
    "seviyeler": [
     {
      "sinif": "IgnoredCondition",
-     "saklanir": false,
+     "stored": false,
      "unvan": "title_achievement_event_eternalgate-champion",
      "puan": 100
     }
@@ -2149,7 +2149,7 @@
    "seviyeler": [
     {
      "sinif": "AvatarTypeKill",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 100,
      "olay": "DESTROY",
      "parametreler": {
@@ -2171,7 +2171,7 @@
    "seviyeler": [
     {
      "sinif": "ClearGalaxyGateWave",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 42,
      "olay": "CLEAR_GALAXY_GATE_WAVE",
      "parametreler": {
@@ -2183,7 +2183,7 @@
     },
     {
      "sinif": "ClearGalaxyGateWave",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 100,
      "olay": "CLEAR_GALAXY_GATE_WAVE",
      "parametreler": {
@@ -2195,7 +2195,7 @@
     },
     {
      "sinif": "ClearGalaxyGateWave",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 200,
      "olay": "CLEAR_GALAXY_GATE_WAVE",
      "parametreler": {
@@ -2214,7 +2214,7 @@
    "seviyeler": [
     {
      "sinif": "Currency",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 100000,
      "olay": "COLLECT",
      "parametreler": {
@@ -2226,7 +2226,7 @@
     },
     {
      "sinif": "Currency",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 1000000,
      "olay": "COLLECT",
      "parametreler": {
@@ -2238,7 +2238,7 @@
     },
     {
      "sinif": "Currency",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 100000000,
      "olay": "COLLECT",
      "parametreler": {
@@ -2251,7 +2251,7 @@
     },
     {
      "sinif": "Currency",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 1000000000,
      "olay": "COLLECT",
      "parametreler": {
@@ -2263,7 +2263,7 @@
     },
     {
      "sinif": "Currency",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 10000000000,
      "olay": "COLLECT",
      "parametreler": {
@@ -2283,7 +2283,7 @@
    "seviyeler": [
     {
      "sinif": "Extras",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 10,
      "puan": 5
     }
@@ -2296,21 +2296,21 @@
    "seviyeler": [
     {
      "sinif": "DroneFormationChange",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 100,
      "olay": "USED",
      "puan": 5
     },
     {
      "sinif": "DroneFormationChange",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 500,
      "olay": "USED",
      "puan": 10
     },
     {
      "sinif": "DroneFormationChange",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 1000,
      "olay": "USED",
      "unvan": "title_achievement_drone_formation-change-1",
@@ -2318,14 +2318,14 @@
     },
     {
      "sinif": "DroneFormationChange",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 10000,
      "olay": "USED",
      "puan": 50
     },
     {
      "sinif": "DroneFormationChange",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 100000,
      "olay": "USED",
      "unvan": "title_achievement_drone_formation-change-2",
@@ -2340,16 +2340,16 @@
    "seviyeler": [
     {
      "sinif": "DroneFormationDroneAmount",
-     "saklanir": false,
-     "islec": ">=",
+     "stored": false,
+     "operator": ">=",
      "deger": 6,
      "olay": "USED",
      "puan": 5
     },
     {
      "sinif": "DroneFormationDroneAmount",
-     "saklanir": false,
-     "islec": ">=",
+     "stored": false,
+     "operator": ">=",
      "deger": 10,
      "olay": "USED",
      "puan": 10
@@ -2363,7 +2363,7 @@
    "seviyeler": [
     {
      "sinif": "AbilityType",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 200,
      "olay": "USED",
      "parametreler": {
@@ -2375,7 +2375,7 @@
     },
     {
      "sinif": "AbilityType",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 500,
      "olay": "USED",
      "parametreler": {
@@ -2387,7 +2387,7 @@
     },
     {
      "sinif": "AbilityType",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 800,
      "olay": "USED",
      "parametreler": {
@@ -2400,7 +2400,7 @@
     },
     {
      "sinif": "AbilityType",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 1700,
      "olay": "USED",
      "parametreler": {
@@ -2412,7 +2412,7 @@
     },
     {
      "sinif": "AbilityType",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 2500,
      "olay": "USED",
      "parametreler": {
@@ -2432,13 +2432,13 @@
    "seviyeler": [
     {
      "sinif": "FriendInvite",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 1,
      "puan": 10
     },
     {
      "sinif": "FriendInvite",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 25,
      "unvan": "title_achievement_social_friend-invites",
      "puan": 50
@@ -2452,21 +2452,21 @@
    "seviyeler": [
     {
      "sinif": "FriendInvites",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 5,
      "puan": 50,
      "unvan": "title_achievement_social_friendinvites-1"
     },
     {
      "sinif": "FriendInvites",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 10,
      "puan": 200,
      "unvan": "title_achievement_social_friendinvites-2"
     },
     {
      "sinif": "FriendInvites",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 25,
      "puan": 500,
      "unvan": "title_achievement_social_friendinvites-3"
@@ -2480,8 +2480,8 @@
    "seviyeler": [
     {
      "sinif": "FriendMember",
-     "saklanir": false,
-     "islec": ">=",
+     "stored": false,
+     "operator": ">=",
      "deger": 20,
      "puan": 10
     }
@@ -2494,13 +2494,13 @@
    "seviyeler": [
     {
      "sinif": "Friends",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 1,
      "puan": 5
     },
     {
      "sinif": "Friends",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 20,
      "puan": 10
     }
@@ -2547,21 +2547,21 @@
    "seviyeler": [
     {
      "sinif": "Dispatch",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 5,
      "olay": "DISPATCH_GATE",
      "puan": 5
     },
     {
      "sinif": "Dispatch",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 25,
      "olay": "DISPATCH_GATE",
      "puan": 10
     },
     {
      "sinif": "Dispatch",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 50,
      "olay": "DISPATCH_GATE",
      "puan": 25,
@@ -2576,21 +2576,21 @@
    "seviyeler": [
     {
      "sinif": "Gatejumps",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 500,
      "olay": "JUMP",
      "puan": 5
     },
     {
      "sinif": "Gatejumps",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 5000,
      "olay": "JUMP",
      "puan": 10
     },
     {
      "sinif": "Gatejumps",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 12500,
      "olay": "JUMP",
      "unvan": "title_achievement_gatejumps",
@@ -2605,7 +2605,7 @@
    "seviyeler": [
     {
      "sinif": "IgnoredCondition",
-     "saklanir": false,
+     "stored": false,
      "unvan": "title_achievement_event_gauntletofplutus-champion",
      "puan": 100
     }
@@ -2618,7 +2618,7 @@
    "seviyeler": [
     {
      "sinif": "AvatarTypeKill",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 1,
      "olay": "DESTROY",
      "parametreler": {
@@ -2633,7 +2633,7 @@
     },
     {
      "sinif": "AvatarTypeKill",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 10,
      "olay": "DESTROY",
      "parametreler": {
@@ -2648,7 +2648,7 @@
     },
     {
      "sinif": "AvatarTypeKill",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 30,
      "olay": "DESTROY",
      "parametreler": {
@@ -2671,8 +2671,8 @@
    "seviyeler": [
     {
      "sinif": "Currency",
-     "saklanir": false,
-     "islec": "==",
+     "stored": false,
+     "operator": "==",
      "deger": 4999999,
      "olay": "COLLECT",
      "parametreler": {
@@ -2692,8 +2692,8 @@
    "seviyeler": [
     {
      "sinif": "EventScore",
-     "saklanir": false,
-     "islec": ">=",
+     "stored": false,
+     "operator": ">=",
      "deger": 1000,
      "olay": "EVENT_SCORE",
      "parametreler": {
@@ -2705,8 +2705,8 @@
     },
     {
      "sinif": "EventScore",
-     "saklanir": false,
-     "islec": ">=",
+     "stored": false,
+     "operator": ">=",
      "deger": 5000,
      "olay": "EVENT_SCORE",
      "parametreler": {
@@ -2718,8 +2718,8 @@
     },
     {
      "sinif": "EventScore",
-     "saklanir": false,
-     "islec": ">=",
+     "stored": false,
+     "operator": ">=",
      "deger": 10000,
      "olay": "EVENT_SCORE",
      "parametreler": {
@@ -2745,7 +2745,7 @@
      },
      "puan": 20,
      "unvan": "title_goalrush-2024-1",
-     "derece": 5
+     "grade": 5
     }
    ]
   },
@@ -2756,8 +2756,8 @@
    "seviyeler": [
     {
      "sinif": "GroupFounder",
-     "saklanir": false,
-     "islec": ">=",
+     "stored": false,
+     "operator": ">=",
      "deger": 1,
      "olay": "GROUP",
      "puan": 5
@@ -2771,11 +2771,11 @@
    "seviyeler": [
     {
      "sinif": "GroupWithFriend",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 600,
      "olay": "TIME",
      "puan": 10,
-     "derece": 2
+     "grade": 2
     }
    ]
   },
@@ -2786,19 +2786,19 @@
    "seviyeler": [
     {
      "sinif": "GroupMember",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 3000,
      "olay": "TIME",
      "puan": 10,
-     "derece": 2
+     "grade": 2
     },
     {
      "sinif": "GroupMember",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 6000,
      "olay": "TIME",
      "puan": 25,
-     "derece": 3
+     "grade": 3
     }
    ]
   },
@@ -2809,7 +2809,7 @@
    "seviyeler": [
     {
      "sinif": "AvatarTypeKill",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 4,
      "olay": "DESTROY",
      "parametreler": {
@@ -2832,7 +2832,7 @@
    "seviyeler": [
     {
      "sinif": "AvatarTypeKill",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 900,
      "olay": "DESTROY",
      "parametreler": {
@@ -2855,7 +2855,7 @@
    "seviyeler": [
     {
      "sinif": "NPCSelectionKill",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 25,
      "olay": "DESTROY",
      "parametreler": {
@@ -2881,7 +2881,7 @@
     },
     {
      "sinif": "NPCSelectionKill",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 50,
      "olay": "DESTROY",
      "parametreler": {
@@ -2907,7 +2907,7 @@
     },
     {
      "sinif": "NPCSelectionKill",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 100,
      "olay": "DESTROY",
      "parametreler": {
@@ -2940,7 +2940,7 @@
    "seviyeler": [
     {
      "sinif": "Collect",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 600,
      "olay": "COLLECT",
      "parametreler": {
@@ -2960,7 +2960,7 @@
    "seviyeler": [
     {
      "sinif": "Collect",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 2000,
      "olay": "COLLECT",
      "parametreler": {
@@ -2979,7 +2979,7 @@
    "seviyeler": [
     {
      "sinif": "IgnoredCondition",
-     "saklanir": false,
+     "stored": false,
      "unvan": "title_achievement_event_halloween2015-challenge",
      "puan": 300
     }
@@ -2992,7 +2992,7 @@
    "seviyeler": [
     {
      "sinif": "AvatarTypeKill",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 4,
      "olay": "DESTROY",
      "parametreler": {
@@ -3015,7 +3015,7 @@
    "seviyeler": [
     {
      "sinif": "AbilityType",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 200,
      "olay": "USED",
      "parametreler": {
@@ -3027,7 +3027,7 @@
     },
     {
      "sinif": "AbilityType",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 600,
      "olay": "USED",
      "parametreler": {
@@ -3039,7 +3039,7 @@
     },
     {
      "sinif": "AbilityType",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 1500,
      "olay": "USED",
      "parametreler": {
@@ -3052,7 +3052,7 @@
     },
     {
      "sinif": "AbilityType",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 3500,
      "olay": "USED",
      "parametreler": {
@@ -3064,7 +3064,7 @@
     },
     {
      "sinif": "AbilityType",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 8000,
      "olay": "USED",
      "parametreler": {
@@ -3084,7 +3084,7 @@
    "seviyeler": [
     {
      "sinif": "AbilityType",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 400,
      "olay": "USED",
      "parametreler": {
@@ -3096,7 +3096,7 @@
     },
     {
      "sinif": "AbilityType",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 1200,
      "olay": "USED",
      "parametreler": {
@@ -3108,7 +3108,7 @@
     },
     {
      "sinif": "AbilityType",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 3000,
      "olay": "USED",
      "parametreler": {
@@ -3121,7 +3121,7 @@
     },
     {
      "sinif": "AbilityType",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 5000,
      "olay": "USED",
      "parametreler": {
@@ -3133,7 +3133,7 @@
     },
     {
      "sinif": "AbilityType",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 10000,
      "olay": "USED",
      "parametreler": {
@@ -3158,7 +3158,7 @@
       "5",
       "9"
      ],
-     "eslesme": "ALL",
+     "matches": "ALL",
      "olay": "JUMP",
      "parametreler": {
       "mapType": [
@@ -3176,7 +3176,7 @@
    "seviyeler": [
     {
      "sinif": "Currency",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 100000,
      "olay": "COLLECT",
      "parametreler": {
@@ -3188,7 +3188,7 @@
     },
     {
      "sinif": "Currency",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 250000,
      "olay": "COLLECT",
      "parametreler": {
@@ -3200,7 +3200,7 @@
     },
     {
      "sinif": "Currency",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 450000,
      "olay": "COLLECT",
      "parametreler": {
@@ -3213,7 +3213,7 @@
     },
     {
      "sinif": "Currency",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 1000000,
      "olay": "COLLECT",
      "parametreler": {
@@ -3225,7 +3225,7 @@
     },
     {
      "sinif": "Currency",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 2500000,
      "olay": "COLLECT",
      "parametreler": {
@@ -3245,10 +3245,10 @@
    "seviyeler": [
     {
      "sinif": "IgnoredCondition",
-     "saklanir": false,
+     "stored": false,
      "unvan": "title_achievement_misc_jackpot-1",
      "puan": 100,
-     "derece": 2
+     "grade": 2
     }
    ]
   },
@@ -3259,7 +3259,7 @@
    "seviyeler": [
     {
      "sinif": "Kamikaze",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 10,
      "olay": "DESTROY",
      "parametreler": {
@@ -3278,7 +3278,7 @@
    "seviyeler": [
     {
      "sinif": "AmmoShots",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 50000,
      "olay": "SHOOT",
      "parametreler": {
@@ -3290,7 +3290,7 @@
     },
     {
      "sinif": "AmmoShots",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 500000,
      "olay": "SHOOT",
      "parametreler": {
@@ -3302,7 +3302,7 @@
     },
     {
      "sinif": "AmmoShots",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 2250000,
      "olay": "SHOOT",
      "parametreler": {
@@ -3315,7 +3315,7 @@
     },
     {
      "sinif": "AmmoShots",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 12500000,
      "olay": "SHOOT",
      "parametreler": {
@@ -3327,7 +3327,7 @@
     },
     {
      "sinif": "AmmoShots",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 45000000,
      "olay": "SHOOT",
      "parametreler": {
@@ -3355,7 +3355,7 @@
       "5",
       "6"
      ],
-     "eslesme": "ALL",
+     "matches": "ALL",
      "olay": "USED",
      "parametreler": {
       "timeLimit": [
@@ -3407,7 +3407,7 @@
       "28",
       "29"
      ],
-     "eslesme": "ALL",
+     "matches": "ALL",
      "olay": "JUMP",
      "parametreler": {
       "mapType": [
@@ -3415,7 +3415,7 @@
       ]
      },
      "puan": 10,
-     "derece": 2
+     "grade": 2
     }
    ]
   },
@@ -3426,7 +3426,7 @@
    "seviyeler": [
     {
      "sinif": "AbilityType",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 250,
      "olay": "USED",
      "parametreler": {
@@ -3439,7 +3439,7 @@
     },
     {
      "sinif": "AbilityType",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 600,
      "olay": "USED",
      "parametreler": {
@@ -3452,7 +3452,7 @@
     },
     {
      "sinif": "AbilityType",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 1600,
      "olay": "USED",
      "parametreler": {
@@ -3466,7 +3466,7 @@
     },
     {
      "sinif": "AbilityType",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 3200,
      "olay": "USED",
      "parametreler": {
@@ -3479,7 +3479,7 @@
     },
     {
      "sinif": "AbilityType",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 7000,
      "olay": "USED",
      "parametreler": {
@@ -3500,8 +3500,8 @@
    "seviyeler": [
     {
      "sinif": "Skylab",
-     "saklanir": false,
-     "islec": ">=",
+     "stored": false,
+     "operator": ">=",
      "deger": 15,
      "puan": 10
     }
@@ -3517,7 +3517,7 @@
      "olay": "DOMINATION_BEACON_TAKEOVER",
      "unvan": "title_achievement_event_summer2014_militant",
      "puan": 50,
-     "derece": 3
+     "grade": 3
     }
    ]
   },
@@ -3528,8 +3528,8 @@
    "seviyeler": [
     {
      "sinif": "TriggerMine",
-     "olumde_sifir": true,
-     "islec": ">=",
+     "reset_on_death": true,
+     "operator": ">=",
      "deger": 10,
      "olay": "CAUSED",
      "parametreler": {
@@ -3554,7 +3554,7 @@
    "seviyeler": [
     {
      "sinif": "AmmoShots",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 100,
      "olay": "SHOOT",
      "parametreler": {
@@ -3566,7 +3566,7 @@
     },
     {
      "sinif": "AmmoShots",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 500,
      "olay": "SHOOT",
      "parametreler": {
@@ -3578,7 +3578,7 @@
     },
     {
      "sinif": "AmmoShots",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 2500,
      "olay": "SHOOT",
      "parametreler": {
@@ -3591,7 +3591,7 @@
     },
     {
      "sinif": "AmmoShots",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 5000,
      "olay": "SHOOT",
      "parametreler": {
@@ -3603,7 +3603,7 @@
     },
     {
      "sinif": "AmmoShots",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 10000,
      "olay": "SHOOT",
      "parametreler": {
@@ -3623,15 +3623,15 @@
    "seviyeler": [
     {
      "sinif": "IgnoredCondition",
-     "saklanir": false,
-     "islec": ">=",
+     "stored": false,
+     "operator": ">=",
      "deger": 1,
      "puan": 50
     },
     {
      "sinif": "IgnoredCondition",
-     "saklanir": false,
-     "islec": ">=",
+     "stored": false,
+     "operator": ">=",
      "deger": 12,
      "puan": 500
     }
@@ -3644,15 +3644,15 @@
    "seviyeler": [
     {
      "sinif": "IgnoredCondition",
-     "saklanir": false,
-     "islec": ">=",
+     "stored": false,
+     "operator": ">=",
      "deger": 5,
      "puan": 50
     },
     {
      "sinif": "IgnoredCondition",
-     "saklanir": false,
-     "islec": ">=",
+     "stored": false,
+     "operator": ">=",
      "deger": 12,
      "puan": 500
     }
@@ -3665,8 +3665,8 @@
    "seviyeler": [
     {
      "sinif": "EventScore",
-     "saklanir": false,
-     "islec": ">=",
+     "stored": false,
+     "operator": ">=",
      "deger": 500,
      "olay": "EVENT_KILLS",
      "parametreler": {
@@ -3686,8 +3686,8 @@
    "seviyeler": [
     {
      "sinif": "EventScore",
-     "saklanir": false,
-     "islec": ">=",
+     "stored": false,
+     "operator": ">=",
      "deger": 5000,
      "olay": "EVENT_SCORE",
      "parametreler": {
@@ -3700,8 +3700,8 @@
     },
     {
      "sinif": "EventScore",
-     "saklanir": false,
-     "islec": ">=",
+     "stored": false,
+     "operator": ">=",
      "deger": 15000,
      "olay": "EVENT_SCORE",
      "parametreler": {
@@ -3714,8 +3714,8 @@
     },
     {
      "sinif": "EventScore",
-     "saklanir": false,
-     "islec": ">=",
+     "stored": false,
+     "operator": ">=",
      "deger": 30000,
      "olay": "EVENT_SCORE",
      "parametreler": {
@@ -3742,7 +3742,7 @@
      },
      "puan": 10,
      "unvan": "title_goalrush-2025",
-     "derece": 5
+     "grade": 5
     }
    ]
   },
@@ -3760,7 +3760,7 @@
      },
      "puan": 10,
      "unvan": "title_goalrush-2026",
-     "derece": 5
+     "grade": 5
     }
    ]
   },
@@ -3778,7 +3778,7 @@
      },
      "puan": 10,
      "unvan": "title_goalrush-2024-2",
-     "derece": 5
+     "grade": 5
     }
    ]
   },
@@ -3789,12 +3789,12 @@
    "seviyeler": [
     {
      "sinif": "OneHitWonder",
-     "saklanir": false,
-     "islec": ">=",
+     "stored": false,
+     "operator": ">=",
      "deger": 1,
      "olay": "DESTROY",
      "puan": 25,
-     "derece": 3
+     "grade": 3
     }
    ]
   },
@@ -3805,8 +3805,8 @@
    "seviyeler": [
     {
      "sinif": "PetKiller",
-     "saklanir": false,
-     "islec": ">=",
+     "stored": false,
+     "operator": ">=",
      "deger": 1,
      "olay": "DESTROY",
      "parametreler": {
@@ -3825,8 +3825,8 @@
    "seviyeler": [
     {
      "sinif": "Level",
-     "saklanir": false,
-     "islec": ">=",
+     "stored": false,
+     "operator": ">=",
      "deger": 5,
      "olay": "LEVEL",
      "parametreler": {
@@ -3838,8 +3838,8 @@
     },
     {
      "sinif": "Level",
-     "saklanir": false,
-     "islec": ">=",
+     "stored": false,
+     "operator": ">=",
      "deger": 10,
      "olay": "LEVEL",
      "parametreler": {
@@ -3852,8 +3852,8 @@
     },
     {
      "sinif": "Level",
-     "saklanir": false,
-     "islec": ">=",
+     "stored": false,
+     "operator": ">=",
      "deger": 15,
      "olay": "LEVEL",
      "parametreler": {
@@ -3873,7 +3873,7 @@
    "seviyeler": [
     {
      "sinif": "PlagueActionCount",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 10,
      "olay": "PLAGUE_CURE",
      "parametreler": {
@@ -3885,7 +3885,7 @@
     },
     {
      "sinif": "PlagueActionCount",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 50,
      "olay": "PLAGUE_CURE",
      "parametreler": {
@@ -3898,7 +3898,7 @@
     },
     {
      "sinif": "PlagueActionCount",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 100,
      "olay": "PLAGUE_CURE",
      "parametreler": {
@@ -3918,7 +3918,7 @@
    "seviyeler": [
     {
      "sinif": "PlagueActionCount",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 1,
      "olay": "PLAGUE_CURE",
      "parametreler": {
@@ -3927,7 +3927,7 @@
       ]
      },
      "puan": 5,
-     "derece": 5
+     "grade": 5
     }
    ]
   },
@@ -3938,7 +3938,7 @@
    "seviyeler": [
     {
      "sinif": "PlagueActionCount",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 1,
      "olay": "PLAGUE_INFECT",
      "parametreler": {
@@ -3947,7 +3947,7 @@
       ]
      },
      "puan": 5,
-     "derece": 5
+     "grade": 5
     }
    ]
   },
@@ -3958,7 +3958,7 @@
    "seviyeler": [
     {
      "sinif": "PlagueActionCount",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 10,
      "olay": "PLAGUE_INFECT",
      "parametreler": {
@@ -3970,7 +3970,7 @@
     },
     {
      "sinif": "PlagueActionCount",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 50,
      "olay": "PLAGUE_INFECT",
      "parametreler": {
@@ -3983,7 +3983,7 @@
     },
     {
      "sinif": "PlagueActionCount",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 100,
      "olay": "PLAGUE_INFECT",
      "parametreler": {
@@ -4003,7 +4003,7 @@
    "seviyeler": [
     {
      "sinif": "AvatarTypeKill",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 1,
      "olay": "DESTROY",
      "parametreler": {
@@ -4016,7 +4016,7 @@
      },
      "unvan": "title_achievement_event_plague-kill-boss",
      "puan": 15,
-     "derece": 5
+     "grade": 5
     }
    ]
   },
@@ -4027,7 +4027,7 @@
    "seviyeler": [
     {
      "sinif": "AvatarTypeKill",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 25,
      "olay": "DESTROY",
      "parametreler": {
@@ -4040,7 +4040,7 @@
      },
      "unvan": "title_achievement_event_plague-kill-minions",
      "puan": 15,
-     "derece": 5
+     "grade": 5
     }
    ]
   },
@@ -4051,7 +4051,7 @@
    "seviyeler": [
     {
      "sinif": "MetaAchievement",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 5,
      "olay": "METAACHIEVED",
      "parametreler": {
@@ -4061,7 +4061,7 @@
      },
      "unvan": "title_achievement_event_plague-meta-healthy",
      "puan": 20,
-     "derece": 5
+     "grade": 5
     }
    ]
   },
@@ -4072,7 +4072,7 @@
    "seviyeler": [
     {
      "sinif": "MetaAchievement",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 5,
      "olay": "METAACHIEVED",
      "parametreler": {
@@ -4082,7 +4082,7 @@
      },
      "unvan": "title_achievement_event_plague-meta-infected",
      "puan": 20,
-     "derece": 5
+     "grade": 5
     }
    ]
   },
@@ -4105,11 +4105,11 @@
       "512041",
       "512042"
      ],
-     "eslesme": "ALL",
+     "matches": "ALL",
      "olay": "QUEST",
      "unvan": "title_achievement_event_plague-quests-healthy",
      "puan": 20,
-     "derece": 5
+     "grade": 5
     }
    ]
   },
@@ -4127,11 +4127,11 @@
       "512031",
       "512032"
      ],
-     "eslesme": "ALL",
+     "matches": "ALL",
      "olay": "QUEST",
      "unvan": "title_achievement_event_plague-quests-infected",
      "puan": 15,
-     "derece": 5
+     "grade": 5
     }
    ]
   },
@@ -4142,21 +4142,21 @@
    "seviyeler": [
     {
      "sinif": "PlayerCloaked",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 60,
      "olay": "TIME",
      "puan": 5
     },
     {
      "sinif": "PlayerCloaked",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 300,
      "olay": "TIME",
      "puan": 10
     },
     {
      "sinif": "PlayerCloaked",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 600,
      "olay": "TIME",
      "unvan": "title_achievement_player-cloaked",
@@ -4171,8 +4171,8 @@
    "seviyeler": [
     {
      "sinif": "Level",
-     "saklanir": false,
-     "islec": ">=",
+     "stored": false,
+     "operator": ">=",
      "deger": 5,
      "olay": "LEVEL",
      "parametreler": {
@@ -4184,8 +4184,8 @@
     },
     {
      "sinif": "Level",
-     "saklanir": false,
-     "islec": ">=",
+     "stored": false,
+     "operator": ">=",
      "deger": 10,
      "olay": "LEVEL",
      "parametreler": {
@@ -4197,8 +4197,8 @@
     },
     {
      "sinif": "Level",
-     "saklanir": false,
-     "islec": ">=",
+     "stored": false,
+     "operator": ">=",
      "deger": 15,
      "olay": "LEVEL",
      "parametreler": {
@@ -4211,8 +4211,8 @@
     },
     {
      "sinif": "Level",
-     "saklanir": false,
-     "islec": ">=",
+     "stored": false,
+     "operator": ">=",
      "deger": 20,
      "olay": "LEVEL",
      "parametreler": {
@@ -4224,8 +4224,8 @@
     },
     {
      "sinif": "Level",
-     "saklanir": false,
-     "islec": ">=",
+     "stored": false,
+     "operator": ">=",
      "deger": 25,
      "olay": "LEVEL",
      "parametreler": {
@@ -4245,7 +4245,7 @@
    "seviyeler": [
     {
      "sinif": "PlaytimeOnEnemyMap",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 360,
      "olay": "TIME",
      "parametreler": {
@@ -4259,7 +4259,7 @@
     },
     {
      "sinif": "PlaytimeOnEnemyMap",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 2500,
      "olay": "TIME",
      "parametreler": {
@@ -4273,7 +4273,7 @@
     },
     {
      "sinif": "PlaytimeOnEnemyMap",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 12500,
      "olay": "TIME",
      "parametreler": {
@@ -4295,7 +4295,7 @@
    "seviyeler": [
     {
      "sinif": "MapTypeCheck",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 360,
      "olay": "TIME",
      "parametreler": {
@@ -4307,7 +4307,7 @@
     },
     {
      "sinif": "MapTypeCheck",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 1250,
      "olay": "TIME",
      "parametreler": {
@@ -4319,7 +4319,7 @@
     },
     {
      "sinif": "MapTypeCheck",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 2500,
      "olay": "TIME",
      "parametreler": {
@@ -4339,7 +4339,7 @@
    "seviyeler": [
     {
      "sinif": "Playtime",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 2000,
      "olay": "TIME",
      "parametreler": {
@@ -4351,7 +4351,7 @@
     },
     {
      "sinif": "Playtime",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 10000,
      "olay": "TIME",
      "parametreler": {
@@ -4363,7 +4363,7 @@
     },
     {
      "sinif": "Playtime",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 35000,
      "olay": "TIME",
      "parametreler": {
@@ -4376,7 +4376,7 @@
     },
     {
      "sinif": "Playtime",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 65000,
      "olay": "TIME",
      "parametreler": {
@@ -4388,7 +4388,7 @@
     },
     {
      "sinif": "Playtime",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 125000,
      "olay": "TIME",
      "parametreler": {
@@ -4408,7 +4408,7 @@
    "seviyeler": [
     {
      "sinif": "Playtime",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 2500,
      "olay": "TIME",
      "parametreler": {
@@ -4427,8 +4427,8 @@
    "seviyeler": [
     {
      "sinif": "Profile",
-     "saklanir": false,
-     "islec": ">=",
+     "stored": false,
+     "operator": ">=",
      "deger": 25,
      "parametreler": {
       "property": [
@@ -4448,8 +4448,8 @@
    "seviyeler": [
     {
      "sinif": "Profile",
-     "saklanir": false,
-     "islec": ">=",
+     "stored": false,
+     "operator": ">=",
      "deger": 25,
      "parametreler": {
       "property": [
@@ -4462,8 +4462,8 @@
     },
     {
      "sinif": "Profile",
-     "saklanir": false,
-     "islec": ">=",
+     "stored": false,
+     "operator": ">=",
      "deger": 100,
      "parametreler": {
       "property": [
@@ -4483,7 +4483,7 @@
    "seviyeler": [
     {
      "sinif": "CollectResource",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 1000,
      "olay": "COLLECT",
      "parametreler": {
@@ -4505,7 +4505,7 @@
    "seviyeler": [
     {
      "sinif": "CollectPackage",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 1,
      "olay": "COLLECT",
      "parametreler": {
@@ -4525,7 +4525,7 @@
    "seviyeler": [
     {
      "sinif": "DesignMutationCount",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 200,
      "olay": "CAUSED",
      "parametreler": {
@@ -4540,7 +4540,7 @@
     },
     {
      "sinif": "DesignMutationCount",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 500,
      "olay": "CAUSED",
      "parametreler": {
@@ -4555,7 +4555,7 @@
     },
     {
      "sinif": "DesignMutationCount",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 1000,
      "olay": "CAUSED",
      "parametreler": {
@@ -4577,7 +4577,7 @@
    "seviyeler": [
     {
      "sinif": "AbilityType",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 300,
      "olay": "USED",
      "parametreler": {
@@ -4589,7 +4589,7 @@
     },
     {
      "sinif": "AbilityType",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 700,
      "olay": "USED",
      "parametreler": {
@@ -4601,7 +4601,7 @@
     },
     {
      "sinif": "AbilityType",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 1800,
      "olay": "USED",
      "parametreler": {
@@ -4614,7 +4614,7 @@
     },
     {
      "sinif": "AbilityType",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 3000,
      "olay": "USED",
      "parametreler": {
@@ -4626,7 +4626,7 @@
     },
     {
      "sinif": "AbilityType",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 6500,
      "olay": "USED",
      "parametreler": {
@@ -4646,7 +4646,7 @@
    "seviyeler": [
     {
      "sinif": "LevelAbsolute",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 50,
      "parametreler": {
       "avatar": [
@@ -4665,12 +4665,12 @@
    "seviyeler": [
     {
      "sinif": "QuestDeathless",
-     "olumde_sifir": true,
-     "islec": ">=",
+     "reset_on_death": true,
+     "operator": ">=",
      "deger": 10,
      "olay": "QUEST",
      "puan": 10,
-     "derece": 2
+     "grade": 2
     }
    ]
   },
@@ -4681,21 +4681,21 @@
    "seviyeler": [
     {
      "sinif": "Quest",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 5,
      "olay": "QUEST",
      "puan": 5
     },
     {
      "sinif": "Quest",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 20,
      "olay": "QUEST",
      "puan": 10
     },
     {
      "sinif": "Quest",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 50,
      "olay": "QUEST",
      "unvan": "title_achievement_quest_quests-1",
@@ -4703,14 +4703,14 @@
     },
     {
      "sinif": "Quest",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 75,
      "olay": "QUEST",
      "puan": 50
     },
     {
      "sinif": "Quest",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 100,
      "olay": "QUEST",
      "unvan": "title_achievement_quest_quests-2",
@@ -4725,7 +4725,7 @@
    "seviyeler": [
     {
      "sinif": "PublicWorldBossCondition",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 5000000,
      "olay": "PUBLIC_WORLD_BOSS_2025",
      "puan": 10,
@@ -4740,7 +4740,7 @@
    "seviyeler": [
     {
      "sinif": "PublicWorldBossCondition",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 5000000,
      "olay": "PUBLIC_WORLD_BOSS_2026",
      "puan": 10,
@@ -4755,21 +4755,21 @@
    "seviyeler": [
     {
      "sinif": "Dispatch",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 5,
      "olay": "DISPATCH_RETRIEVER",
      "puan": 5
     },
     {
      "sinif": "Dispatch",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 25,
      "olay": "DISPATCH_RETRIEVER",
      "puan": 10
     },
     {
      "sinif": "Dispatch",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 50,
      "olay": "DISPATCH_RETRIEVER",
      "puan": 25,
@@ -4784,7 +4784,7 @@
    "seviyeler": [
     {
      "sinif": "SkylabRobot",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 12,
      "puan": 5
     }
@@ -4797,7 +4797,7 @@
    "seviyeler": [
     {
      "sinif": "AmmoShots",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 1000,
      "olay": "SHOOT",
      "parametreler": {
@@ -4809,7 +4809,7 @@
     },
     {
      "sinif": "AmmoShots",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 2000,
      "olay": "SHOOT",
      "parametreler": {
@@ -4821,7 +4821,7 @@
     },
     {
      "sinif": "AmmoShots",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 10000,
      "olay": "SHOOT",
      "parametreler": {
@@ -4834,7 +4834,7 @@
     },
     {
      "sinif": "AmmoShots",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 25000,
      "olay": "SHOOT",
      "parametreler": {
@@ -4846,7 +4846,7 @@
     },
     {
      "sinif": "AmmoShots",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 50000,
      "olay": "SHOOT",
      "parametreler": {
@@ -4866,8 +4866,8 @@
    "seviyeler": [
     {
      "sinif": "AvatarTypeKill",
-     "saklanir": true,
-     "islec": ">=",
+     "stored": true,
+     "operator": ">=",
      "deger": 30,
      "olay": "DESTROY",
      "parametreler": {
@@ -4882,8 +4882,8 @@
     },
     {
      "sinif": "AvatarTypeKill",
-     "saklanir": true,
-     "islec": ">=",
+     "stored": true,
+     "operator": ">=",
      "deger": 100,
      "olay": "DESTROY",
      "parametreler": {
@@ -4898,8 +4898,8 @@
     },
     {
      "sinif": "AvatarTypeKill",
-     "saklanir": true,
-     "islec": ">=",
+     "stored": true,
+     "operator": ">=",
      "deger": 300,
      "olay": "DESTROY",
      "parametreler": {
@@ -4923,7 +4923,7 @@
      "sinif": null,
      "puan": 600,
      "unvan": "title_achievement_trainingarena_season-bronze",
-     "derece": 5
+     "grade": 5
     }
    ]
   },
@@ -4936,7 +4936,7 @@
      "sinif": null,
      "puan": 400,
      "unvan": "title_achievement_trainingarena_season-elite",
-     "derece": 5
+     "grade": 5
     }
    ]
   },
@@ -4949,7 +4949,7 @@
      "sinif": null,
      "puan": 1000,
      "unvan": "title_achievement_trainingarena_season-gold",
-     "derece": 5
+     "grade": 5
     }
    ]
   },
@@ -4962,7 +4962,7 @@
      "sinif": null,
      "puan": 800,
      "unvan": "title_achievement_trainingarena_season-silver",
-     "derece": 5
+     "grade": 5
     }
    ]
   },
@@ -4975,7 +4975,7 @@
      "sinif": null,
      "puan": 200,
      "unvan": "title_achievement_trainingarena_season-veteran",
-     "derece": 5
+     "grade": 5
     }
    ]
   },
@@ -4988,7 +4988,7 @@
      "sinif": null,
      "puan": 100,
      "unvan": "title_achievement_trainingarena_season-warrior",
-     "derece": 5
+     "grade": 5
     }
    ]
   },
@@ -4999,7 +4999,7 @@
    "seviyeler": [
     {
      "sinif": "Skylab",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 100000,
      "parametreler": {
       "ore": [
@@ -5019,7 +5019,7 @@
    "seviyeler": [
     {
      "sinif": "AbilityType",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 200,
      "olay": "USED",
      "parametreler": {
@@ -5031,7 +5031,7 @@
     },
     {
      "sinif": "AbilityType",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 600,
      "olay": "USED",
      "parametreler": {
@@ -5043,7 +5043,7 @@
     },
     {
      "sinif": "AbilityType",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 1500,
      "olay": "USED",
      "parametreler": {
@@ -5056,7 +5056,7 @@
     },
     {
      "sinif": "AbilityType",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 3500,
      "olay": "USED",
      "parametreler": {
@@ -5068,7 +5068,7 @@
     },
     {
      "sinif": "AbilityType",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 8000,
      "olay": "USED",
      "parametreler": {
@@ -5088,8 +5088,8 @@
    "seviyeler": [
     {
      "sinif": "ShipDesignCollect",
-     "saklanir": false,
-     "islec": ">=",
+     "stored": false,
+     "operator": ">=",
      "deger": 10,
      "olay": "COLLECT",
      "parametreler": {
@@ -5108,7 +5108,7 @@
    "seviyeler": [
     {
      "sinif": "SkillDesign",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 1000000,
      "olay": "CAUSED",
      "parametreler": {
@@ -5117,7 +5117,7 @@
       ]
      },
      "puan": 10,
-     "derece": 2
+     "grade": 2
     }
    ]
   },
@@ -5128,8 +5128,8 @@
    "seviyeler": [
     {
      "sinif": "PetKiller",
-     "saklanir": false,
-     "islec": ">=",
+     "stored": false,
+     "operator": ">=",
      "deger": 1,
      "olay": "DESTROYED",
      "parametreler": {
@@ -5148,10 +5148,10 @@
    "seviyeler": [
     {
      "sinif": "IgnoredCondition",
-     "saklanir": false,
+     "stored": false,
      "unvan": "title_achievement_event_solarclash-2012-champion-3",
      "puan": 100,
-     "derece": 5
+     "grade": 5
     }
    ]
   },
@@ -5162,10 +5162,10 @@
    "seviyeler": [
     {
      "sinif": "IgnoredCondition",
-     "saklanir": false,
+     "stored": false,
      "unvan": "title_achievement_event_solarclash-2012-collectionmarathon-champion-1",
      "puan": 100,
-     "derece": 5
+     "grade": 5
     }
    ]
   },
@@ -5176,8 +5176,8 @@
    "seviyeler": [
     {
      "sinif": "QuestRating",
-     "saklanir": false,
-     "islec": ">=",
+     "stored": false,
+     "operator": ">=",
      "deger": 500,
      "olay": "QUESTRATING",
      "parametreler": {
@@ -5186,12 +5186,12 @@
       ]
      },
      "puan": 25,
-     "derece": 3
+     "grade": 3
     },
     {
      "sinif": "QuestRating",
-     "saklanir": false,
-     "islec": ">=",
+     "stored": false,
+     "operator": ">=",
      "deger": 650,
      "olay": "QUESTRATING",
      "parametreler": {
@@ -5200,12 +5200,12 @@
       ]
      },
      "puan": 50,
-     "derece": 4
+     "grade": 4
     },
     {
      "sinif": "QuestRating",
-     "saklanir": false,
-     "islec": ">=",
+     "stored": false,
+     "operator": ">=",
      "deger": 800,
      "olay": "QUESTRATING",
      "parametreler": {
@@ -5214,7 +5214,7 @@
       ]
      },
      "puan": 100,
-     "derece": 5
+     "grade": 5
     }
    ]
   },
@@ -5225,7 +5225,7 @@
    "seviyeler": [
     {
      "sinif": "MetaAchievement",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 3,
      "olay": "METAACHIEVED",
      "parametreler": {
@@ -5235,7 +5235,7 @@
      },
      "unvan": "title_achievement_event_solarclash-2012-completebronze-1",
      "puan": 100,
-     "derece": 3
+     "grade": 3
     }
    ]
   },
@@ -5246,7 +5246,7 @@
    "seviyeler": [
     {
      "sinif": "MetaAchievement",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 5,
      "olay": "METAACHIEVED",
      "parametreler": {
@@ -5256,7 +5256,7 @@
      },
      "unvan": "title_achievement_event_solarclash-2012-completegold-3",
      "puan": 100,
-     "derece": 5
+     "grade": 5
     }
    ]
   },
@@ -5267,7 +5267,7 @@
    "seviyeler": [
     {
      "sinif": "MetaAchievement",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 4,
      "olay": "METAACHIEVED",
      "parametreler": {
@@ -5277,7 +5277,7 @@
      },
      "unvan": "title_achievement_event_solarclash-2012-completesilver-2",
      "puan": 100,
-     "derece": 4
+     "grade": 4
     }
    ]
   },
@@ -5288,10 +5288,10 @@
    "seviyeler": [
     {
      "sinif": "IgnoredCondition",
-     "saklanir": false,
+     "stored": false,
      "unvan": "title_achievement_event_solarclash-2012-hsg-champion-1",
      "puan": 100,
-     "derece": 5
+     "grade": 5
     }
    ]
   },
@@ -5302,8 +5302,8 @@
    "seviyeler": [
     {
      "sinif": "QuestRating",
-     "saklanir": false,
-     "islec": ">=",
+     "stored": false,
+     "operator": ">=",
      "deger": 2500,
      "olay": "QUESTRATING",
      "parametreler": {
@@ -5312,12 +5312,12 @@
       ]
      },
      "puan": 25,
-     "derece": 3
+     "grade": 3
     },
     {
      "sinif": "QuestRating",
-     "saklanir": false,
-     "islec": ">=",
+     "stored": false,
+     "operator": ">=",
      "deger": 7500,
      "olay": "QUESTRATING",
      "parametreler": {
@@ -5326,12 +5326,12 @@
       ]
      },
      "puan": 50,
-     "derece": 4
+     "grade": 4
     },
     {
      "sinif": "QuestRating",
-     "saklanir": false,
-     "islec": ">=",
+     "stored": false,
+     "operator": ">=",
      "deger": 9000,
      "olay": "QUESTRATING",
      "parametreler": {
@@ -5340,7 +5340,7 @@
       ]
      },
      "puan": 100,
-     "derece": 5
+     "grade": 5
     }
    ]
   },
@@ -5351,10 +5351,10 @@
    "seviyeler": [
     {
      "sinif": "IgnoredCondition",
-     "saklanir": false,
+     "stored": false,
      "unvan": "title_achievement_event_solarclash-2012-orbitrace-champion-1",
      "puan": 100,
-     "derece": 5
+     "grade": 5
     }
    ]
   },
@@ -5365,8 +5365,8 @@
    "seviyeler": [
     {
      "sinif": "QuestRating",
-     "saklanir": false,
-     "islec": "<",
+     "stored": false,
+     "operator": "<",
      "deger": 360000,
      "olay": "QUESTRATING",
      "parametreler": {
@@ -5375,12 +5375,12 @@
       ]
      },
      "puan": 25,
-     "derece": 3
+     "grade": 3
     },
     {
      "sinif": "QuestRating",
-     "saklanir": false,
-     "islec": "<",
+     "stored": false,
+     "operator": "<",
      "deger": 330000,
      "olay": "QUESTRATING",
      "parametreler": {
@@ -5389,12 +5389,12 @@
       ]
      },
      "puan": 50,
-     "derece": 4
+     "grade": 4
     },
     {
      "sinif": "QuestRating",
-     "saklanir": false,
-     "islec": "<",
+     "stored": false,
+     "operator": "<",
      "deger": 300000,
      "olay": "QUESTRATING",
      "parametreler": {
@@ -5403,7 +5403,7 @@
       ]
      },
      "puan": 100,
-     "derece": 5
+     "grade": 5
     }
    ]
   },
@@ -5414,10 +5414,10 @@
    "seviyeler": [
     {
      "sinif": "IgnoredCondition",
-     "saklanir": false,
+     "stored": false,
      "unvan": "title_achievement_event_solarclash-2012-targetshooting-champion-1",
      "puan": 100,
-     "derece": 5
+     "grade": 5
     }
    ]
   },
@@ -5428,8 +5428,8 @@
    "seviyeler": [
     {
      "sinif": "QuestRating",
-     "saklanir": false,
-     "islec": ">=",
+     "stored": false,
+     "operator": ">=",
      "deger": 125,
      "olay": "QUESTRATING",
      "parametreler": {
@@ -5438,12 +5438,12 @@
       ]
      },
      "puan": 25,
-     "derece": 3
+     "grade": 3
     },
     {
      "sinif": "QuestRating",
-     "saklanir": false,
-     "islec": ">=",
+     "stored": false,
+     "operator": ">=",
      "deger": 180,
      "olay": "QUESTRATING",
      "parametreler": {
@@ -5452,12 +5452,12 @@
       ]
      },
      "puan": 50,
-     "derece": 4
+     "grade": 4
     },
     {
      "sinif": "QuestRating",
-     "saklanir": false,
-     "islec": ">=",
+     "stored": false,
+     "operator": ">=",
      "deger": 225,
      "olay": "QUESTRATING",
      "parametreler": {
@@ -5466,7 +5466,7 @@
       ]
      },
      "puan": 100,
-     "derece": 5
+     "grade": 5
     }
    ]
   },
@@ -5477,10 +5477,10 @@
    "seviyeler": [
     {
      "sinif": "IgnoredCondition",
-     "saklanir": false,
+     "stored": false,
      "unvan": "title_achievement_event_solarclash-2012-triathlon-champion-1",
      "puan": 100,
-     "derece": 5
+     "grade": 5
     }
    ]
   },
@@ -5491,8 +5491,8 @@
    "seviyeler": [
     {
      "sinif": "QuestRating",
-     "saklanir": false,
-     "islec": "<",
+     "stored": false,
+     "operator": "<",
      "deger": 1200000,
      "olay": "QUESTRATING",
      "parametreler": {
@@ -5501,12 +5501,12 @@
       ]
      },
      "puan": 25,
-     "derece": 3
+     "grade": 3
     },
     {
      "sinif": "QuestRating",
-     "saklanir": false,
-     "islec": "<",
+     "stored": false,
+     "operator": "<",
      "deger": 1020000,
      "olay": "QUESTRATING",
      "parametreler": {
@@ -5515,12 +5515,12 @@
       ]
      },
      "puan": 50,
-     "derece": 4
+     "grade": 4
     },
     {
      "sinif": "QuestRating",
-     "saklanir": false,
-     "islec": "<",
+     "stored": false,
+     "operator": "<",
      "deger": 900000,
      "olay": "QUESTRATING",
      "parametreler": {
@@ -5529,7 +5529,7 @@
       ]
      },
      "puan": 100,
-     "derece": 5
+     "grade": 5
     }
    ]
   },
@@ -5540,10 +5540,10 @@
    "seviyeler": [
     {
      "sinif": "IgnoredCondition",
-     "saklanir": false,
+     "stored": false,
      "unvan": "title_achievement_event_springfight-2012-champion",
      "puan": 100,
-     "derece": 5
+     "grade": 5
     }
    ]
   },
@@ -5554,10 +5554,10 @@
    "seviyeler": [
     {
      "sinif": "IgnoredCondition",
-     "saklanir": false,
+     "stored": false,
      "unvan": "title_achievement_event_springfight-2012-eic",
      "puan": 100,
-     "derece": 5
+     "grade": 5
     }
    ]
   },
@@ -5568,10 +5568,10 @@
    "seviyeler": [
     {
      "sinif": "IgnoredCondition",
-     "saklanir": false,
+     "stored": false,
      "unvan": "title_achievement_event_springfight-2012-hunter",
      "puan": 50,
-     "derece": 4
+     "grade": 4
     }
    ]
   },
@@ -5582,10 +5582,10 @@
    "seviyeler": [
     {
      "sinif": "IgnoredCondition",
-     "saklanir": false,
+     "stored": false,
      "unvan": "title_achievement_event_springfight-2012-mmo",
      "puan": 100,
-     "derece": 5
+     "grade": 5
     }
    ]
   },
@@ -5596,10 +5596,10 @@
    "seviyeler": [
     {
      "sinif": "IgnoredCondition",
-     "saklanir": false,
+     "stored": false,
      "unvan": "title_achievement_event_springfight-2012-vru",
      "puan": 100,
-     "derece": 5
+     "grade": 5
     }
    ]
   },
@@ -5610,7 +5610,7 @@
    "seviyeler": [
     {
      "sinif": "Influence",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 2500,
      "olay": "INFLUENCE_GAINED",
      "unvan": "title_achievement_event_springfight-2014-influence-battle-1",
@@ -5618,14 +5618,14 @@
     },
     {
      "sinif": "Influence",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 15000,
      "olay": "INFLUENCE_GAINED",
      "puan": 10
     },
     {
      "sinif": "Influence",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 20000,
      "olay": "INFLUENCE_GAINED",
      "unvan": "title_achievement_event_springfight-2014-influence-battle-2",
@@ -5633,14 +5633,14 @@
     },
     {
      "sinif": "Influence",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 50000,
      "olay": "INFLUENCE_GAINED",
      "puan": 15
     },
     {
      "sinif": "Influence",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 150000,
      "olay": "INFLUENCE_GAINED",
      "unvan": "title_achievement_event_springfight-2014-influence-battle-3",
@@ -5658,7 +5658,7 @@
      "olay": "QUEST",
      "puan": 100,
      "unvan": "title_achievement_event_springfight2013-eic-2",
-     "derece": 5
+     "grade": 5
     }
    ]
   },
@@ -5672,7 +5672,7 @@
      "olay": "QUEST",
      "puan": 100,
      "unvan": "title_achievement_event_springfight2013-mmo-2",
-     "derece": 5
+     "grade": 5
     }
    ]
   },
@@ -5686,7 +5686,7 @@
      "olay": "QUEST",
      "puan": 100,
      "unvan": "title_achievement_event_springfight2013-vru-2",
-     "derece": 5
+     "grade": 5
     }
    ]
   },
@@ -5700,7 +5700,7 @@
      "olay": "QUEST",
      "puan": 50,
      "unvan": "title_achievement_event_springfight2013-eic-1",
-     "derece": 5
+     "grade": 5
     }
    ]
   },
@@ -5714,7 +5714,7 @@
      "olay": "QUEST",
      "puan": 50,
      "unvan": "title_achievement_event_springfight2013-mmo-1",
-     "derece": 5
+     "grade": 5
     }
    ]
   },
@@ -5728,7 +5728,7 @@
      "olay": "QUEST",
      "puan": 50,
      "unvan": "title_achievement_event_springfight2013-vru-1",
-     "derece": 5
+     "grade": 5
     }
    ]
   },
@@ -5761,7 +5761,7 @@
    "seviyeler": [
     {
      "sinif": "DesignMutationCount",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 200,
      "olay": "CAUSED",
      "parametreler": {
@@ -5777,7 +5777,7 @@
     },
     {
      "sinif": "DesignMutationCount",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 500,
      "olay": "CAUSED",
      "parametreler": {
@@ -5793,7 +5793,7 @@
     },
     {
      "sinif": "DesignMutationCount",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 1000,
      "olay": "CAUSED",
      "parametreler": {
@@ -5831,11 +5831,11 @@
       "1351",
       "1352"
      ],
-     "eslesme": "ATLEAST",
+     "matches": "ATLEAST",
      "olay": "QUEST",
      "puan": 100,
      "unvan": "title_achievement_summerevent-2013-humanitys-hero-1",
-     "derece": 5
+     "grade": 5
     }
    ]
   },
@@ -5863,11 +5863,11 @@
       "1333",
       "1334"
      ],
-     "eslesme": "ATLEAST",
+     "matches": "ATLEAST",
      "olay": "QUEST",
      "puan": 50,
      "unvan": "title_achievement_summerevent-2013-humanitys-savior-1",
-     "derece": 4
+     "grade": 4
     }
    ]
   },
@@ -5895,11 +5895,11 @@
       "1373",
       "1374"
      ],
-     "eslesme": "ATLEAST",
+     "matches": "ATLEAST",
      "olay": "QUEST",
      "puan": 100,
      "unvan": "title_achievement_summerevent-2013-space-regiment-1",
-     "derece": 5
+     "grade": 5
     }
    ]
   },
@@ -5924,11 +5924,11 @@
       "1310",
       "1311"
      ],
-     "eslesme": "ATLEAST",
+     "matches": "ATLEAST",
      "olay": "QUEST",
      "puan": 100,
      "unvan": "title_achievement_summerevent-2013-war-veteran-1",
-     "derece": 5
+     "grade": 5
     }
    ]
   },
@@ -5939,7 +5939,7 @@
    "seviyeler": [
     {
      "sinif": "AvatarTypeKill",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 1,
      "olay": "DESTROY",
      "parametreler": {
@@ -5962,7 +5962,7 @@
    "seviyeler": [
     {
      "sinif": "PublicWorldBossCondition",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 5000000,
      "olay": "PUBLIC_WORLD_BOSS_2025",
      "puan": 10,
@@ -5977,7 +5977,7 @@
    "seviyeler": [
     {
      "sinif": "PublicWorldBossCondition",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 5000000,
      "olay": "PUBLIC_WORLD_BOSS_2026",
      "puan": 10,
@@ -5992,7 +5992,7 @@
    "seviyeler": [
     {
      "sinif": "TeamDeathMatchKill",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 200,
      "olay": "DESTROY",
      "unvan": "title_teamdeathmatch_kills-1",
@@ -6000,7 +6000,7 @@
     },
     {
      "sinif": "TeamDeathMatchKill",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 500,
      "olay": "DESTROY",
      "unvan": "title_teamdeathmatch_kills-2",
@@ -6008,7 +6008,7 @@
     },
     {
      "sinif": "TeamDeathMatchKill",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 1000,
      "olay": "DESTROY",
      "unvan": "title_teamdeathmatch_kills-3",
@@ -6023,11 +6023,11 @@
    "seviyeler": [
     {
      "sinif": "TechUsage",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 100,
      "olay": "USED",
      "puan": 10,
-     "derece": 2
+     "grade": 2
     }
    ]
   },
@@ -6038,8 +6038,8 @@
    "seviyeler": [
     {
      "sinif": "TutorialFinished",
-     "saklanir": false,
-     "islec": ">=",
+     "stored": false,
+     "operator": ">=",
      "deger": 1,
      "olay": "TUTORIAL",
      "puan": 5
@@ -6053,7 +6053,7 @@
    "seviyeler": [
     {
      "sinif": "DesignMutationCount",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 200,
      "olay": "CAUSED",
      "parametreler": {
@@ -6066,7 +6066,7 @@
     },
     {
      "sinif": "DesignMutationCount",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 500,
      "olay": "CAUSED",
      "parametreler": {
@@ -6079,7 +6079,7 @@
     },
     {
      "sinif": "DesignMutationCount",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 1000,
      "olay": "CAUSED",
      "parametreler": {
@@ -6099,7 +6099,7 @@
    "seviyeler": [
     {
      "sinif": "SkylabTransport",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 1000,
      "puan": 5
     }
@@ -6112,7 +6112,7 @@
    "seviyeler": [
     {
      "sinif": "AbilityType",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 200,
      "olay": "USED",
      "parametreler": {
@@ -6124,7 +6124,7 @@
     },
     {
      "sinif": "AbilityType",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 500,
      "olay": "USED",
      "parametreler": {
@@ -6136,7 +6136,7 @@
     },
     {
      "sinif": "AbilityType",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 800,
      "olay": "USED",
      "parametreler": {
@@ -6149,7 +6149,7 @@
     },
     {
      "sinif": "AbilityType",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 1700,
      "olay": "USED",
      "parametreler": {
@@ -6161,7 +6161,7 @@
     },
     {
      "sinif": "AbilityType",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 2500,
      "olay": "USED",
      "parametreler": {
@@ -6181,8 +6181,8 @@
    "seviyeler": [
     {
      "sinif": "TutorialFinished",
-     "saklanir": false,
-     "islec": ">=",
+     "stored": false,
+     "operator": ">=",
      "deger": 1,
      "olay": "TUTORIAL",
      "puan": 5
@@ -6196,7 +6196,7 @@
    "seviyeler": [
     {
      "sinif": "AbilityType",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 150,
      "olay": "USED",
      "parametreler": {
@@ -6208,7 +6208,7 @@
     },
     {
      "sinif": "AbilityType",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 500,
      "olay": "USED",
      "parametreler": {
@@ -6220,7 +6220,7 @@
     },
     {
      "sinif": "AbilityType",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 1250,
      "olay": "USED",
      "parametreler": {
@@ -6233,7 +6233,7 @@
     },
     {
      "sinif": "AbilityType",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 3000,
      "olay": "USED",
      "parametreler": {
@@ -6245,7 +6245,7 @@
     },
     {
      "sinif": "AbilityType",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 7500,
      "olay": "USED",
      "parametreler": {
@@ -6265,7 +6265,7 @@
    "seviyeler": [
     {
      "sinif": "AbilityType",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 100,
      "olay": "USED",
      "parametreler": {
@@ -6278,7 +6278,7 @@
     },
     {
      "sinif": "AbilityType",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 250,
      "olay": "USED",
      "parametreler": {
@@ -6291,7 +6291,7 @@
     },
     {
      "sinif": "AbilityType",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 800,
      "olay": "USED",
      "parametreler": {
@@ -6305,7 +6305,7 @@
     },
     {
      "sinif": "AbilityType",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 1500,
      "olay": "USED",
      "parametreler": {
@@ -6318,7 +6318,7 @@
     },
     {
      "sinif": "AbilityType",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 3000,
      "olay": "USED",
      "parametreler": {
@@ -6339,7 +6339,7 @@
    "seviyeler": [
     {
      "sinif": "Currency",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 100000,
      "olay": "COLLECT",
      "parametreler": {
@@ -6351,7 +6351,7 @@
     },
     {
      "sinif": "Currency",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 330000,
      "olay": "COLLECT",
      "parametreler": {
@@ -6363,7 +6363,7 @@
     },
     {
      "sinif": "Currency",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 500000,
      "olay": "COLLECT",
      "parametreler": {
@@ -6376,7 +6376,7 @@
     },
     {
      "sinif": "Currency",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 1000000,
      "olay": "COLLECT",
      "parametreler": {
@@ -6388,7 +6388,7 @@
     },
     {
      "sinif": "Currency",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 2500000,
      "olay": "COLLECT",
      "parametreler": {
@@ -6408,7 +6408,7 @@
    "seviyeler": [
     {
      "sinif": "BuildRecipe",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 142,
      "olay": "BUILD",
      "parametreler": {
@@ -6420,7 +6420,7 @@
      "unvan": "title_achievement_event_valentine_1"
     }
    ],
-   "donem_sifir": "immortal_union",
+   "period_reset": "immortal_union",
    "_donem_sifir": "Resmî Türk forumu (Ölümsüz Birlik SSS): FWX-COM'u tek bir Ölümsüz Birlik etkinliğinde 142 kez üret; ilerleme sonraki etkinliğe taşınmaz"
   },
   "achievement_destroy_venerable-battleray": {
@@ -6430,8 +6430,8 @@
    "seviyeler": [
     {
      "sinif": "AvatarTypeKill",
-     "saklanir": true,
-     "islec": ">=",
+     "stored": true,
+     "operator": ">=",
      "deger": 5,
      "olay": "DESTROY",
      "parametreler": {
@@ -6446,8 +6446,8 @@
     },
     {
      "sinif": "AvatarTypeKill",
-     "saklanir": true,
-     "islec": ">=",
+     "stored": true,
+     "operator": ">=",
      "deger": 25,
      "olay": "DESTROY",
      "parametreler": {
@@ -6463,8 +6463,8 @@
     },
     {
      "sinif": "AvatarTypeKill",
-     "saklanir": true,
-     "islec": ">=",
+     "stored": true,
+     "operator": ">=",
      "deger": 50,
      "olay": "DESTROY",
      "parametreler": {
@@ -6512,7 +6512,7 @@
       "81",
       "83"
      ],
-     "eslesme": "ALL",
+     "matches": "ALL",
      "olay": "AFFECTED_BY",
      "puan": 5
     }
@@ -6525,7 +6525,7 @@
    "seviyeler": [
     {
      "sinif": "AvatarTypeKill",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 100,
      "olay": "DESTROY",
      "parametreler": {
@@ -6547,7 +6547,7 @@
    "seviyeler": [
     {
      "sinif": "AvatarTypeKill",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 100,
      "olay": "DESTROY",
      "parametreler": {
@@ -6569,7 +6569,7 @@
    "seviyeler": [
     {
      "sinif": "NPCSelectionKill",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 1,
      "olay": "DESTROY",
      "parametreler": {
@@ -6605,7 +6605,7 @@
       "514097",
       "514098"
      ],
-     "eslesme": "ALL",
+     "matches": "ALL",
      "olay": "QUEST",
      "puan": 15
     }
@@ -6634,7 +6634,7 @@
       "505083",
       "505084"
      ],
-     "eslesme": "ALL",
+     "matches": "ALL",
      "olay": "QUEST",
      "puan": 10
     }
@@ -6650,7 +6650,7 @@
      "olay": "DOMINATION_BEACON_TAKEOVER_ASSIST",
      "unvan": "title_achievement_event_summer2014_wingman",
      "puan": 25,
-     "derece": 3
+     "grade": 3
     }
    ]
   },
@@ -6661,7 +6661,7 @@
    "seviyeler": [
     {
      "sinif": "GalaxyGateDone",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 1,
      "olay": "GALAXY_GATE",
      "parametreler": {
@@ -6680,8 +6680,8 @@
    "seviyeler": [
     {
      "sinif": "AvatarTypeKill",
-     "saklanir": false,
-     "islec": ">=",
+     "stored": false,
+     "operator": ">=",
      "deger": 1,
      "olay": "DESTROY",
      "parametreler": {
@@ -6703,7 +6703,7 @@
    "seviyeler": [
     {
      "sinif": "Collect",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 250,
      "olay": "COLLECT",
      "parametreler": {
@@ -6722,8 +6722,8 @@
    "seviyeler": [
     {
      "sinif": "AvatarTypeKill",
-     "saklanir": false,
-     "islec": ">=",
+     "stored": false,
+     "operator": ">=",
      "deger": 1,
      "olay": "DESTROY",
      "parametreler": {
@@ -6781,7 +6781,7 @@
       "1184",
       "1185"
      ],
-     "eslesme": "ATLEAST",
+     "matches": "ATLEAST",
      "olay": "QUEST",
      "puan": 5,
      "odul": "package_event_reward-winterquests"
@@ -6795,8 +6795,8 @@
    "seviyeler": [
     {
      "sinif": "AvatarTypeKill",
-     "saklanir": false,
-     "islec": ">=",
+     "stored": false,
+     "operator": ">=",
      "deger": 1,
      "olay": "DESTROY",
      "parametreler": {
@@ -6808,7 +6808,7 @@
       ]
      },
      "puan": 10,
-     "derece": 2
+     "grade": 2
     }
    ]
   },
@@ -6819,7 +6819,7 @@
    "seviyeler": [
     {
      "sinif": "GalaxyGateDone",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 1,
      "olay": "GALAXY_GATE",
      "parametreler": {
@@ -6828,7 +6828,7 @@
       ]
      },
      "puan": 100,
-     "derece": 5
+     "grade": 5
     }
    ]
   },
@@ -6840,7 +6840,7 @@
     {
      "sinif": null,
      "puan": 100,
-     "derece": 5
+     "grade": 5
     }
    ]
   },
@@ -6884,11 +6884,11 @@
       "109200",
       "109400"
      ],
-     "eslesme": "ATLEAST",
+     "matches": "ATLEAST",
      "olay": "QUEST",
      "puan": 100,
      "unvan": "title_achievement_event_winterevent2012-full-pull-1",
-     "derece": 5
+     "grade": 5
     }
    ]
   },
@@ -6932,11 +6932,11 @@
       "109100",
       "109300"
      ],
-     "eslesme": "ATLEAST",
+     "matches": "ATLEAST",
      "olay": "QUEST",
      "puan": 100,
      "unvan": "title_achievement_event_winterevent2012-the-whole-ten-yards-1",
-     "derece": 5
+     "grade": 5
     }
    ]
   },
@@ -6947,7 +6947,7 @@
    "seviyeler": [
     {
      "sinif": "DesignMutationCount",
-     "islec": ">=",
+     "operator": ">=",
      "deger": 20,
      "olay": "CAUSED",
      "parametreler": {
@@ -6957,7 +6957,7 @@
      },
      "puan": 50,
      "unvan": "title_achievement_event_winterevent2013-frostlord",
-     "derece": 4
+     "grade": 4
     }
    ]
   },
@@ -6968,8 +6968,8 @@
    "seviyeler": [
     {
      "sinif": "AvatarTypeKill",
-     "saklanir": true,
-     "islec": ">=",
+     "stored": true,
+     "operator": ">=",
      "deger": 10,
      "olay": "DESTROY",
      "parametreler": {
@@ -6982,7 +6982,7 @@
      },
      "puan": 100,
      "unvan": "title_achievement_event_winterevent2013-ice-breaker",
-     "derece": 5
+     "grade": 5
     }
    ]
   },
@@ -7057,11 +7057,11 @@
       "21091",
       "21093"
      ],
-     "eslesme": "ATLEAST",
+     "matches": "ATLEAST",
      "olay": "QUEST",
      "puan": 100,
      "unvan": "title_achievement_event_winterevent2013-quests-31",
-     "derece": 4
+     "grade": 4
     }
    ]
   },
@@ -7136,11 +7136,11 @@
       "21091",
       "21093"
      ],
-     "eslesme": "ATLEAST",
+     "matches": "ATLEAST",
      "olay": "QUEST",
      "puan": 200,
      "unvan": "title_achievement_event_winterevent2013-quests-62",
-     "derece": 5
+     "grade": 5
     }
    ]
   },
@@ -7151,8 +7151,8 @@
    "seviyeler": [
     {
      "sinif": "AvatarTypeKill",
-     "saklanir": true,
-     "islec": ">=",
+     "stored": true,
+     "operator": ">=",
      "deger": 10,
      "olay": "DESTROY",
      "parametreler": {
@@ -7165,7 +7165,7 @@
      },
      "puan": 100,
      "unvan": "title_achievement_event_winterevent2013-space-grinch",
-     "derece": 5
+     "grade": 5
     }
    ]
   },
@@ -7178,7 +7178,7 @@
      "sinif": null,
      "puan": 300,
      "unvan": "title_achievement_event_winterevent2014-quests-3014",
-     "derece": 5
+     "grade": 5
     }
    ]
   },
@@ -7193,11 +7193,11 @@
       "506027",
       "516027"
      ],
-     "eslesme": "ATLEAST",
+     "matches": "ATLEAST",
      "olay": "QUEST",
      "puan": 1500,
      "unvan": "title_achievement_event_winterevent2014-the-melter",
-     "derece": 5
+     "grade": 5
     }
    ]
   }

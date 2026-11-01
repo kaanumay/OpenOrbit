@@ -30,12 +30,12 @@ for _loot, _c in EKP.D.get('cpu', {}).items():
 LATER = {'mimesis_mutiny': (24 * 3600, ['resource_collectable_byte-remnant'])}
 # etkinlik -> (unvan, sıra puanı): bitince ilk 10'a giren (puanı > 0) unvanı alır. Frozen Labyrinth Synk avı: Elite Marksman
 # (resmî Türk forumu kış SSS 1452398, Donmuş Labirent 2019 1300061)
-TITLES = {'labirent': ('title_frozenLabyrinth-marksman', lambda x: int((x.d.get('labirent') or {}).get('avlar', 0)))}
+TITLES = {'labirent': ('title_frozenLabyrinth-marksman', lambda x: int((x.d.get('labirent') or {}).get('hunts', 0)))}
 for _k in TITLES:
     CONVERT.setdefault(_k, [])
 BPK = ('history_msg_event_battle_pass_key_honor_converted', {'resource_battle-pass-key': 5000}, None)
 for _k, _e in CAL.EVENTS.items():                  # Battle Pass'li her etkinlikte kalan anahtarlar (savas_bileti.py; E8)
-    if 'BattlePass' in _e.get('turler', []):
+    if 'BattlePass' in _e.get('kinds', []):
         CONVERT.setdefault(_k, []).append(BPK)
 
 
@@ -45,11 +45,11 @@ class EventEnd:
 
     @property
     def st(self):
-        return self.p.d.setdefault('etkinlik_sonu', {})
+        return self.p.d.setdefault('event_end', {})
 
     @property
     def late(self):
-        return self.p.d.setdefault('etkinlik_silme', {})
+        return self.p.d.setdefault('event_cleanup', {})
 
     def delayed(self, now):
         """LATER: etkinlik sürerken bitiş zamanı yazılır; süre dolunca kaynaklar silinir (onura çevrilmez)."""

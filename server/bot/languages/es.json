@@ -1,7 +1,7 @@
 {
- "kod": "es",
+ "code": "es",
  "ad": "Español",
- "agirlik": 8,
+ "weight": 8,
  "adlar": {
   "parcalar": {
    "isim": ["Pablo", "Alejandro", "Javi", "Dani", "Sergio", "Carlos", "Mario", "Alvaro", "Diego", "Adrian", "Raul", "Ivan", "Marcos", "Jorge", "Hugo", "Lucia", "Paula", "Marta", "Andrea", "Nacho", "Pepe", "Juanma", "Kike", "Rafa"],
@@ -12,7 +12,7 @@
    "ayrac": ["", "_", "."],
    "sayi": ["1", "7", "10", "13", "22", "69", "77", "99", "1902", "1899", "2000", "2003", "666", "11", "23", "92", "007", "33"]
   },
-  "desenler": [[22, "{isim}{sayi}"], [18, "{soz}{sifat}"], [12, "{soz}{sayi}"], [10, "{isim_k}{ayrac}{soz_k}"], [10, "{tek}"], [10, "{soz}{ek}"], [8, "El{soz}"], [5, "xX{soz}Xx"], [5, "{leet:tek|soz}"]]
+  "patterns": [[22, "{isim}{sayi}"], [18, "{soz}{sifat}"], [12, "{soz}{sayi}"], [10, "{isim_k}{ayrac}{soz_k}"], [10, "{tek}"], [10, "{soz}{ek}"], [8, "El{soz}"], [5, "xX{soz}Xx"], [5, "{leet:tek|soz}"]]
  },
  "kaliplar": {
   "laf_oldurdum": ["{ad} de vuelta a la base jaja", "{ad} mi abuela vuela mejor", "alguien mas? {ad} ya tuvo lo suyo", "{ad} desinstala", "farmeado {ad} en {harita}, siguiente", "gracias por el honor {ad}"],
@@ -119,10 +119,10 @@
   "klan_posta_ksi_konu": ["Estación bajo ataque: {istasyon}"],
   "klan_posta_ksi": ["nuestra estación {istasyon} en {harita} está bajo ataque. todos los conectados vengan ya"]
  },
- "kisaltma": [["que", "q"], ["porque", "xq"], ["por favor", "porfa"], ["gracias", "grax"], ["tambien", "tb"], ["de nada", "dnd"]],
+ "abbreviation": [["que", "q"], ["porque", "xq"], ["por favor", "porfa"], ["gracias", "grax"], ["tambien", "tb"], ["de nada", "dnd"]],
  "ascii": {"á": "a", "é": "e", "í": "i", "ó": "o", "ú": "u", "ñ": "n"},
- "ascii_oran": 0.6,
- "niyet": {
+ "ascii_ratio": 0.6,
+ "intent": {
   "selam": ["hola", "buenas", "que pasa gente", "saludos"],
   "yardim": ["ayuda", "ayudame", "ayudadme"],
   "grup": ["grupo", "juntos"],
@@ -137,7 +137,7 @@
   "tesekkur": ["gracias", "grax"],
   "pvp": ["atacando", "atacan", "enemigo", "enemigos", "jugador", "jugadores"]
  },
- "tepki": {
+ "reaction": {
   "kutlama": ["felicidades", "enhorabuena", "felicitaciones"],
   "veda": ["adiós", "chao", "hasta luego", "buenas noches", "me voy", "nos vemos"],
   "donus": ["ya volví", "he vuelto", "de vuelta", "ya estoy"],
@@ -145,7 +145,7 @@
   "oyun": ["mapa", "nave", "láser", "misión", "escudo", "nivel", "clan", "uridio", "créditos", "farmear", "dron", "jefe"]
  },
  "zararli": ["mátate", "suicídate", "muérete", "ojalá te mueras", "ahórcate", "puta", "zorra", "maricón", "negrata", "retrasado", "violar", "violación", "nazi", "hitler"],
- "diyaloglar": [
+ "dialogues": [
   [
    ["primero escudos o laseres?", "que mejoro primero, escudos o laseres?"],
    ["laseres, luego escudos", "laseres diria yo", "escudos primero, morir sale caro"],

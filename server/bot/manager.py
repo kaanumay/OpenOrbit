@@ -68,7 +68,7 @@ class Manager(ChatEngine):
         self.log = log
         self.settings = dict(DEFAULTS, **(package.get('ayarlar') or {}))
         self.settings['izinler'] = dict(DEFAULTS['izinler'], **(self.settings.get('izinler') or {}))
-        self.mode = package.get('kip', 'normal')
+        self.mode = package.get('mode', 'normal')
         self.game_settings = GS.Profile(self.settings.get('oyun_ayari'))      # botların oyun ayarı profili (oyuncununkinden ayrı)
         self.lock = threading.RLock()
         self.bots = []
@@ -109,17 +109,17 @@ class Manager(ChatEngine):
             except (OSError, ValueError) as e:
                 self.log('   botlar: durum okunamadı (%s), baştan' % e)
         old = {str(k): v for k, v in (save.get('botlar') or {}).items()}
-        self.name_log_n = int(save.get('ad_kaydi') or 0)
+        self.name_log_n = int(save.get('name_log') or 0)
         new_ = []
         # progressive yeni paket: pilotlar oyuna aynı anda değil, gerçek bir sunucuya kayıt olur gibi tek tek katılır (performans,
         # haritalara doğal dağılım); jumpstart kadrosu zaten oynamış sayılır
-        ordered = self.mode != 'basit' and self.package.get('gelisim') != 'jumpstart' and self.setting('kayit_sn', 15) > 0
+        ordered = self.mode != 'basit' and self.package.get('progression') != 'jumpstart' and self.setting('kayit_sn', 15) > 0
         from . import llm_provider as PRV
         multilingual = PRV.multilingual()
         for roster_row in self.package.get('kadro', []):
             k = old.get(str(roster_row['no']))
             if k is None:
-                k = dict(no=roster_row['no'], ad=roster_row['ad'], firma=roster_row['firma'], kisilik=roster_row['kisilik'], kayitli=not ordered)
+                k = dict(no=roster_row['no'], ad=roster_row['ad'], firma=roster_row['firma'], kisilik=roster_row['kisilik'], registered=not ordered)
                 new_.append(k)
             else:
                 k.update(ad=roster_row['ad'], firma=roster_row['firma'], kisilik=roster_row['kisilik'])      # panelde ad değişmiş olabilir
@@ -139,7 +139,7 @@ class Manager(ChatEngine):
             from . import simple
             simple.prepare(self, now)
             return
-        if new_ and self.package.get('gelisim') == 'jumpstart':
+        if new_ and self.package.get('progression') == 'jumpstart':
             self.jumpstart([b for b in self.bots if b.k in new_], now)
         for b in sorted(self.bots, key=lambda b: b.r.random()):
             if not b.saved:
@@ -208,7 +208,7 @@ class Manager(ChatEngine):
             return
         now = now or time.time()
         with self.lock:                                  # metin kilit içinde: dünya döngüsü sözlüklere eklerken yarım kalmasın
-            d = dict(surum=VERSION, t=now, ad_kaydi=self.name_log_n, botlar={str(b.k['no']): b.save() for b in self.bots})
+            d = dict(surum=VERSION, t=now, name_log=self.name_log_n, botlar={str(b.k['no']): b.save() for b in self.bots})
             if self.llm is not None:
                 d['llm'] = self.llm.summary()                    # panelin kullanım satırı (son bir saat: istek, token)
             text = json.dumps(d, ensure_ascii=False, separators=(',', ':'))
@@ -324,7 +324,7 @@ class Manager(ChatEngine):
         if dt >= ABSTRACT_SEC:
             b.last_abstract = now
             # oturum uzadıkça yorulur (tutkunlar geç)
-            b.mood.it(yorgunluk=dt / (3600.0 * (1.5 + 3 * (b.k['kisilik']['aliskanlik'] == 'tutkun'))))
+            b.mood.it(yorgunluk=dt / (3600.0 * (1.5 + 3 * (b.k['kisilik']['habit'] == 'tutkun'))))
             b.ist('sure_sn', int(dt))
             from . import events as EV
             EV.battle_pass(b, min(dt, 60.0))             # pass görevleri ve Season Pass oynadıkça ilerler (uyku sonrası sınırlı)
@@ -341,8 +341,8 @@ class Manager(ChatEngine):
             if not order or now < self.next_signup.get(f, 0):
                 continue
             b = order.pop(0)
-            b.k['kayitli'] = True
-            b.k['kayit_t'] = now                         # rütbe puanı: kayıttan beri gün (toplum.puan)
+            b.k['registered'] = True
+            b.k['registered_at'] = now                         # rütbe puanı: kayıttan beri gün (toplum.puan)
             self.next_signup[f] = now + avg * b.r.uniform(0.67, 1.33)
             if online + n < limit:
                 self.entry(b, now)
@@ -379,7 +379,7 @@ class Manager(ChatEngine):
             if not b.saved:
                 continue
             p = PS.online_tendency(b.k['kisilik'], hour) * self.setting('cevrimici_oran', 0.6) * (PRIME_POPULATION if self.prime(now) else 1)
-            avg = sum(PS.HABITS[b.k['kisilik']['aliskanlik']][2]) / 2.0
+            avg = sum(PS.HABITS[b.k['kisilik']['habit']][2]) / 2.0
             pay = (p / 45.0 * avg) / (1 + p / 45.0 * avg)
             if b.r.random() < pay:
                 self.entry(b, now, silent=True)
@@ -492,7 +492,7 @@ class Manager(ChatEngine):
                         target = a.r.choice(combat)        # klan savaşı: haritadaki düşman klanın üyesi önce
                 if target.dead_until > now or a.k.get('klan') and TP.clan_relation(a, target) in (1, 2):
                     continue
-                ratio = target.value()['guc'] / max(0.5, a.value()['guc'])
+                ratio = target.value()['power'] / max(0.5, a.value()['power'])
                 if not hunt and ratio > 0.9 + 0.6 * a.o('risk'):
                     continue                     # avda değilken güçlüye saldırmaz
                 if ratio > 1.6 + a.o('risk') + a.mood['ofke']:
@@ -550,7 +550,7 @@ class Manager(ChatEngine):
         for b in self.bots:
             if not b.saved:
                 continue
-            pay = sum(PS.HABITS[b.k['kisilik']['aliskanlik']][1]) / 24.0 * self.setting('cevrimici_oran', 0.6)
+            pay = sum(PS.HABITS[b.k['kisilik']['habit']][1]) / 24.0 * self.setting('cevrimici_oran', 0.6)
             s = seconds * pay * b.r.uniform(0.5, 1.5)
             if s > 300:
                 self.fast(b, s, now, step=900.0)
@@ -571,14 +571,14 @@ def server(route, log=print):
     def rate():
         global ACTIVE
         uid = os.path.splitext(os.path.basename(route))[0]
-        state = os.path.join(os.path.dirname(route), uid, 'durum.json')
+        state = os.path.join(os.path.dirname(route), uid, 'state.json')
         t0 = time.time()
         y = Manager(package, state, log)
         import clan as KL
         import community as TP
         from . import society
         if not KL.FILE:                                  # bot klanları kalıcı (arkadaş sunucusunda ortak klan dosyası zaten var)
-            KL.configure(os.path.join(os.path.dirname(state), 'klanlar.json'))
+            KL.configure(os.path.join(os.path.dirname(state), 'clans.json'))
         society.register(y, getattr(TP.GAME, 'CHAT', None))
         y.society = True
         if y.mode == 'gelismis':
@@ -590,7 +590,7 @@ def server(route, log=print):
                 log('   botlar: Gelişmiş kip ama dil modeli kurulu değil (Botlar > Gelişmiş kip): Normal kip gibi sürüyor')
         ACTIVE = y
         y.launch()
-        log('botlar: "%s" (%s, %d bot) %.1f sn' % (package.get('ad', uid), package.get('kip', 'normal'), len(y.bots), time.time() - t0))
+        log('botlar: "%s" (%s, %d bot) %.1f sn' % (package.get('ad', uid), package.get('mode', 'normal'), len(y.bots), time.time() - t0))
 
     threading.Thread(target=rate, name='botlar-kurulum', daemon=True).start()
 

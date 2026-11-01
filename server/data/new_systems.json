@@ -1,23 +1,23 @@
 {
- "_aciklama": "Aşama 9: N.O.V.A. kaptanları, Armory Unlock, Quantum Fluid Core ve Hyperforge, Omega AutoTactic. Üreten: tools/yeni_sistemler.py (kaynaklar belgeler/wiki/yeni_sistemler/ ve kayıttaki ArmoryUnlockInfoCommand).",
+ "_description": "Aşama 9: N.O.V.A. kaptanları, Armory Unlock, Quantum Fluid Core ve Hyperforge, Omega AutoTactic. Üreten: tools/yeni_sistemler.py (kaynaklar belgeler/wiki/yeni_sistemler/ ve kayıttaki ArmoryUnlockInfoCommand).",
  "nova": {
-  "azami_kadro": 30,
-  "fazlasi_uridyum": 10000,
-  "birakma_cip": 50,
-  "cip": "resource_collectable_evocation-chip",
-  "cagri_cipi": "resource_collectable_calling-chip",
-  "azami_enerji": 300000,
-  "dinlenme_sn": 10,
+  "max_roster": 30,
+  "excess_uridium": 10000,
+  "release_chip": 50,
+  "chip": "resource_collectable_evocation-chip",
+  "calling_chip": "resource_collectable_calling-chip",
+  "max_energy": 300000,
+  "rest_sec": 10,
   "azami_seviye": 5,
-  "yetenek_sayisi": 2,
-  "bolumler": {
+  "perk_count": 2,
+  "sections": {
    "captain_captain-gen1-neo": {
-    "aileler": [
+    "families": [
      "family_generic_1",
      "family_generic_2",
      "family_generic_3"
     ],
-    "yetenekler": {
+    "skills": {
      "general_honour": 15,
      "general_experience": 13,
      "gg_evasion": 10,
@@ -30,15 +30,15 @@
      "pet_hp": 8,
      "pet_fuel-consumption": 5
     },
-    "cagri_cipi": false
+    "calling_chip": false
    },
    "captain_captain-gen2-eos": {
-    "aileler": [
+    "families": [
      "family_eos_1",
      "family_eos_2",
      "family_eos_3"
     ],
-    "yetenekler": {
+    "skills": {
      "general_honour": 15,
      "general_experience": 13,
      "gg_speed": 13,
@@ -51,29 +51,29 @@
      "general_bonus-box-uridium": 4,
      "gg_shield": 3
     },
-    "cagri_cipi": false
+    "calling_chip": false
    },
    "captain_captain-gen3-ups": {
-    "aileler": [
+    "families": [
      "family_ups_1",
      "family_ups_2",
      "family_ups_3"
     ],
-    "yetenekler": {
+    "skills": {
      "sp_mission-points-gp": 100
     },
-    "cagri_cipi": true
+    "calling_chip": true
    },
    "captain_captain-gen3-up": {
-    "aileler": [
+    "families": [
      "family_up_1",
      "family_up_2",
      "family_up_3"
     ],
-    "yetenekler": {
+    "skills": {
      "sp_mission-points": 100
     },
-    "cagri_cipi": true
+    "calling_chip": true
    }
   },
   "genel": {
@@ -82,7 +82,7 @@
     "captain_captain-gen2-eos": 50
    }
   },
-  "yetenekler": {
+  "skills": {
    "gg_npc-uridium": {
     "ad": "Autonomous Extraction",
     "taban": [
@@ -93,8 +93,8 @@
      12.3,
      12.9
     ],
-    "artis": 4.3,
-    "harcama": 15
+    "increase": 4.3,
+    "spending": 15
    },
    "gg_laser-damage": {
     "ad": "Cluster Artillery",
@@ -106,8 +106,8 @@
      2.5,
      3.0
     ],
-    "artis": 1.0,
-    "harcama": 20
+    "increase": 1.0,
+    "spending": 20
    },
    "gg_speed": {
     "ad": "Anti-Gravity Thruster",
@@ -119,8 +119,8 @@
      2.5,
      3.0
     ],
-    "artis": 1.0,
-    "harcama": 30
+    "increase": 1.0,
+    "spending": 30
    },
    "gg_completion-experience": {
     "ad": "Field Intelligence",
@@ -132,8 +132,8 @@
      4.2,
      4.3
     ],
-    "artis": 1.4,
-    "harcama": 15
+    "increase": 1.4,
+    "spending": 15
    },
    "general_experience": {
     "ad": "Knowledge Seeker",
@@ -145,8 +145,8 @@
      2.5,
      3.0
     ],
-    "artis": 1.0,
-    "harcama": 15
+    "increase": 1.0,
+    "spending": 15
    },
    "general_bonus-box-uridium": {
     "ad": "Treasurer",
@@ -158,8 +158,8 @@
      2.5,
      3.0
     ],
-    "artis": 1.0,
-    "harcama": 40
+    "increase": 1.0,
+    "spending": 40
    },
    "general_honour": {
     "ad": "Code of Conduct",
@@ -171,8 +171,8 @@
      5.0,
      6.0
     ],
-    "artis": 1.7,
-    "harcama": 15
+    "increase": 1.7,
+    "spending": 15
    },
    "general_cargo": {
     "ad": "Need for Space",
@@ -184,8 +184,8 @@
      4.0,
      4.8
     ],
-    "artis": 1.4,
-    "harcama": 20
+    "increase": 1.4,
+    "spending": 20
    },
    "gg_rocket-damage": {
     "ad": "Damage Skyrocket",
@@ -197,8 +197,8 @@
      2.5,
      3.0
     ],
-    "artis": 1.0,
-    "harcama": 20
+    "increase": 1.0,
+    "spending": 20
    },
    "gg_evasion": {
     "ad": "Fleet Foot",
@@ -210,8 +210,8 @@
      2.5,
      3.0
     ],
-    "artis": 1.0,
-    "harcama": 30
+    "increase": 1.0,
+    "spending": 30
    },
    "gg_shield": {
     "ad": "Sturdy Hull",
@@ -223,8 +223,8 @@
      2.5,
      3.0
     ],
-    "artis": 1.0,
-    "harcama": 30
+    "increase": 1.0,
+    "spending": 30
    },
    "pet_fuel-consumption": {
     "ad": "P.E.T. Conservationist",
@@ -236,8 +236,8 @@
      4.5,
      5.4
     ],
-    "artis": 0.9,
-    "harcama": 35
+    "increase": 0.9,
+    "spending": 35
    },
    "pet_heat-up": {
     "ad": "P.E.T. Ignition",
@@ -249,8 +249,8 @@
      4.5,
      5.4
     ],
-    "artis": 0.9,
-    "harcama": 20
+    "increase": 0.9,
+    "spending": 20
    },
    "pet_range-up": {
     "ad": "P.E.T. Ranger",
@@ -262,8 +262,8 @@
      8.5,
      10.2
     ],
-    "artis": 1.7,
-    "harcama": 20
+    "increase": 1.7,
+    "spending": 20
    },
    "pet_hp": {
     "ad": "P.E.T. Provision",
@@ -275,8 +275,8 @@
      4.5,
      5.4
     ],
-    "artis": 0.9,
-    "harcama": 30
+    "increase": 0.9,
+    "spending": 30
    },
    "sp_mission-points-gp": {
     "ad": "Bonus Slayer",
@@ -288,8 +288,8 @@
      3.0,
      3.6
     ],
-    "artis": 1.5,
-    "harcama": 20
+    "increase": 1.5,
+    "spending": 20
    },
    "sp_mission-points": {
     "ad": "Bonus Hunter",
@@ -301,8 +301,8 @@
      3.0,
      3.6
     ],
-    "artis": 1.5,
-    "harcama": 20,
+    "increase": 1.5,
+    "spending": 20,
     "_not": "wiki'de değerleri yok; Bonus Slayer'ınki"
    }
   },
@@ -310,29 +310,29 @@
    {
     "seviye": 2,
     "uridyum": 2000,
-    "cip": 250,
-    "cagri_cipi": 1
+    "chip": 250,
+    "calling_chip": 1
    },
    {
     "seviye": 3,
     "uridyum": 2200,
-    "cip": 275,
-    "cagri_cipi": 1
+    "chip": 275,
+    "calling_chip": 1
    },
    {
     "seviye": 4,
     "uridyum": 2420,
-    "cip": 303,
-    "cagri_cipi": 1
+    "chip": 303,
+    "calling_chip": 1
    },
    {
     "seviye": 5,
     "uridyum": 2662,
-    "cip": 333,
-    "cagri_cipi": 1
+    "chip": 333,
+    "calling_chip": 1
    }
   ],
-  "taban_agirlik": [
+  "base_weight": [
    30,
    25,
    20,
@@ -368,7 +368,7 @@
    "Yoren",
    "Zuri"
   ],
-  "etkiler": {
+  "effects": {
    "general_experience": [
     "ep",
     "hepsi"
@@ -459,8 +459,8 @@
  },
  "armory": {
   "jeton": "resource_collectable_armory-token",
-  "mega_jeton": "resource_collectable_armory-token-mega",
-  "donem_gun": 3,
+  "mega_token": "resource_collectable_armory-token-mega",
+  "period_days": 3,
   "normal": {
    "goster": [
     [
@@ -562,7 +562,7 @@
      false
     ]
    ],
-   "olasilik": [
+   "probability": [
     [
      "equipment_weapon_cannon_c-helios",
      1,
@@ -964,7 +964,7 @@
      false
     ]
    ],
-   "olasilik": [
+   "probability": [
     [
      "equipment_weapon_cannon_c-helios",
      1,
@@ -1171,7 +1171,7 @@
     ]
    ]
   },
-  "birikimli": [
+  "cumulative": [
    [
     1,
     30,
@@ -1295,7 +1295,7 @@
    "spectrum-plus",
    "venom"
   ],
-  "cevir_nidhogg": [
+  "convert_nidhogg": [
    [
     "helios",
     "nidhogg"
@@ -1309,18 +1309,18 @@
     "slug_cos-"
    ]
   ],
-  "gunluk_gorev_jetonu": 10,
+  "daily_quest_token": 10,
   "_uyarlama": "Dönem başlangıcı (2026-01-01), dönemin gemileri (listeden sırayla üçer), Helios/Nidhogg sırası (çift dönem Helios), kilitlenen geminin dönem bitince de kalması (tek oyunculu: 1.200 çekiliş bir dönemde bitmez), Season Pass günlük görevi başına 10 Armory Token (SSS: günlük görevler). Lucky Draw'da gösterilip havuzda olmayan eşyaların oranı (%0,0666, kırmızı satırdaki MR-T03 gibi; eksiği en sık üç cephaneden)."
  },
  "qfc": {
-  "turler": {
+  "kinds": {
    "equipment_core_ax-10": {
     "kalite": 1,
     "aralik": [
      2,
      7
     ],
-    "geri_donusum": 450
+    "recycle": 450
    },
    "equipment_core_ax-20": {
     "kalite": 2,
@@ -1328,7 +1328,7 @@
      4,
      12
     ],
-    "geri_donusum": 1100
+    "recycle": 1100
    },
    "equipment_core_ax-30": {
     "kalite": 3,
@@ -1336,7 +1336,7 @@
      7,
      16
     ],
-    "geri_donusum": 2250
+    "recycle": 2250
    },
    "equipment_core_ax-40": {
     "kalite": 4,
@@ -1344,7 +1344,7 @@
      10,
      20
     ],
-    "geri_donusum": 4000
+    "recycle": 4000
    },
    "equipment_core_df-10": {
     "kalite": 1,
@@ -1352,7 +1352,7 @@
      2,
      7
     ],
-    "geri_donusum": 450
+    "recycle": 450
    },
    "equipment_core_df-20": {
     "kalite": 2,
@@ -1360,7 +1360,7 @@
      4,
      12
     ],
-    "geri_donusum": 1100
+    "recycle": 1100
    },
    "equipment_core_df-30": {
     "kalite": 3,
@@ -1368,7 +1368,7 @@
      7,
      16
     ],
-    "geri_donusum": 2250
+    "recycle": 2250
    },
    "equipment_core_df-40": {
     "kalite": 4,
@@ -1376,10 +1376,10 @@
      10,
      20
     ],
-    "geri_donusum": 4000
+    "recycle": 4000
    }
   },
-  "yukseltme_bedeli": {
+  "upgrade_cost": {
    "1": [
     1000,
     1000,
@@ -1434,11 +1434,11 @@
    ]
   },
   "azami_seviye": 12,
-  "acilan_seviyeler": [
+  "unlocked_levels": [
    5,
    10
   ],
-  "azami_nitelik": 3,
+  "max_attributes": 3,
   "luminaflux": "resource_collectable_luminaflux-alloy",
   "ilk_nitelik": {
    "ax": [
@@ -1477,17 +1477,17 @@
     "honour"
    ]
   },
-  "ek_carpan": 0.5,
-  "artis_carpan": [
+  "extra_multiplier": 0.5,
+  "increase_multiplier": [
    0.05,
    0.1
   ],
-  "azami_carpan": 2.0,
+  "max_multiplier": 2.0,
   "echo": {
    "GREEN_ECHO_BOX": {
     "ad": "Common Echo Chest",
     "anahtar": "resource_echo-key-green",
-    "kaliteler": [
+    "qualities": [
      10,
      20
     ]
@@ -1495,7 +1495,7 @@
    "BLUE_ECHO_BOX": {
     "ad": "Rare Echo Chest",
     "anahtar": "resource_echo-key-blue",
-    "kaliteler": [
+    "qualities": [
      20,
      30
     ]
@@ -1503,7 +1503,7 @@
    "PURPLE_ECHO_BOX": {
     "ad": "Epic Echo Chest",
     "anahtar": "resource_echo-key-purple",
-    "kaliteler": [
+    "qualities": [
      30,
      40
     ]
@@ -1511,12 +1511,12 @@
    "RED_ECHO_BOX": {
     "ad": "Legendary Echo Chest",
     "anahtar": "resource_echo-key-red",
-    "kaliteler": [
+    "qualities": [
      40
     ]
    }
   },
-  "echo_seviye": {
+  "echo_level": {
    "5": "GREEN_ECHO_BOX",
    "10": "GREEN_ECHO_BOX",
    "15": "GREEN_ECHO_BOX",
@@ -1531,10 +1531,10 @@
   "_uyarlama": "Bağlanılan gemi: oyuncunun gemilerinden rastgele (yoksa etkin gemi). Ek nitelik havuzları, ek niteliğin ilk değeri (aralığın yarısı), seviye başına artış (aralığın %10-25'i), azami değer (aralığın üstünün iki katı), 30/40'ın 5. seviyeden sonraki bedelleri (20'ninkilerle aynı oranda), sandığın kalite olasılıkları (düşük kalite 2/3), hangi patron seviyesinin hangi sandığı düşürdüğü."
  },
  "otopilot": {
-  "premium_sn": 2592000,
-  "lazer_menzil": 562,
-  "menzil_orani": 0.9,
-  "_menzil_orani": "Share of the real laser range sent to the bot (laserRange), bonuses and SL-01 included. A lower share makes the bot fight closer, so it stays in range when the target moves or positions drift.",
+  "premium_sec": 2592000,
+  "laser_range": 562,
+  "range_ratio": 0.9,
+  "_range_ratio": "Share of the real laser range sent to the bot (laserRange), bonuses and SL-01 included. A lower share makes the bot fight closer, so it stays in range when the target moves or positions drift.",
   "_uyarlama": "Tek oyunculuda herkes Premium (profilin premium alanı): kalan süre her açılışta 30 gün; lazer menzili kayıttaki 562."
  }
 }

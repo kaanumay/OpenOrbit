@@ -25,8 +25,8 @@ _PATH = os.path.join(HERE, 'data', 'extra_events.json')
 D = (json.load(open(_PATH, encoding='utf8')) if os.path.exists(_PATH) else {}).get('fiesta', {})
 EVENT = 'fiesta'
 COUPON = D.get('kupon', 'resource_collectable_galaxy-coupon')
-BY_LEVEL = {z['seviye']: z for z in D.get('zorluklar', [])}
-BY_GATE = {z['kapi']: z for z in D.get('zorluklar', [])}
+BY_LEVEL = {z['seviye']: z for z in D.get('difficulties', [])}
+BY_GATE = {z['kapi']: z for z in D.get('difficulties', [])}
 PORTAL_ID = EKP.PORTAL_BASE + 90                  # X-1'deki tek Fiesta portalı (pencereli)
 TITLE_TRANQUIL = 'title_fiestagate_dec2025'      # "Epoch Lit" (istemci metni): Tranquil seviyesini tamamlayınca
 
@@ -66,18 +66,18 @@ class Fiesta:
     def level(self):
         """(ulaşılan seviye, sıradaki seviyedeki puan, sıradaki seviyenin puanı)."""
         ap, lv = self.st['ap'], 0
-        for row in D.get('cizgi', []):
+        for row in D.get('track', []):
             if ap < row['ap']:
                 return lv, ap, row['ap']
             ap -= row['ap']
             lv += 1
-        last = D['cizgi'][-1]['ap'] if D.get('cizgi') else 1
+        last = D['track'][-1]['ap'] if D.get('track') else 1
         return lv, last, last
 
     def point_cmd(self, open_window):
         lv, cur, need = self.level()
         shows = [mod('EventLootShowCommand', lootId=r['esyalar'][0][0] if r['esyalar'] else '', bg='',
-                     lootAmount=r['esyalar'][0][1] if r['esyalar'] else 0) for r in D.get('cizgi', [])]
+                     lootAmount=r['esyalar'][0][1] if r['esyalar'] else 0) for r in D.get('track', [])]
         return ('Birthday2025PointRewardCommand', dict(openWindow=bool(open_window), curRewardLevel=lv, curPoints=cur,
                                                        curLevelPoints=need, lootShowCommandList=shows,
                                                        claimedIndexes=sorted(self.st['alinan'])))
@@ -88,7 +88,7 @@ class Fiesta:
             ([level] if 1 <= level <= lv and level not in self.st['alinan'] else [])
         msgs = []
         for l in todo:
-            row = D['cizgi'][l - 1]
+            row = D['track'][l - 1]
             with self.p.lock:
                 self.st['alinan'].append(l)
                 self.p.dirty = True
@@ -101,7 +101,7 @@ class Fiesta:
     # ------------------------------------------------------------ giriş
     def gate_cmd(self):
         cmds = []
-        for z in D.get('zorluklar', []):
+        for z in D.get('difficulties', []):
             g = D['kapilar'][z['kapi']]
             o = g['odul']
             probs = [mod('LootProbabilityModule', lootId=l, minLootAmount=n, maxLootAmount=n, probabilityPercentage=round(c * 100, 3))
@@ -122,7 +122,7 @@ class Fiesta:
         sx, sy = station['posX'], station['posY']
         cx, cy = KAPI.MAP_W // 2, KAPI.MAP_H // 2         # istasyondan haritanın ortasına doğru, üretici kapılarından uzakta
         x, y = int(sx + (cx - sx) * 0.3), int(sy + (cy - sy) * 0.3 + 900)
-        return [dict(gateId=PORTAL_ID, x=x, y=y, hedef=0, designId=D.get('portal_tasarim', 15), pencere='fiesta',
+        return [dict(gateId=PORTAL_ID, x=x, y=y, hedef=0, designId=D.get('portal_design', 15), pencere='fiesta',
                      ipucu=D.get('ipucu', 'ttip_jumpgate_bday2025'))]
 
     def portal_window(self, g, w, go):

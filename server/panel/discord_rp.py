@@ -47,7 +47,7 @@ def event(live, setting, _, state):
         e = {'details': parent, 'state': sub,
              'assets': {'large_image': LOGO, 'large_text': 'OpenOrbit'}}
     else:
-        pl, gm, location, world_info = live.get('pilot', {}), live.get('gemi', {}), live.get('konum', {}), live.get('dunya') or {}
+        pl, gm, location, world_info = live.get('pilot', {}), live.get('gemi', {}), live.get('position', {}), live.get('dunya') or {}
         parent = [('[%s] ' % pl['klan'] if a('klan') and pl.get('klan') else '') + ((pl.get('ad') or '') if a('pilot') else '')]
         if a('gemi') and ship_name(gm.get('ad')):
             parent.append(ship_name(gm['ad']))
@@ -56,7 +56,7 @@ def event(live, setting, _, state):
         gate = world_info.get('kapi')
         if not a('durum'):
             status = None
-        elif world_info.get('olu'):
+        elif world_info.get('dead'):
             status = _('Gemisi parçalandı')
         elif gate:
             status = ' · '.join(str(x) for x in (gate.get('ad'), gate.get('dalga')) if x)

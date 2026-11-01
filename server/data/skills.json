@@ -1,16 +1,16 @@
 {
  "_kaynak": "İstemcinin skilltree.xml'i (değerler, maliyetler, ön koşullar) ve darkorbitwiki (adlar, log diski, sıfırlama); tools/yetenekler.py. \"etki\": sunucunun bonus anahtarı (profil.mods); pvp_lazer bot oyuncularla. on_kosul \"toplam\": listedeki yeteneklerin puan toplamı en az; \"her_biri\": her birinde en az.",
- "yetenekler": {
+ "skills": {
   "1": {
    "ad": "Explosives",
-   "degerler": [
+   "values": [
     4,
     8,
     12,
     18,
     25
    ],
-   "birim": "percent",
+   "unit": "percent",
    "etki": "mayin_yaricap",
    "maliyet": [
     {
@@ -43,7 +43,7 @@
     {
      "puan": 1,
      "tur": "toplam",
-     "yetenekler": [
+     "skills": [
       "5a",
       "2",
       "18a"
@@ -53,14 +53,14 @@
   },
   "2": {
    "ad": "Tactics",
-   "degerler": [
+   "values": [
     2,
     4,
     6,
     8,
     12
    ],
-   "birim": "percent",
+   "unit": "percent",
    "etki": "ep",
    "maliyet": [
     {
@@ -93,14 +93,14 @@
   },
   "4": {
    "ad": "Logistics",
-   "degerler": [
+   "values": [
     4,
     8,
     12,
     18,
     25
    ],
-   "birim": "percent",
+   "unit": "percent",
    "etki": "kargo_alani",
    "maliyet": [
     {
@@ -133,7 +133,7 @@
     {
      "puan": 1,
      "tur": "toplam",
-     "yetenekler": [
+     "skills": [
       "5a",
       "2",
       "18a"
@@ -143,11 +143,11 @@
   },
   "5a": {
    "ad": "Detonation I",
-   "degerler": [
+   "values": [
     7,
     14
    ],
-   "birim": "percent",
+   "unit": "percent",
    "etki": "mayin",
    "maliyet": [
     {
@@ -165,12 +165,12 @@
   },
   "5b": {
    "ad": "Detonation II",
-   "degerler": [
+   "values": [
     21,
     28,
     50
    ],
-   "birim": "percent",
+   "unit": "percent",
    "etki": "mayin",
    "maliyet": [
     {
@@ -193,7 +193,7 @@
     {
      "puan": 3,
      "tur": "toplam",
-     "yetenekler": [
+     "skills": [
       "11",
       "14"
      ]
@@ -201,7 +201,7 @@
     {
      "puan": 2,
      "tur": "her_biri",
-     "yetenekler": [
+     "skills": [
       "5a"
      ]
     }
@@ -209,14 +209,14 @@
   },
   "6": {
    "ad": "Rocket Fusion",
-   "degerler": [
+   "values": [
     2,
     4,
     6,
     8,
     15
    ],
-   "birim": "percent",
+   "unit": "percent",
    "etki": "roket",
    "maliyet": [
     {
@@ -249,7 +249,7 @@
     {
      "puan": 2,
      "tur": "toplam",
-     "yetenekler": [
+     "skills": [
       "22a",
       "23a",
       "18b"
@@ -259,14 +259,14 @@
   },
   "8": {
    "ad": "Shield Mechanics",
-   "degerler": [
+   "values": [
     2,
     4,
     6,
     8,
     12
    ],
-   "birim": "percent",
+   "unit": "percent",
    "etki": "emme",
    "maliyet": [
     {
@@ -299,7 +299,7 @@
     {
      "puan": 3,
      "tur": "toplam",
-     "yetenekler": [
+     "skills": [
       "18b"
      ]
     }
@@ -307,14 +307,14 @@
   },
   "9": {
    "ad": "Greed",
-   "degerler": [
+   "values": [
     4,
     8,
     12,
     16,
     25
    ],
-   "birim": "percent",
+   "unit": "percent",
    "etki": "kredi",
    "maliyet": [
     {
@@ -347,7 +347,7 @@
     {
      "puan": 3,
      "tur": "toplam",
-     "yetenekler": [
+     "skills": [
       "11",
       "14"
      ]
@@ -356,14 +356,14 @@
   },
   "11": {
    "ad": "Alien Hunter",
-   "degerler": [
+   "values": [
     2,
     4,
     6,
     8,
     12
    ],
-   "birim": "percent",
+   "unit": "percent",
    "etki": "npc_lazer",
    "maliyet": [
     {
@@ -396,7 +396,7 @@
     {
      "puan": 2,
      "tur": "her_biri",
-     "yetenekler": [
+     "skills": [
       "6",
       "21a"
      ]
@@ -405,14 +405,14 @@
   },
   "13": {
    "ad": "Engineering",
-   "degerler": [
+   "values": [
     5,
     10,
     15,
     20,
     30
    ],
-   "birim": "percent",
+   "unit": "percent",
    "etki": "onarim",
    "maliyet": [
     {
@@ -445,7 +445,7 @@
     {
      "puan": 1,
      "tur": "toplam",
-     "yetenekler": [
+     "skills": [
       "5a",
       "2",
       "18a"
@@ -455,14 +455,14 @@
   },
   "14": {
    "ad": "Tractor Beam I",
-   "degerler": [
+   "values": [
     1,
     2,
     3,
     4,
     6
    ],
-   "birim": "percent",
+   "unit": "percent",
    "etki": "kargo_kutusu",
    "maliyet": [
     {
@@ -495,7 +495,7 @@
     {
      "puan": 2,
      "tur": "toplam",
-     "yetenekler": [
+     "skills": [
       "6",
       "21a",
       "18b"
@@ -505,14 +505,14 @@
   },
   "15": {
    "ad": "Tractor Beam II",
-   "degerler": [
+   "values": [
     2,
     6,
     10,
     15,
     20
    ],
-   "birim": "percent",
+   "unit": "percent",
    "etki": "bonus_kutusu",
    "maliyet": [
     {
@@ -545,7 +545,7 @@
     {
      "puan": 5,
      "tur": "toplam",
-     "yetenekler": [
+     "skills": [
       "5b",
       "9",
       "8"
@@ -555,11 +555,11 @@
   },
   "16a": {
    "ad": "Evasive Maneuvers I",
-   "degerler": [
+   "values": [
     2,
     4
    ],
-   "birim": "percent",
+   "unit": "percent",
    "etki": "kacinma",
    "maliyet": [
     {
@@ -577,7 +577,7 @@
     {
      "puan": 2,
      "tur": "toplam",
-     "yetenekler": [
+     "skills": [
       "20",
       "17"
      ]
@@ -586,12 +586,12 @@
   },
   "16b": {
    "ad": "Evasive Maneuvers II",
-   "degerler": [
+   "values": [
     6,
     8,
     12
    ],
-   "birim": "percent",
+   "unit": "percent",
    "etki": "kacinma",
    "maliyet": [
     {
@@ -614,14 +614,14 @@
     {
      "puan": 3,
      "tur": "toplam",
-     "yetenekler": [
+     "skills": [
       "8"
      ]
     },
     {
      "puan": 2,
      "tur": "her_biri",
-     "yetenekler": [
+     "skills": [
       "16a"
      ]
     }
@@ -629,14 +629,14 @@
   },
   "17": {
    "ad": "Shield Engineering",
-   "degerler": [
+   "values": [
     4,
     8,
     12,
     18,
     25
    ],
-   "birim": "percent",
+   "unit": "percent",
    "etki": "kalkan",
    "maliyet": [
     {
@@ -669,7 +669,7 @@
     {
      "puan": 1,
      "tur": "toplam",
-     "yetenekler": [
+     "skills": [
       "1",
       "4",
       "13"
@@ -679,11 +679,11 @@
   },
   "18a": {
    "ad": "Ship Hull I",
-   "degerler": [
+   "values": [
     5000,
     10000
    ],
-   "birim": "absolute",
+   "unit": "absolute",
    "etki": "can_mutlak",
    "maliyet": [
     {
@@ -701,12 +701,12 @@
   },
   "18b": {
    "ad": "Ship Hull II",
-   "degerler": [
+   "values": [
     15000,
     25000,
     50000
    ],
-   "birim": "absolute",
+   "unit": "absolute",
    "etki": "can_mutlak",
    "maliyet": [
     {
@@ -729,7 +729,7 @@
     {
      "puan": 2,
      "tur": "toplam",
-     "yetenekler": [
+     "skills": [
       "22a",
       "23a",
       "16a"
@@ -738,7 +738,7 @@
     {
      "puan": 2,
      "tur": "her_biri",
-     "yetenekler": [
+     "skills": [
       "18a"
      ]
     }
@@ -746,14 +746,14 @@
   },
   "19": {
    "ad": "Electro-Optics",
-   "degerler": [
+   "values": [
     5,
     10,
     15,
     20,
     25
    ],
-   "birim": "percent",
+   "unit": "percent",
    "etki": "lazer_isabet",
    "maliyet": [
     {
@@ -786,7 +786,7 @@
     {
      "puan": 5,
      "tur": "toplam",
-     "yetenekler": [
+     "skills": [
       "5b",
       "9",
       "8"
@@ -796,14 +796,14 @@
   },
   "20": {
    "ad": "Heat-Seeking Misilles",
-   "degerler": [
+   "values": [
     1,
     2,
     4,
     6,
     10
    ],
-   "birim": "percent",
+   "unit": "percent",
    "etki": "roket_isabet",
    "maliyet": [
     {
@@ -836,7 +836,7 @@
     {
      "puan": 1,
      "tur": "toplam",
-     "yetenekler": [
+     "skills": [
       "1",
       "4",
       "13"
@@ -846,11 +846,11 @@
   },
   "21a": {
    "ad": "Cruelty I",
-   "degerler": [
+   "values": [
     4,
     8
    ],
-   "birim": "percent",
+   "unit": "percent",
    "etki": "onur",
    "maliyet": [
     {
@@ -868,7 +868,7 @@
     {
      "puan": 2,
      "tur": "toplam",
-     "yetenekler": [
+     "skills": [
       "22a",
       "23a",
       "16a"
@@ -878,12 +878,12 @@
   },
   "21b": {
    "ad": "Cruelty II",
-   "degerler": [
+   "values": [
     12,
     16,
     25
    ],
-   "birim": "percent",
+   "unit": "percent",
    "etki": "onur",
    "maliyet": [
     {
@@ -906,7 +906,7 @@
     {
      "puan": 3,
      "tur": "toplam",
-     "yetenekler": [
+     "skills": [
       "19",
       "15"
      ]
@@ -914,7 +914,7 @@
     {
      "puan": 2,
      "tur": "her_biri",
-     "yetenekler": [
+     "skills": [
       "21a"
      ]
     }
@@ -922,11 +922,11 @@
   },
   "22a": {
    "ad": "Bounty Hunter I",
-   "degerler": [
+   "values": [
     2,
     4
    ],
-   "birim": "percent",
+   "unit": "percent",
    "etki": "pvp_lazer",
    "maliyet": [
     {
@@ -944,7 +944,7 @@
     {
      "puan": 2,
      "tur": "toplam",
-     "yetenekler": [
+     "skills": [
       "20",
       "17"
      ]
@@ -953,12 +953,12 @@
   },
   "22b": {
    "ad": "Bounty Hunter II",
-   "degerler": [
+   "values": [
     6,
     8,
     12
    ],
-   "birim": "percent",
+   "unit": "percent",
    "etki": "pvp_lazer",
    "maliyet": [
     {
@@ -981,7 +981,7 @@
     {
      "puan": 3,
      "tur": "toplam",
-     "yetenekler": [
+     "skills": [
       "19",
       "15"
      ]
@@ -989,7 +989,7 @@
     {
      "puan": 2,
      "tur": "her_biri",
-     "yetenekler": [
+     "skills": [
       "22a"
      ]
     }
@@ -997,11 +997,11 @@
   },
   "23a": {
    "ad": "Luck I",
-   "degerler": [
+   "values": [
     2,
     4
    ],
-   "birim": "percent",
+   "unit": "percent",
    "etki": "bonus_uridyum",
    "maliyet": [
     {
@@ -1019,7 +1019,7 @@
     {
      "puan": 2,
      "tur": "toplam",
-     "yetenekler": [
+     "skills": [
       "4"
      ]
     }
@@ -1027,12 +1027,12 @@
   },
   "23b": {
    "ad": "Luck II",
-   "degerler": [
+   "values": [
     6,
     8,
     12
    ],
-   "birim": "percent",
+   "unit": "percent",
    "etki": "bonus_uridyum",
    "maliyet": [
     {
@@ -1055,7 +1055,7 @@
     {
      "puan": 3,
      "tur": "her_biri",
-     "yetenekler": [
+     "skills": [
       "22b",
       "16b"
      ]
@@ -1063,14 +1063,14 @@
     {
      "puan": 2,
      "tur": "her_biri",
-     "yetenekler": [
+     "skills": [
       "23a"
      ]
     }
    ]
   }
  },
- "log_diski": [
+ "log_disk": [
   30,
   33,
   36,
@@ -1122,7 +1122,7 @@
   2911,
   3202
  ],
- "sifirlama": [
+ "resets": [
   1000,
   2000,
   4000,

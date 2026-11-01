@@ -22,7 +22,7 @@ from ship_module import ATTR_KEYS
 HERE = os.path.dirname(os.path.abspath(__file__))
 D = json.load(open(os.path.join(HERE, 'data', 'new_systems.json'), encoding='utf8'))['qfc']
 ITEMS = json.load(open(os.path.join(HERE, 'data', 'client_items.json'), encoding='utf8'))['esyalar']
-TYPES = D['turler']
+TYPES = D['kinds']
 LUMI = D['luminaflux']
 SLOT = 'QuantumFluidCore'
 PREFIX = 'equipment_core_'
@@ -53,20 +53,20 @@ def state(p, iid):
 def ranges(loot, primary=True):
     """Niteliğin (ilk değer aralığı, seviye başına artış aralığı, azami) yüzdeleri."""
     lo, hi = TYPES[loot]['aralik']
-    f = 1.0 if primary else D['ek_carpan']
-    a, b = D['artis_carpan']
-    return (lo * f, hi * f), (hi * a, hi * b), hi * D['azami_carpan']
+    f = 1.0 if primary else D['extra_multiplier']
+    a, b = D['increase_multiplier']
+    return (lo * f, hi * f), (hi * a, hi * b), hi * D['max_multiplier']
 
 
 def cost(loot, lv):
     """lv'den lv+1'e Luminaflux (yoksa None: en üst seviye)."""
-    row = D['yukseltme_bedeli'][str(TYPES[loot]['kalite'])]
+    row = D['upgrade_cost'][str(TYPES[loot]['kalite'])]
     return row[lv - 1] if 1 <= lv < MAX_LV else None
 
 
 def echo_box(level):
     """Deep Space Echoes'un patron seviyesinin düşürdüğü Echo sandığı (boxes.json türü) ya da None."""
-    return D['echo_seviye'].get(str(level))
+    return D['echo_level'].get(str(level))
 
 
 def mods(p, ship_loot, iids):
@@ -119,8 +119,8 @@ class Qfc:
             attrs.append(mod('EquipAttributeModule', AttributeValue=int(round(v * 100)), maxAttributeValue=int(round(top * 100)),
                              upMin=int(round(ulo * 100)), upMax=int(round(uhi * 100)), AttributeID=a))
         nxt = cost(loot, rec['seviye'])
-        return mod('QuantumFluidCoreData', equipAttributes=attrs, quality=TYPES[loot]['kalite'], sellPrice=TYPES[loot]['geri_donusum'],
-                   itemId=int(iid), useLootId=LUMI, shipIds=[rec['gemi']], unlock=1 if len(rec['nitelikler']) < D['azami_nitelik'] else 0,
+        return mod('QuantumFluidCoreData', equipAttributes=attrs, quality=TYPES[loot]['kalite'], sellPrice=TYPES[loot]['recycle'],
+                   itemId=int(iid), useLootId=LUMI, shipIds=[rec['gemi']], unlock=1 if len(rec['nitelikler']) < D['max_attributes'] else 0,
                    lv=rec['seviye'], spendPrice=nxt or 0, maxLv=MAX_LV, lootId=loot)
 
     def list_cmd(self):
@@ -194,7 +194,7 @@ class Qfc:
             for i, a in enumerate(rec['nitelikler']):
                 _, (ulo, uhi), top = ranges(loot, i == 0)
                 a[1] = round(min(top, a[1] + rng.uniform(ulo, uhi)), 2)
-            if rec['seviye'] in D['acilan_seviyeler'] and len(rec['nitelikler']) < D['azami_nitelik']:
+            if rec['seviye'] in D['unlocked_levels'] and len(rec['nitelikler']) < D['max_attributes']:
                 rec['nitelikler'].append(self.roll_attr(loot, rec['nitelikler'], rng))
             self.p.dirty = True
         self.log('   Hyperforge: %s seviye %d (%s)' % (loot, rec['seviye'], ', '.join('%s %.2f%%' % (a, v) for a, v in rec['nitelikler'])))
@@ -208,7 +208,7 @@ class Qfc:
         if iid in self.p.equipped_ids():
             self.log('   Hyperforge: takılı QFC geri dönüştürülmez (%s)' % iid)
             return [stm('msg_reroll_error_item'), self.list_cmd()]
-        n = TYPES[loot]['geri_donusum']
+        n = TYPES[loot]['recycle']
         with self.p.lock:
             del self.p.d['esyalar'][str(iid)]
             self.p.d['qfc'].pop(str(iid), None)

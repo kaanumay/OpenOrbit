@@ -47,14 +47,14 @@ WINDOW = 30 * 60
 
 def _register():
     for key, tip in (('dreadfyre_fortress', FORTRESS), ('dreadfyre_guardian', GUARDIAN), ('dreadfyre_harbinger', HARBINGER)):
-        a = (D.get('npcler') or {}).get(key)
+        a = (D.get('npcs') or {}).get(key)
         if a:
             d = {k: v for k, v in a.items() if k not in ('yorunge_yaricap',)}
             d['ammo_multiplier'] = dict(AMMO_BONUS)
             world_module.CFG['tipler'][tip] = d
     if FORTRESS in world_module.CFG['tipler']:
-        world_module.CFG['tipler'][FORTRESS]['menzil'] = D['fortress_lazer']['menzil']
-        world_module.CFG['tipler'][FORTRESS]['hasar'] = D['fortress_lazer']['hasar']
+        world_module.CFG['tipler'][FORTRESS]['menzil'] = D['fortress_laser']['menzil']
+        world_module.CFG['tipler'][FORTRESS]['hasar'] = D['fortress_laser']['hasar']
 
 
 _register()
@@ -79,7 +79,7 @@ def window(now=None):
     spans = []
     for day in (-1, 0, 1):
         base = (t + datetime.timedelta(days=day)).replace(hour=0, minute=0, second=0, microsecond=0)
-        for a, b in D.get('pencereler', []):
+        for a, b in D.get('windows', []):
             (ah, am), (bh, bm) = _hm(a), _hm(b)
             spans.append((base.replace(hour=ah, minute=am).timestamp(), base.replace(hour=bh, minute=bm).timestamp()))
     spans.sort()
@@ -126,7 +126,7 @@ class WorldBoss:
 
     def h_ref(self):
         """Kademe birimi: son savaşın Fortress etkin canı (henüz yoksa oyuncunun gücüyle hesaplanan)."""
-        return self.st['h_ref'] or int(scale(self.p, None) * (D['npcler']['dreadfyre_fortress']['hp'] + D['npcler']['dreadfyre_fortress']['kalkan']))
+        return self.st['h_ref'] or int(scale(self.p, None) * (D['npcs']['dreadfyre_fortress']['hp'] + D['npcs']['dreadfyre_fortress']['kalkan']))
 
     def tier_need(self, k):
         row = D['kademe'][k - 1]
@@ -159,14 +159,14 @@ class WorldBoss:
     def rank_cmd(self):
         return ('PublicWorldBossRankCommand', dict(ranklist=[
             mod('PublicWorldBossRankReward', rewardTitleModule=title_mod((r['unvanlar'] or [None])[0]), to=r['e'], rewards=rewards(r['oduller']),
-                **{'from': r['den']}) for r in D['siralama']]))
+                **{'from': r['den']}) for r in D['ranking']]))
 
     def ranking_cmd(self, kind):
         st = self.st
         day = (datetime.date.today() - datetime.timedelta(days=kind)).isoformat()
-        row = (st.get('etkinlik') if kind == 2 else st.get('gunler', {}).get(day)) or {}
+        row = (st.get('etkinlik') if kind == 2 else st.get('days', {}).get(day)) or {}
         me = mod('WorldBossRankingInfoModule', username=self.p.d['pilot'].get('userName', ''), score=min(int(row['hasar']), 2 ** 31 - 1),
-                 rank=int(row.get('sira') or D['sanal_sira'][-1][1]), timeTaken=int(row.get('sn', 0))) if row.get('hasar') else None
+                 rank=int(row.get('sira') or D['virtual_rank'][-1][1]), timeTaken=int(row.get('sn', 0))) if row.get('hasar') else None
         return ('WorldBossRankingInfoCommand', dict(isActive=active(), titleStr='', myRank=me, prevRank=None, nextRank=None,
                                                     rankingInfoList=[me] if me else []))
 
@@ -176,7 +176,7 @@ class WorldBoss:
         st = self.st
         today = datetime.date.today()
         with self.p.lock:
-            days = st.setdefault('gunler', {})
+            days = st.setdefault('days', {})
             for k in [k for k in days if k < (today - datetime.timedelta(days=1)).isoformat()]:
                 del days[k]
             for row in (days.setdefault(today.isoformat(), {}), st.setdefault('etkinlik', {})):
@@ -207,7 +207,7 @@ class WorldBoss:
         sx, sy = station['posX'], station['posY']
         cx, cy = KAPI.MAP_W // 2, KAPI.MAP_H // 2
         x, y = int(sx + (cx - sx) * 0.4), int(sy + (cy - sy) * 0.4 + 1300)
-        return [dict(gateId=PORTAL_ID, x=x, y=y, hedef=0, designId=D.get('portal_tasarim', 1), pencere='dunya_patronu',
+        return [dict(gateId=PORTAL_ID, x=x, y=y, hedef=0, designId=D.get('portal_design', 1), pencere='dunya_patronu',
                      hint_target=MAP)]                # "This Jump Gate takes you to Treacherous Domain." (istemcinin harita adı)
 
     def portal_window(self, g, w, go):
@@ -288,7 +288,7 @@ class WorldBoss:
         if n > 0:                                   # etkinlik bitti: kalan parçalar onura (resmî: 24 sa sonra; oran yok, 1:1)
             self.p.add_resource(frag, -n)
             msgs += self.m.money_msgs()
-            tot = self.p.gain(onur=n * D.get('parca_onur', 1), neden='worldboss_fragments')
+            tot = self.p.gain(onur=n * D.get('fragment_honor', 1), neden='worldboss_fragments')
             msgs += legacy_line('history_msg_event_infiltrator_fragment_honor_converted', AMOUNT=n)
             self.log('   World Boss bitti: %d Infiltrator Fragment onura' % n)
         with self.p.lock:
@@ -303,16 +303,16 @@ def legacy_line(key, **params):
 
 def scale(p, w, target=None):
     """Oyuncunun gücü s = donanımın sürekli hasarı (UCB-100 x6) / 60.000, 0,25-2,5 (uyarlama)."""
-    g = D['guc']
+    g = D['power']
     if w is None:
         return 1.0
     dummy = target
     try:
         hits = [w.laser_damage('ammunition_laser_ucb-100', dummy)[0] for _ in range(6)]
-        dps = sum(hits) / len(hits) * world_module.COMBAT['lazer_isabet'] / world_module.COMBAT['lazer_aralik_sn']
+        dps = sum(hits) / len(hits) * world_module.COMBAT['lazer_isabet'] / world_module.COMBAT['laser_interval_sec']
     except Exception:
-        dps = g['taban_dps']
-    return max(g['asgari'], min(g['azami'], dps / float(g['taban_dps'])))
+        dps = g['base_dps']
+    return max(g['min_value'], min(g['azami'], dps / float(g['base_dps'])))
 
 
 class WbRun:
@@ -324,11 +324,11 @@ class WbRun:
         self.restore = restore
         self.g = {'ad': 'Treacherous Domain'}
         self.start, self.end = start, end
-        self.boss_at = start + D['hazirlik_sn']
-        self.escape_at = self.boss_at + D['patron_sn']
+        self.boss_at = start + D['prep_sec']
+        self.escape_at = self.boss_at + D['boss_sec']
         if restore:
             self.boss_at, self.escape_at = restore['boss_at'], restore['escape_at']
-        self.close_at = min(end, self.escape_at + D['kapanis_sn'])
+        self.close_at = min(end, self.escape_at + D['closing_sec'])
         self.phase = 'hazirlik'
         self.fortress = None
         self.guardians = []
@@ -354,7 +354,7 @@ class WbRun:
 
     def enter_msgs(self):
         w = self.w
-        msgs = [poi(POI_HEAL, self.cx, self.cy, D['sifa_feneri']['yaricap'], ptype=4, design=6)]
+        msgs = [poi(POI_HEAL, self.cx, self.cy, D['healing_beacon']['yaricap'], ptype=4, design=6)]
         w.add_gate(dict(gateId=EXIT_ID, x=self.cx - 2600, y=self.cy + 2200, hedef=self.m.k.home() if self.m.k else 5, designId=1,
                         kapi=self.key, cikis=True, varis='istasyon'))
         r = self.restore
@@ -363,7 +363,7 @@ class WbRun:
         if time.time() < self.boss_at:
             if not r:
                 msgs.append(legacy('0|A|STM|log_msg_worldboss_event_open'))
-            self.spawn_harbingers(D['harbinger_hazirlik'])
+            self.spawn_harbingers(D['harbinger_prep'])
         else:
             self.spawn_boss(r)
         return msgs
@@ -426,7 +426,7 @@ class WbRun:
         with self.m.p.lock:
             self.m.st['h_ref'] = f.d['hp'] + f.d['kalkan']
             self.m.p.dirty = True
-        r = D['guardian_uzaklik']
+        r = D['guardian_distance']
         for dx, dy in ((0, -1), (1, 0), (0, 1), (-1, 0)):
             gx = min(max(self.cx + dx * r, 800), w.map_w - 800)
             gy = min(max(self.cy + dy * int(r * 0.7), 800), w.map_h - 800)
@@ -461,11 +461,11 @@ class WbRun:
         w.log('   World Boss: Dreadfyre Fortress geldi (güç %.2f, can %d + %d)' % (self.s, f.hp, f.shield))
 
     def orbit_point(self):
-        r = D['npcler']['dreadfyre_fortress'].get('yorunge_yaricap', 2500)
+        r = D['npcs']['dreadfyre_fortress'].get('yorunge_yaricap', 2500)
         return int(self.cx + math.cos(self.angle) * r), int(self.cy + math.sin(self.angle) * r * 0.6)
 
     def field_visual(self, g, on):
-        vm = ('VisualModifierCommand', dict(userId=g.id, modifier=ZONE, attribute=D['saldirilar']['manyetik']['yaricap'],
+        vm = ('VisualModifierCommand', dict(userId=g.id, modifier=ZONE, attribute=D['attacks']['magnetic']['yaricap'],
                                             additionalAttribute='', count=1 if on else 0, activated=on))
         g.images = {ZONE: vm} if on else {}   # görüşe girince yeniden (dunya.show): Guardian görüş dışında doğar
         return vm
@@ -475,13 +475,13 @@ class WbRun:
         return [g for g in self.guardians if g.alive and not g.downed]
 
     def fortress_reduction(self):
-        return min(1.0, D.get('guardian_kalkan_orani', 0.25) * len(self.active_guardians()))
+        return min(1.0, D.get('guardian_shield_ratio', 0.25) * len(self.active_guardians()))
 
     def guardian_hit(self, g):
         if not g.summoned:
             g.summoned = True                       # ilk vuruşta Harbinger çağırır
             gx, gy = g.mover.pos(time.time())
-            self.spawn_harbingers(D['harbinger_cagri'], near=(gx, gy))
+            self.spawn_harbingers(D['harbinger_summon'], near=(gx, gy))
 
     def guardian_down(self, g):
         if self.phase == 4:
@@ -537,7 +537,7 @@ class WbRun:
             self.next['radiation'] = time.time() + 10
             msgs.append(KAPI.screen('The Guardians have returned for the last time!', big=True))
             self.w.log('   World Boss: evre 4')
-        for th in D['mayin_esikleri']:
+        for th in D['mine_thresholds']:
             if th not in self.mines_done and left <= th and self.phase in (2, 3, 4):
                 self.mines_done.add(th)
                 self.mine_ring()
@@ -548,11 +548,11 @@ class WbRun:
         w, f = self.w, self.fortress
         now = time.time()
         fx, fy = f.mover.pos(now)
-        m = D['saldirilar']['mayin']
+        m = D['attacks']['mayin']
         n = m.get('mayin_sayisi', 24)
         for i in range(n):
             a = 2 * math.pi * i / n
-            r = random.uniform(*m.get('halka_yaricap', [1000, 1400]))
+            r = random.uniform(*m.get('ring_radius', [1000, 1400]))
             w.items.alien_mine('ammunition_mine_acm-01', fx + math.cos(a) * r, fy + math.sin(a) * r, f.id, now)
         w.log('   World Boss: halka mayın tarlası')
 
@@ -586,17 +586,17 @@ class WbRun:
         if w.hero_dead:
             return
         max_hp = self.m.p.d['gemi'].get('hitMax', 1)
-        attacks = D['saldirilar']
+        attacks = D['attacks']
         if now >= self.next['field']:               # Guardian manyetik alanı (saniyede)
             self.next['field'] = now + 1.0
             for g in self.active_guardians():
                 gx, gy = g.mover.pos(now)
-                if math.hypot(hx - gx, hy - gy) <= attacks['manyetik']['yaricap']:
-                    w.send(w.hurt_hero(int(max_hp * attacks['manyetik']['hasar_sn_azami_hp_orani']), g, atype=0))
+                if math.hypot(hx - gx, hy - gy) <= attacks['magnetic']['yaricap']:
+                    w.send(w.hurt_hero(int(max_hp * attacks['magnetic']['damage_per_sec_max_hp_ratio']), g, atype=0))
         fx, fy = f.mover.pos(now)
-        if now >= self.next['ram'] and math.hypot(hx - fx, hy - fy) <= attacks['carpma']['temas_yaricap']:
-            self.next['ram'] = now + attacks['carpma']['aralik_sn']
-            w.send(w.hurt_hero(int(max_hp * attacks['carpma']['hasar_azami_hp_orani']), f, atype=0))
+        if now >= self.next['ram'] and math.hypot(hx - fx, hy - fy) <= attacks['collision']['contact_radius']:
+            self.next['ram'] = now + attacks['collision']['aralik_sn']
+            w.send(w.hurt_hero(int(max_hp * attacks['collision']['damage_max_hp_ratio']), f, atype=0))
         if self.phase in (2, 3, 4):
             if now >= self.next['rocket'] and math.hypot(hx - fx, hy - fy) <= attacks['roket']['menzil'] * SET.multiplier('npc_menzil'):
                 self.next['rocket'] = now + attacks['roket']['aralik_sn']
@@ -612,7 +612,7 @@ class WbRun:
             if now >= self.next['seeker']:
                 self.next['seeker'] = now + 1.0
                 for g in self.active_guardians():
-                    if now - g.up_since >= attacks['gudumlu']['tekrar_sn']:
+                    if now - g.up_since >= attacks['guided']['repeat_sec']:
                         g.up_since = now
                         self.seeker(g, now)
         if self.phase == 3 and now >= self.next['laser']:
@@ -625,13 +625,13 @@ class WbRun:
             return
         self.heal_next = now + 1.0
         hx, hy = w.hero_pos(now)
-        if math.hypot(hx - self.cx, hy - self.cy) > D['sifa_feneri']['yaricap']:
+        if math.hypot(hx - self.cx, hy - self.cy) > D['healing_beacon']['yaricap']:
             return
         g = self.m.p.d['gemi']
         if g.get('hitPoints', 0) >= g.get('hitMax', 0):
             return
         hp0 = g.get('hitPoints', 0)
-        self.m.p.set_hull(hp=min(g['hitMax'], hp0 + D['sifa_feneri']['sn_can']))
+        self.m.p.set_hull(hp=min(g['hitMax'], hp0 + D['healing_beacon']['hp_per_sec']))
         w.send([('HitpointInfoCommand', dict(hitpoints=int(g['hitPoints']), hitpointsMax=g.get('hitMax', 0),
                                              nanoHull=int(g.get('nanoHull', 0)), nanoHullMax=g.get('maxNanoHull', 0)))])
         self.m.p.ach('wb_heal', adet=g['hitPoints'] - hp0)               # World Boss başarımı (recoverhp)
@@ -649,7 +649,7 @@ class WbRun:
 
     def radiation(self, now):
         w, f = self.w, self.fortress
-        r = D['saldirilar']['radyasyon']
+        r = D['attacks']['radyasyon']
         w.send([('VisualModifierCommand', dict(userId=f.id, modifier=ZONE, attribute=r['yaricap'], additionalAttribute='', count=1,
                                                activated=True))])
 
@@ -663,12 +663,12 @@ class WbRun:
             hx, hy = w.hero_pos()
             fx, fy = f.mover.pos(time.time())
             if math.hypot(hx - fx, hy - fy) <= r['yaricap']:
-                w.send(w.hurt_hero(int(self.m.p.d['gemi'].get('hitMax', 1) * r['hasar_azami_hp_orani']), f, atype=0))
-        w.later(r.get('uyari_sn', 2), burst)
+                w.send(w.hurt_hero(int(self.m.p.d['gemi'].get('hitMax', 1) * r['damage_max_hp_ratio']), f, atype=0))
+        w.later(r.get('warning_sec', 2), burst)
 
     def seeker(self, g, now):
         w = self.w
-        s = D['saldirilar']['gudumlu']
+        s = D['attacks']['guided']
         hx, hy = w.hero_pos(now)
         gx, gy = g.mover.pos(now)
         if math.hypot(hx - gx, hy - gy) > s['menzil'] * SET.multiplier('npc_menzil'):      # panel: alien firing range
@@ -682,13 +682,13 @@ class WbRun:
             if not w.hero_dead and g.alive:
                 ex, ey = w.hero_pos()
                 if math.hypot(ex - hx, ey - hy) <= 400:               # işaretli noktadan kaçılabilir
-                    w.send(w.hurt_hero(int(self.m.p.d['gemi'].get('hitMax', 1) * s['hasar_azami_hp_orani']), g, atype=0))
+                    w.send(w.hurt_hero(int(self.m.p.d['gemi'].get('hitMax', 1) * s['damage_max_hp_ratio']), g, atype=0))
         w.later(1.2, hit)
 
     def map_laser(self, now):
         """Fortress'ten kilitli hedefe, harita kenarına dek uzanan ışın: 3 sn uyarı, sonra çizgideki gemiye hasar."""
         w, f = self.w, self.fortress
-        L = D['saldirilar']['lazer']
+        L = D['attacks']['lazer']
         hx, hy = w.hero_pos(now)
         fx, fy = f.mover.pos(now)
         w.send([('VisualModifierCommand', dict(userId=f.id, modifier=LASER_PREP, attribute=w.hid, additionalAttribute='', count=1,
@@ -707,10 +707,10 @@ class WbRun:
             if w.hero_dead:
                 return
             ex, ey = w.hero_pos()
-            if seg_dist(ex, ey, fx, fy, hx, hy, extend=True) <= L.get('genislik', 250):
-                w.send(w.hurt_hero(int(self.m.p.d['gemi'].get('hitMax', 1) * L['hasar_azami_hp_orani']), f, atype=0))
-        w.later(L.get('uyari_sn', 3) - 1.0, charge)
-        w.later(L.get('uyari_sn', 3), shot)
+            if seg_dist(ex, ey, fx, fy, hx, hy, extend=True) <= L.get('width', 250):
+                w.send(w.hurt_hero(int(self.m.p.d['gemi'].get('hitMax', 1) * L['damage_max_hp_ratio']), f, atype=0))
+        w.later(L.get('warning_sec', 3) - 1.0, charge)
+        w.later(L.get('warning_sec', 3), shot)
 
     # ------------------------------------------------------------ son
     def on_kill(self, npc, x, y):
@@ -719,16 +719,16 @@ class WbRun:
         if npc.id in self.harbingers:
             self.harbingers.discard(npc.id)
             if self.phase == 'hazirlik':
-                if random.random() < D.get('kutu_sansi', 0.3):
+                if random.random() < D.get('box_chance', 0.3):
                     self.buff_box(int(x), int(y))
-                w.later(D.get('harbinger_yeniden_sn', 20), lambda: self.phase == 'hazirlik' and self.spawn_harbingers(1))
+                w.later(D.get('harbinger_respawn_sec', 20), lambda: self.phase == 'hazirlik' and self.spawn_harbingers(1))
         elif self.fortress and npc.id == self.fortress.id:
             self.phase, self.ended = 'bitti', 'olum'
-            self.close_at = min(self.end, time.time() + D['kapanis_sn'])
-            for loot, n in D['son_vurus']['oduller']:
+            self.close_at = min(self.end, time.time() + D['closing_sec'])
+            for loot, n in D['last_hit']['oduller']:
                 msgs += self.m.m.prize(loot, n)
             if self.m.titles:
-                msgs += self.m.titles(D['son_vurus']['unvan'])
+                msgs += self.m.titles(D['last_hit']['unvan'])
             msgs.append(legacy('0|A|STM|log_msg_worldboss_boss_killed|%%USERNAME%%|%s' % self.m.p.d['pilot'].get('userName', '')))
             msgs.append(KAPI.screen('key:log_msg_gg_completed_world_boss', big=True))
             msgs += self.rank_rewards(1.0)
@@ -737,10 +737,10 @@ class WbRun:
         return msgs
 
     def rank_rewards(self, share):
-        rank = next((r for th, r in D['sanal_sira'] if share >= th), None)
+        rank = next((r for th, r in D['virtual_rank'] if share >= th), None)
         if rank is None:
             return []
-        row = next((x for x in D['siralama'] if x['den'] <= rank <= x['e']), None)
+        row = next((x for x in D['ranking'] if x['den'] <= rank <= x['e']), None)
         self.m.tally(rank=rank)
         msgs = []
         if row:
@@ -758,7 +758,7 @@ class WbRun:
     def escape(self):
         w, f = self.w, self.fortress
         self.phase, self.ended = 'bitti', 'kacis'
-        self.close_at = min(self.end, time.time() + D['kapanis_sn'])
+        self.close_at = min(self.end, time.time() + D['closing_sec'])
         msgs = [legacy('0|A|STM|log_msg_worldboss_boss_escape')]
         if f and f.alive:
             msgs.append(('VisualModifierCommand', dict(userId=f.id, modifier=BOSS_ESCAPE, attribute=0, additionalAttribute='', count=1,
@@ -791,7 +791,7 @@ class WbRun:
         k = D['kutu']
         h = w.drop_box(k['tur'], x, y, None, k['omur_sn'])
         w.boxes[h]['no_pet'] = True
-        w.boxes[h]['al'] = lambda b: self.buff(random.choice(k['guclendirmeler']))
+        w.boxes[h]['al'] = lambda b: self.buff(random.choice(k['buffs']))
 
     def buff(self, kind):
         w, p = self.w, self.m.p

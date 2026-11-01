@@ -1,7 +1,7 @@
 {
- "_aciklama": "Eksik eşya sistemleri -> server/data/esyalar_o6.json ve esyalar.json ek_magaza (yol haritası Ö6).",
+ "_description": "Eksik eşya sistemleri -> server/data/esyalar_o6.json ve esyalar.json ek_magaza (yol haritası Ö6).",
  "_kaynak": "belgeler/wiki/esyalar_o6.json; tools/esyalar_o6.py",
- "ifadeler": {
+ "phrases": {
   "esyalar": [
    "ammunition_specialammo_emote_alien-angry",
    "ammunition_specialammo_emote_alien-cheers",
@@ -35,35 +35,35 @@
    "ammunition_specialammo_emote_snowman-rolleyes",
    "ammunition_specialammo_emote_snowman-thinking"
   ],
-  "bekleme_grubu": 58,
+  "cooldown_group": 58,
   "bekleme_sn": 20,
   "sure_sn": 5,
-  "fiyat_uridyum": 50,
+  "price_uridium": 50,
   "_uyarlama": "fiyat (istemcinin 999 U değeri bilinmeyen eşyanın yer tutucusu); süre 5 sn ve ortak bekleme 20 sn resmî Mimesis Mutiny SSS'sinden"
  },
  "boosterlar": {
-  "turler": {
+  "kinds": {
    "booster_bb-01": {
     "bonus_kutusu": 100
    },
    "booster_qr-01": {
-    "gorev_odulu": 100
+    "quest_reward": 100
    },
    "booster_prm-b01": {
-    "ozel_miktar": 100
+    "special_amount": 100
    },
    "booster_rc-b00": {
-    "etkinlik_sans": 20
+    "event_chance": 20
    },
    "booster_rm-b00": {
-    "etkinlik_miktar": 50
+    "event_amount": 50
    },
    "booster_rwrddbl-b01": {
     "proxium": 100
    }
   },
-  "_turler": "istemcinin BoosterAttributes'i: bb-01 COLLECT_RESOURCES_NEWBIE 100 (bonus kutusu x2), qr-01 SalvageEffect AMOUNT 100 (görev ödülü x2, uridyum hariç), prm-b01 AMOUNT 100 (Hybrid Alloy / Indoctrine Oil x2), rc-b00 / rm-b00 etkinlik puanı olasılığı +%20 / miktarı +%50, rwrddbl-b01 Proxium x2 (Proxium sunucuda yok: etki noktası yok)",
-  "takma_ad": {
+  "_kinds": "istemcinin BoosterAttributes'i: bb-01 COLLECT_RESOURCES_NEWBIE 100 (bonus kutusu x2), qr-01 SalvageEffect AMOUNT 100 (görev ödülü x2, uridyum hariç), prm-b01 AMOUNT 100 (Hybrid Alloy / Indoctrine Oil x2), rc-b00 / rm-b00 etkinlik puanı olasılığı +%20 / miktarı +%50, rwrddbl-b01 Proxium x2 (Proxium sunucuda yok: etki noktası yok)",
+  "alias": {
    "booster_max-bp01": [
     [
      "booster_dmg-b01",
@@ -121,7 +121,7 @@
     ]
    ]
   },
-  "_takma_ad": "istemcinin tanımadığı boosterlar [[booster, saat]] (MAX-BP01: beş B01 10 saat; NBX/NQR 72 saat; PCOMB 3 saat; eşdeğerlerin istemcideki saatleri, E5)",
+  "_aliases": "istemcinin tanımadığı boosterlar [[booster, saat]] (MAX-BP01: beş B01 10 saat; NBX/NQR 72 saat; PCOMB 3 saat; eşdeğerlerin istemcideki saatleri, E5)",
   "magaza": {
    "booster_bb-01": 10000,
    "booster_qr-01": 10000,
@@ -137,98 +137,98 @@
     "kalite": "c",
     "sira": 0,
     "tur": "strike",
-    "nitelik_sayisi": 1
+    "attribute_count": 1
    },
    "equipment_xenoresonator_uc-strike-resonator": {
     "ad": "UC-Strike Resonator",
     "kalite": "uc",
     "sira": 1,
     "tur": "strike",
-    "nitelik_sayisi": 2
+    "attribute_count": 2
    },
    "equipment_xenoresonator_r-strike-resonator": {
     "ad": "R-Strike Resonator",
     "kalite": "r",
     "sira": 2,
     "tur": "strike",
-    "nitelik_sayisi": 2
+    "attribute_count": 2
    },
    "equipment_xenoresonator_ep-strike-resonator": {
     "ad": "EP-Strike Resonator",
     "kalite": "ep",
     "sira": 3,
     "tur": "strike",
-    "nitelik_sayisi": 3
+    "attribute_count": 3
    },
    "equipment_xenoresonator_ma-strike-resonator": {
     "ad": "MA-Strike Resonator",
     "kalite": "ma",
     "sira": 4,
     "tur": "strike",
-    "nitelik_sayisi": 3
+    "attribute_count": 3
    },
    "equipment_xenoresonator_leg-strike-resonator": {
     "ad": "LEG-Strike Resonator",
     "kalite": "leg",
     "sira": 5,
     "tur": "strike",
-    "nitelik_sayisi": 4
+    "attribute_count": 4
    },
    "equipment_xenoresonator_ul-strike-resonator": {
     "ad": "UL-Strike Resonator",
     "kalite": "ul",
     "sira": 6,
     "tur": "strike",
-    "nitelik_sayisi": 4
+    "attribute_count": 4
    },
    "equipment_xenoresonator_c-aegis-resonator": {
     "ad": "C-Aegis Resonator",
     "kalite": "c",
     "sira": 0,
     "tur": "aegis",
-    "nitelik_sayisi": 1
+    "attribute_count": 1
    },
    "equipment_xenoresonator_uc-aegis-resonator": {
     "ad": "UC-Aegis Resonator",
     "kalite": "uc",
     "sira": 1,
     "tur": "aegis",
-    "nitelik_sayisi": 2
+    "attribute_count": 2
    },
    "equipment_xenoresonator_r-aegis-resonator": {
     "ad": "R-Aegis Resonator",
     "kalite": "r",
     "sira": 2,
     "tur": "aegis",
-    "nitelik_sayisi": 2
+    "attribute_count": 2
    },
    "equipment_xenoresonator_ep-aegis-resonator": {
     "ad": "EP-Aegis Resonator",
     "kalite": "ep",
     "sira": 3,
     "tur": "aegis",
-    "nitelik_sayisi": 3
+    "attribute_count": 3
    },
    "equipment_xenoresonator_ma-aegis-resonator": {
     "ad": "MA-Aegis Resonator",
     "kalite": "ma",
     "sira": 4,
     "tur": "aegis",
-    "nitelik_sayisi": 3
+    "attribute_count": 3
    },
    "equipment_xenoresonator_leg-aegis-resonator": {
     "ad": "LEG-Aegis Resonator",
     "kalite": "leg",
     "sira": 5,
     "tur": "aegis",
-    "nitelik_sayisi": 4
+    "attribute_count": 4
    },
    "equipment_xenoresonator_ul-aegis-resonator": {
     "ad": "UL-Aegis Resonator",
     "kalite": "ul",
     "sira": 6,
     "tur": "aegis",
-    "nitelik_sayisi": 4
+    "attribute_count": 4
    }
   },
   "kaynaklar": {
@@ -310,7 +310,7 @@
        15.0
       ]
      },
-     "birim": "%",
+     "unit": "%",
      "sabit": {}
     },
     "collapse": {
@@ -344,7 +344,7 @@
        15.0
       ]
      },
-     "birim": "%",
+     "unit": "%",
      "sabit": {
       "sure": -25
      }
@@ -380,7 +380,7 @@
        15.0
       ]
      },
-     "birim": "%",
+     "unit": "%",
      "sabit": {
       "sure": 25
      }
@@ -416,7 +416,7 @@
        30.0
       ]
      },
-     "birim": "%",
+     "unit": "%",
      "sabit": {
       "aktif_pay": 75,
       "patlama_pay": 25
@@ -453,7 +453,7 @@
        35.0
       ]
      },
-     "birim": "%",
+     "unit": "%",
      "sabit": {}
     },
     "adhesion": {
@@ -487,7 +487,7 @@
        4.0
       ]
      },
-     "birim": "sn",
+     "unit": "sn",
      "sabit": {}
     }
    },
@@ -523,7 +523,7 @@
        10.0
       ]
      },
-     "birim": "%",
+     "unit": "%",
      "sabit": {}
     },
     "entry_buffer": {
@@ -557,7 +557,7 @@
        2.0
       ]
      },
-     "birim": "sn",
+     "unit": "sn",
      "sabit": {
       "azaltma": 30
      }
@@ -593,7 +593,7 @@
        20.0
       ]
      },
-     "birim": "%",
+     "unit": "%",
      "sabit": {
       "saniye_basi": 5
      }
@@ -629,7 +629,7 @@
        40.0
       ]
      },
-     "birim": "%",
+     "unit": "%",
      "sabit": {}
     },
     "detachment": {
@@ -663,18 +663,18 @@
        40.0
       ]
      },
-     "birim": "%",
+     "unit": "%",
      "sabit": {}
     }
    }
   },
-  "tarifler": [
+  "recipes": [
    {
     "hedef": "equipment_xenoresonator_c-strike-resonator",
     "tur": "strike",
     "kalite": "c",
     "uridyum": 1000,
-    "kaynak_adet": 3
+    "source_amount": 3
    },
    {
     "hedef": "equipment_xenoresonator_uc-strike-resonator",
@@ -729,7 +729,7 @@
     "tur": "aegis",
     "kalite": "c",
     "uridyum": 1000,
-    "kaynak_adet": 3
+    "source_amount": 3
    },
    {
     "hedef": "equipment_xenoresonator_uc-aegis-resonator",
@@ -780,16 +780,16 @@
     "adet": 4
    }
   ],
-  "dislanan": [
+  "excluded": [
    [
     "collapse",
     "evernight"
    ]
   ],
-  "kaynak_fiyat_uridyum": 2000,
+  "resource_price_uridium": 2000,
   "synthesis": {
    "grup": "synthesis_resonator_title",
-   "dugme": "synthesis_resonator_synthesis",
+   "button": "synthesis_resonator_synthesis",
    "tablolar": {
     "strike": "synthesis_resonator_strike",
     "aegis": "synthesis_resonator_aegis"
@@ -797,10 +797,10 @@
   },
   "_uyarlama": "Resonator yayımlanmamış içerik: kaliteye bölünmüş aralıklar, nitelik adedi (1,2,2,3,3,4,4), tarifler (C: türün 3 kaynağı + 1.000 U; üstü 4 alt kalite + uridyum), başarı %100 (pencerede oran yok), kaynakların mağaza fiyatı, \"en iyi Strike Resonator etkin\" kuralı (hangarda yuvası yok)."
  },
- "ek_tarifler": {
+ "extra_recipes": {
   "grup": "title_assembly",
   "tablo": "title_assembly",
-  "tarifler": [
+  "recipes": [
    {
     "tarif": "recipe_blueprint-a-elite-blaze",
     "hedef": "ship_a-elite_design_a-elite-blaze",
@@ -812,7 +812,7 @@
      "resource_hybrid-processor": 1
     },
     "en_cok": 1,
-    "kullanim": "USABLE_ONCE",
+    "usage": "USABLE_ONCE",
     "uyarlama": true
    },
    {
@@ -826,7 +826,7 @@
      "resource_hybrid-processor": 2
     },
     "en_cok": 1,
-    "kullanim": "USABLE_ONCE",
+    "usage": "USABLE_ONCE",
     "uyarlama": true
    },
    {
@@ -840,7 +840,7 @@
      "resource_micro-transistors": 2
     },
     "en_cok": 1,
-    "kullanim": "USABLE_ONCE",
+    "usage": "USABLE_ONCE",
     "uyarlama": true
    },
    {
@@ -852,7 +852,7 @@
      "resource_collectable_neu": 1500
     },
     "en_cok": 1,
-    "kullanim": "ALWAYS_USABLE",
+    "usage": "ALWAYS_USABLE",
     "uyarlama": true
    },
    {
@@ -866,7 +866,7 @@
      "resource_collectable_scrapium": 10
     },
     "en_cok": null,
-    "kullanim": "ALWAYS_USABLE",
+    "usage": "ALWAYS_USABLE",
     "uyarlama": true
    },
    {
@@ -880,7 +880,7 @@
      "resource_hybrid-processor": 1
     },
     "en_cok": null,
-    "kullanim": "ALWAYS_USABLE",
+    "usage": "ALWAYS_USABLE",
     "uyarlama": true
    },
    {
@@ -894,7 +894,7 @@
      "resource_micro-transistors": 2
     },
     "en_cok": null,
-    "kullanim": "ALWAYS_USABLE",
+    "usage": "ALWAYS_USABLE",
     "uyarlama": true
    },
    {
@@ -908,7 +908,7 @@
      "resource_hybrid-processor": 1
     },
     "en_cok": null,
-    "kullanim": "ALWAYS_USABLE",
+    "usage": "ALWAYS_USABLE",
     "uyarlama": true
    },
    {
@@ -920,7 +920,7 @@
      "equipment_weapon_laser_aa-1": 1
     },
     "en_cok": null,
-    "kullanim": "ALWAYS_USABLE",
+    "usage": "ALWAYS_USABLE",
     "uyarlama": true
    },
    {
@@ -932,7 +932,7 @@
      "equipment_weapon_laser_aap-1": 1
     },
     "en_cok": null,
-    "kullanim": "ALWAYS_USABLE",
+    "usage": "ALWAYS_USABLE",
     "uyarlama": true
    },
    {
@@ -944,7 +944,7 @@
      "equipment_weapon_laser_aa-1": 1
     },
     "en_cok": null,
-    "kullanim": "ALWAYS_USABLE",
+    "usage": "ALWAYS_USABLE",
     "uyarlama": true
    },
    {
@@ -956,7 +956,7 @@
      "equipment_weapon_laser_aap-1": 1
     },
     "en_cok": null,
-    "kullanim": "ALWAYS_USABLE",
+    "usage": "ALWAYS_USABLE",
     "uyarlama": true
    },
    {
@@ -970,7 +970,7 @@
      "resource_collectable_prismatium": 5
     },
     "en_cok": null,
-    "kullanim": "ALWAYS_USABLE",
+    "usage": "ALWAYS_USABLE",
     "uyarlama": true
    },
    {
@@ -982,7 +982,7 @@
      "resource_collectable_pulse-core": 2000
     },
     "en_cok": 1,
-    "kullanim": "ALWAYS_USABLE",
+    "usage": "ALWAYS_USABLE",
     "uyarlama": true
    },
    {
@@ -994,7 +994,7 @@
      "resource_collectable_pulse-core": 1600
     },
     "en_cok": 1,
-    "kullanim": "ALWAYS_USABLE",
+    "usage": "ALWAYS_USABLE",
     "uyarlama": true
    },
    {
@@ -1007,7 +1007,7 @@
      "resource_collectable_styxus-shard": 200
     },
     "en_cok": 1,
-    "kullanim": "USABLE_ONCE",
+    "usage": "USABLE_ONCE",
     "uyarlama": true
    },
    {
@@ -1021,7 +1021,7 @@
      "resource_micro-transistors": 1
     },
     "en_cok": 1,
-    "kullanim": "USABLE_ONCE",
+    "usage": "USABLE_ONCE",
     "uyarlama": true
    },
    {
@@ -1035,7 +1035,7 @@
      "resource_micro-transistors": 1
     },
     "en_cok": 1,
-    "kullanim": "USABLE_ONCE",
+    "usage": "USABLE_ONCE",
     "uyarlama": true
    },
    {
@@ -1049,7 +1049,7 @@
      "resource_micro-transistors": 1
     },
     "en_cok": 1,
-    "kullanim": "USABLE_ONCE",
+    "usage": "USABLE_ONCE",
     "uyarlama": true
    },
    {
@@ -1062,7 +1062,7 @@
      "resource_collectable_styxus-shard": 200
     },
     "en_cok": 1,
-    "kullanim": "USABLE_ONCE",
+    "usage": "USABLE_ONCE",
     "uyarlama": true
    },
    {
@@ -1074,7 +1074,7 @@
      "currency_uridium": 1500
     },
     "en_cok": null,
-    "kullanim": "ALWAYS_USABLE",
+    "usage": "ALWAYS_USABLE",
     "uyarlama": true
    },
    {
@@ -1087,7 +1087,7 @@
      "resource_collectable_styxus-shard": 200
     },
     "en_cok": 1,
-    "kullanim": "USABLE_ONCE",
+    "usage": "USABLE_ONCE",
     "uyarlama": true
    }
   ],

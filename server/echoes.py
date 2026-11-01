@@ -81,9 +81,9 @@ class Echoes:
         if H.map_class(map_id) == D['giris'] and int(map_id) == KAPI.HOME_MAP.get(self.p.d['pilot'].get('factionId'), 5):
             w, h = H.map_size(map_id)
             # resmî sunucu kaydı: 2-1'de bu tasarımın (300) portalı (11210, 6310), haritanın ortasında
-            out.append(dict(gateId=PORTAL, x=w // 2 + 710, y=h // 2 - 240, hedef=D['salon'], designId=D['portal'], kapi='echoes',
+            out.append(dict(gateId=PORTAL, x=w // 2 + 710, y=h // 2 - 240, hedef=D['hall'], designId=D['portal'], kapi='echoes',
                             pencere='echoes_giris', varis=HALL_ARRIVAL))
-        elif int(map_id) == D['salon']:
+        elif int(map_id) == D['hall']:
             home = KAPI.HOME_MAP.get(self.p.d['pilot'].get('factionId'), 5)
             out += [dict(gateId=PORTAL + 1, x=HALL_START[0], y=HALL_START[1], hedef=0, designId=301, kapi='echoes', pencere='echoes_basla',
                          ipucu='window_dse_title', yerinde=True),
@@ -102,9 +102,9 @@ class Echoes:
 
     def enter_hall(self):
         """X-1 portalı: seviye şartı -> (hedef, mesajlar)."""
-        if self.p.d['pilot'].get('level', 1) < D['seviye_sarti']:
-            return None, [KAPI.screen('Deep Space Echoes requires level %d.' % D['seviye_sarti'])]
-        return D['salon'], []
+        if self.p.d['pilot'].get('level', 1) < D['level_requirement']:
+            return None, [KAPI.screen('Deep Space Echoes requires level %d.' % D['level_requirement'])]
+        return D['hall'], []
 
     # ------------------------------------------------------------ gemiler
     def ship_cmd(self, sid, hid=None):
@@ -112,7 +112,7 @@ class Echoes:
         s = self.p.d['gemiler'][str(sid)]
         row = ITEMS['gemiler'].get(s['lootId'], {})
         active = str(sid) == self.p.d['aktif_gemi']
-        g = self.p.d['gemi'] if active else (s.get('govde') or {})
+        g = self.p.d['gemi'] if active else (s.get('hull') or {})
         cfg = self.p.config(None, sid)
         hp = row.get('hp', 0)
         return mod('ExpeditionShipCommand', hangarId=int(s['hangarId']), generators=len(cfg.get('generators', [])), maxNano=hp,
@@ -188,20 +188,20 @@ class Echoes:
         return dest, [('ExpeditionShowUiCommand', dict(type=UI_CLOSE_START, param0='', param1=''))]
 
     def waves(self):
-        return LEVELS[self.level['harita']]['dalgalar']
+        return LEVELS[self.level['harita']]['waves']
 
     def wave_count(self):
         return len(self.waves())
 
     def scale(self, n, i, wave):
         lvl = LEVELS[self.level['harita']]
-        f = (1 + D['olcek_seviye'] * (self.level['no'] - 1)) * lvl.get('guc', 1.0)
+        f = (1 + D['scale_level'] * (self.level['no'] - 1)) * lvl.get('power', 1.0)
         return PS.scale_npc(n, f * lvl.get('can', 1.0), f, 1.0)        # can: yalnız can/kalkan çarpanı (45. seviyenin patronu)
 
     def attach(self, world):
         self.world = world
         world.ally = None
-        if int(world.map_id) == D['salon']:
+        if int(world.map_id) == D['hall']:
             world.send([self.hangar_cmd()])
             return None
         if not self.level:
@@ -239,13 +239,13 @@ class Echoes:
         """Dost geminin canı seviyenin ateş gücüne göre (en az data 'dost' değerleri). Sabit 400.000 + 200.000'de 2. seviyenin 5 Reflector
         Mimesis'i (50.000 hasar) onu 6 sn'de yok ediyordu: koru seviyeleri kazanılamıyordu (canlı test H75)."""
         import world as world_module
-        f = (1 + D['olcek_seviye'] * (self.level['no'] - 1)) * LEVELS[self.level['harita']].get('guc', 1.0)
+        f = (1 + D['scale_level'] * (self.level['no'] - 1)) * LEVELS[self.level['harita']].get('power', 1.0)
         dps = 0.0
         for wave in self.waves():
             w_dps = sum(c * float(world_module.CFG['tipler'].get(str(t), {}).get('hasar', 0)) for grp in wave['gruplar'] for t, c, *_ in grp)
             dps = max(dps, w_dps)
         # take_shot: atışların yarısı dosta, hasar 0,7-1,0 (ort. 0,85), atış aralığı
-        dps = dps * f * 0.5 * 0.85 / world_module.COMBAT['npc_saldiri_aralik_sn']
+        dps = dps * f * 0.5 * 0.85 / world_module.COMBAT['npc_attack_interval_sec']
         need = dps * self.ALLY_SURVIVE_SEC
         hp = max(float(D['dost']['can']), need * 2 / 3)
         sh = max(float(D['dost']['kalkan']), need / 3)
@@ -262,7 +262,7 @@ class Echoes:
         if math.hypot(ax - nx, ay - ny) > w.npc_range(n) + 200:
             return False
         import world as world_module
-        n.next_shot = now + n.d.get('atis_aralik_sn', world_module.COMBAT['npc_saldiri_aralik_sn'])
+        n.next_shot = now + n.d.get('shot_interval_sec', world_module.COMBAT['npc_attack_interval_sec'])
         import settings as SET
         dmg = int(n.d['hasar'] * random.uniform(0.8, 1.0) * SET.multiplier('npc_hasar', 'dalga' if n.hunt else 'harita'))      # panel
         to_shield = min(int(a.shield), int(dmg * 0.7))
@@ -326,8 +326,8 @@ class Echoes:
                 msgs += self.grant(loot, a)
             st['ilk'].append(n)
         t = D['tekrar']
-        msgs += self.grant('currency_uridium', t['uridyum_taban'] + t['uridyum_seviye'] * n)
-        msgs += self.grant('ammunition_laser_ucb-100', t['ucb_taban'] + t['ucb_seviye'] * n)
+        msgs += self.grant('currency_uridium', t['uridium_base'] + t['uridium_level'] * n)
+        msgs += self.grant('ammunition_laser_ucb-100', t['ucb_base'] + t['ucb_level'] * n)
         with self.p.lock:
             st['seviye'] = n + 1
             st['highest'] = max(st['highest'], n)
@@ -375,16 +375,16 @@ class Echoes:
         """Pusu (harita_duzeni 'pusu'; oyuncu bildirimi 2026-10-28): yok et seviyesinde dalganın j. grubu haritanın sabit noktasında
         bekler, oyuncu yaklaşınca saldırır -> (x, y, fark yarıçapı) ya da None."""
         import map_layout as ML
-        p = ML.of(self.world.map_id).get('pusu') if self.world and self.level and self.level['tur'] == 'yok_et' else None
+        p = ML.of(self.world.map_id).get('ambush') if self.world and self.level and self.level['tur'] == 'yok_et' else None
         if not p:
             return None
-        x, y = p['noktalar'][j % len(p['noktalar'])]
+        x, y = p['waypoints'][j % len(p['waypoints'])]
         return x, y, p['yaricap']
 
     def hall_portal(self, w):
         import map_links as H
         cx, cy = H.center(w.map_id)
-        return dict(gateId=PORTAL + 4, x=cx, y=cy + 1500, hedef=D['salon'], designId=301, kapi='echoes',
+        return dict(gateId=PORTAL + 4, x=cx, y=cy + 1500, hedef=D['hall'], designId=301, kapi='echoes',
                     varis=HALL_ARRIVAL)
 
     def on_death(self):
@@ -411,13 +411,13 @@ class Echoes:
     def info_cmd(self):
         st = self.st
         if st.get('unvan_bekle') and self.titles:             # geçen ayın birincisi (wiki: Cosmic Tyrant)
-            self.titles(next(r['unvan'] for r in D['siralama'] if r['den'] == 1))
+            self.titles(next(r['unvan'] for r in D['ranking'] if r['den'] == 1))
             st.pop('unvan_bekle')
         me = st['highest']
         ranks = [mod('ExpeditionRankUserInfoCommand', rank=1, curLevel=me, clearanceTime=int(st.get('sure', 0)),
                      userId=self.p.d['pilot'].get('userId', 0), userName=self.p.d['pilot'].get('userName', ''))] if me else []
         rewards = [mod('RankRewardCommand', rankType=13, rewardContentModuleList=[mod('RewardModule', lootId=l, amount=n) for l, n in r['esyalar']],
-                       rewardRange=mod('RankRewardRangeModule', **{'from': r['den'], 'to': r['e']})) for r in D['siralama']]
+                       rewardRange=mod('RankRewardRangeModule', **{'from': r['den'], 'to': r['e']})) for r in D['ranking']]
         n = min(st['seviye'], len(LEVELS))
         lvl = LEVELS[n]
         t = D['tekrar']
@@ -433,21 +433,21 @@ class Echoes:
                           for l, a in (lvl['ilk'] if n not in st['ilk'] else [])],
             expeditionClearanceTimeCommand=clear, eventEndTime=end.strftime('%d.%m.%Y') + ' 23:59',
             timeLimit=int(lvl.get('sure_sn') or D['sure_sn']), popup=False, myRank=1 if me else -1,
-            normalRewards=[mod('ExpeditionRewardCommand', lootId='currency_uridium', amount=t['uridyum_taban'] + t['uridyum_seviye'] * n),
-                           mod('ExpeditionRewardCommand', lootId='ammunition_laser_ucb-100', amount=t['ucb_taban'] + t['ucb_seviye'] * n)],
+            normalRewards=[mod('ExpeditionRewardCommand', lootId='currency_uridium', amount=t['uridium_base'] + t['uridium_level'] * n),
+                           mod('ExpeditionRewardCommand', lootId='ammunition_laser_ucb-100', amount=t['ucb_base'] + t['ucb_level'] * n)],
             maxLevel=me))
 
     def jump_info_cmd(self):
         top = self.st['highest']
         lv = [x for x in D['atlama']['hedefler'] if self.st['seviye'] < x <= top]      # yalnız ilerisi: ilerlemede olan oyuncuya geri atlama penceresi açılmaz
-        return ('ExpeditionJumpLevelInfoCommand', dict(levels=lv, costs=[D['atlama']['bedel_blok'] * ((x - 1) // 5) for x in lv]))
+        return ('ExpeditionJumpLevelInfoCommand', dict(levels=lv, costs=[D['atlama']['cost_block'] * ((x - 1) // 5) for x in lv]))
 
     def jump(self, f):
         from shop import stack_msg
         target = int(f.get('jumpTargetLevel') or 0)
         top = self.st['highest']
         ok = target in D['atlama']['hedefler'] and self.st['seviye'] < target <= top
-        cost = D['atlama']['bedel_blok'] * ((target - 1) // 5)
+        cost = D['atlama']['cost_block'] * ((target - 1) // 5)
         if ok and self.p.d['pilot'].get('uridium', 0) >= cost:
             self.p.gain(uridyum=-cost, neden='expedition_jump')
             with self.p.lock:
@@ -469,9 +469,9 @@ class Echoes:
 
     def buy_ticket(self):
         from shop import stack_msg
-        ok = self.p.d['pilot'].get('uridium', 0) >= D['bilet_fiyati']
+        ok = self.p.d['pilot'].get('uridium', 0) >= D['ticket_price']
         if ok:
-            self.p.gain(uridyum=-D['bilet_fiyati'], neden='buy_expedition_ticket')
+            self.p.gain(uridyum=-D['ticket_price'], neden='buy_expedition_ticket')
             self.p.add_resource(D['bilet'], 1)
         return [('ExpeditionBuyTicketCommand', dict(result=ok, stack=stack_msg('eqt_error_generic') if not ok else
                                                     mod('BaseStackCommand', type=0, enumBaseKey=0, stringBasekey='', argsList=[])))] + \

@@ -28,9 +28,9 @@ import settings as SET
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 S = json.load(open(os.path.join(HERE, 'data', 'skylab.json'), encoding='utf8'))
-LEVELS, COSTS, MODULES, ORES = S['seviyeler'], S['maliyetler'], S['moduller'], S['cevherler']
-COLLECTORS, REFINERIES, XENO = S['toplayicilar'], S['rafineriler'], S['xeno']
-ROBOTS, TRANSPORT = S['robotlar'], S['tasima']
+LEVELS, COSTS, MODULES, ORES = S['seviyeler'], S['costs'], S['moduller'], S['cevherler']
+COLLECTORS, REFINERIES, XENO = S['collectors'], S['refineries'], S['xeno']
+ROBOTS, TRANSPORT = S['robots'], S['transport']
 ORDER = ['DURANIUM_REFINERY', 'BASE_MODULE', 'ENDURIUM_COLLECTOR', 'SOLAR_MODULE', 'XENO_MODULE', 'PROMETID_REFINERY',
          'STORAGE_MODULE', 'TRANSPORT_MODULE', 'SEPROM_REFINERY', 'PROMETIUM_COLLECTOR', 'TERBIUM_COLLECTOR', 'PROMERIUM_REFINERY']
 ORE_ORDER = ['1', '2', '3', '11', '12', '4', '13', '14']           # kayıttaki depo listesi sırası
@@ -71,8 +71,8 @@ class Skylab:
         if not d:
             d = self.p.d['skylab'] = {
                 'moduller': {k: {'seviye': v[0], 'etkin': v[1], 'yukseltme': None} for k, v in S['baslangic']['moduller'].items()},
-                'depo': {k: float(v) for k, v in S['baslangic']['depo'].items()},
-                'robotlar': {}, 'yedek': {}, 'tasima': None, 'son': time.time()}
+                'storage': {k: float(v) for k, v in S['baslangic']['storage'].items()},
+                'robots': {}, 'yedek': {}, 'transport': None, 'son': time.time()}
             self.p.dirty = True
         return d
 
@@ -103,17 +103,17 @@ class Skylab:
         return sum(self.energy(k) for k in MODULES if k != 'SOLAR_MODULE' and self.working(k))
 
     def solar(self):
-        return row(self.level('SOLAR_MODULE'))['gunes']
+        return row(self.level('SOLAR_MODULE'))['solar']
 
     def capacity(self, ore):
-        v = row(self.level('STORAGE_MODULE'))['depo'][ORES[ore][1]]
+        v = row(self.level('STORAGE_MODULE'))['storage'][ORES[ore][1]]
         return v if SET.multiplier('skylab_depo') == 1.0 else min(SET.I32, int(v * SET.multiplier('skylab_depo')))    # panel: depo
 
     def amount(self, ore):
-        return int(self.st['depo'].get(ore, 0))
+        return int(self.st['storage'].get(ore, 0))
 
     def bonus(self, key):
-        return sum(ROBOTS[str(t)]['bonus'] for t, _ in self.st['robotlar'].get(key, []))
+        return sum(ROBOTS[str(t)]['bonus'] for t, _ in self.st['robots'].get(key, []))
 
     def efficiency(self, key):
         return 100 + self.bonus(key)
@@ -129,15 +129,15 @@ class Skylab:
         if key in REFINERIES:
             return int(row(lv)['uretim'][REFINERIES[key][2]] * k)
         if key == 'XENO_MODULE':
-            return int(row(lv)['uretim'][XENO['sutun']] * k)
+            return int(row(lv)['uretim'][XENO['column']] * k)
         return 0
 
     # ------------------------------------------------------------ zaman
     def events(self, after):
         ev = [m['yukseltme'] for m in self.st['moduller'].values() if m.get('yukseltme')]
-        ev += [b for rs in self.st['robotlar'].values() for _, b in rs]
-        if self.st.get('tasima'):
-            ev.append(self.st['tasima']['bitis'])
+        ev += [b for rs in self.st['robots'].values() for _, b in rs]
+        if self.st.get('transport'):
+            ev.append(self.st['transport']['bitis'])
         return [e for e in ev if e > after]
 
     def advance(self, now=None):
@@ -170,7 +170,7 @@ class Skylab:
                     self.send(msgs)
 
     def produce(self, hours):
-        dep = self.st['depo']
+        dep = self.st['storage']
 
         def add(ore, n):
             dep[ore] = min(self.capacity(ore), dep.get(ore, 0) + n) if n > 0 else dep.get(ore, 0)
@@ -197,17 +197,17 @@ class Skylab:
         for key, m in st['moduller'].items():
             if m.get('yukseltme') and m['yukseltme'] <= t:
                 out += self.finish_upgrade(key, code=46)
-        for key, rs in list(st['robotlar'].items()):
+        for key, rs in list(st['robots'].items()):
             alive = [r for r in rs if r[1] > t]
             for _ in range(len(rs) - len(alive)):
                 spare = st['yedek'].get(key) or []
                 if spare:
                     alive.append([spare.pop(0), t + ROBOTS['omur_sn']])
-            st['robotlar'][key] = alive
-        tr = st.get('tasima')
+            st['robots'][key] = alive
+        tr = st.get('transport')
         if tr and tr['bitis'] <= t:
             out += self.deliver(tr['yuk'])
-            st['tasima'] = None
+            st['transport'] = None
         return out
 
     def finish_upgrade(self, key, code):
@@ -234,7 +234,7 @@ class Skylab:
             if n - take > 0:
                 back[ore] = n - take
         for ore, n in back.items():
-            self.st['depo'][ore] = min(self.capacity(ore), self.st['depo'].get(ore, 0) + n)
+            self.st['storage'][ore] = min(self.capacity(ore), self.st['storage'].get(ore, 0) + n)
         self.log('   Skylab: taşıma geldi %s%s' % (got, ' (sığmayan depoya döndü %s)' % back if back else ''))
         return ([('_ores', got)] if got else []) + [('_receipt', 'TRANSPORT_MODULE', 'startTransport', [], [53])]
 
@@ -254,7 +254,7 @@ class Skylab:
     def robots_left(self, key, now=None):
         now = now or time.time()
         return [mod('SkylabActiveRobotsLeftTimeCommand', uridium=1 if t == 2 else 0, leftTime=max(0, int(b - now)))
-                for t, b in self.st['robotlar'].get(key, [])]
+                for t, b in self.st['robots'].get(key, [])]
 
     def robot_price(self, kind):
         """Robotun para birimi ve alınan fiyatı (panelin hizmet ücreti çarpanıyla; pencerede de bu görünür)."""
@@ -265,7 +265,7 @@ class Skylab:
         """Toplayıcının Productivity sekmesi (robotlar, verim, fiyatlar)."""
         price = lambda kind: mod('SkylabRobotPriceCommand', priceType=ROBOTS[kind]['fiyat'][0], value=self.robot_price(kind)[1])
         return mod('SkylabModuleProductivityCommand', type1Price=price('1'), efficienty=self.efficiency(key),
-                   active=len(self.st['robotlar'].get(key, [])), robotsLeftTimeList=self.robots_left(key, now), type2Price=price('2'),
+                   active=len(self.st['robots'].get(key, [])), robotsLeftTimeList=self.robots_left(key, now), type2Price=price('2'),
                    bonus=self.bonus(key), maxActive=ROBOTS['azami'], inStorage=len(self.st['yedek'].get(key, [])))
 
     def receipt(self, construction='', subaction='', errors=(), success=()):
@@ -276,7 +276,7 @@ class Skylab:
         verilebilir (BaseStackCommand)."""
         texts = [c if isinstance(c, dict) else self.stack_args(c, construction) for c in list(errors) + list(success)]
         return ('SkylabUnifiedReceiptCommand', dict(
-            construction=construction if texts else '', resultId=0, transportPrice=TRANSPORT['hizli_uridyum'],
+            construction=construction if texts else '', resultId=0, transportPrice=TRANSPORT['fast_uridium'],
             robotsLeftTimeList=self.robots_left(construction) if construction in COLLECTORS else [], subaction=subaction,
             errorId=texts, sucessId=[]))
 
@@ -331,11 +331,11 @@ class Skylab:
                        activeEnergy=self.energy(key))
             ores = [self.ore_info(XENO['cevher'], self.production(key))]
         elif key == 'STORAGE_MODULE':
-            nxt = row(self.level(key) + 1)['depo'] if self.level(key) < MODULES[key]['azami'] else None
+            nxt = row(self.level(key) + 1)['storage'] if self.level(key) < MODULES[key]['azami'] else None
             ores = [self.ore_info(o, (nxt[ORES[o][1]] - self.capacity(o)) if nxt else 0, nxt[ORES[o][1]] if nxt else None)
                     for o in ORE_ORDER]
         elif key == 'TRANSPORT_MODULE':
-            tr = self.st.get('tasima')
+            tr = self.st.get('transport')
             if tr:
                 info = mod('SkylabCollectorInfoCommand', production=int(sum(tr['yuk'].values())), maxTime=self.transport_time(tr['yuk']),
                            leftTime=max(0, int(tr['bitis'] - now)))
@@ -383,7 +383,7 @@ class Skylab:
         INV.spend(self.p, {'currency_credits': c['kredi']}, reason='buy_SPECIAL', detail='skylab_' + key.lower())
         with self.p.lock:
             for ore, _ in UPGRADE_RES:
-                self.st['depo'][ore] -= c['kaynak']
+                self.st['storage'][ore] -= c['kaynak']
             m = self.module(key)
             m['yukseltme'] = now + SET.duration(c['sure_sn'], 'skylab')       # panel: bekleme
             if m['seviye'] == 0:
@@ -459,20 +459,20 @@ class Skylab:
 
     def transport(self, f, now):
         mode, st = f.get('transportMode') or '', self.st
-        price = SET.price('hizmet_fiyat', TRANSPORT['hizli_uridyum'], 'skylab')      # panel
+        price = SET.price('hizmet_fiyat', TRANSPORT['fast_uridium'], 'skylab')      # panel
         if mode == 'instantFinish':
-            if not st.get('tasima'):
+            if not st.get('transport'):
                 return [22], [], []
             if INV.missing(self.p, {'currency_uridium': price}):
                 return [47], [], []
             INV.spend(self.p, {'currency_uridium': price}, reason='buy_SPECIAL', detail='skylab_transport')
             with self.p.lock:
-                load, st['tasima'] = st['tasima']['yuk'], None
+                load, st['transport'] = st['transport']['yuk'], None
                 msgs = [x for x in self.deliver(load) if x[0] != '_receipt']
             return [], [53], msgs
         if not self.working('TRANSPORT_MODULE'):
             return [22], [], []
-        if st.get('tasima'):
+        if st.get('transport'):
             return [48], [], []
         load = {}
         for field, ore in COUNT_FIELDS.items():
@@ -492,11 +492,11 @@ class Skylab:
             INV.spend(self.p, {'currency_uridium': price}, reason='buy_SPECIAL', detail='skylab_transport')
         with self.p.lock:
             for ore, n in load.items():
-                st['depo'][ore] -= n
+                st['storage'][ore] -= n
             if mode == 'fast':
                 msgs = [x for x in self.deliver(load) if x[0] != '_receipt']
             else:
-                st['tasima'] = {'bitis': now + self.transport_time(load), 'yuk': load}
+                st['transport'] = {'bitis': now + self.transport_time(load), 'yuk': load}
                 msgs = []
             self.p.dirty = True
         self.log('   Skylab: taşıma %s %s' % ('anında' if mode == 'fast' else 'başladı', load))
@@ -535,7 +535,7 @@ class Skylab:
             return self.out(key, 'purchase', [32 if cur == 'credits' else 44], [], [], now) + [self.productivity_msg(key, now)]
         INV.spend(self.p, {loot: price}, reason='buy_SPECIAL', detail='skylab_robot')
         with self.p.lock:
-            rs = self.st['robotlar'].setdefault(key, [])
+            rs = self.st['robots'].setdefault(key, [])
             if len(rs) < ROBOTS['azami']:
                 rs.append([int(kind), now + ROBOTS['omur_sn']])
             else:

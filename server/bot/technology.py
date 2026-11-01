@@ -15,7 +15,7 @@ TECH = K.ITEMS['teknoloji']['esyalar']
 RECIPES = {'tech_backup-shields': ('U', 2800), 'tech_battle-repair-bot': ('U', 2800), 'tech_chain-impulse': ('U', 1800),
          'tech_energy-leech': ('U', 6500), 'tech_precision-targeter': ('U', 250)}
 LAUNCHER = K.ITEMS['savas_esyalari']['fircatici']
-LAUNCHER_AMMO = K.ITEMS['savas_esyalari']['fircatici_cephane']
+LAUNCHER_AMMO = K.ITEMS['savas_esyalari']['launcher_ammo']
 HST = ('equipment_weapon_rocketlauncher_hst-1', 'equipment_weapon_rocketlauncher_hst-2')
 LAUNCHER_ROCKETS = ('ammunition_rocketlauncher_eco-10', 'ammunition_rocketlauncher_hstrm-01')
 
@@ -76,7 +76,7 @@ def pvp_factor(bot):
 # ------------------------------------------------------------------------------------------------------------ fırlatıcı
 def launcher(bot):
     f = bot.k['ekip'].get('fircatici')
-    return f if f in LAUNCHER['turler'] else None
+    return f if f in LAUNCHER['kinds'] else None
 
 
 def pick_launcher_rocket(bot):
@@ -89,8 +89,8 @@ def pick_launcher_rocket(bot):
 def salvo(bot):
     """(kapasite, salvo arası sn)."""
     f = launcher(bot)
-    capacity = LAUNCHER['turler'][f]['kapasite'] if f else 0
-    return capacity, capacity * LAUNCHER['dolum_sn'] + 1.3
+    capacity = LAUNCHER['kinds'][f]['capacity'] if f else 0
+    return capacity, capacity * LAUNCHER['refill_sec'] + 1.3
 
 
 def launcher_dps(bot, rocket):
@@ -102,7 +102,7 @@ def candidates(bot):
     """Alışveriş adayları: fırlatıcı (roket izni, 8./10. seviyeden; faydası güç payı)."""
     if not bot.permission.get('roket', True) or launcher(bot) == HST[1]:
         return []
-    power = bot.value()['guc']
+    power = bot.value()['power']
     out = []
     for f, lv, pay in ((HST[0], 8, 0.12), (HST[1], 10, 0.25)):
         fi = K.price(f)

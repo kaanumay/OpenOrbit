@@ -44,7 +44,7 @@ BYTE = 'resource_collectable_byte-remnant'
 
 
 def _register():
-    for k, v in (D.get('turler') or {}).items():
+    for k, v in (D.get('kinds') or {}).items():
         t = {x: y for x, y in v.items() if x not in ('puan', 'byte')}
         if v.get('byte'):
             t['ek_odul'] = {BYTE: v['byte']}         # wiki aliens: öldürünce doğrudan Byte Remnant (kutudaki ayrıca)
@@ -53,9 +53,9 @@ def _register():
     if g:
         world_module.CFG['tipler'][FREIGHTER] = dict(ad=g['ad'], model=g['model'], npc_kimlik=g['npc_kimlik'], hp=g['asgari_can'], kalkan=0,
                                               hasar=0, hiz=g['hiz'], saldirgan=False, dost=True, odul={}, kargo={})
-    if D.get('siralama'):
-        RK.TABLES[RANK_TYPE] = {'araliklar': [dict(den=r['den'], e=r['e'], esyalar=r['oduller'], unvan=r.get('unvan'))
-                                              for r in D['siralama']]}
+    if D.get('ranking'):
+        RK.TABLES[RANK_TYPE] = {'ranges': [dict(den=r['den'], e=r['e'], esyalar=r['oduller'], unvan=r.get('unvan'))
+                                              for r in D['ranking']]}
 
 
 _register()
@@ -80,8 +80,8 @@ def run_state(now=None):
     if t.hour in hours:
         a = base.timestamp()
         key = base.strftime('%Y-%m-%d-%H')
-        if now < a + D['giris_sn']:
-            return key, True, a + D['giris_sn'] - now, 0, a + D['sure_sn']
+        if now < a + D['entry_sec']:
+            return key, True, a + D['entry_sec'] - now, 0, a + D['sure_sn']
     for k in range(1, 48):
         nx = base + datetime.timedelta(hours=k)
         if nx.hour in hours:
@@ -116,7 +116,7 @@ class Mimesis:
         return d
 
     def total(self):
-        return int(sum(sorted(self.st['seferler'], reverse=True)[:D.get('en_iyi_sefer', 10)]))
+        return int(sum(sorted(self.st['seferler'], reverse=True)[:D.get('best_trip_count', 10)]))
 
     def keys(self):
         return int(self.p.resource(KEY))
@@ -154,7 +154,7 @@ class Mimesis:
         sx, sy = station['posX'], station['posY']
         cx, cy = KAPI.MAP_W // 2, KAPI.MAP_H // 2
         x, y = int(sx + (cx - sx) * 0.35), int(sy + (cy - sy) * 0.35 - 1500)
-        return [dict(gateId=PORTAL_ID, x=x, y=y, hedef=0, designId=D.get('portal_tasarim', 1), pencere='mimesis',
+        return [dict(gateId=PORTAL_ID, x=x, y=y, hedef=0, designId=D.get('portal_design', 1), pencere='mimesis',
                      ipucu=D.get('ipucu', 'ttip_jumpgate_escort'))]
 
     def portal_window(self, g, w, go):
@@ -177,7 +177,7 @@ class Mimesis:
             self.p.dirty = True
         w.send(self.m.resource_msgs(KEY, self.keys(), -1) + [self.key_cmd(), legacy('0|A|STM|resource_key_access-escort_used')])
         self.pending = (key, end)
-        x, y = D['rota'][0]
+        x, y = D['route'][0]
         go(self.my_map(), (x - 600, y + 300))
 
     # ------------------------------------------------------------ dünya
@@ -227,7 +227,7 @@ class Mimesis:
         """Günlük "Freighter Protection" (uyarlama): radyasyon içinde 10.000 birim yol -> 1 Escort Key (günde bir)."""
         w = self.world
         st = self.st
-        if not w or w.hero_dead or st.get('anahtar_gunu') == st['gun']:
+        if not w or w.hero_dead or st.get('key_day') == st['gun']:
             self.last_pos = None
             return []
         pos = w.hero_pos(now)
@@ -248,10 +248,10 @@ class Mimesis:
     def grant_keys(self, n, daily=False):
         st = self.st
         have = self.keys()
-        n = min(n, D.get('anahtar_azami', 100) - have)
+        n = min(n, D.get('key_max', 100) - have)
         with self.p.lock:
             if daily:
-                st['anahtar_gunu'] = st['gun']
+                st['key_day'] = st['gun']
             self.p.dirty = True
         if n > 0:
             self.p.add_resource(KEY, n)
@@ -268,7 +268,7 @@ class Mimesis:
             self.st['seferler'] = sorted(self.st['seferler'] + [int(score)], reverse=True)[:50]
             self.p.dirty = True
         if success:
-            row = next((r for r in D['sefer_kademeleri'] if score >= r['den'] and (r['e'] is None or score <= r['e'])), None)
+            row = next((r for r in D['trip_tiers'] if score >= r['den'] and (r['e'] is None or score <= r['e'])), None)
             if row:
                 for loot, n in row['oduller']:
                     msgs += self.m.prize(loot, n)
@@ -282,9 +282,9 @@ class Mimesis:
         if not st or st.get('donem') is None:
             return []
         msgs = []
-        total = sum(sorted(st.get('seferler', []), reverse=True)[:D.get('en_iyi_sefer', 10)])
+        total = sum(sorted(st.get('seferler', []), reverse=True)[:D.get('best_trip_count', 10)])
         if total > 0:                             # etkinlik sonu sıralama ödülü (tek oyunculu: 1.)
-            r = RK.TABLES[RANK_TYPE]['araliklar'][0]
+            r = RK.TABLES[RANK_TYPE]['ranges'][0]
             for loot, n in r['esyalar']:
                 msgs += self.m.prize(loot, n)
             if r.get('unvan') and self.titles:
@@ -315,13 +315,13 @@ class MmRun:
         self.score = 0
         self.ship = None
         self.next_move = 0.0
-        self.next_trickle = now + D['dalgalar']['yol_sn']
+        self.next_trickle = now + D['waves']['route_sec']
         self.disrupted = None
         self.done_at = None
         self.success = False
         import world_boss as WB
         s = WB.scale(mode.p, world, None)           # oyuncunun gücü (donanımın sürekli lazer hasarı / 60.000, 0,25-2,5)
-        k = D['tek_oyuncu']
+        k = D['single_player']
         self.hp_f = k['can'] * s                     # uyarlama (canlı tur): sabit x0,3 / x0,5'te ilk dalga 356.000 canlık gemiyi 25 sn'de
         self.dmg_f = k['hasar'] * max(0.5, min(1.5, s))     # yıkıyordu, oyuncu o sürede bir Mimesis'i bitiremiyordu
 
@@ -334,7 +334,7 @@ class MmRun:
 
     def enter_msgs(self):
         self.spawn_ship()
-        self.spawn_wave(D['dalgalar']['baslangic'], near=D['rota'][0])
+        self.spawn_wave(D['waves']['baslangic'], near=D['route'][0])
         return [self.score_cmd(), self.zone_poi()]
 
     def score_cmd(self):
@@ -343,7 +343,7 @@ class MmRun:
     # ------------------------------------------------------------ gemi
     def spawn_ship(self):
         w = self.w
-        x, y = D['rota'][0]
+        x, y = D['route'][0]
         n = w.spawn_npc_at(FREIGHTER, x, y)
         n.gate = True
         n.next_think = time.time() + 10 ** 6
@@ -356,26 +356,26 @@ class MmRun:
     def ship_hp(self):
         """Gemi en güçlü dalganın ateşine dayanma_sn dayanır (Echoes'un toughen_ally'si; tek oyunculu hasar çarpanıyla)."""
         T = world_module.CFG['tipler']
-        waves = D['dalgalar']['noktalar'] + [D['dalgalar']['fener']]
+        waves = D['waves']['waypoints'] + [D['waves']['fener']]
         dps = max(sum(c * float(T.get(t, {}).get('hasar', 0)) for t, c in wv) for wv in waves)
-        dps *= self.dmg_f * 0.5 * 0.85 / world_module.COMBAT['npc_saldiri_aralik_sn']
-        return int(max(D['gemi']['asgari_can'], dps * D['gemi']['dayanma_sn']))
+        dps *= self.dmg_f * 0.5 * 0.85 / world_module.COMBAT['npc_attack_interval_sec']
+        return int(max(D['gemi']['asgari_can'], dps * D['gemi']['endure_sec']))
 
     def ship_pos(self, now=None):
-        return self.ship.mover.pos(time.time() if now is None else now) if self.ship else D['rota'][0]
+        return self.ship.mover.pos(time.time() if now is None else now) if self.ship else D['route'][0]
 
     def zone_poi(self, now=None):
         x, y = self.ship_pos(now)
         return ('MapAddPOICommand', dict(inverted=True, poiTypeSpecification='', poiType=mod('POITypeModule', typeValue=8), shape=0,
                                          active=True, design=mod('POIDesignModule', designValue=10), poiId=POI_ZONE,
-                                         shapeCoordinates=[int(x), int(y), int(D['gemi']['koruma_yaricap'])]))
+                                         shapeCoordinates=[int(x), int(y), int(D['gemi']['protection_radius'])]))
 
     def safe_at(self, x, y, now):
         """Radyasyon kancası (dunya.radiation_tick): seferde koruma alanının içi, sonra çıkış portalının çevresi güvenli."""
         if self.phase == 'bitti':
             return math.hypot(x - self.exit_x, y - self.exit_y) <= 1500
         sx, sy = self.ship_pos(now)
-        return math.hypot(x - sx, y - sy) <= D['gemi']['koruma_yaricap']
+        return math.hypot(x - sx, y - sy) <= D['gemi']['protection_radius']
 
     def take_shot(self, n, now):
         """Uzaylının atışı gemiye mi (menzildeyse yarı yarıya; Echoes'un kalıbı) -> True."""
@@ -386,7 +386,7 @@ class MmRun:
         nx, ny = n.mover.pos(now)
         if math.hypot(ax - nx, ay - ny) > w.npc_range(n) + 200:
             return False
-        n.next_shot = now + n.d.get('atis_aralik_sn', world_module.COMBAT['npc_saldiri_aralik_sn'])
+        n.next_shot = now + n.d.get('shot_interval_sec', world_module.COMBAT['npc_attack_interval_sec'])
         dmg = int(n.d['hasar'] * random.uniform(0.8, 1.0) * SET.multiplier('npc_hasar', 'dalga' if n.hunt else 'harita'))
         a.hp = max(0, a.hp - dmg)
         w.send([('AttackLaserRunCommand', dict(attackerId=n.id, targetId=a.id, laserColor=0, isDiminishedBySkillShield=False,
@@ -442,15 +442,15 @@ class MmRun:
             if self.phase == 'fener':
                 self.arrive(now)
                 return
-            self.score += D['nokta_puani']
+            self.score += D['waypoint_points']
             w.send([self.score_cmd(), KAPI.screen('Checkpoint %d cleared!' % self.leg)])
             self.phase = 'yol'
         if self.phase == 'bekle':
             self.phase = 'yol'
         if self.phase == 'yol':
             if now >= self.next_trickle:
-                self.next_trickle = now + D['dalgalar']['yol_sn']
-                self.spawn_wave(D['dalgalar']['yol'])
+                self.next_trickle = now + D['waves']['route_sec']
+                self.spawn_wave(D['waves']['yol'])
             self.move(now)
 
     def move(self, now):
@@ -459,13 +459,13 @@ class MmRun:
             return
         hx, hy = w.hero_pos(now)
         ax, ay = a.mover.pos(now)
-        if w.hero_dead or math.hypot(hx - ax, hy - ay) > D['gemi']['koruma_yaricap']:
+        if w.hero_dead or math.hypot(hx - ax, hy - ay) > D['gemi']['protection_radius']:
             if a.mover.pos(now) != a.mover.pos(now + 0.5):           # oyuncu alandan çıktı: gemi durur
                 a.mover.go(ax, ay, D['gemi']['hiz'], now)
                 w.send([('MoveCommand', dict(userId=a.id, x=int(ax), y=int(ay), timeToTarget=0))])
             self.next_move = now + 0.5
             return
-        tx, ty = D['rota'][self.leg + 1] if self.leg + 1 < len(D['rota']) else D['rota'][-1]
+        tx, ty = D['route'][self.leg + 1] if self.leg + 1 < len(D['route']) else D['route'][-1]
         d = math.hypot(tx - ax, ty - ay)
         if d < 60:
             self.reach(now)
@@ -480,20 +480,20 @@ class MmRun:
     def reach(self, now):
         self.leg += 1
         w = self.w
-        last = self.leg >= len(D['rota']) - 1
+        last = self.leg >= len(D['route']) - 1
         if last:
             self.phase = 'fener'
-            self.spawn_wave(D['dalgalar']['fener'])
+            self.spawn_wave(D['waves']['fener'])
             w.send([KAPI.screen('The signalling beacon is guarded!', big=True)])
         else:
             self.phase = 'nokta'
-            self.spawn_wave(D['dalgalar']['noktalar'][min(self.leg - 1, len(D['dalgalar']['noktalar']) - 1)])
+            self.spawn_wave(D['waves']['waypoints'][min(self.leg - 1, len(D['waves']['waypoints']) - 1)])
         w.log('   Mimesis Mutiny: nokta %d%s' % (self.leg, ' (fener)' if last else ''))
 
     def arrive(self, now):
         w, a = self.w, self.ship
         ratio = a.hp / float(max(1, a.d['hp'])) if a and a.alive else 0
-        self.score += int(D['varis_bonusu'] * ratio)
+        self.score += int(D['arrival_bonus'] * ratio)
         self.success = True
         self.phase = 'varis'                         # 5 sn sonra patlama (zamanlayıcıdan önce: hemen çalışırsa 'bitti' ezilmesin)
         w.send([legacy('0|A|STM|msg_mutiny_escort_succeeded'), self.score_cmd()])
@@ -516,7 +516,7 @@ class MmRun:
         w = self.w
         self.phase = 'bitti'
         self.done_at = time.time()
-        bx, by = D['rota'][-1]
+        bx, by = D['route'][-1]
         self.exit_x, self.exit_y = min(bx, w.map_w - 1500), by
         w.add_gate(dict(gateId=EXIT_ID, x=self.exit_x, y=self.exit_y, hedef=self.m.home(), designId=1, kapi=self.key, cikis=True,
                         varis='istasyon'))
@@ -527,7 +527,7 @@ class MmRun:
         w.send([('MapRemovePOICommand', {'poiId': POI_ZONE})] + self.m.finish_run(self.score, success))
 
     def on_kill(self, npc, x, y):
-        t = (D.get('turler') or {}).get(npc.tip)
+        t = (D.get('kinds') or {}).get(npc.tip)
         if not t or self.phase == 'bitti':
             return []
         self.score += t.get('puan', 0)

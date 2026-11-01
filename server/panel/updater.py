@@ -39,9 +39,11 @@ class UpdateError(Exception):
 def protected(rel):
     """Güncellemenin hiç yazmadığı ve silmediği yollar (kullanıcı verisi, üretilen dosyalar)."""
     r = rel.replace('\\', '/').lstrip('/').lower()
-    return (r.startswith(('server/save/', 'server/logs/', 'server/data/protokol/', 'server/cdn/do_img/', '.git/',
-                          'istemci_indiriliyor/'))
-            or r in ('server/data/giris.json', 'server/data/haritalar.json', 'server/data/yanitlar.json', '.git')
+    return (r.startswith(('server/save/', 'server/logs/', 'server/data/protocols/', 'server/data/protokol/', 'server/cdn/do_img/',
+                          '.git/', 'client_downloading/', 'istemci_indiriliyor/'))      # eski adlar: göçten önceki kurulum
+            or r in ('server/data/login.json', 'server/data/maps.json', 'server/data/responses.json',
+                     'server/data/giris.json', 'server/data/haritalar.json', 'server/data/yanitlar.json', '.git')
+            or bool(re.match(r'server/data/v1_backup_[^/]*\.zip$', r))
             or bool(re.match(r'darkorbit_version[^/]*(/|$)', r)) or '/__pycache__/' in '/' + r)
 
 
@@ -62,11 +64,11 @@ class Updater:
     def __init__(self, root, save_dir, log=print, opener=urlopen, go='git'):
         self.root, self.log, self.opener = root, log, opener
         self.git_exe = shutil.which(go) if go else None
-        self.dir = os.path.join(save_dir, 'guncelleme')
-        self.state_path = os.path.join(save_dir, 'guncelleme.json')
+        self.dir = os.path.join(save_dir, 'update')
+        self.state_path = os.path.join(save_dir, 'update.json')
         self.lock = threading.Lock()
         self.d = {'durum': 'bilinmiyor', 'calisiyor': False, 'son': None, 'last_check': None, 'hata': None, 'alinan': 0, 'toplam': 0,
-                  'degisen': 0, 'kaldirilan': 0, 'yedek': None, 'kuruldu': None}
+                  'changed': 0, 'removed': 0, 'yedek': None, 'kuruldu': None}
         self._inst = (0.0, None)                                 # kurulu sürümün önbelleği (git her yoklamada çalışmasın)
 
     # ------------------------------------------------------------ durum
@@ -120,7 +122,7 @@ class Updater:
         with self.lock:
             d = json.loads(json.dumps(self.d))
         d['kurulu'] = self.installed()
-        d['depo'] = 'https://github.com/%s' % REPO
+        d['storage'] = 'https://github.com/%s' % REPO
         return d
 
     def running(self):
@@ -163,7 +165,7 @@ class Updater:
         c = d.get('commit') or {}
         if not re.match(r'^[0-9a-f]{40}$', d.get('sha') or ''):
             raise UpdateError(_('GitHub beklenmeyen bir yanıt verdi.'))
-        return {'surum': d['sha'], 'tarih': (c.get('committer') or {}).get('date'), 'mesaj': (c.get('message') or '').split('\n')[0][:200]}
+        return {'surum': d['sha'], 'tarih': (c.get('committer') or {}).get('date'), 'message': (c.get('message') or '').split('\n')[0][:200]}
 
     def tree(self, sha):
         """Bir sürümün dosyaları (GitHub'ın ağacı) -> küme ya da None (alınamadı/eksik)."""
@@ -215,7 +217,7 @@ class Updater:
                 head, remote = self._git_remote()
                 out = self._go_to('log', '-1', '--format=%cI%n%s', remote)
                 date, msg = (out.split('\n', 1) + [''])[:2]
-                last = {'surum': remote, 'tarih': date, 'mesaj': msg[:200]}
+                last = {'surum': remote, 'tarih': date, 'message': msg[:200]}
                 if head == remote:
                     state = 'guncel'
                 elif self._git_ok('merge-base', '--is-ancestor', head, remote):
@@ -243,7 +245,7 @@ class Updater:
                 raise UpdateError(_('Güncelleme zaten sürüyor.'))
             if self.d['durum'] != 'var' or not self.d['son']:
                 raise UpdateError(_('Kurulacak yeni sürüm yok.'))
-            self.d.update(calisiyor=True, durum='indiriliyor', hata=None, alinan=0, toplam=0, degisen=0, kaldirilan=0)
+            self.d.update(calisiyor=True, durum='indiriliyor', hata=None, alinan=0, toplam=0, changed=0, removed=0)
             target = dict(self.d['son'])
         threading.Thread(target=self._install, args=(target,), daemon=True).start()
         return self.state()
@@ -256,7 +258,7 @@ class Updater:
                 self._install_zip(last)
             self._inst = (0.0, None)
             self._set(durum='kuruldu', kuruldu=time.time())
-            self.log('güncelleme kuruldu: %s (%s)' % (last['surum'][:7], last.get('mesaj', '')))
+            self.log('güncelleme kuruldu: %s (%s)' % (last['surum'][:7], last.get('message', '')))
         except UpdateError as e:
             self._set(durum='hata', hata=str(e))
             self.log('güncelleme kurulamadı: %s' % e)
@@ -323,7 +325,7 @@ class Updater:
             old = set(st['files'])
         elif before['surum']:
             old = self.tree(before['surum'])
-        backup = os.path.join(self.dir, 'yedek_%s_%s' % ((before['surum'] or 'bilinmiyor')[:7], time.strftime('%Y%m%d_%H%M%S')))
+        backup = os.path.join(self.dir, 'backup_%s_%s' % ((before['surum'] or 'bilinmiyor')[:7], time.strftime('%Y%m%d_%H%M%S')))
 
         def keep(rel):                                    # eski hâli yedeğe
             src = os.path.join(self.root, *rel.split('/'))
@@ -358,14 +360,14 @@ class Updater:
             while d != self.root and os.path.isdir(d) and not os.listdir(d):
                 os.rmdir(d)
                 d = os.path.dirname(d)
-        self._set(degisen=changed, kaldirilan=removed, yedek=backup if os.path.isdir(backup) else None)
-        self._save({'surum': last['surum'], 'tarih': last.get('tarih'), 'mesaj': last.get('mesaj'), 'version_txt': self._version_text(),
-                    'files': sorted(files), 'onceki': before['surum'], 'kurulum': time.strftime('%Y-%m-%d %H:%M:%S')})
+        self._set(changed=changed, removed=removed, yedek=backup if os.path.isdir(backup) else None)
+        self._save({'surum': last['surum'], 'tarih': last.get('tarih'), 'message': last.get('message'), 'version_txt': self._version_text(),
+                    'files': sorted(files), 'onceki': before['surum'], 'setup': time.strftime('%Y-%m-%d %H:%M:%S')})
         self._prune()
 
     def _prune(self):
         try:
-            old_backups = sorted((os.path.join(self.dir, n) for n in os.listdir(self.dir) if n.startswith('yedek_')), key=os.path.getmtime)
+            old_backups = sorted((os.path.join(self.dir, n) for n in os.listdir(self.dir) if n.startswith('backup_')), key=os.path.getmtime)
         except OSError:
             return
         for d in old_backups[:-BACKUP_COUNT]:

@@ -19,16 +19,16 @@ import inventory as INV
 import resonator as RS
 
 D = PC.D['synthesis']
-RECIPES = {(r['hedef'], r['yildiz']): r for r in D['tarifler']}
+RECIPES = {(r['hedef'], r['yildiz']): r for r in D['recipes']}
 # Ö6: Assembly'de gösterilemeyen tarifler (istemci tarifi kendi verisinden okur) -> "title_assembly" sekmesi (tools/esyalar_o6.py)
 EXTRA_D = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data', 'items_o6.json'),
-                         encoding='utf8'))['ek_tarifler']
-EXTRA = {(r['hedef'], r['yildiz']): r for r in EXTRA_D['tarifler']}
+                         encoding='utf8'))['extra_recipes']
+EXTRA = {(r['hedef'], r['yildiz']): r for r in EXTRA_D['recipes']}
 INSTANCE = ('equipment_', 'drone_', 'pet_')                # girdisi eşya örneği: seçilen yuva (certain)
 EXTRA_COUNT = 'ek_tarif_sayac'                             # profil: tarif -> kaç kez (USABLE_ONCE / en_cok)
 REQUESTS = {'SynthesisInventoryRequest', 'SynthesisItemRequest'}
-SOURCES = {r['girdi'] for r in D['tarifler']} | RS.INPUTS \
-    | {l for r in EXTRA_D['tarifler'] for l in r['girdiler'] if l.startswith(INSTANCE)}   # + Ö6: rezonatörler, AA-1/AAP-1
+SOURCES = {r['girdi'] for r in D['recipes']} | RS.INPUTS \
+    | {l for r in EXTRA_D['recipes'] for l in r['girdiler'] if l.startswith(INSTANCE)}   # + Ö6: rezonatörler, AA-1/AAP-1
 TABLE_KEY = 'Synthesis_%s'                                  # table_1 -> Synthesis_table_1 (Nidhogg), drive_1 -> Synthesis_drive_1 …
 ACTION_KEY = {'star': 'synthesis_cannon_star_promote'}     # işlem düğmesi; ötekiler "Synthesis"
 
@@ -47,9 +47,9 @@ class Synthesis:
         # istemci (UISynthesisSystem.SelectNeedItem / OnTypeSelectionChanged): certain=true her kayıt seçilecek bir eşya yuvası
         # ("Select n / NeedNum", NeedNum = bu kayıtların sayısı), certain=false kayıtlar "eldeki/gereken" malzeme satırı (yetmezse
         # kırmızı). Önce girdi tek kayıt (adet 5) ve uridyum da certain gidiyordu: pencere "0 / 2" ve iki yuva gösteriyordu (H53)
-        costs = [mod('SynthesisCostLootCommand', lootId=r['girdi'], amount=1, star=r['girdi_yildiz'], certain=True)] * r['adet']
+        costs = [mod('SynthesisCostLootCommand', lootId=r['girdi'], amount=1, star=r['input_star'], certain=True)] * r['adet']
         costs += [mod('SynthesisCostLootCommand', lootId=k, amount=v, star=0, certain=False) for k, v in r['bedel'].items()]
-        ship = D['gemi_kimlik'].get(r['gemi'], 0) if r['gemi'] else 0
+        ship = D['ship_ids'].get(r['gemi'], 0) if r['gemi'] else 0
         return mod('SynthesisModuleCommand', star=r['yildiz'], moduleGroupType=TABLE_KEY % r['tablo'], lootId=r['hedef'], costs=costs,
                    affectedShip=ship)
 
@@ -65,23 +65,23 @@ class Synthesis:
 
     def list_cmd(self):
         groups = {}
-        for r in D['tarifler']:
+        for r in D['recipes']:
             groups.setdefault(r['grup'], {}).setdefault(r['tablo'], []).append(r)
         # istemci üst sekmenin adını 'group'tan, sol düğmelerin adını moduleListGroupType'tan, alttaki işlem düğmesini 'button'dan
         # çeviriyor (hepsi çeviri anahtarı); önce sekmeler ve düğmeler boş görünüyordu (canlı test H52, kontrol kanalıyla denendi)
-        out = [mod('SynthesisGroupCommand', button=ACTION_KEY.get(g, 'Synthesis_button'), group=D['dugmeler'][g], moduleList=[
+        out = [mod('SynthesisGroupCommand', button=ACTION_KEY.get(g, 'Synthesis_button'), group=D['buttons'][g], moduleList=[
             mod('SynthesisModuleListCommand', moduleListGroupType=TABLE_KEY % t, modules=[self.module(r) for r in rs])
             for t, rs in sorted(tables.items())]) for g, tables in groups.items()]
         out.append(RS.group_cmd(self.p))                    # Ö6: Resonator sekmesi (rezonator.py; C'nin bedeli oyuncunun kaynağından)
         out.append(mod('SynthesisGroupCommand', button='Synthesis_button', group=EXTRA_D['grup'], moduleList=[
             mod('SynthesisModuleListCommand', moduleListGroupType=EXTRA_D['tablo'],
-                modules=[self.extra_module(r) for r in EXTRA_D['tarifler']])]))
+                modules=[self.extra_module(r) for r in EXTRA_D['recipes']])]))
         return 'SynthesisListCommand', {'groups': out}
 
     def cost_loots(self):
         """Pencerede bedel satırı olan kaynaklar (certain=false; para hariç)."""
-        out = {k for r in D['tarifler'] for k in r['bedel']} | set(RS.SOURCES)
-        out |= {l for r in EXTRA_D['tarifler'] for l in r['girdiler'] if not l.startswith(INSTANCE)}
+        out = {k for r in D['recipes'] for k in r['bedel']} | set(RS.SOURCES)
+        out |= {l for r in EXTRA_D['recipes'] for l in r['girdiler'] if not l.startswith(INSTANCE)}
         return {l for l in out if not l.startswith('currency_')}
 
     def free_items(self):
@@ -164,7 +164,7 @@ class Synthesis:
         free = set(self.free_items())
         ids = [int(x) for x in (f.get('itemIds') or [])]
         ok = lambda i: (i in free and self.p.d['esyalar'].get(str(i)) == r['girdi']
-                        and (PC.state(self.p, i) or {}).get('yildiz', 0) == r['girdi_yildiz'])
+                        and (PC.state(self.p, i) or {}).get('yildiz', 0) == r['input_star'])
         ids = [i for i in dict.fromkeys(ids) if ok(i)]
         if len(ids) < r['adet']:                    # istemci eksik seçtiyse uygun olanlardan tamamlanır (yükseltilmemişler önce)
             rest = sorted((i for i in free if ok(i) and i not in ids), key=lambda i: PC.level(self.p, i))
@@ -176,7 +176,7 @@ class Synthesis:
             return self.fail('bedel yetmiyor (%s)' % r['bedel'])
         refund = {}
         for i in ids:
-            for k, v in PC.upgrade_returns(self.p, i, D['iade']).items():
+            for k, v in PC.upgrade_returns(self.p, i, D['refund']).items():
                 refund[k] = refund.get(k, 0) + v
         with self.p.lock:
             for i in ids:

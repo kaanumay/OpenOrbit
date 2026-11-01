@@ -18,7 +18,7 @@ import json, os, time, zlib
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 D = json.load(open(os.path.join(HERE, 'data', 'achievements.json'), encoding='utf8'))
-ACH = D['basarimlar']
+ACH = D['achievements']
 TITLES = D['unvanlar']
 TITLE_KEYS = {v: k for k, v in TITLES.items()}
 EVENT_TITLE_BASE = 2000          # tabloda olmayan (etkinlik) unvanlar: 2000 + crc32 % 30000 (istemcide kimlik short)
@@ -214,7 +214,7 @@ def measure(c, kind, kw):
 
 
 def state(p):
-    return p.d.setdefault('basarimlar', {'skor': {}, 'kume': {}, 'seviye': {}, 'tarih': {}, 'unvanlar': [], 'unvan': -1})
+    return p.d.setdefault('achievements', {'score': {}, 'kume': {}, 'seviye': {}, 'tarih': {}, 'unvanlar': [], 'unvan': -1})
 
 
 def target(c):
@@ -250,13 +250,13 @@ class Achievements:
         c = c or self.current(aid)
         if c and 'kume' in c:
             return len(set(st['kume'].get(aid, [])) & set(c['kume']))
-        return st['skor'].get(aid, 0)
+        return st['score'].get(aid, 0)
 
     def met(self, aid, c):
         if not c or not c['sinif'] or (c['sinif'] == 'IgnoredCondition' and aid not in SERVER_SIDE):
             return False
         s = self.score(aid, c)
-        return s > target(c) if c.get('islec') == '>' else s >= target(c)
+        return s > target(c) if c.get('operator') == '>' else s >= target(c)
 
     # ------------------------------------------------------------ olaylar
     def event(self, kind, **kw):
@@ -270,9 +270,9 @@ class Achievements:
             if kind == 'death':                       # resetOnDeath: ölmeden yapılması gerekenler baştan
                 for aid in ACH:
                     c = self.current(aid)
-                    if c and c.get('olumde_sifir') and (st['skor'].get(aid) or st.get('zaman', {}).get(aid)):
-                        st['skor'][aid] = 0
-                        st.get('zaman', {}).pop(aid, None)
+                    if c and c.get('reset_on_death') and (st['score'].get(aid) or st.get('time', {}).get(aid)):
+                        st['score'][aid] = 0
+                        st.get('time', {}).pop(aid, None)
                         st['tarih'][aid] = now
                         self.p.dirty = True
             for aid in list(BY_KIND.get(kind, ())) + [a for a, k in SERVER_SIDE.items() if k == kind and ACH.get(a, {}).get('etkin')]:
@@ -283,31 +283,31 @@ class Achievements:
                 m = ('add', 1) if c['sinif'] == 'IgnoredCondition' else measure(c, kind, kw)
                 if not m:
                     continue
-                ev = ACH[aid].get('donem_sifir')             # "ilerleme bir sonraki etkinliğe taşınmaz" (Ölümsüz Tutku; resmî forum)
+                ev = ACH[aid].get('period_reset')             # "ilerleme bir sonraki etkinliğe taşınmaz" (Ölümsüz Tutku; resmî forum)
                 if ev:
                     import event_calendar as CAL
                     span = CAL.period(ev)
                     key = int(span[0]) if span else 0
                     if st.setdefault('donem', {}).get(aid) != key:
                         st['donem'][aid] = key
-                        st['skor'][aid] = 0
+                        st['score'][aid] = 0
                         st['kume'].pop(aid, None)
                 op, v = m
                 if op == 'add':
-                    st['skor'][aid] = st['skor'].get(aid, 0) + v
+                    st['score'][aid] = st['score'].get(aid, 0) + v
                 elif op == 'set':
-                    if st['skor'].get(aid) == v:
+                    if st['score'].get(aid) == v:
                         continue
-                    st['skor'][aid] = v
+                    st['score'][aid] = v
                 elif op == 'max':
-                    if v <= st['skor'].get(aid, 0):
+                    if v <= st['score'].get(aid, 0):
                         continue
-                    st['skor'][aid] = v
+                    st['score'][aid] = v
                 elif op == 'times':                  # son v saniyedeki olay sayısı (TriggerMine); ölünce sıfırlanır (olumde_sifir)
                     t = time.time()
-                    times = [x for x in st.setdefault('zaman', {}).get(aid, []) if t - x < v] + [t]
-                    st['zaman'][aid] = times
-                    st['skor'][aid] = len(times)
+                    times = [x for x in st.setdefault('time', {}).get(aid, []) if t - x < v] + [t]
+                    st['time'][aid] = times
+                    st['score'][aid] = len(times)
                 elif op == 'window':                 # kümenin anlık hâli (süre penceresi): birikmez
                     cur = sorted(set(v) & set(c['kume']), key=str)
                     if st['kume'].get(aid) == cur:
@@ -341,12 +341,12 @@ class Achievements:
                 done.append((aid, lv))
                 # istemci metni ve simgeyi XML'in grade'iyle arar (<başarım>_<grade>_name); bazı başarımlarda sıradan farklı
                 # (achievement_destroy_centuryfalcon tek seviye, grade 2): canlı test H29, boş bildirim kutusu çıkıyordu
-                msgs.append(legacy('0|A|ACG|%s_%d|%d' % (aid, c.get('derece', lv), target(c))))
+                msgs.append(legacy('0|A|ACG|%s_%d|%d' % (aid, c.get('grade', lv), target(c))))
                 self.log('   başarım: %s seviye %d (+%d puan%s)' % (aid, lv, c.get('puan', 0),
                                                                    ', unvan %s' % c['unvan'] if c.get('unvan') else ''))
                 for meta in METAS.get(aid, ()):
                     with self.p.lock:
-                        st['skor'][meta] = lv
+                        st['score'][meta] = lv
                     todo.append(meta)
         if msgs and self.send:
             # yalnız kazanma satırı (kayıt: liste ancak AchievementListRequest'e). Liste kendiliğinden gönderilince pilot sayfası hiç

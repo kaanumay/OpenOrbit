@@ -1,29 +1,29 @@
 {
- "_aciklama": "Ö4'ün büyük PvE içerikleri -> server/data/buyuk_icerikler.json ve takvim girişleri (server/data/etkinlikler.json) (yol haritası Ö4).",
+ "_description": "Ö4'ün büyük PvE içerikleri -> server/data/buyuk_icerikler.json ve takvim girişleri (server/data/etkinlikler.json) (yol haritası Ö4).",
  "vortex": {
   "etkinlik": "vortex_of_greed",
   "harita": 483,
   "seviye": 13,
   "giris": "X-1",
-  "portal_tasarim": 1,
+  "portal_design": 1,
   "ipucu": "ttip_jumpgate_sae",
-  "seanslar": [
+  "sessions": [
    "09:00",
    "13:00",
    "20:00"
   ],
-  "seans_sn": 900,
-  "cift_gunler": [
+  "session_sec": 900,
+  "double_days": [
    2,
    4,
    6
   ],
-  "cift_saat": "20:00",
-  "dalga_sn": 120,
-  "dalga_kutu": 15,
-  "kutu_sc": 4,
-  "kutu_turu": "SAE_SMALL_BOX",
-  "gemi_kutusu": "SAE_SHIP_BOX",
+  "double_hour": "20:00",
+  "wave_sec": 120,
+  "wave_box": 15,
+  "box_sc": 4,
+  "box_type": "SAE_SMALL_BOX",
+  "ship_box": "SAE_SHIP_BOX",
   "uzaylilar": {
    "vog_interceptor": {
     "ad": "-=[ Interceptor ]=-",
@@ -126,8 +126,8 @@
    "model": "115",
    "npc_kimlik": 554
   },
-  "tahliye": {
-   "zamanlar": [
+  "evacuation": {
+   "times": [
     [
      480,
      2
@@ -139,9 +139,9 @@
    ],
    "yaricap": 500,
    "bekleme_sn": 10,
-   "uzaklik": 3000
+   "distance": 3000
   },
-  "hazine": {
+  "treasure": {
    "sc": 500,
    "esyalar": [
     [
@@ -151,16 +151,16 @@
    ],
    "unvan": "title_strikeandexit-aug2025"
   },
-  "haftalik_sinir": 11000,
-  "vip_sinir": 15400,
-  "vip_kazanc": 1.5,
-  "vip_olumde_kalan": 0.3,
-  "dogma_bekleme_sn": 10,
-  "para": "resource_collectable_stellar-coin",
-  "vip_esya": "resource_vog-vanguard",
+  "weekly_limit": 11000,
+  "vip_limit": 15400,
+  "vip_earnings": 1.5,
+  "vip_kept_on_death": 0.3,
+  "dogma_cooldown_sec": 10,
+  "currency": "resource_collectable_stellar-coin",
+  "vip_item": "resource_vog-vanguard",
   "dukkan": {
    "StrikeAndExit": {
-    "dukkan_no": "2",
+    "store_id": "2",
     "vip": false,
     "esyalar": [
      {
@@ -168,7 +168,7 @@
       "odul": "resource_collectable_cryo-nano-coolant",
       "adet": 1,
       "fiyat": 710,
-      "sinir_turu": 3,
+      "limit_type": 3,
       "sinir": 5
      },
      {
@@ -176,13 +176,13 @@
       "odul": "resource_collectable_plasmatic-equalization-plate",
       "adet": 100,
       "fiyat": 100,
-      "sinir_turu": 1,
+      "limit_type": 1,
       "sinir": 99999
      }
     ]
    },
    "StrikeAndExitVIP": {
-    "dukkan_no": "4",
+    "store_id": "4",
     "vip": true,
     "esyalar": [
      {
@@ -190,7 +190,7 @@
       "odul": "resource_collectable_plasmatic-stabilizer",
       "adet": 1,
       "fiyat": 5500,
-      "sinir_turu": 4,
+      "limit_type": 4,
       "sinir": 1
      },
      {
@@ -198,7 +198,7 @@
       "odul": "resource_collectable_axion-beam-regulator",
       "adet": 10,
       "fiyat": 70,
-      "sinir_turu": 4,
+      "limit_type": 4,
       "sinir": 50
      },
      {
@@ -206,7 +206,7 @@
       "odul": "resource_collectable_diametrion",
       "adet": 1,
       "fiyat": 80,
-      "sinir_turu": 4,
+      "limit_type": 4,
       "sinir": 100
      },
      {
@@ -214,7 +214,7 @@
       "odul": "tech_versus-laser-overdrive",
       "adet": 1,
       "fiyat": 100,
-      "sinir_turu": 4,
+      "limit_type": 4,
       "sinir": 40
      },
      {
@@ -222,7 +222,7 @@
       "odul": "equipment_shipupgrade_dmg-x3",
       "adet": 1,
       "fiyat": 2571,
-      "sinir_turu": 4,
+      "limit_type": 4,
       "sinir": 5
      },
      {
@@ -230,7 +230,7 @@
       "odul": "equipment_shipupgrade_hp-x3",
       "adet": 1,
       "fiyat": 2571,
-      "sinir_turu": 4,
+      "limit_type": 4,
       "sinir": 5
      },
      {
@@ -238,7 +238,7 @@
       "odul": "equipment_shipupgrade_shd-x3",
       "adet": 1,
       "fiyat": 2571,
-      "sinir_turu": 4,
+      "limit_type": 4,
       "sinir": 5
      },
      {
@@ -246,7 +246,7 @@
       "odul": "equipment_shipupgrade_spc-x3",
       "adet": 1,
       "fiyat": 2571,
-      "sinir_turu": 4,
+      "limit_type": 4,
       "sinir": 5
      },
      {
@@ -254,7 +254,7 @@
       "odul": "ammunition_laser_spacecup_group-c",
       "adet": 3000,
       "fiyat": 580,
-      "sinir_turu": 4,
+      "limit_type": 4,
       "sinir": 10
      },
      {
@@ -262,7 +262,7 @@
       "odul": "ammunition_specialammo_dcr-250",
       "adet": 1,
       "fiyat": 50,
-      "sinir_turu": 4,
+      "limit_type": 4,
       "sinir": 20
      },
      {
@@ -270,7 +270,7 @@
       "odul": "ammunition_mine_slm-01",
       "adet": 10,
       "fiyat": 10,
-      "sinir_turu": 4,
+      "limit_type": 4,
       "sinir": 10
      },
      {
@@ -278,7 +278,7 @@
       "odul": "ammunition_specialammo_pld-8",
       "adet": 10,
       "fiyat": 10,
-      "sinir_turu": 4,
+      "limit_type": 4,
       "sinir": 20
      }
     ]
@@ -294,8 +294,8 @@
    "X-1",
    "X-8"
   ],
-  "portal_tasarim": 1,
-  "pencereler": [
+  "portal_design": 1,
+  "windows": [
    [
     "09:00",
     "09:30"
@@ -321,10 +321,10 @@
     "22:30"
    ]
   ],
-  "hazirlik_sn": 300,
-  "patron_sn": 1200,
-  "kapanis_sn": 300,
-  "npcler": {
+  "prep_sec": 300,
+  "boss_sec": 1200,
+  "closing_sec": 300,
+  "npcs": {
    "dreadfyre_fortress": {
     "ad": "-=[ Dreadfyre Fortress ]=-",
     "model": "DREADFYRE_FORTRESS",
@@ -378,30 +378,30 @@
     "kargo": {}
    }
   },
-  "fortress_lazer": {
+  "fortress_laser": {
    "hasar": 8000,
    "aralik_sn": 1.0,
    "menzil": 700
   },
-  "guardian_uzaklik": 3500,
-  "harbinger_hazirlik": 16,
-  "harbinger_yeniden_sn": 20,
-  "harbinger_cagri": 4,
-  "kutu_sansi": 0.3,
-  "guardian_kalkan_orani": 0.25,
-  "saldirilar": {
-   "manyetik": {
+  "guardian_distance": 3500,
+  "harbinger_prep": 16,
+  "harbinger_respawn_sec": 20,
+  "harbinger_summon": 4,
+  "box_chance": 0.3,
+  "guardian_shield_ratio": 0.25,
+  "attacks": {
+   "magnetic": {
     "yaricap": 500,
-    "hasar_sn_azami_hp_orani": 0.015
+    "damage_per_sec_max_hp_ratio": 0.015
    },
-   "gudumlu": {
-    "hasar_azami_hp_orani": 0.08,
-    "tekrar_sn": 20,
+   "guided": {
+    "damage_max_hp_ratio": 0.08,
+    "repeat_sec": 20,
     "menzil": 2000
    },
-   "carpma": {
-    "temas_yaricap": 350,
-    "hasar_azami_hp_orani": 0.05,
+   "collision": {
+    "contact_radius": 350,
+    "damage_max_hp_ratio": 0.05,
     "aralik_sn": 0.5
    },
    "roket": {
@@ -411,12 +411,12 @@
    },
    "radyasyon": {
     "yaricap": 1800,
-    "uyari_sn": 2,
-    "hasar_azami_hp_orani": 0.2
+    "warning_sec": 2,
+    "damage_max_hp_ratio": 0.2
    },
    "mayin": {
     "mayin_sayisi": 24,
-    "halka_yaricap": [
+    "ring_radius": [
      1000,
      1400
     ],
@@ -425,25 +425,25 @@
     "omur_sn": 60
    },
    "lazer": {
-    "uyari_sn": 3,
-    "genislik": 250,
-    "hasar_azami_hp_orani": 0.35,
+    "warning_sec": 3,
+    "width": 250,
+    "damage_max_hp_ratio": 0.35,
     "yon": "Fortress'ten kilitli hedefe doğru, harita kenarına kadar"
    }
   },
-  "mayin_esikleri": [
+  "mine_thresholds": [
    0.8,
    0.5,
    0.3,
    0.1
   ],
-  "sifa_feneri": {
+  "healing_beacon": {
    "yaricap": 600,
-   "sn_can": 30000
+   "hp_per_sec": 30000
   },
-  "guc": {
-   "taban_dps": 60000,
-   "asgari": 0.25,
+  "power": {
+   "base_dps": 60000,
+   "min_value": 0.25,
    "azami": 2.5
   },
   "kademe": [
@@ -845,7 +845,7 @@
     "gunluk": 3
    }
   ],
-  "siralama": [
+  "ranking": [
    {
     "den": 1,
     "e": 1,
@@ -1066,7 +1066,7 @@
     "unvanlar": []
    }
   ],
-  "sanal_sira": [
+  "virtual_rank": [
    [
     1.0,
     1
@@ -1100,7 +1100,7 @@
     51
    ]
   ],
-  "son_vurus": {
+  "last_hit": {
    "oduller": [
     [
      "currency_uridium",
@@ -1120,7 +1120,7 @@
   "kutu": {
    "tur": "DREADFYRE_HARBINGER_BOX",
    "omur_sn": 60,
-   "guclendirmeler": [
+   "buffs": [
     "can",
     "hiz",
     "kalkan",
@@ -1128,7 +1128,7 @@
    ]
   },
   "parca": "resource_collectable_infiltrator-fragment",
-  "parca_onur": 1,
+  "fragment_honor": 1,
   "_kaynak": "world_boss_2025.json: resmî SSS 2025/2026 (EN, TR), darkorbitwiki, istemcinin metinleri ve game.xml; tools/buyuk_icerikler.py",
   "_uyarlama": "NPC değerleri ve saldırıların hasarları kaynakta yok (araştırmanın tek oyunculu önerileri, s=1); can oyuncunun gücüne göre ölçeklenir (guc); kademe eşikleri savaşın Fortress canının katları; sıralama sanal (kaldırılan can payından); Guardian kalkanları toplamsal (4 etkin = dokunulmaz)."
  },
@@ -1143,10 +1143,10 @@
    "X-1",
    "X-8"
   ],
-  "portal_tasarim": 1,
+  "portal_design": 1,
   "ipucu": "ttip_jumpgate_escort",
   "anahtar": "resource_key_access-escort",
-  "anahtar_azami": 100,
+  "key_max": 100,
   "saatler": [
    10,
    11,
@@ -1163,18 +1163,18 @@
    22,
    23
   ],
-  "giris_sn": 300,
+  "entry_sec": 300,
   "sure_sn": 2700,
   "gemi": {
    "ad": "-=[ EM Freighter ]=-",
    "model": "277",
    "npc_kimlik": 240,
    "hiz": 100,
-   "koruma_yaricap": 1200,
+   "protection_radius": 1200,
    "asgari_can": 2000000,
-   "dayanma_sn": 240
+   "endure_sec": 240
   },
-  "rota": [
+  "route": [
    [
     2500,
     6550
@@ -1200,7 +1200,7 @@
     6550
    ]
   ],
-  "dalgalar": {
+  "waves": {
    "baslangic": [
     [
      "mm_assailant",
@@ -1211,7 +1211,7 @@
      3
     ]
    ],
-   "noktalar": [
+   "waypoints": [
     [
      [
       "mm_assailant",
@@ -1297,13 +1297,13 @@
      1
     ]
    ],
-   "yol_sn": 60
+   "route_sec": 60
   },
-  "tek_oyuncu": {
+  "single_player": {
    "can": 0.3,
    "hasar": 0.25
   },
-  "turler": {
+  "kinds": {
    "mm_assailant": {
     "ad": "-=[ Assailant Mimesis ]=-",
     "model": "286",
@@ -1323,7 +1323,7 @@
     "puan": 20,
     "byte": 4,
     "kutu": {
-     "olasilik": 1.0,
+     "probability": 1.0,
      "omur_sn": 600,
      "mod": "biri",
      "tur": "MIMESIS_AI_ASSAILANT_BOX",
@@ -1333,7 +1333,7 @@
        2
       ]
      ],
-     "icerik": []
+     "contents": []
     }
    },
    "mm_raider": {
@@ -1355,7 +1355,7 @@
     "puan": 20,
     "byte": 4,
     "kutu": {
-     "olasilik": 1.0,
+     "probability": 1.0,
      "omur_sn": 600,
      "mod": "biri",
      "tur": "MIMESIS_AI_RAIDER_BOX",
@@ -1365,7 +1365,7 @@
        2
       ]
      ],
-     "icerik": []
+     "contents": []
     }
    },
    "mm_medic": {
@@ -1387,7 +1387,7 @@
     "puan": 85,
     "byte": 17,
     "kutu": {
-     "olasilik": 1.0,
+     "probability": 1.0,
      "omur_sn": 600,
      "mod": "biri",
      "tur": "MIMESIS_AI_MEDIC_BOX",
@@ -1397,7 +1397,7 @@
        8
       ]
      ],
-     "icerik": []
+     "contents": []
     }
    },
    "mm_inspirit": {
@@ -1438,7 +1438,7 @@
     "puan": 100,
     "byte": 20,
     "kutu": {
-     "olasilik": 1.0,
+     "probability": 1.0,
      "omur_sn": 600,
      "mod": "biri",
      "tur": "MIMESIS_AI_HARDY_BOX",
@@ -1448,7 +1448,7 @@
        10
       ]
      ],
-     "icerik": []
+     "contents": []
     }
    },
    "mm_piercing": {
@@ -1470,7 +1470,7 @@
     "puan": 350,
     "byte": 70,
     "kutu": {
-     "olasilik": 1.0,
+     "probability": 1.0,
      "omur_sn": 600,
      "mod": "biri",
      "tur": "MIMESIS_AI_MINI_BOSS_BOX",
@@ -1483,7 +1483,7 @@
        ]
       ]
      ],
-     "icerik": [
+     "contents": [
       [
        "ammunition_laser_emaa-20",
        [
@@ -1559,7 +1559,7 @@
     "puan": 350,
     "byte": 70,
     "kutu": {
-     "olasilik": 1.0,
+     "probability": 1.0,
      "omur_sn": 600,
      "mod": "biri",
      "tur": "MIMESIS_AI_MINI_BOSS_BOX",
@@ -1572,7 +1572,7 @@
        ]
       ]
      ],
-     "icerik": [
+     "contents": [
       [
        "ammunition_laser_emaa-20",
        [
@@ -1648,7 +1648,7 @@
     "puan": 350,
     "byte": 70,
     "kutu": {
-     "olasilik": 1.0,
+     "probability": 1.0,
      "omur_sn": 600,
      "mod": "biri",
      "tur": "MIMESIS_AI_MINI_BOSS_BOX",
@@ -1661,7 +1661,7 @@
        ]
       ]
      ],
-     "icerik": [
+     "contents": [
       [
        "ammunition_laser_emaa-20",
        [
@@ -1737,7 +1737,7 @@
     "puan": 450,
     "byte": 90,
     "kutu": {
-     "olasilik": 1.0,
+     "probability": 1.0,
      "omur_sn": 600,
      "mod": "biri",
      "tur": "MIMESIS_AI_BOSS_BOX",
@@ -1750,7 +1750,7 @@
        ]
       ]
      ],
-     "icerik": [
+     "contents": [
       [
        "ammunition_laser_emaa-20",
        [
@@ -1826,7 +1826,7 @@
     "puan": 450,
     "byte": 90,
     "kutu": {
-     "olasilik": 1.0,
+     "probability": 1.0,
      "omur_sn": 600,
      "mod": "biri",
      "tur": "MIMESIS_AI_BOSS_BOX",
@@ -1839,7 +1839,7 @@
        ]
       ]
      ],
-     "icerik": [
+     "contents": [
       [
        "ammunition_laser_emaa-20",
        [
@@ -1915,7 +1915,7 @@
     "puan": 450,
     "byte": 90,
     "kutu": {
-     "olasilik": 1.0,
+     "probability": 1.0,
      "omur_sn": 600,
      "mod": "biri",
      "tur": "MIMESIS_AI_BOSS_BOX",
@@ -1928,7 +1928,7 @@
        ]
       ]
      ],
-     "icerik": [
+     "contents": [
       [
        "ammunition_laser_emaa-20",
        [
@@ -2005,9 +2005,9 @@
     "byte": 0
    }
   },
-  "nokta_puani": 400,
-  "varis_bonusu": 3000,
-  "sefer_kademeleri": [
+  "waypoint_points": 400,
+  "arrival_bonus": 3000,
+  "trip_tiers": [
    {
     "den": 1000,
     "e": 1699,
@@ -2123,7 +2123,7 @@
     ]
    }
   ],
-  "siralama": [
+  "ranking": [
    {
     "den": 1,
     "e": 1,
@@ -2385,63 +2385,63 @@
     "unvan": null
    }
   ],
-  "en_iyi_sefer": 10,
-  "sandik": {
-   "olasilik": 0.3,
-   "etkiler": [
+  "best_trip_count": 10,
+  "chest": {
+   "probability": 0.3,
+   "effects": [
     {
      "ad": "Heal",
-     "olasilik": 0.25,
+     "probability": 0.25,
      "tur": "can",
      "can": 120000
     },
     {
      "ad": "Flux",
-     "olasilik": 0.1,
+     "probability": 0.1,
      "tur": "hiz",
      "sure_sn": 15,
      "hiz": 0.1
     },
     {
      "ad": "Heal Field",
-     "olasilik": 0.25,
+     "probability": 0.25,
      "tur": "can_alani",
      "can": 50000,
      "yaricap": 500
     },
     {
      "ad": "Frost Field",
-     "olasilik": 0.1,
+     "probability": 0.1,
      "tur": "teknik",
      "teknik": "tech_frost-field"
     },
     {
      "ad": "Revenge",
-     "olasilik": 0.1,
+     "probability": 0.1,
      "tur": "yetenek",
      "yetenek": "ability_berserker_rvg",
      "sure_sn": 10
     },
     {
      "ad": "Shield",
-     "olasilik": 0.15,
+     "probability": 0.15,
      "tur": "kalkan",
      "kalkan": 80000
     },
     {
      "ad": "Assimilate",
-     "olasilik": 0.05,
+     "probability": 0.05,
      "tur": "yetenek",
      "yetenek": "ability_orcus_assimilate",
      "sure_sn": 10
     }
    ]
   },
-  "anahtar_dusme": {
+  "key_drop": {
    "pm_hexormimesis": 0.03,
    "pm_reflectormimesis": 0.5
   },
-  "anahtar_uridyum": 5000,
+  "key_uridium": 5000,
   "_kaynak": "mimesis_mutiny.json: resmî SSS 2020-2026, darkorbitwiki (Mimesis türleri, boxes/mimesis-box, galaxy-gates/mimesis-mutiny-gate: Mimesis Chest), istemcinin metinleri ve game.xml; tools/buyuk_icerikler.py",
   "_uyarlama": "Rota (4 nokta + fener), dalgalar ve puanlar kaynakta yok (araştırmanın önerileri); tek oyunculu: dalgalar oyuncunun gücüyle (World Boss ölçeği): can x0,3 x güç, hasar x0,25 x güç (0,5-1,5); EM Freighter canı en güçlü dalganın 240 sn ateşine dayanacak kadar (en az 2.000.000); sıralama sanal (oyuncu 1.); firma haritaları: MMO 433, EIC 436, VRU 430 (her firmanın ilk Escort haritası); Byte Remnant türün ödülüne doğrudan (ek_odul; mimesis._register) ve kutuya; kutu miktarları, ağırlıkları ve MINI_BOSS / BOSS eşlemesi kaynakta yok (normal kutu: türün Byte ödülünün yarısı; elit kutu: yarısı ile tamamı arası + bir satır); buff çekilişi mimesis_sandik.py."
  },
@@ -2453,8 +2453,8 @@
    "2-1",
    "3-1"
   ],
-  "portal_tasarim": 307,
-  "pencereler": [
+  "portal_design": 307,
+  "windows": [
    [
     "08:00",
     "10:00"
@@ -2468,7 +2468,7 @@
     "22:00"
    ]
   ],
-  "gunler": [
+  "days": [
    0,
    1,
    2,
@@ -2476,7 +2476,7 @@
    4,
    5
   ],
-  "hedef_puan": 1000,
+  "target_points": 1000,
   "toplama": {
    "X-2": [
     [
@@ -2563,7 +2563,7 @@
     ]
    ]
   },
-  "guc": {
+  "power": {
    "X-2": 0.25,
    "X-3": 0.3,
    "X-4": 0.45,
@@ -2574,8 +2574,8 @@
   },
   "yeniden_sn": 15,
   "bekleme_sn": 300,
-  "savas_sn": 1800,
-  "kapanis_sn": 120,
+  "combat_sec": 1800,
+  "closing_sec": 120,
   "patron": {
    "ad": "-=[ Emperor Kristallon ]=-",
    "model": "EMPEROR_KRISTALLON_BOSS_2",
@@ -2593,25 +2593,25 @@
    },
    "kargo": {}
   },
-  "seviye_carpani": 0.15,
-  "evreler": [
+  "level_multiplier": 0.15,
+  "phases": [
    1.0,
    0.66,
    0.33
   ],
-  "saldirilar": {
-   "yarik": {
+  "attacks": {
+   "rift": {
     "aralik_sn": 15,
-    "uyari_sn": 4.1,
-    "genislik": 300,
-    "uzunluk": 7000,
-    "hasar_azami_hp_orani": 0.2
+    "warning_sec": 4.1,
+    "width": 300,
+    "length": 7000,
+    "damage_max_hp_ratio": 0.2
    },
-   "buz": {
+   "ice": {
     "aralik_sn": 20,
-    "uyari_sn": 2.2,
+    "warning_sec": 2.2,
     "yaricap": 1500,
-    "hasar_azami_hp_orani": 0.12,
+    "damage_max_hp_ratio": 0.12,
     "yavas": [
      0.5,
      4
@@ -2619,9 +2619,9 @@
    },
    "radyasyon": {
     "aralik_sn": 25,
-    "uyari_sn": 6,
-    "guvenli_yaricap": 900,
-    "hasar_azami_hp_orani": 0.3
+    "warning_sec": 6,
+    "safe_radius": 900,
+    "damage_max_hp_ratio": 0.3
    }
   },
   "katilim": [
@@ -2842,8 +2842,8 @@
     ]
    ]
   ],
-  "katilim_esik": 0.01,
-  "yenilgi": [
+  "participation_threshold": 0.01,
+  "defeats": [
    [
     "equipment_weapon_laser_lf-4",
     1,
@@ -2945,7 +2945,7 @@
    "adet": 20,
    "omur_sn": 900
   },
-  "son_vurus": {
+  "last_hit": {
    "unvan": "title_kristallon_apotheosis_last_hit",
    "oduller": [
     [
@@ -2954,7 +2954,7 @@
     ]
    ]
   },
-  "siralama": [
+  "ranking": [
    {
     "den": 1,
     "e": 1,
@@ -3001,7 +3001,7 @@
     ]
    }
   ],
-  "sanal_sira": [
+  "virtual_rank": [
    [
     3,
     1
@@ -3017,10 +3017,10 @@
   ],
   "_kaynak": "board-en 130459 (FAQ Kristallon Apotheosis); istemci 1.1.115 (pencere apotheosis, harita 510, portal 307, VisualModifier 158 buz, 159 yarık, 160 radyasyon kılavuzu); tools/surum_115.py; yenilgi olasılıkları ve haftalık sınırlar resmî sunucu kaydı (2026-10-25)",
   "_uyarlama": "Tek oyunculu: sunucu çapındaki toplama hedefi oyuncunun kendi puanı (1000); toplama uzaylıları harita başına 4 + 1-2 (Icy, Kristallon, Boss Kristallon kopyaları, güçleri haritanın 'guc'ü), 15 sn'de yeniden doğar. Patronun canı, hasarı ve saldırıların zamanı, alanı, hasarı uyarlama (canı oyuncunun gücüyle, dunya_patronu.scale; seviye başına +%15); evreler %66 ve %33'te. Haftalık sıra tek oyunculuda haftanın yenilgi sayısından: 3+ 1., 2 2., 1 4. (ödülleri pazar sıfırlanınca). Katılım ödülü verilen hasar patronun canının %1'ini geçince.",
-  "haftalik_sinir": {
+  "weekly_limit": {
    "katilim": 3,
-   "yenilgi": 3,
-   "son_vurus": 18
+   "defeats": 3,
+   "last_hit": 18
   }
  }
 }

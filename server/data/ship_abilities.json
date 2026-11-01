@@ -1,13 +1,13 @@
 {
  "_kaynak": "Süre, bekleme ve etkiler belgeler/wiki/ships.md (darkorbitwiki). Menü öğeleri istemcinin kısayol menüsünden (kayıttaki MenuInitializationCommand, 'ship_abilities' kategorisi, 65 öğe). Görseller istemcinin kodundan: AbilityEffectActivationCommand.selectedAbilityId = istemcinin beceri kodu (EventAssemblySkills: 1 Solace, 2 Diminisher, 3 Spectrum, 4 Sentinel, 5 Venom, 6 hız efekti 'speed-buff-effect'), AbilityStartCommand: 102 Draw Fire, 106 Target Marker (MarkedByRecon), 110 EMP görseli, 111 mini harita (AddDoubleMinimapRevealEffect), 101 Aegis HP Repair ve 104 Shield Repair (istemci bu kimliklerde abilitySounds 90 aegisHPRepair ve 91 aegisShieldRecharge seslerini çalar; belgeler/istemci/gorseller.md). Repair Pod haritaya HEALING_POD (AssetType 33) nesnesi koyar ('varlik'; canlı deneme 2026-10-17). Fortify ve Protection gemi görünümü ('gorunum': istemcinin VisualModifier'ı, VisualModifierCommand; 8 FORTIFY zırh, 9 PROTECT_OWNER kırmızı halka; canlı deneme 2026-10-17). Ultimate Cloak'un görseli kesinleşmedi.",
- "_etkiler": "can_yuzde: anında azami canın oranı; can_onar / kalkan_onar: süre boyunca toplam (saniyede eşit); mods: süre boyunca profil bonusları (hiz, lazer, alinan_hasar, alinan_lazer, kalkan_hasari; sabit_hiz: gösterilen hız bu değere ayarlanır, 0 = kıpırdamaz); hedef_kalkan_hasari: hedefin kalkanına giden hasar çarpanı süre boyunca (1,5 = kalkan emdiği payın 1,5 katı erir, gövde payı değişmez; Weaken Shields), kalkan_kaybi: etki bitince KENDİ kalkanından oran gider (Weaken Shields); yansit: alınan hasarın bu oranı (indirimden önceki ham hasar) saldırana döner, mods.alinan_hasar ile birlikte (Revenge); hedefe_isinla: hedefin konumuna ışınlan (Sleight; menzil sınırı yok, hedef_yavaslat ile hedef yavaşlar); zehir: hedefin gövdesine saniyede bir vuruş (ilk, artis, en_cok, toplam); hedef_hasar: işaretli hedefe hasar bonusu; ates_cek: menzildeki uzaylılar saldırır; gizlen: uzaylılar görmez (saldırınca, kutu toplayınca, atlayınca biter); gorus: görüş mesafesi çarpanı; roket_bekleme_ms: roket bekleme süresi. E5: hedef_kalkan_kapat: hedefin kalkanından oran süre boyunca kapanır, bitince geri (Shield Disarray); hedef_atis_araligi: hedefin lazer beklemesi [en az, en çok] sn (DDoL); yuk {kaynak: oldurme | zincir, azami, menzil (etkin değilken yük başına lazer menzili), mods (harcanan yük başına), artan (her yük bir öncekinden bu kadar fazla), azami_hiz}: yük biriktiren yetenek, yüksüz basılmaz, etkinleşince yükler harcanır (Momentum, Stockpile, Volt Discharge); ters_cevir: takılı modüllerin eksi nitelikleri artıya, eksi yoksa bu bonuslar (Self Reversal); dolum {saniyede, azami, bol_yaricap}: hedefe dolan vuruş, dolunca / süre bitince / hedef menzilden çıkınca (Charge Shot); kalkan_erit: saniyede azami kalkanın oranı kadar erime, sifirda_kapan: 0'da yetenek biter (Scramble, Supercharge Plus); ucgen_patlama {hasar, yaricap, uzaklik}: hedefin arkasında üçgen üç patlama (Triple Barrage); sonraki_gsp: bir sonraki Singularity Drive atışına bir kez (Quantum Amplifier); lazer_yansit: alinan_lazer'in azalttığı hasar saldırana döner (Prismatic Reflecting); olumsuz: can 1'de kalınca bu kadar sn dokunulmaz ve yetenek biter (Volt Back-up); fircatici_hasar, top, top_bekleme: mods anahtarları (fırlatıcı hasarı, Particle Cannon hasarı ve beklemesi).",
- "yetenekler": {
+ "_effects": "hp_percent: anında azami canın oranı; can_onar / kalkan_onar: süre boyunca toplam (saniyede eşit); mods: süre boyunca profil bonusları (hiz, lazer, damage_taken, laser_taken, kalkan_hasari; sabit_hiz: gösterilen hız bu değere ayarlanır, 0 = kıpırdamaz); target_shield_damage: hedefin kalkanına giden hasar çarpanı süre boyunca (1,5 = kalkan emdiği payın 1,5 katı erir, gövde payı değişmez; Weaken Shields), shield_loss: etki bitince KENDİ kalkanından oran gider (Weaken Shields); yansit: alınan hasarın bu oranı (indirimden önceki ham hasar) saldırana döner, mods.alinan_hasar ile birlikte (Revenge); teleport_to_target: hedefin konumuna ışınlan (Sleight; menzil sınırı yok, hedef_yavaslat ile hedef yavaşlar); zehir: hedefin gövdesine saniyede bir vuruş (ilk, artis, en_cok, toplam); target_damage: işaretli hedefe hasar bonusu; draw_fire: menzildeki uzaylılar saldırır; gizlen: uzaylılar görmez (saldırınca, kutu toplayınca, atlayınca biter); gorus: görüş mesafesi çarpanı; roket_bekleme_ms: roket bekleme süresi. E5: hedef_kalkan_kapat: hedefin kalkanından oran süre boyunca kapanır, bitince geri (Shield Disarray); target_fire_interval: hedefin lazer beklemesi [en az, en çok] sn (DDoL); yuk {kaynak: oldurme | zincir, azami, menzil (etkin değilken yük başına lazer menzili), mods (harcanan yük başına), artan (her yük bir öncekinden bu kadar fazla), azami_hiz}: yük biriktiren yetenek, yüksüz basılmaz, etkinleşince yükler harcanır (Momentum, Stockpile, Volt Discharge); ters_cevir: takılı modüllerin eksi nitelikleri artıya, eksi yoksa bu bonuslar (Self Reversal); dolum {saniyede, azami, split_radius}: hedefe dolan vuruş, dolunca / süre bitince / hedef menzilden çıkınca (Charge Shot); kalkan_erit: saniyede azami kalkanın oranı kadar erime, close_at_zero: 0'da yetenek biter (Scramble, Supercharge Plus); ucgen_patlama {hasar, yaricap, uzaklik}: hedefin arkasında üçgen üç patlama (Triple Barrage); sonraki_gsp: bir sonraki Singularity Drive atışına bir kez (Quantum Amplifier); lazer_yansit: laser_taken'in azalttığı hasar saldırana döner (Prismatic Reflecting); olumsuz: can 1'de kalınca bu kadar sn dokunulmaz ve yetenek biter (Volt Back-up); launcher_damage, top, top_bekleme: mods anahtarları (fırlatıcı hasarı, Particle Cannon hasarı ve beklemesi).",
+ "skills": {
   "ability_solace": {
    "ad": "Nano-Cluster Repairer",
    "sure_sn": 0,
    "bekleme_sn": 90,
    "etki": {
-    "can_yuzde": 0.35
+    "hp_percent": 0.35
    },
    "gorsel": {
     "etki": 1
@@ -22,8 +22,8 @@
    "sure_sn": 15,
    "bekleme_sn": 90,
    "etki": {
-    "hedef_kalkan_hasari": 1.5,
-    "kalkan_kaybi": 0.3
+    "target_shield_damage": 1.5,
+    "shield_loss": 0.3
    },
    "hedefli": true,
    "_not": "istemci: düşmanın kalkanına giden hasar +%50 (kalkan, emdiği payın 1,5 katı erir, gövdeye geçen pay aynı); etki bitince KENDİ kalkanının %30'u gider",
@@ -42,7 +42,7 @@
    "etki": {
     "mods": {
      "lazer": -0.25,
-     "alinan_lazer": -0.9
+     "laser_taken": -0.9
     }
    },
    "gorsel": {
@@ -78,7 +78,7 @@
    "etki": {
     "zehir": {
      "ilk": 1500,
-     "artis": 200,
+     "increase": 200,
      "en_cok": 8500,
      "toplam": 180000
     }
@@ -116,7 +116,7 @@
     "can_onar": 140000
    },
    "gorsel": {
-    "baslat": 101
+    "launch": 101
    },
    "basarim": "HEALING_BEAM"
   },
@@ -128,7 +128,7 @@
     "kalkan_onar": 75000
    },
    "gorsel": {
-    "baslat": 104
+    "launch": 104
    },
    "basarim": "SHIELD_RECHARGE"
   },
@@ -141,7 +141,7 @@
    },
    "basarim": "HEALING_POD",
    "gorsel": {
-    "varlik": 33
+    "entity": 33
    }
   },
   "ability_citadel_draw-fire": {
@@ -149,10 +149,10 @@
    "sure_sn": 5,
    "bekleme_sn": 40,
    "etki": {
-    "ates_cek": 1000
+    "draw_fire": 1000
    },
    "gorsel": {
-    "baslat": 102
+    "launch": 102
    },
    "basarim": "DRAW_FIRE",
    "_not": "menzil wiki'de yok (uyarlama 1000)"
@@ -188,7 +188,7 @@
    "bekleme_sn": 360,
    "etki": {
     "mods": {
-     "alinan_hasar": -0.5,
+     "damage_taken": -0.5,
      "sabit_hiz": 0
     }
    },
@@ -212,7 +212,7 @@
    "bekleme_sn": 180,
    "etki": {},
    "gorsel": {
-    "baslat": 110
+    "launch": 110
    },
    "basarim": "ULTIMATE_EMP",
    "_not": "düşman gemi yeteneklerini durdurur; uzaylıların yeteneği yok (bot oyuncularla)"
@@ -223,10 +223,10 @@
    "bekleme_sn": 90,
    "hedefli": true,
    "etki": {
-    "hedef_hasar": 0.05
+    "target_damage": 0.05
    },
    "gorsel": {
-    "baslat": 106
+    "launch": 106
    },
    "basarim": "MARK_TARGET",
    "_not": "hasar yüzdesi wiki'de yok (uyarlama %5)"
@@ -239,13 +239,13 @@
     "gorus": 2.0
    },
    "gorsel": {
-    "baslat": 111
+    "launch": 111
    },
    "basarim": "DOUBLE_MINIMAP"
   },
   "ability_tartarus_speed-boost": {
    "ad": "Speed Boost",
-   "ac_kapa": true,
+   "toggle": true,
    "sure_sn": 0,
    "bekleme_sn": 10,
    "etki": {
@@ -326,7 +326,7 @@
     "yansit": 1.0,
     "mods": {
      "hiz": -0.05,
-     "alinan_hasar": -0.95
+     "damage_taken": -0.95
     }
    },
    "_not": "istemci: alınan hasarın %100'ü doğrudan saldırana döner, oyuncu hasarın yalnız %5'ini alır, gemi yavaşlar; yansıyan miktar indirimden önceki ham hasardır",
@@ -341,7 +341,7 @@
    "bekleme_sn": 60,
    "etki": {
     "mods": {
-     "alinan_lazer": -0.8
+     "laser_taken": -0.8
     }
    },
    "metin": [
@@ -379,7 +379,7 @@
    "sure_sn": 0,
    "bekleme_sn": 60,
    "etki": {
-    "hedef_atis_araligi": [
+    "target_fire_interval": [
      3,
      5
     ]
@@ -442,7 +442,7 @@
      "kaynak": "oldurme",
      "azami": 10,
      "menzil": 5,
-     "artan": {
+     "ramp": {
       "kalkan": 0.002
      }
     }
@@ -527,7 +527,7 @@
    "sure_sn": 0,
    "bekleme_sn": 60,
    "etki": {
-    "hedefe_isinla": true,
+    "teleport_to_target": true,
     "hedef_yavaslat": 0.6
    },
    "hedefli": true,
@@ -560,7 +560,7 @@
      "hiz": 0.25
     },
     "kalkan_erit": 0.1,
-    "sifirda_kapan": true
+    "close_at_zero": true
    },
    "_not": "istemci: kalkan süre boyunca erir, 0'da kapanır; saniyede azami kalkanın %10'u (wiki)"
   },
@@ -569,7 +569,7 @@
    "sure_sn": 0,
    "bekleme_sn": 60,
    "etki": {
-    "isinla": 50
+    "phase_out": 50
    },
    "gorsel": {
     "gorunum": 4
@@ -605,11 +605,11 @@
    "etki": {
     "alan_hasar": {
      "yaricap": 375,
-     "saniyede": 10000,
-     "lazer_payi": 0.8
+     "per_second": 10000,
+     "laser_share": 0.8
     },
     "mods": {
-     "alinan_hasar": -0.5
+     "damage_taken": -0.5
     }
    },
    "metin": [
@@ -639,7 +639,7 @@
    "bekleme_sn": 60,
    "etki": {
     "dolum": {
-     "saniyede": 20000,
+     "per_second": 20000,
      "azami": 300000
     }
    },
@@ -670,9 +670,9 @@
    "bekleme_sn": 60,
    "etki": {
     "dolum": {
-     "saniyede": 45000,
+     "per_second": 45000,
      "azami": 450000,
-     "bol_yaricap": 200
+     "split_radius": 200
     },
     "mods": {
      "hiz": -0.1
@@ -708,7 +708,7 @@
    "sure_sn": 0,
    "bekleme_sn": 60,
    "etki": {
-    "can_yuzde": 0.5
+    "hp_percent": 0.5
    },
    "metin": [
     "msg_nano_cluster_repairer_plus_activated",
@@ -722,7 +722,7 @@
    "etki": {
     "alan_hasar": {
      "yaricap": 500,
-     "saniyede": 10000
+     "per_second": 10000
     }
    },
    "_not": "yarıçap uyarlama",
@@ -738,7 +738,7 @@
    "etki": {
     "alan_hasar": {
      "yaricap": 600,
-     "saniyede": 15000
+     "per_second": 15000
     }
    },
    "metin": [
@@ -764,7 +764,7 @@
    "bekleme_sn": 60,
    "basarim": "NEUTRALIZING_MARKER",
    "etki": {
-    "hedef_hasar": 0.04,
+    "target_damage": 0.04,
     "mods": {
      "hiz": 0.05
     }
@@ -783,7 +783,7 @@
    "etki": {
     "mods": {
      "lazer": -0.5,
-     "alinan_lazer": -0.7
+     "laser_taken": -0.7
     },
     "lazer_yansit": true
    },
@@ -800,7 +800,7 @@
    "etki": {
     "roket_bekleme_ms": 1000,
     "mods": {
-     "fircatici_hasar": 0.2
+     "launcher_damage": 0.2
     }
    },
    "_not": "istemci: fırlatıcıyı doldurur, fırlatıcı hasarı +%20 (yalnız fırlatıcı)",
@@ -819,7 +819,7 @@
      "lazer": -0.25
     }
    },
-   "ac_kapa": true,
+   "toggle": true,
    "metin": [
     "msg_speed_boost_plus_activated",
     "msg_speed_boost_plus_stopped"
@@ -832,7 +832,7 @@
    "etki": {
     "zincir_hasar": {
      "ilk": 50000,
-     "artis": 0.1,
+     "increase": 0.1,
      "hedef": 5,
      "menzil": 600
     }
@@ -904,7 +904,7 @@
     "ucgen_patlama": {
      "hasar": 20000,
      "yaricap": 200,
-     "uzaklik": 150
+     "distance": 150
     }
    },
    "hedefli": true,
@@ -918,7 +918,7 @@
  "_gemiler": "Gemi -> yetenekleri; Elite/Veteran tasarımları ana geminin yetenekleriyle, carpanlar wiki'deki tasarım bonusları (sure, bekleme, etki). Defcom/Raven Ultimate Cloaking, Yamato/Ronin Travel (wiki): istemcide kendi öğeleri yok, Spearhead'in ve Citadel'in öğesi kullanılır. A-Elite'in onarım çarpanı yok: istemcinin kısa süreleri (Shield Repair 4 sn, HP Repair 6 sn) aynı toplamla \"%20/%10 faster\"ı zaten veriyor (E5).",
  "gemiler": {
   "ship_aegis": {
-   "yetenekler": [
+   "skills": [
     "ability_aegis_hp-repair",
     "ability_aegis_shield-repair",
     "ability_aegis_repair-pod"
@@ -939,7 +939,7 @@
    }
   },
   "ship_a-elite": {
-   "yetenekler": [
+   "skills": [
     "ability_aegis_hp-repair",
     "ability_aegis_shield-repair",
     "ability_aegis_repair-pod"
@@ -963,7 +963,7 @@
    }
   },
   "ship_a-veteran": {
-   "yetenekler": [
+   "skills": [
     "ability_aegis_hp-repair",
     "ability_aegis_shield-repair",
     "ability_aegis_repair-pod"
@@ -984,7 +984,7 @@
    }
   },
   "ship_citadel": {
-   "yetenekler": [
+   "skills": [
     "ability_citadel_draw-fire",
     "ability_citadel_travel",
     "ability_citadel_protection",
@@ -1010,7 +1010,7 @@
    }
   },
   "ship_c-elite": {
-   "yetenekler": [
+   "skills": [
     "ability_citadel_draw-fire",
     "ability_citadel_travel",
     "ability_citadel_protection",
@@ -1050,7 +1050,7 @@
    }
   },
   "ship_c-veteran": {
-   "yetenekler": [
+   "skills": [
     "ability_citadel_draw-fire",
     "ability_citadel_travel",
     "ability_citadel_protection",
@@ -1076,7 +1076,7 @@
    }
   },
   "ship_spearhead": {
-   "yetenekler": [
+   "skills": [
     "ability_spearhead_ultimate-cloak",
     "ability_spearhead_jam-x",
     "ability_spearhead_target-marker",
@@ -1102,7 +1102,7 @@
    }
   },
   "ship_s-elite": {
-   "yetenekler": [
+   "skills": [
     "ability_spearhead_ultimate-cloak",
     "ability_spearhead_jam-x",
     "ability_spearhead_target-marker",
@@ -1142,7 +1142,7 @@
    }
   },
   "ship_s-veteran": {
-   "yetenekler": [
+   "skills": [
     "ability_spearhead_ultimate-cloak",
     "ability_spearhead_jam-x",
     "ability_spearhead_target-marker",
@@ -1168,7 +1168,7 @@
    }
   },
   "ship_solace": {
-   "yetenekler": [
+   "skills": [
     "ability_solace"
    ],
    "ozel": {
@@ -1179,7 +1179,7 @@
    }
   },
   "ship_diminisher": {
-   "yetenekler": [
+   "skills": [
     "ability_diminisher"
    ],
    "ozel": {
@@ -1190,7 +1190,7 @@
    }
   },
   "ship_spectrum": {
-   "yetenekler": [
+   "skills": [
     "ability_spectrum"
    ],
    "ozel": {
@@ -1201,7 +1201,7 @@
    }
   },
   "ship_sentinel": {
-   "yetenekler": [
+   "skills": [
     "ability_sentinel"
    ],
    "ozel": {
@@ -1212,7 +1212,7 @@
    }
   },
   "ship_venom": {
-   "yetenekler": [
+   "skills": [
     "ability_venom"
    ],
    "ozel": {
@@ -1223,7 +1223,7 @@
    }
   },
   "ship_v-lightning": {
-   "yetenekler": [
+   "skills": [
     "ability_lightning"
    ],
    "ozel": {
@@ -1234,7 +1234,7 @@
    }
   },
   "ship_tartarus": {
-   "yetenekler": [
+   "skills": [
     "ability_tartarus_rapid-fire",
     "ability_tartarus_speed-boost"
    ],
@@ -1250,7 +1250,7 @@
    }
   },
   "ship_defcom": {
-   "yetenekler": [
+   "skills": [
     "ability_spearhead_ultimate-cloak"
    ],
    "ozel": {
@@ -1261,7 +1261,7 @@
    }
   },
   "ship_defcom-raven": {
-   "yetenekler": [
+   "skills": [
     "ability_spearhead_ultimate-cloak"
    ],
    "ozel": {
@@ -1272,7 +1272,7 @@
    }
   },
   "ship_yamato": {
-   "yetenekler": [
+   "skills": [
     "ability_citadel_travel"
    ],
    "ozel": {
@@ -1283,7 +1283,7 @@
    }
   },
   "ship_yamato-ronin": {
-   "yetenekler": [
+   "skills": [
     "ability_citadel_travel"
    ],
    "carpanlar": {
@@ -1299,7 +1299,7 @@
    }
   },
   "ship_basilisk": {
-   "yetenekler": [
+   "skills": [
     "ability_basilisk_noxious-nebula",
     "ability_basilisk_heightened-valour"
    ],
@@ -1315,7 +1315,7 @@
    }
   },
   "ship_berserker": {
-   "yetenekler": [
+   "skills": [
     "ability_berserker_shl",
     "ability_berserker_bsk",
     "ability_berserker_rvg"
@@ -1336,7 +1336,7 @@
    }
   },
   "ship_citadel-plus": {
-   "yetenekler": [
+   "skills": [
     "ability_citadel_draw-fire",
     "ability_citadel_travel",
     "ability_citadel_protection",
@@ -1367,7 +1367,7 @@
    }
   },
   "ship_cyborg": {
-   "yetenekler": [
+   "skills": [
     "ability_venom"
    ],
    "ozel": {
@@ -1377,7 +1377,7 @@
      "etki": {
       "zehir": {
        "ilk": 6900,
-       "artis": 300,
+       "increase": 300,
        "en_cok": 13600,
        "toplam": 315000
       }
@@ -1386,7 +1386,7 @@
    }
   },
   "ship_disruptor": {
-   "yetenekler": [
+   "skills": [
     "ability_disruptor_redirect",
     "ability_disruptor_shield-disarray",
     "ability_disruptor_ddol"
@@ -1407,7 +1407,7 @@
    }
   },
   "ship_goliath-x": {
-   "yetenekler": [
+   "skills": [
     "ability_goliath-x_frozen-claw"
    ],
    "ozel": {
@@ -1418,7 +1418,7 @@
    }
   },
   "ship_hammerclaw": {
-   "yetenekler": [
+   "skills": [
     "ability_aegis_hp-repair",
     "ability_aegis_shield-repair",
     "ability_aegis_repair-pod"
@@ -1448,7 +1448,7 @@
    }
   },
   "ship_hammerclaw-plus": {
-   "yetenekler": [
+   "skills": [
     "ability_aegis_hp-repair",
     "ability_aegis_shield-repair",
     "ability_aegis_repair-pod",
@@ -1483,7 +1483,7 @@
    }
   },
   "ship_hecate": {
-   "yetenekler": [
+   "skills": [
     "ability_hecate_particle-beam"
    ],
    "ozel": {
@@ -1494,7 +1494,7 @@
    }
   },
   "ship_hecate-plus": {
-   "yetenekler": [
+   "skills": [
     "ability_hecate-plus_particle-beam-plus",
     "ability_hecate-plus_stockpile"
    ],
@@ -1510,7 +1510,7 @@
    }
   },
   "ship_holo": {
-   "yetenekler": [
+   "skills": [
     "ability_holo_self-reversal",
     "ability_holo_enemy-reversal"
    ],
@@ -1526,7 +1526,7 @@
    }
   },
   "ship_holo_design_holo-epion": {
-   "yetenekler": [
+   "skills": [
     "ability_holo_self-reversal",
     "ability_holo_enemy-reversal"
    ],
@@ -1542,7 +1542,7 @@
    }
   },
   "ship_holo_design_holo-frost": {
-   "yetenekler": [
+   "skills": [
     "ability_holo_self-reversal",
     "ability_holo_enemy-reversal"
    ],
@@ -1558,7 +1558,7 @@
    }
   },
   "ship_holo_design_holo-osiris": {
-   "yetenekler": [
+   "skills": [
     "ability_holo_self-reversal",
     "ability_holo_enemy-reversal"
    ],
@@ -1574,7 +1574,7 @@
    }
   },
   "ship_holo_design_holo-prometheus": {
-   "yetenekler": [
+   "skills": [
     "ability_holo_self-reversal",
     "ability_holo_enemy-reversal"
    ],
@@ -1590,7 +1590,7 @@
    }
   },
   "ship_holo_design_holo-smite": {
-   "yetenekler": [
+   "skills": [
     "ability_holo_self-reversal",
     "ability_holo_enemy-reversal"
    ],
@@ -1606,7 +1606,7 @@
    }
   },
   "ship_holo_design_holo-ullrin": {
-   "yetenekler": [
+   "skills": [
     "ability_holo_self-reversal",
     "ability_holo_enemy-reversal"
    ],
@@ -1622,7 +1622,7 @@
    }
   },
   "ship_hyperion": {
-   "yetenekler": [
+   "skills": [
     "ability_hyperion_ga",
     "ability_hyperion_qa"
    ],
@@ -1638,7 +1638,7 @@
    }
   },
   "ship_keres": {
-   "yetenekler": [
+   "skills": [
     "ability_keres_spr",
     "ability_keres_sle"
    ],
@@ -1654,7 +1654,7 @@
    }
   },
   "ship_liberator-plus": {
-   "yetenekler": [
+   "skills": [
     "ability_liberator-plus_self-repair"
    ],
    "ozel": {
@@ -1665,7 +1665,7 @@
    }
   },
   "ship_mimesis": {
-   "yetenekler": [
+   "skills": [
     "ability_mimesis_scramble",
     "ability_mimesis_phase-out"
    ],
@@ -1681,7 +1681,7 @@
    }
   },
   "ship_orcus": {
-   "yetenekler": [
+   "skills": [
     "ability_orcus_assimilate"
    ],
    "ozel": {
@@ -1692,7 +1692,7 @@
    }
   },
   "ship_paladin": {
-   "yetenekler": [
+   "skills": [
     "ability_paladin_last-stand",
     "ability_paladin_ripper"
    ],
@@ -1708,7 +1708,7 @@
    }
   },
   "ship_pusat-plus": {
-   "yetenekler": [
+   "skills": [
     "ability_pusat-plus_speed-sap"
    ],
    "ozel": {
@@ -1719,7 +1719,7 @@
    }
   },
   "ship_retiarus": {
-   "yetenekler": [
+   "skills": [
     "ability_retiarus_chs",
     "ability_retiarus_spc"
    ],
@@ -1735,7 +1735,7 @@
    }
   },
   "ship_retiarus-plus": {
-   "yetenekler": [
+   "skills": [
     "ability_retiarus-plus_chsp",
     "ability_retiarus-plus_spcp"
    ],
@@ -1751,7 +1751,7 @@
    }
   },
   "ship_solace-plus": {
-   "yetenekler": [
+   "skills": [
     "ability_solace-plus_nano-cluster-repairer-plus"
    ],
    "ozel": {
@@ -1762,7 +1762,7 @@
    }
   },
   "ship_solaris": {
-   "yetenekler": [
+   "skills": [
     "ability_solaris_inc"
    ],
    "ozel": {
@@ -1773,7 +1773,7 @@
    }
   },
   "ship_solaris-plus": {
-   "yetenekler": [
+   "skills": [
     "ability_solaris-plus_incinerate-plus"
    ],
    "ozel": {
@@ -1784,7 +1784,7 @@
    }
   },
   "ship_spearhead-plus": {
-   "yetenekler": [
+   "skills": [
     "ability_spearhead_ultimate-cloak",
     "ability_spearhead-plus_jamx-creed",
     "ability_spearhead-plus_neutralizing-marker",
@@ -1810,7 +1810,7 @@
    }
   },
   "ship_spectrum-plus": {
-   "yetenekler": [
+   "skills": [
     "ability_spectrum-plus_prismatic-reflecting"
    ],
    "ozel": {
@@ -1821,7 +1821,7 @@
    }
   },
   "ship_tartarus-plus": {
-   "yetenekler": [
+   "skills": [
     "ability_tartarus-plus_rapid-fire-plus",
     "ability_tartarus-plus_speed-boost-plus"
    ],
@@ -1837,7 +1837,7 @@
    }
   },
   "ship_tempest": {
-   "yetenekler": [
+   "skills": [
     "ability_tempest_voltage-link",
     "ability_tempest_volt-discharge",
     "ability_tempest_volt-backup"
@@ -1858,7 +1858,7 @@
    }
   },
   "ship_zephyr": {
-   "yetenekler": [
+   "skills": [
     "ability_zephyr_mmt",
     "ability_zephyr_tbr"
    ],
@@ -1874,7 +1874,7 @@
    }
   },
   "ship_centurion_design_centurion-ability1": {
-   "yetenekler": [
+   "skills": [
     "ability_lightning"
    ],
    "ozel": {
@@ -1885,7 +1885,7 @@
    }
   },
   "ship_centurion_design_centurion-ability10": {
-   "yetenekler": [
+   "skills": [
     "ability_diminisher",
     "ability_aegis_shield-repair"
    ],
@@ -1901,7 +1901,7 @@
    }
   },
   "ship_centurion_design_centurion-ability2": {
-   "yetenekler": [
+   "skills": [
     "ability_spectrum"
    ],
    "ozel": {
@@ -1912,7 +1912,7 @@
    }
   },
   "ship_centurion_design_centurion-ability3": {
-   "yetenekler": [
+   "skills": [
     "ability_diminisher"
    ],
    "ozel": {
@@ -1923,7 +1923,7 @@
    }
   },
   "ship_centurion_design_centurion-ability4": {
-   "yetenekler": [
+   "skills": [
     "ability_aegis_repair-pod"
    ],
    "ozel": {
@@ -1934,7 +1934,7 @@
    }
   },
   "ship_centurion_design_centurion-ability5": {
-   "yetenekler": [
+   "skills": [
     "ability_citadel_protection"
    ],
    "ozel": {
@@ -1945,7 +1945,7 @@
    }
   },
   "ship_centurion_design_centurion-ability6": {
-   "yetenekler": [
+   "skills": [
     "ability_aegis_shield-repair"
    ],
    "ozel": {
@@ -1956,7 +1956,7 @@
    }
   },
   "ship_centurion_design_centurion-ability7": {
-   "yetenekler": [
+   "skills": [
     "ability_spectrum",
     "ability_citadel_protection"
    ],
@@ -1972,7 +1972,7 @@
    }
   },
   "ship_centurion_design_centurion-ability8": {
-   "yetenekler": [
+   "skills": [
     "ability_lightning",
     "ability_spearhead_target-marker"
    ],
@@ -1988,7 +1988,7 @@
    }
   },
   "ship_centurion_design_centurion-ability9": {
-   "yetenekler": [
+   "skills": [
     "ability_aegis_repair-pod",
     "ability_citadel_protection"
    ],
@@ -2004,7 +2004,7 @@
    }
   },
   "ship_hammerclaw-plus_design_hammerclaw-plus-argon": {
-   "yetenekler": [
+   "skills": [
     "ability_aegis_hp-repair",
     "ability_aegis_shield-repair",
     "ability_aegis_repair-pod",
@@ -2039,7 +2039,7 @@
    }
   },
   "ship_hammerclaw-plus_design_hammerclaw-plus-arios": {
-   "yetenekler": [
+   "skills": [
     "ability_aegis_hp-repair",
     "ability_aegis_shield-repair",
     "ability_aegis_repair-pod",
@@ -2074,7 +2074,7 @@
    }
   },
   "ship_hammerclaw-plus_design_hammerclaw-plus-dusklight": {
-   "yetenekler": [
+   "skills": [
     "ability_aegis_hp-repair",
     "ability_aegis_shield-repair",
     "ability_aegis_repair-pod",
@@ -2109,7 +2109,7 @@
    }
   },
   "ship_hammerclaw-plus_design_hammerclaw-plus-elysium": {
-   "yetenekler": [
+   "skills": [
     "ability_aegis_hp-repair",
     "ability_aegis_shield-repair",
     "ability_aegis_repair-pod",
@@ -2144,7 +2144,7 @@
    }
   },
   "ship_hammerclaw-plus_design_hammerclaw-plus-empyrian": {
-   "yetenekler": [
+   "skills": [
     "ability_aegis_hp-repair",
     "ability_aegis_shield-repair",
     "ability_aegis_repair-pod",
@@ -2179,7 +2179,7 @@
    }
   },
   "ship_hammerclaw-plus_design_hammerclaw-plus-frost": {
-   "yetenekler": [
+   "skills": [
     "ability_aegis_hp-repair",
     "ability_aegis_shield-repair",
     "ability_aegis_repair-pod",
@@ -2214,7 +2214,7 @@
    }
   },
   "ship_hammerclaw-plus_design_hammerclaw-plus-neikos": {
-   "yetenekler": [
+   "skills": [
     "ability_aegis_hp-repair",
     "ability_aegis_shield-repair",
     "ability_aegis_repair-pod",
@@ -2249,7 +2249,7 @@
    }
   },
   "ship_hammerclaw-plus_design_hammerclaw-plus-nobilis": {
-   "yetenekler": [
+   "skills": [
     "ability_aegis_hp-repair",
     "ability_aegis_shield-repair",
     "ability_aegis_repair-pod",
@@ -2284,7 +2284,7 @@
    }
   },
   "ship_hammerclaw-plus_design_hammerclaw-plus-phantasm": {
-   "yetenekler": [
+   "skills": [
     "ability_aegis_hp-repair",
     "ability_aegis_shield-repair",
     "ability_aegis_repair-pod",
@@ -2319,7 +2319,7 @@
    }
   },
   "ship_hammerclaw-plus_design_hammerclaw-plus-prometheus": {
-   "yetenekler": [
+   "skills": [
     "ability_aegis_hp-repair",
     "ability_aegis_shield-repair",
     "ability_aegis_repair-pod",
@@ -2354,5 +2354,5 @@
    }
   }
  },
- "_ozel": "gemi -> yetenek -> sure_sn/bekleme_sn: istemcinin gemi verisinden (tools/gemi_yetenekleri.py); etki çarpanları (\"carpanlar\") wiki'den kalır, süre ve bekleme ozel'den."
+ "_private": "gemi -> yetenek -> sure_sn/bekleme_sn: istemcinin gemi verisinden (tools/ship_abilities.py); etki çarpanları (\"carpanlar\") wiki'den kalır, süre ve bekleme ozel'den."
 }

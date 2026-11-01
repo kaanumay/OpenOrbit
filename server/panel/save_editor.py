@@ -85,7 +85,7 @@ def catalog():
     ist = _ist()
     return {'esyalar': sorted([l, category(l, ist), SHP.slot_of(l), PETM.slot_for(l), bool(SHP.drone_ok(l) or l in SHP.DESIGNS)]
                               for l in PA.known_loots()),
-            'kategoriler': [k for k, _s, _o in CATEGORIES] + ['diger']}
+            'categories': [k for k, _s, _o in CATEGORIES] + ['diger']}
 
 
 # ------------------------------------------------------------------ eşya bilgisi (panelin ipucu)
@@ -120,7 +120,7 @@ def info():
 
     def stats(l, tag, v, style='n'):
         if v is not None:
-            row(l).setdefault('dg', []).append([tag, v, style])
+            row(l).setdefault('stats', []).append([tag, v, style])
 
     def bonus(l, b):
         for k, v in (b or {}).items():
@@ -139,11 +139,11 @@ def info():
         if v.get('sinif') in ('ShipType', 'ShipDesignType'):
             gr = E['gemiler'].get(l) or E['gemiler'].get(l.split('_design_')[0]) or {}
             stats(l, 'can', v.get('can') or gr.get('hp'))
-            stats(l, 'hiz', v.get('hiz') or gr.get('temel_hiz'))
+            stats(l, 'hiz', v.get('hiz') or gr.get('base_speed'))
             stats(l, 'kargo', v.get('kargo') or gr.get('kargo'))
             row(l)['slot_info'] = {k: n for k, n in (v.get('yuvalar') or {}).items() if n}
             bonus(l, gr.get('bonus'))
-            bonus(l, (E.get('tasarimlar', {}).get(l) or {}).get('bonus'))
+            bonus(l, (E.get('designs', {}).get(l) or {}).get('bonus'))
         if l in E['dronlar']:
             row(l)['slot_info'] = {'default': E['dronlar'][l]['yuva']}
     for l, v in E['lazerler'].items():
@@ -161,8 +161,8 @@ def info():
             stats(l, 'hasar', v.get('hasar'))
             stats(l, 'isabet', v.get('isabet'), 'p')
     for l, v in E['onarim_robotlari'].items():
-        stats(l, 'tam_onarim', v.get('tam_onarim_sn'), 'sn')
-        stats(l, 'dakikada_can', v.get('dakikada_hp'))
+        stats(l, 'tam_onarim', v.get('full_repair_sec'), 'sn')
+        stats(l, 'dakikada_can', v.get('hp_per_minute'))
     for l, v in E['ekstralar'].items():
         if not isinstance(v, dict):
             continue
@@ -174,12 +174,12 @@ def info():
         bonus(l, {k: x for k, x in v.items() if k != 'id'})
     for l, v in E['dron_tasarimlari'].items():
         if isinstance(v, dict):
-            bonus(l, v.get('takim'))
+            bonus(l, v.get('set_bonus'))
             stats(l, 'dron_kalkan', v.get('dron_kalkan'), 'p')
-            stats(l, 'dron_lazer', (v.get('takim') or {}).get('dron_lazer'), 'p')
+            stats(l, 'dron_lazer', (v.get('set_bonus') or {}).get('dron_lazer'), 'p')
     hour = E['boosterlar'].get('saat', {})
-    for l in list(E['boosterlar']['turler']) + list(BOOSTER.ALIAS):
-        effect = BOOSTER.B['turler'].get(l) or {}
+    for l in list(E['boosterlar']['kinds']) + list(BOOSTER.ALIAS):
+        effect = BOOSTER.B['kinds'].get(l) or {}
         for k, x in effect.items():
             if k in BOOSTER_NAME:
                 row(l).setdefault('m', []).append([BOOSTER_NAME[k], x / 100.0])
@@ -192,14 +192,14 @@ def info():
     for l, v in GM.M.items():
         if 'kararsiz' in v:
             unstable = v['kararsiz']
-            row(l)['gm'] = unstable.get('tercih', [])
+            row(l)['gm'] = unstable.get('preference', [])
             stats(l, 'en_az', unstable.get('en_az'), 'p')
             a = unstable['aralik']
             stats(l, 'deger_araligi', '%d-%d%%' % tuple(a['buyuk']) + (' / %d-%d%%' % tuple(a['kucuk']) if a.get('kucuk') else ''), 't')
             stats(l, 'yeniden_cekme', unstable['restabilize']['hak'])
         else:
             row(l)['gm'] = v.get('gemiler', [])
-            bonus(l, v.get('etkiler'))
+            bonus(l, v.get('effects'))
     for l, v in PC.CANNONS.items():
         stats(l, 'taban_hasar', v.get('taban'))
         stats(l, 'element', v.get('element'), 'e')
@@ -239,8 +239,8 @@ def open_save(path):
     from player_profile import Profile
     from shop import Shop
     notes = []
-    pr = Profile(PA._load('giris.json').get('tohum'), path)
-    m = Shop(pr, PA._load('yanitlar.json'), notes.append)
+    pr = Profile(PA._load('login.json').get('seed'), path)
+    m = Shop(pr, PA._load('responses.json'), notes.append)
     m.gates = KAPI.Gates(pr, notes.append)
     m.new_ = NS.NewSystems(pr, m, notes.append)
     return pr, m
@@ -293,22 +293,22 @@ def rng_pool(l):
     t = rng_kind(l)
     if t == 'modul':
         a = GM.M[l]['kararsiz']['aralik']
-        return {'nitelik': list(GM.SECONDARY), 'birim': 'kesir', 'azami_nitelik': 3, 'hak': GM.restab(l)['hak'],
-                'aralik': [a['buyuk'][0], (a.get('kucuk') or a['buyuk'])[1]], 'tercih': GM.M[l]['kararsiz'].get('tercih', [])}
+        return {'nitelik': list(GM.SECONDARY), 'unit': 'kesir', 'max_attributes': 3, 'hak': GM.restab(l)['hak'],
+                'aralik': [a['buyuk'][0], (a.get('kucuk') or a['buyuk'])[1]], 'preference': GM.M[l]['kararsiz'].get('preference', [])}
     if t == 'pc':
         if l in PC.DRIVES or l in PC.LENSES:
             pool = {k: v for k, v in PC.D['nitelikler']['surucu'].items() if not k.startswith('_')}
-            return {'nitelik': sorted(pool), 'birim': 'yuzde', 'azami_nitelik': len(PC.D['kilit']['seviyeler']), 'hak': 0,
+            return {'nitelik': sorted(pool), 'unit': 'yuzde', 'max_attributes': len(PC.D['kilit']['seviyeler']), 'hak': 0,
                     'aralik': [min(v[0] for v in pool.values()), max(v[1] for v in pool.values())]}
         pool, tier = PC.pool(l), PC.tier(l)
-        return {'nitelik': sorted(pool), 'birim': 'yuzde', 'azami_nitelik': len(pool), 'hak': PC.rerolls(l),
+        return {'nitelik': sorted(pool), 'unit': 'yuzde', 'max_attributes': len(pool), 'hak': PC.rerolls(l),
                 'aralik': [min(v[tier][0] for v in pool.values()), max(v[tier][1] for v in pool.values())],
                 'yildiz': len(PC.C['yildiz']) - 1 if l in PC.CANNONS else 0}
     if t == 'qfc':
         k = QF.kind(l)
         (lo, hi), _, top = QF.ranges(l)
-        return {'nitelik': sorted(set(QF.D['ilk_nitelik'][k]) | set(QF.D['ek_nitelik'][k])), 'birim': 'yuzde', 'aralik': [lo, round(top, 2)],
-                'azami_nitelik': QF.D['azami_nitelik'], 'azami_seviye': QF.MAX_LV}
+        return {'nitelik': sorted(set(QF.D['ilk_nitelik'][k]) | set(QF.D['ek_nitelik'][k])), 'unit': 'yuzde', 'aralik': [lo, round(top, 2)],
+                'max_attributes': QF.D['max_attributes'], 'azami_seviye': QF.MAX_LV}
     return None
 
 
@@ -334,7 +334,7 @@ def stats(pr):
     c = RT.counters(pr)
     npc = sorted(([RT.R['npc_puan'].get(k, {}).get('ad', '#' + k).strip(), int(n), RT.R['npc_puan'].get(k, {}).get('puan', 0)]
                   for k, n in c['npc'].items() if n), key=lambda x: -x[1])
-    player = sorted(([RT.R['gemi_puan'].get(k, {}).get('ad', k.replace('ship_', '')), int(n)] for k, n in c['oyuncu'].items() if n),
+    player = sorted(([RT.R['ship_points'].get(k, {}).get('ad', k.replace('ship_', '')), int(n)] for k, n in c['oyuncu'].items() if n),
                     key=lambda x: -x[1])
     roster_row = (pr.d.get('kapilar') or {}).get('kapilar') or {}
     duration = pr.d.get('gate_times') or {}
@@ -344,9 +344,9 @@ def stats(pr):
     return {'puan': RT.breakdown(pr), 'npc': npc, 'oyuncu': player,
             'olum': {'dusman': c['olum_dusman'], 'radyasyon': c['olum_radyasyon'], 'diger': c['olum_diger']},
             'gorev': c['gorev'], 'dost': c['dost'], 'kapilar': gates,
-            'modlar': {'ebl': int((pve.get('ebl') or {}).get('en_iyi', 0)), 'labirent': int((pr.d.get('labirent') or {}).get('avlar', 0)),
+            'modlar': {'ebl': int((pve.get('ebl') or {}).get('best', 0)), 'labirent': int((pr.d.get('labirent') or {}).get('hunts', 0)),
                        'mimesis': int(max((pr.d.get('mimesis') or {}).get('seferler') or [0]))},
-            'oynama_sn': int(pr.d.get('oynama_sn') or 0)}
+            'play_sec': int(pr.d.get('play_sec') or 0)}
 
 
 def appearance(pr, m, original=None):
@@ -373,7 +373,7 @@ def appearance(pr, m, original=None):
         configs, drones, pet = {}, {}, {}
         for cid in sorted(g['konfigler']):
             cfg = p.config(cid, sid)
-            configs[cid] = {y: {'kapasite': m.capacity(y, sid, cid), 'esyalar': [e for e in (_item(p, i) for i in cfg.get(y, [])) if e]}
+            configs[cid] = {y: {'capacity': m.capacity(y, sid, cid), 'esyalar': [e for e in (_item(p, i) for i in cfg.get(y, [])) if e]}
                               for y in slots}
             dcfg = p.drone_config(cid, sid)
             drones[cid] = {str(x['kimlik']): {'esyalar': [e for e in (_item(p, i) for i in dcfg.get(str(x['kimlik']), [])) if e],
@@ -382,15 +382,15 @@ def appearance(pr, m, original=None):
                             for x in p.d['dronlar']}
             if m.pet.owned:
                 pc = m.pet.config(cid, sid)
-                pet[cid] = {y: {'kapasite': m.pet.open_slots(y), 'esyalar': [e for e in (_item(p, i) for i in pc.get(y, [])) if e]}
+                pet[cid] = {y: {'capacity': m.pet.open_slots(y), 'esyalar': [e for e in (_item(p, i) for i in pc.get(y, [])) if e]}
                             for y in PETM.ALL_SLOTS}
         row = p.ship_row(sid)
         st = m.stats(sid)
         damage = sum(SHP.ITEMS['lazerler'].get(l, {}).get('hasar', 0) for l in p.loadout(sid).get('laser', []))
         ships.append({'id': sid, 'lootId': g['lootId'], 'tasarim': g.get('tasarim'), 'gorunum': p.ship_look(sid), 'aktif': sid == p.d['aktif_gemi'],
-                        'favori': bool(g.get('favori')), 'aktif_konfig': str(g['aktif_konfig']), 'yuvalar': slots, 'konfigler': configs,
-                        'dronlar': drones, 'pet': pet or None, 'tasarimlar': m.designs(sid),
-                        'konum': g.get('konum'), 'kayitli': bool(g.get('saved_config')),
+                        'favori': bool(g.get('favori')), 'active_config': str(g['active_config']), 'yuvalar': slots, 'konfigler': configs,
+                        'dronlar': drones, 'pet': pet or None, 'designs': m.designs(sid),
+                        'position': g.get('position'), 'registered': bool(g.get('saved_config')),
                         'deger': {'can': st.get('hp_max') or row.get('hp'), 'kalkan': st.get('shield_max'), 'hiz': st.get('display'),
                                   'kargo': row.get('kargo'), 'hasar': damage, 'lazer': st.get('lasers')}})
     ships.sort(key=lambda x: (not x['aktif'], not x['favori'], int(x['id'])))
@@ -419,41 +419,41 @@ def appearance(pr, m, original=None):
         info = SHP.DRONES.get(x['lootId'], {})
         drone_list.append({'id': x['kimlik'], 'lootId': x['lootId'], 'seviye': x.get('seviye', 1), 'puan': x.get('puan', 0),
                    'yukseltme': int(x.get('yukseltme', 0)), 'max_upgrade': UPG.max_level(x['lootId']) or 16,
-                   'kapasite': info.get('yuva', 1), 'tek': bool(info.get('tek'))})
+                   'capacity': info.get('yuva', 1), 'tek': bool(info.get('tek'))})
     petd = m.pet.d if m.pet.owned else None
     pet = None
     if petd:
         pet = {'ad': petd.get('ad'), 'seviye': petd.get('seviye', 0), 'ep': petd.get('ep', 0), 'yakit': int(petd.get('yakit', 0)),
-               'max_fuel': PETM.PET['azami_yakit'], 'azami_seviye': len(PETM.PET['seviyeler']) - 1, 'yikik': bool(petd.get('yikik')),
-               'yuva': {y: m.pet.open_slots(y) for y in PETM.SLOTS}, 'max_slots': dict(PETM.PET['azami_yuva']),
+               'max_fuel': PETM.PET['max_fuel'], 'azami_seviye': len(PETM.PET['seviyeler']) - 1, 'yikik': bool(petd.get('yikik')),
+               'yuva': {y: m.pet.open_slots(y) for y in PETM.SLOTS}, 'max_slots': dict(PETM.PET['max_slots']),
                'heat': m.pet.heat_lv()}
     ammo = [[l, int(n), next((t for pre, t in AMMO if l.startswith(pre)), 'diger')] for l, n in sorted(p.d.get('cephane', {}).items())]
-    minerals = {m_['oreType']['typeValue']: m_['count'] for m_ in p.d.get('madenler', [])}
-    ores = [[int(t), loot, int(minerals.get(int(t), 0))] for t, loot in sorted(SHP.ITEMS['cevherler']['turler'].items(), key=lambda kv: int(kv[0]))]
+    minerals = {m_['oreType']['typeValue']: m_['count'] for m_ in p.d.get('ores', [])}
+    ores = [[int(t), loot, int(minerals.get(int(t), 0))] for t, loot in sorted(SHP.ITEMS['cevherler']['kinds'].items(), key=lambda kv: int(kv[0]))]
     now = time.time()
     boosters = [[l, int(max(0, (b.get('bitis') or 0) - now) + (b.get('kalan') or 0))] for l, b in sorted(p.d.get('boosterlar', {}).items())]
-    k = p.d.get('konum', {})
+    k = p.d.get('position', {})
     quests = p.d.get('gorevler', {})
     out = {
         'pilot': {'ad': pl.get('userName'), 'firma': pl.get('factionId'), 'seviye': lv, 'ep': pl.get('ep', 0), 'level_base': base,
                   'next_level': next_, 'azami_seviye': lv_tab[-1][0], 'onur': pl.get('honourPoints', 0), 'kredi': pl.get('credits', 0),
                   'uridyum': pl.get('uridium', 0), 'premium': bool(pl.get('premium')), 'klan': pl.get('clanTag') or '',
-                  'rutbe': (p.d.get('rutbe') or {}).get('rutbe'), 'banka': p.d.get('banka', 0), 'oynama_sn': int(p.d.get('oynama_sn') or 0),
-                  'olusturma': p.d.get('olusturma'), 'skill_points': (p.d.get('yetenekler') or {}).get('puan', 0)},
+                  'rutbe': (p.d.get('rutbe') or {}).get('rutbe'), 'banka': p.d.get('banka', 0), 'play_sec': int(p.d.get('play_sec') or 0),
+                  'created': p.d.get('created'), 'skill_points': (p.d.get('skills') or {}).get('puan', 0)},
         'durum': {'can': int(p.d['gemi'].get('hitPoints', 0)), 'max_hp': p.d['gemi'].get('hitMax', 0),
-                  'kalkan': int(p.d['gemi'].get('shield', 0)), 'kalkan_azami': p.d['gemi'].get('shieldMax', 0),
-                  'harita': k.get('mapId'), 'harita_ad': H.name(k.get('mapId', 0)), 'ana_harita': H.name(HOME_MAP.get(pl.get('factionId'), 5)),
+                  'kalkan': int(p.d['gemi'].get('shield', 0)), 'shield_max': p.d['gemi'].get('shieldMax', 0),
+                  'harita': k.get('mapId'), 'harita_ad': H.name(k.get('mapId', 0)), 'main_map': H.name(HOME_MAP.get(pl.get('factionId'), 5)),
                   'kargo': p.cargo_used(), 'cargo_max': p.d['gemi'].get('cargoSpaceMax', 0)},
-        'gemiler': ships, 'aktif_gemi': p.d['aktif_gemi'], 'dronlar': drone_list, 'dron_azami': SHP.ITEMS['dron_azami'],
-        'dron_seviyeleri': [x['puan'] for x in SHP.LEVELS], 'pet': pet, 'pet_slots': list(PETM.ALL_SLOTS),
+        'gemiler': ships, 'aktif_gemi': p.d['aktif_gemi'], 'dronlar': drone_list, 'max_drones': SHP.ITEMS['max_drones'],
+        'drone_levels': [x['puan'] for x in SHP.LEVELS], 'pet': pet, 'pet_slots': list(PETM.ALL_SLOTS),
         'envanter': inventory, 'cephane': ammo, 'cevherler': ores,
         'kaynaklar': [[l, int(n)] for l, n in sorted(p.d.get('diger_esyalar', {}).items()) if isinstance(n, (int, float))],
         'boosterlar': boosters,
         'gorevler': {'aktif': len(quests.get('aktif', {})), 'tamam': len(quests.get('tamam', []))},
         # hakla çalışan CPU'lar (Jump CPU, Cloak …): lootId -> [kalan, bir dolumun hakkı]; hak lootId başına (ekstra.py)
-        'haklar': {l: [int(p.d.get('ekstra_haklari', {}).get(l, SHP.EX.X[l]['hak'])), SHP.EX.X[l]['hak']]
+        'haklar': {l: [int(p.d.get('extra_uses', {}).get(l, SHP.EX.X[l]['hak'])), SHP.EX.X[l]['hak']]
                    for l in sorted(set(p.d['esyalar'].values())) if 'hak' in SHP.EX.X.get(l, {})},
-        'havuzlar': {l: rng_pool(l) for l in sorted(set(p.d['esyalar'].values())) if rng_kind(l)},
+        'pools': {l: rng_pool(l) for l in sorted(set(p.d['esyalar'].values())) if rng_kind(l)},
         'all_ships': sorted(SHP.ITEMS['gemiler']),
         'istatistik': stats(p),
     }
@@ -487,9 +487,9 @@ def diff(a, b):
     if a.get('aktif_gemi') != b.get('aktif_gemi'):
         fields.append(['aktif_gemi', a['gemiler'].get(a.get('aktif_gemi'), {}).get('lootId'),
                         b['gemiler'].get(b.get('aktif_gemi'), {}).get('lootId')])
-    if a.get('konum', {}).get('mapId') != b.get('konum', {}).get('mapId'):
+    if a.get('position', {}).get('mapId') != b.get('position', {}).get('mapId'):
         import map_links as H
-        fields.append(['harita', H.name(a.get('konum', {}).get('mapId', 0)), H.name(b.get('konum', {}).get('mapId', 0))])
+        fields.append(['harita', H.name(a.get('position', {}).get('mapId', 0)), H.name(b.get('position', {}).get('mapId', 0))])
     if int(a.get('gemi', {}).get('hitPoints', 0)) != int(b.get('gemi', {}).get('hitPoints', 0)):
         fields.append(['can', int(a['gemi'].get('hitPoints', 0)), int(b['gemi'].get('hitPoints', 0))])
     say = lambda d: {l: sum(1 for x in d.values() if x == l) for l in set(d.values())}
@@ -512,8 +512,8 @@ def diff(a, b):
         counts += [[l, int(counts_a.get(l, 0)), int(counts_b.get(l, 0))] for l in sorted(set(counts_a) | set(counts_b))
                     if isinstance(counts_a.get(l, 0), (int, float)) and isinstance(counts_b.get(l, 0), (int, float)) and int(counts_a.get(l, 0)) != int(counts_b.get(l, 0))]
     import shop as SHP
-    ma = {m['oreType']['typeValue']: m['count'] for m in a.get('madenler', [])}
-    mb = {m['oreType']['typeValue']: m['count'] for m in b.get('madenler', [])}
+    ma = {m['oreType']['typeValue']: m['count'] for m in a.get('ores', [])}
+    mb = {m['oreType']['typeValue']: m['count'] for m in b.get('ores', [])}
     counts += [[SHP.ORES.get(t, str(t)), int(ma.get(t, 0)), int(mb.get(t, 0))] for t in sorted(set(ma) | set(mb)) if ma.get(t, 0) != mb.get(t, 0)]
     ba, bb = a.get('boosterlar', {}), b.get('boosterlar', {})
     boost = sorted(l for l in set(ba) | set(bb) if ba.get(l) != bb.get(l))
@@ -528,15 +528,15 @@ def diff(a, b):
     for key in ('kararsiz', 'parcacik', 'qfc'):                    # rastgele nitelikler (düzenleme penceresi)
         ra, rb = a.get(key, {}), b.get(key, {})
         level += [b['esyalar'][i] for i in rb if ra.get(i) and ra[i] != rb[i] and i in b.get('esyalar', {})]
-    charges_a, hb = a.get('ekstra_haklari', {}), b.get('ekstra_haklari', {})
+    charges_a, hb = a.get('extra_uses', {}), b.get('extra_uses', {})
     counts += [[l, int(charges_a.get(l, 0)), int(hb[l])] for l in sorted(hb) if charges_a.get(l) != hb[l]]
     pet_of = lambda d:{k: (d.get('pet') or {}).get(k) for k in ('ad', 'seviye', 'ep', 'yakit', 'yikik', 'yuva')}
     if pet_of(a) != pet_of(b):
         level.append('pet')
     layout_a, layout_b = _layout(a), _layout(b)
     hardware = len({t[-1] for t in layout_a ^ layout_b})
-    return {'alanlar': fields, 'eklenen': added, 'leaving': leaving, 'adetler': counts, 'boosterlar': boost, 'seviyeler': level,
-            'donanim': hardware,
+    return {'alanlar': fields, 'eklenen': added, 'leaving': leaving, 'counts': counts, 'boosterlar': boost, 'seviyeler': level,
+            'hardware': hardware,
             'sayi': len(fields) + len(added) + len(leaving) + len(counts) + len(boost) + len(level) + (1 if hardware else 0)}
 
 
@@ -597,9 +597,9 @@ def home_base(pr):
     pos = PA.station_pos(mid)
     if not pos:
         raise ValueError('Ana istasyonun konumu bulunamadı.')
-    pr.d['konum'] = {'mapId': mid, 'x': pos[0], 'y': pos[1]}
+    pr.d['position'] = {'mapId': mid, 'x': pos[0], 'y': pos[1]}
     for s in pr.d['gemiler'].values():                 # gemilerin bekledikleri yer de (etkinleştirince oraya gidilirdi)
-        s.pop('konum', None)
+        s.pop('position', None)
     pr.dirty = True
 
 
@@ -623,7 +623,7 @@ def op_give(pr, m, o):
         for k, i in enumerate(new_):
             if i in busy:
                 m.handle('HangarShipMoveItemsRequest', {'items': [i], 'source': 'ship', 'destination': 'inventory', 'droneId': 0, 'slotSet': '',
-                                                        'configId': int(active['aktif_konfig']), 'hangarId': active['hangarId']})
+                                                        'configId': int(active['active_config']), 'hangarId': active['hangarId']})
             try:
                 op_move(pr, m, dict(equip, yon='tak', esya=i))
             except ValueError:
@@ -666,7 +666,7 @@ def op_config(pr, m, o):
     ship = pr.ship(sid)
     n = str(_int(o.get('konfig'), 1, 2))
     if n in ship['konfigler']:
-        ship['aktif_konfig'] = int(n)
+        ship['active_config'] = int(n)
         pr.sync_equipment()
         m.apply_stats()
         pr.dirty = True
@@ -763,7 +763,7 @@ def op_item_level(pr, m, o):
 
 def op_ammo(pr, m, o):
     c = pr.d.setdefault('cephane', {})
-    for loot, n in (o.get('adetler') or {}).items():
+    for loot, n in (o.get('counts') or {}).items():
         if not str(loot).startswith('ammunition_'):
             raise ValueError('Bilinmeyen eşya: %s', loot)
         c[loot] = _int(n, 0, 10 ** 12)
@@ -772,10 +772,10 @@ def op_ammo(pr, m, o):
 
 
 def op_ore(pr, m, o):
-    cur = {mm['oreType']['typeValue']: mm['count'] for mm in pr.d.get('madenler', [])}
-    for t, n in (o.get('adetler') or {}).items():
+    cur = {mm['oreType']['typeValue']: mm['count'] for mm in pr.d.get('ores', [])}
+    for t, n in (o.get('counts') or {}).items():
         cur[int(t)] = _int(n, 0, 10 ** 9)
-    pr.d['madenler'] = [{'_': 'OreCountModule', 'oreType': {'_': 'OreTypeModule', 'typeValue': t}, 'count': n}
+    pr.d['ores'] = [{'_': 'OreCountModule', 'oreType': {'_': 'OreTypeModule', 'typeValue': t}, 'count': n}
                         for t, n in sorted(cur.items()) if n > 0]
     pr.sync_cargo()
     pr.dirty = True
@@ -783,7 +783,7 @@ def op_ore(pr, m, o):
 
 def op_resource(pr, m, o):
     d = pr.d.setdefault('diger_esyalar', {})
-    for loot, n in (o.get('adetler') or {}).items():
+    for loot, n in (o.get('counts') or {}).items():
         if not str(loot).startswith('resource_'):
             raise ValueError('Bilinmeyen eşya: %s', loot)
         n = _int(n, 0, 10 ** 12)
@@ -823,10 +823,10 @@ def op_pet(pr, m, o):
         d['seviye'] = _int(o['seviye'], 0, len(PETM.PET['seviyeler']) - 1)
         d['ep'] = PETM.PET['seviyeler'][d['seviye']]['ep']
     if 'yakit' in o:
-        d['yakit'] = _int(o['yakit'], 0, PETM.PET['azami_yakit'])
+        d['yakit'] = _int(o['yakit'], 0, PETM.PET['max_fuel'])
     for y, n in (o.get('yuva') or {}).items():
         if y in PETM.SLOTS:
-            d.setdefault('yuva', {})[y] = _int(n, 0, PETM.PET['azami_yuva'].get(y, 0))
+            d.setdefault('yuva', {})[y] = _int(n, 0, PETM.PET['max_slots'].get(y, 0))
     if o.get('onar'):
         d['yikik'] = False
         d['can'] = m.pet.hp_max()
@@ -853,10 +853,10 @@ def op_rng(pr, m, o):
     if 'nitelik' in o:
         ns = [[str(a), v] for a, v in o['nitelik'] or []]
         names = [a for a, _v in ns]
-        if not ns or len(ns) > pool['azami_nitelik'] or len(set(names)) != len(names) or any(a not in pool['nitelik'] for a in names):
-            raise ValueError('Nitelikler geçersiz: havuzdan, tekrarsız ve en çok %s tane.', str(pool['azami_nitelik']))
+        if not ns or len(ns) > pool['max_attributes'] or len(set(names)) != len(names) or any(a not in pool['nitelik'] for a in names):
+            raise ValueError('Nitelikler geçersiz: havuzdan, tekrarsız ve en çok %s tane.', str(pool['max_attributes']))
         try:
-            vals = [max(0.0, min(1.0 if pool['birim'] == 'kesir' else 1000.0, float(v))) for _a, v in ns]
+            vals = [max(0.0, min(1.0 if pool['unit'] == 'kesir' else 1000.0, float(v))) for _a, v in ns]
         except (TypeError, ValueError):
             raise ValueError('Sayı bekleniyordu: %s', str([v for _a, v in ns]))
         rec['nitelikler' if t == 'qfc' else 'nitelik'] = [[a, round(v, 4)] for a, v in zip(names, vals)]
@@ -886,7 +886,7 @@ def op_cpu_charges(pr, m, o):
     loot = str(o.get('lootId') or '')
     if 'hak' not in SHP.EX.X.get(loot, {}):
         raise ValueError('Bilinmeyen eşya: %s', loot)
-    pr.d.setdefault('ekstra_haklari', {})[loot] = _int(o.get('hak'), 0, 10 ** 6)
+    pr.d.setdefault('extra_uses', {})[loot] = _int(o.get('hak'), 0, 10 ** 6)
     pr.dirty = True
 
 
@@ -902,13 +902,13 @@ def op_home_base(pr, m, o):
 
 
 def op_reset(pr, m, o):
-    PA.reset_d(pr.d, [x for x in o.get('bolumler') or [] if x])
+    PA.reset_d(pr.d, [x for x in o.get('sections') or [] if x])
     pr.dirty = True
 
 
 def op_keybinds(pr, m, o):
     import saves as SAV
-    pr.d['tus_atamalari'] = SAV.default_key_bindings()
+    pr.d['key_bindings'] = SAV.default_key_bindings()
     pr.dirty = True
 
 

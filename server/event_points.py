@@ -27,7 +27,7 @@ LOOT = 'olay_puani:'
 
 
 def cfg(ev):
-    return CAL.EVENTS.get(ev, {}).get('puanlama')
+    return CAL.EVENTS.get(ev, {}).get('scoring')
 
 
 def events():
@@ -37,11 +37,11 @@ def events():
 def state(p, ev, now=None):
     """Dönemin durumu: yeni dönem başlayınca sıfırdan (bitmiş etkinliğinki ödül verilene dek kalır)."""
     per = CAL.period(ev, now) if CAL.is_active(ev, now) else None
-    root = p.d.setdefault('olay_puan', {})
+    root = p.d.setdefault('event_points', {})
     st = root.get(ev)
     if st is None or (per and st.get('donem') != per[0]):
         with p.lock:
-            st = root[ev] = dict(donem=per[0] if per else None, puan=0, ilerleme=0, esik=0, katildi=False)
+            st = root[ev] = dict(donem=per[0] if per else None, puan=0, ilerleme=0, threshold=0, katildi=False)
             p.dirty = True
     return st
 
@@ -57,18 +57,18 @@ def add(p, ev, n, give, now=None):
         p.dirty = True
     msgs = [legacy('0|LM|ST|EPP|%d' % n)]
     steps = c.get('esikler', [])
-    while st['esik'] < len(steps) and st['ilerleme'] >= steps[st['esik']][0]:
-        lim, items = steps[st['esik']]
+    while st['threshold'] < len(steps) and st['ilerleme'] >= steps[st['threshold']][0]:
+        lim, items = steps[st['threshold']]
         with p.lock:
-            st['esik'] += 1
+            st['threshold'] += 1
             p.dirty = True
         for loot, k in items:
             msgs += give(loot, k) if give else []
         msgs.append(screen('%s - %s points reached!' % (CAL.EVENTS[ev]['ad'], format(lim, ',')), big=True))
-        if st['esik'] == len(steps) and c.get('sifirla'):             # Hatching Out: çubuk dolunca baştan
+        if st['threshold'] == len(steps) and c.get('sifirla'):             # Hatching Out: çubuk dolunca baştan
             with p.lock:
                 st['ilerleme'] -= steps[-1][0]
-                st['esik'] = 0
+                st['threshold'] = 0
     return msgs
 
 
@@ -127,13 +127,13 @@ class EventPoints:
                     with self.p.lock:
                         st['katildi'] = True
                         self.p.dirty = True
-            elif ev in self.p.d.get('olay_puan', {}):
+            elif ev in self.p.d.get('event_points', {}):
                 msgs += self.finish(ev)
         return msgs
 
     def finish(self, ev):
         """Etkinlik bitti: katılım ve sıralama ödülü bir kez (tek oyunculu sıra: 1.)."""
-        c, st = cfg(ev), self.p.d['olay_puan'][ev]
+        c, st = cfg(ev), self.p.d['event_points'][ev]
         msgs = []
         k = c.get('katilim') if st.get('katildi') else None
         if k:
@@ -141,8 +141,8 @@ class EventPoints:
                 msgs += self.give(loot, n)
             if k.get('unvan') and self.titles:
                 msgs += self.titles(k['unvan'])
-        ok = st.get('puan', 0) > 0 or (c.get('sira_olcut') == 'katilim' and st.get('katildi'))
-        r = next((r for r in c.get('siralama', []) if r['den'] <= 1 <= r['e']), None) if ok else None
+        ok = st.get('puan', 0) > 0 or (c.get('rank_metric') == 'katilim' and st.get('katildi'))
+        r = next((r for r in c.get('ranking', []) if r['den'] <= 1 <= r['e']), None) if ok else None
         if r:
             for loot, n in r['esyalar']:
                 msgs += self.give(loot, n)
@@ -152,6 +152,6 @@ class EventPoints:
         self.log('   %s bitti: puan %d, ilerleme %d%s' % (CAL.EVENTS[ev]['ad'], st.get('puan', 0), st.get('ilerleme', 0),
                                                        ', 1. sıra ödülü' if r else ''))
         with self.p.lock:
-            del self.p.d['olay_puan'][ev]
+            del self.p.d['event_points'][ev]
             self.p.dirty = True
         return msgs + (self.m.money_msgs() if msgs and self.m else [])

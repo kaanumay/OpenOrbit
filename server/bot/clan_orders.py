@@ -190,10 +190,10 @@ def apply(y, b, e, name, person, now):
     """Bir botta emir -> (kalıp, alanlar). Uymadıysa ('emir_ret', {})."""
     kind = e['tur']
     if kind == 'dur':
-        b.k['niyet'] = None
-        b.k.pop('emir', None)
-        b.k.pop('av_emri', None)
-        b.k.pop('klan_odagi', None)
+        b.k['intent'] = None
+        b.k.pop('order', None)
+        b.k.pop('hunt_order', None)
+        b.k.pop('clan_focus', None)
         b.next_decision = now
         return 'emir_tamam', {}
     if kind == 'yapi':
@@ -207,12 +207,12 @@ def apply(y, b, e, name, person, now):
         b._candidates = None
         if kind == 'gemi':
             family = e['esya'][len('ship_'):].split('-')[0]
-            b.k['kisilik']['zevk'] = family               # bundan sonra o gemi ailesini sever
-        b.k['emir'] = {'tur': kind, 'esya': e['esya'], 'kim': name, 't': now}
+            b.k['kisilik']['taste'] = family               # bundan sonra o gemi ailesini sever
+        b.k['order'] = {'tur': kind, 'esya': e['esya'], 'kim': name, 't': now}
         return 'emir_tamam', {}
     if kind == 'odak':
         B.force(b, e['hedef'], plan={}, pay=1.3, duration=FOCUS_SEC, now=now)
-        b.k['emir'] = {'tur': 'odak', 'hedef': e['hedef'], 'kim': name, 't': now}
+        b.k['order'] = {'tur': 'odak', 'hedef': e['hedef'], 'kim': name, 't': now}
         return 'emir_tamam', {}
     if kind == 'avla':
         from .goals import pvp as PV
@@ -225,7 +225,7 @@ def apply(y, b, e, name, person, now):
             return 'emir_ret', {}                       # klan arkadaşı
         if not y.permission('pvp') or t[4] and not y.permission('oyuncuya_saldir') or b.level < (y.setting('pvp_seviye', 6) or 1):
             return 'emir_ret', {}
-        b.k['av_emri'] = {'ad': t[0].lower(), 'bitis': now + HUNT_SEC, 'kim': name}
+        b.k['hunt_order'] = {'ad': t[0].lower(), 'bitis': now + HUNT_SEC, 'kim': name}
         B.force(b, 'pvp', plan={}, pay=1.6, duration=HUNT_SEC, now=now)
         return 'emir_av', {'ad': t[0]}
     if kind == 'klan_odak':
@@ -233,7 +233,7 @@ def apply(y, b, e, name, person, now):
         c = KL.CLANS.get(e['klan'])
         if c is None or c['id'] == b.k.get('klan') or b.level < (y.setting('pvp_seviye', 6) or 1) or not y.permission('pvp'):
             return 'emir_ret', {}
-        b.k['klan_odagi'] = {'klan': c['id'], 'bitis': now + CLAN_FOCUS_SEC, 'kim': name}
+        b.k['clan_focus'] = {'klan': c['id'], 'bitis': now + CLAN_FOCUS_SEC, 'kim': name}
         B.force(b, 'pvp', plan={}, pay=1.0, duration=CLAN_FOCUS_SEC, now=now)
         return 'emir_klan_odak', {'klan': c.get('etiket') and '[%s]' % c['etiket'] or c['ad']}
     m = None
@@ -241,7 +241,7 @@ def apply(y, b, e, name, person, now):
         from .agent_tools import _game_map
         m = _game_map(e['harita'])
     elif kind == 'gel':
-        m = int(person.profile.d['konum'].get('mapId', 0)) if person is not None else None
+        m = int(person.profile.d['position'].get('mapId', 0)) if person is not None else None
     elif kind == 'us':
         m = base_map(person.profile) if person is not None else None
         if m is None:

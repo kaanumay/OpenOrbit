@@ -29,9 +29,9 @@ import inventory as INV
 HERE = os.path.dirname(os.path.abspath(__file__))
 D = json.load(open(os.path.join(HERE, 'data', 'particle.json'), encoding='utf8'))
 ITEMS = json.load(open(os.path.join(HERE, 'data', 'client_items.json'), encoding='utf8'))['esyalar']
-CANNONS, SHIELDS, DRIVES, LENSES = D['toplar'], D['kiricilar'], D['suruculer'], D['mercekler']
-SLUGS, GSP = D['sluglar'], D['gsp']
-C, DR = D['top_ortak'], D['surucu_ortak']
+CANNONS, SHIELDS, DRIVES, LENSES = D['cannons'], D['breakers'], D['drives'], D['lenses']
+SLUGS, GSP = D['slugs'], D['gsp']
+C, DR = D['cannon_common'], D['drive_common']
 PREFIX = {'equipment_weapon_cannon_': 'cannon', 'equipment_cannon_shield_': 'cannonShield', 'equipment_weapon_drive_': 'drive',
           'equipment_lens_': 'lens'}
 SHIP_SLOTS = {'cannon': 'cannons', 'cannonShield': 'cannon_shields', 'drive': 'drives', 'lens': 'lenses'}
@@ -76,7 +76,7 @@ def pool(loot):
     if loot in CANNONS:
         return D['nitelikler']['top'][CANNONS[loot]['element']]
     if loot in SHIELDS:
-        return D['nitelikler']['kirici'][SHIELDS[loot]['element']]
+        return D['nitelikler']['breaker'][SHIELDS[loot]['element']]
     return None
 
 
@@ -155,7 +155,7 @@ def base_damage(p, iid, ship_loot=None):
     st = state(p, iid) or {}
     dmg = row['taban'] * C['yildiz'][st.get('yildiz', 0)]
     if row['gemi'] and ship_loot == row['gemi']:
-        dmg *= C['gemiye_ozel']                              # UL topun kendi gemisinde
+        dmg *= C['ship_specific']                              # UL topun kendi gemisinde
     return dmg
 
 
@@ -244,8 +244,8 @@ def module_msg(p, iid):
     loot = p.d['esyalar'][str(iid)]
     st = ensure(p, iid)
     t = tier(loot)
-    back = upgrade_returns(p, iid, D['yenileme']['iade'])
-    return mod('CannonUnstableModuleModule', recycleReturns=D['yenileme']['cip'][t],
+    back = upgrade_returns(p, iid, D['yenileme']['refund'])
+    return mod('CannonUnstableModuleModule', recycleReturns=D['yenileme']['chip'][t],
                rerollsMax=rerolls(loot), rerollCost=D['yenileme']['bedel'][t], rerollsLeft=st['hak'], retainCost=[],
                attributes=attr_mods(st),
                shipDesigns=[CANNONS[loot]['gemi']] if CANNONS.get(loot, {}).get('gemi') else [], itemId=int(iid), lootId=loot,
@@ -266,7 +266,7 @@ def reroll(p, iid, rng=random):
     if st['hak'] <= 0:
         return 'msg_reroll_error_item'
     cost = D['yenileme']['bedel'][tier(loot)]
-    if INV.spend(p, {D['yenileme']['cip_esya']: cost}, 'buy_SPECIAL', 'cannon_reroll') is None:
+    if INV.spend(p, {D['yenileme']['chip_item']: cost}, 'buy_SPECIAL', 'cannon_reroll') is None:
         return 'msg_reroll_error_shards'
     old = module_msg(p, iid)
     with p.lock:
@@ -293,10 +293,10 @@ def recycle(p, iid):
     loot = p.d['esyalar'].get(str(iid), '')
     if not restabilizable(loot) or iid in p.equipped_ids():
         return None
-    got = upgrade_returns(p, iid, D['yenileme']['iade'])
-    chips = D['yenileme']['cip'][tier(loot)]
+    got = upgrade_returns(p, iid, D['yenileme']['refund'])
+    chips = D['yenileme']['chip'][tier(loot)]
     if chips:
-        got[D['yenileme']['cip_esya']] = got.get(D['yenileme']['cip_esya'], 0) + chips
+        got[D['yenileme']['chip_item']] = got.get(D['yenileme']['chip_item'], 0) + chips
     with p.lock:
         del p.d['esyalar'][str(iid)]
         p.d.get('parcacik', {}).pop(str(iid), None)
@@ -311,8 +311,8 @@ def lock_module(p, iid):
     K = D['kilit']
     # upgradeLevel gösterilen seviye (1-20): Restabilize listesi onu olduğu gibi yazar (0'sa gizler), Upgrade sekmesi envanterdekinin
     # bir fazlasını; önce 0'dan gidiyordu, iki sekme farklı seviye gösteriyordu (canlı test H63). Yuvaların açıklığı attributes'tan
-    return mod('LockAttributeItemModule', upgradeLevel=level(p, iid), lockCostLootAmounts=K['kilit'], lockCostLoot=K['kilit_esya'],
-               restabilizeCostLootAmounts=K['yenileme'], restabilizeCostLoot=K['yenileme_esya'], lootId=loot,
+    return mod('LockAttributeItemModule', upgradeLevel=level(p, iid), lockCostLootAmounts=K['kilit'], lockCostLoot=K['lock_item'],
+               restabilizeCostLootAmounts=K['yenileme'], restabilizeCostLoot=K['renewal_item'], lootId=loot,
                lockAttributeLevels=K['seviyeler'],
                attributes=attr_mods(st), itemId=int(iid))
 
@@ -333,9 +333,9 @@ def lock_reroll(p, iid, locks, rng=random):
         return False
     K = D['kilit']
     k = min(len(locks), len(K['yenileme']) - 1)
-    need = {K['yenileme_esya']: K['yenileme'][k]}
+    need = {K['renewal_item']: K['yenileme'][k]}
     if K['kilit'][min(len(locks), len(K['kilit']) - 1)]:
-        need[K['kilit_esya']] = K['kilit'][min(len(locks), len(K['kilit']) - 1)]
+        need[K['lock_item']] = K['kilit'][min(len(locks), len(K['kilit']) - 1)]
     if INV.spend(p, need, 'buy_SPECIAL', 'drive_refine') is None:
         return False
     pl = D['nitelikler']['surucu']
@@ -466,7 +466,7 @@ class Shot:
         e = row['element']
         self.cool(COOLDOWN_CANNON, C['aralik_sn'] * max(0.1, 1 + p.mods().get('top_bekleme', 0)), now)    # Supercharge Plus -%50
         w.last_combat = now
-        hit = random.random() < C['isabet'] * (1 + a.get('cannon_hit_chance_' + e, 0) / 100.0 + p.mods().get('top_isabet', 0))   # Lepus
+        hit = random.random() < C['isabet'] * (1 + a.get('cannon_hit_chance_' + e, 0) / 100.0 + p.mods().get('cannon_hit', 0))   # Lepus
         msgs = w.ammo_msgs(slug) + [('CannonAttackCommand', dict(cannonType=row['cannonType'], hit=hit, attackerId=w.hid, attackedId=n.id))]
         w.send(msgs)
         p.ach('shot', silah='CANNON')
@@ -479,21 +479,21 @@ class Shot:
         dmg *= 1 + p.mods().get('top', 0)
         crit = random.random() < C['kritik'] + a.get('cannon_strike_' + e, 0) / 100.0
         if crit:
-            dmg *= 1 + C['kritik_hasar'] + a.get('cannon_strike_damage_' + e, 0) / 100.0
+            dmg *= 1 + C['crit_damage'] + a.get('cannon_strike_damage_' + e, 0) / 100.0
         dmg = int(dmg)
         nx, ny = n.mover.pos(now)
         w.hit_npc(n.id, dmg, CANNON_ATTACK, strike=crit, cannon=row['cannonType'])
         if e == 'thermal':                                       # Helios: sıçrama
-            S = C['sicrama']
+            S = C['splash']
             near = self.others(nx, ny, S['yaricap'], {n.id}, now)[:S['hedef']]
             if near:
                 w.send([('PlayVisualEffectCommand', dict(activatorId=n.id, targetIds=[m.id for m in near], visualEffect=VE_THERMAL))])
                 for m in near:
                     w.hit_npc(m.id, int(dmg * S['oran']), CANNON_ATTACK, cannon=row['cannonType'])
         elif e == 'corrosive':                                   # Nidhogg: aşındırma zaafı
-            A = C['asindirma']
+            A = C['abrasion']
             k = self.corrosive.get(n.id, [0, 0])
-            k = [min(A['kat'], (k[0] if k[1] > now else 0) + 1), now + A['sn']]
+            k = [min(A['multiplier'], (k[0] if k[1] > now else 0) + 1), now + A['sn']]
             self.corrosive[n.id] = k
             if n.alive:
                 w.send([('VisualModifierCommand', dict(userId=n.id, modifier=VM_CORROSIVE, attribute=k[0], additionalAttribute='',
@@ -512,13 +512,13 @@ class Shot:
             if chain:
                 w.send([('PlayVisualEffectCommand', dict(activatorId=n.id, targetIds=[m.id for m in chain], visualEffect=VE_ELECTRO))])
                 for m in chain:
-                    d = int(d * (1 - Z['azalma']))
+                    d = int(d * (1 - Z['reduction']))
                     w.hit_npc(m.id, d, CANNON_ATTACK, cannon=row['cannonType'])
         return True
 
     def vulnerability(self, uid, now):
         k = self.corrosive.get(uid)
-        return k[0] * C['asindirma']['oran'] if k and k[1] > now else 0.0
+        return k[0] * C['abrasion']['oran'] if k and k[1] > now else 0.0
 
     # ------------------------------------------------------------ sürücü
     def fire_drive(self, n, now, gsp, auto=False):
@@ -545,11 +545,11 @@ class Shot:
         p.use_ammo(gsp, len(ids))
         self.cool(COOLDOWN_DRIVE, DR['bekleme_sn'], now)
         w.last_combat = now
-        shot, vm = DR['efekt'][str(best)]
+        shot, vm = DR['effect'][str(best)]
         x, y = n.mover.pos(now)
         import ship_ability as SA
         bonus = SA.take(p, 'sonraki_gsp')                 # Hyperion Quantum Amplifier: bu atışa +%10
-        zone = self.resonate({'x': x, 'y': y, 'bitis': now + DR['sure_sn'], 'sonraki': now, 'hasar': power * GSP[gsp] * (1 + bonus), 'hedef': n.id,
+        zone = self.resonate({'x': x, 'y': y, 'bitis': now + DR['sure_sn'], 'next': now, 'hasar': power * GSP[gsp] * (1 + bonus), 'hedef': n.id,
                               'vm': vm, 'alan': area}, now)
         self.zones.append(zone)
         w.send(w.ammo_msgs(gsp) + [('PlayVisualEffectCommand', dict(activatorId=w.hid, targetIds=[n.id], visualEffect=shot)),
@@ -580,16 +580,16 @@ class Shot:
         if 'stagnation' in a:
             z['yavas'] = a['stagnation'] / 100.0
         if 'adhesion' in a:
-            z['izle'] = now + min(a['adhesion'], duration)
+            z['follow'] = now + min(a['adhesion'], duration)
         return z
 
     def zone_tick(self, z, now):
-        if now < z['sonraki'] or self.w.hero_dead:
+        if now < z['next'] or self.w.hero_dead:
             return
         zones = self.zones
-        z['sonraki'] = now + 1.0
+        z['next'] = now + 1.0
         t = self.w.npcs.get(z['hedef'])
-        if z.get('izle', 0) > now and t is not None and t.alive:       # Adhesion: alan ana hedefle gider
+        if z.get('follow', 0) > now and t is not None and t.alive:       # Adhesion: alan ana hedefle gider
             z['x'], z['y'] = t.mover.pos(now)
         for m in self.others(z['x'], z['y'], z.get('alan', DR['alan']), set(), now):
             if self.w.hero_dead or self.zones is not zones:

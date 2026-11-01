@@ -1,17 +1,17 @@
 {
- "_aciklama": "Uridyumla çalışan dükkân pencereleri -> server/data/dukkanlar.json, esyalar.json (ek_magaza, odeme_paketleri, odeme_fiyatlari)",
+ "_description": "Uridyumla çalışan dükkân pencereleri -> server/data/dukkanlar.json, esyalar.json (ek_magaza, odeme_paketleri, payment_prices)",
  "_kaynak": "belgeler/wiki/dukkanlar_o7.json; dukkanlar_o7",
  "mileage": {
   "takvim": "mileage_market",
   "jeton": "resource_collectable_mileage-coin",
-  "adim_yuzde": 5.0,
-  "azami_adim": 5,
-  "jeton_paketleri": [
+  "step_percent": 5.0,
+  "max_steps": 5,
+  "token_packages": [
    {
     "id": "event-deal-mileage-coin-starter",
     "lootId": "package_event-deal-mileage-coin-starter",
     "ad": "Starter Mileage Deal",
-    "icerik": [
+    "contents": [
      [
       "resource_collectable_mileage-coin",
       1
@@ -35,7 +35,7 @@
     "id": "event-deal-mileage-coin-s",
     "lootId": "package_event-deal-mileage-coin-s",
     "ad": "Mini Mileage Pack",
-    "icerik": [
+    "contents": [
      [
       "resource_collectable_mileage-coin",
       1
@@ -59,7 +59,7 @@
     "id": "event-deal-mileage-coin-m",
     "lootId": "package_event-deal-mileage-coin-m",
     "ad": "Medium Mileage Pack",
-    "icerik": [
+    "contents": [
      [
       "resource_collectable_mileage-coin",
       2
@@ -87,7 +87,7 @@
     "id": "event-deal-mileage-coin-l",
     "lootId": "package_event-deal-mileage-coin-l",
     "ad": "Monster Mileage Pack",
-    "icerik": [
+    "contents": [
      [
       "resource_collectable_mileage-coin",
       4
@@ -115,7 +115,7 @@
     "id": "event-deal-mileage-coin-xl",
     "lootId": "package_event-deal-mileage-coin-xl",
     "ad": "Massive Mileage Pack",
-    "icerik": [
+    "contents": [
      [
       "resource_collectable_mileage-coin",
       7
@@ -147,7 +147,7 @@
     "id": "event-deal-mileage-coin-xxl",
     "lootId": "package_event-deal-mileage-coin-xxl",
     "ad": "Mega Mileage Pack",
-    "icerik": [
+    "contents": [
      [
       "resource_collectable_mileage-coin",
       9
@@ -183,7 +183,7 @@
     "id": "event-deal-mileage-coin-xxxl",
     "lootId": "package_event-deal-mileage-coin-xxxl",
     "ad": "Maximum Mileage Pack",
-    "icerik": [
+    "contents": [
      [
       "resource_collectable_mileage-coin",
       12
@@ -220,12 +220,12 @@
     "uridyum": 240000
    }
   ],
-  "indirim_paketleri": [
+  "discount_packages": [
    {
     "id": "event-deal-mileage-gg-s",
     "lootId": "package_event-deal-mileage-gg-s",
     "ad": "Small GG Bundle",
-    "icerik": [
+    "contents": [
      [
       "resource_extra-energy",
       500
@@ -250,7 +250,7 @@
     "id": "event-deal-mileage-gg-m",
     "lootId": "package_event-deal-mileage-gg-m",
     "ad": "Medium GG Bundle",
-    "icerik": [
+    "contents": [
      [
       "resource_extra-energy",
       750
@@ -279,7 +279,7 @@
     "id": "event-deal-mileage-gg-l",
     "lootId": "package_event-deal-mileage-gg-l",
     "ad": "Large GG Bundle",
-    "icerik": [
+    "contents": [
      [
       "resource_extra-energy",
       1000
@@ -312,7 +312,7 @@
     "id": "event-deal-mileage-bl-s",
     "lootId": "package_event-deal-mileage-bl-s",
     "ad": "Small Blacklight Bundle",
-    "icerik": [
+    "contents": [
      [
       "ammunition_laser_a-bl",
       10000
@@ -341,7 +341,7 @@
     "id": "event-deal-mileage-bl-m",
     "lootId": "package_event-deal-mileage-bl-m",
     "ad": "Medium Blacklight Bundle",
-    "icerik": [
+    "contents": [
      [
       "ammunition_laser_a-bl",
       15000
@@ -378,7 +378,7 @@
     "id": "event-deal-mileage-bl-l",
     "lootId": "package_event-deal-mileage-bl-l",
     "ad": "Large Blacklight Bundle",
-    "icerik": [
+    "contents": [
      [
       "ammunition_laser_a-bl",
       25000
@@ -415,7 +415,7 @@
     "id": "event-deal-mileage-bl-xl",
     "lootId": "package_event-deal-mileage-bl-xl",
     "ad": "Giant Blacklight Bundle",
-    "icerik": [
+    "contents": [
      [
       "ammunition_laser_a-bl",
       50000
@@ -456,7 +456,7 @@
     "id": "event-deal-mileage-gplus-argon",
     "lootId": "package_event-deal-mileage-gplus-argon",
     "ad": "Argon Goliath Plus Bundle",
-    "icerik": [
+    "contents": [
      [
       "ship_goliath-plus_design_goliath-plus-argon",
       1
@@ -481,7 +481,7 @@
     "id": "event-deal-mileage-gplus-carbo",
     "lootId": "package_event-deal-mileage-gplus-carbo",
     "ad": "Carbonite Goliath Plus Bundle",
-    "icerik": [
+    "contents": [
      [
       "ship_goliath-plus_design_goliath-plus-carbonite",
       1
@@ -506,7 +506,7 @@
     "id": "event-deal-mileage-gplus-full",
     "lootId": "package_event-deal-mileage-gplus-full",
     "ad": "Goliath Plus Designs Bundle",
-    "icerik": [
+    "contents": [
      [
       "ship_goliath-plus_design_goliath-plus-argon",
       1
@@ -535,7 +535,7 @@
     "id": "event-deal-mileage-tyr-sol-plus",
     "lootId": "package_event-deal-mileage-tyr-sol-plus",
     "ad": "Tyrannos Solace Plus Bundle",
-    "icerik": [
+    "contents": [
      [
       "ship_solace-plus_design_solace-plus-tyrannos",
       1
@@ -560,7 +560,7 @@
     "id": "event-deal-mileage-tyr-spectrum",
     "lootId": "package_event-deal-mileage-tyr-spectrum",
     "ad": "Tyrannos Spectrum Bundle",
-    "icerik": [
+    "contents": [
      [
       "ship_spectrum_design_spectrum-tyrannos",
       1
@@ -585,7 +585,7 @@
     "id": "event-deal-mileage-tyr-full",
     "lootId": "package_event-deal-mileage-tyr-full",
     "ad": "Tyrannos Designs Bundle",
-    "icerik": [
+    "contents": [
      [
       "ship_solace-plus_design_solace-plus-tyrannos",
       1
@@ -614,7 +614,7 @@
     "id": "event-deal-mileage-orcus-epion",
     "lootId": "package_event-deal-mileage-orcus-epion",
     "ad": "Epion Orcus Bundle",
-    "icerik": [
+    "contents": [
      [
       "ship_orcus_design_orcus-epion",
       1
@@ -639,7 +639,7 @@
     "id": "event-deal-mileage-orcus-smite",
     "lootId": "package_event-deal-mileage-orcus-smite",
     "ad": "Smite Orcus Bundle",
-    "icerik": [
+    "contents": [
      [
       "ship_orcus_design_orcus-smite",
       1
@@ -664,7 +664,7 @@
     "id": "event-deal-mileage-orcus-full",
     "lootId": "package_event-deal-mileage-orcus-full",
     "ad": "Orcus Designs Bundle",
-    "icerik": [
+    "contents": [
      [
       "ship_orcus_design_orcus-smite",
       1
@@ -693,7 +693,7 @@
     "id": "event-deal-mileage-upgrade",
     "lootId": "package_event-deal-mileage-upgrade",
     "ad": "Upgrade Bundle",
-    "icerik": [
+    "contents": [
      [
       "resource_collectable_indoctrine-accelerator",
       250
@@ -714,7 +714,7 @@
     "id": "event-deal-mileage-shard",
     "lootId": "package_event-deal-mileage-shard",
     "ad": "Unstable Shard Bundle",
-    "icerik": [
+    "contents": [
      [
       "resource_collectable_unstable-shard",
       185
@@ -724,16 +724,16 @@
     "priority": 18
    }
   ],
-  "_uyarlama": "fiyatlar uridyum (oneri_uridyum); jeton paketleri mağazada (Extras) etkinlik süresince birer kez"
+  "_uyarlama": "fiyatlar uridyum (suggested_uridium); jeton paketleri mağazada (Extras) etkinlik süresince birer kez"
  },
  "vip": {
   "takvim": "vip_merchant",
-  "paketler": [
+  "packages": [
    {
     "id": "event-deal-salvage-core-xl",
     "lootId": "package_event-deal-salvage-core-xl",
     "ad": "Massive Salvage Core Deal",
-    "icerik": [
+    "contents": [
      [
       "resource_collectable_salvage-core",
       670
@@ -745,7 +745,7 @@
     "id": "event-deal-unstable-shard-xl",
     "lootId": "package_event-deal-unstable-shard-xl",
     "ad": "XL Unstable Shard Deal (çeviride 'Unstable Shard Bundles')",
-    "icerik": [
+    "contents": [
      [
       "resource_collectable_unstable-shard",
       300
@@ -757,7 +757,7 @@
     "id": "event-deal-permit-l",
     "lootId": "package_event-deal-permit-l",
     "ad": "Retriever Permit Pack L (çeviride 'Retriever Permit Packs')",
-    "icerik": [
+    "contents": [
      [
       "resource_collectable_permit",
       10
@@ -773,7 +773,7 @@
     "id": "event-deal-permit-xl",
     "lootId": "package_event-deal-permit-xl",
     "ad": "XL Retriever Permit Pack",
-    "icerik": [
+    "contents": [
      [
       "resource_collectable_permit",
       20
@@ -789,7 +789,7 @@
     "id": "event-deal-permit-ultimate",
     "lootId": "package_event-deal-permit-ultimate",
     "ad": "Ultimate Retriever Permit Pack",
-    "icerik": [
+    "contents": [
      [
       "resource_collectable_permit",
       35
@@ -806,7 +806,7 @@
     "uridyum": 120000
    }
   ],
-  "takas": [
+  "exchange": [
    {
     "odul": [
      "equipment_shipupgrade_dmg-xt10",
@@ -971,10 +971,10 @@
   "_uyarlama": "takas satırları oyuncu iletilerinden ve uyarlama; VIP paketlerinin içerikleri kısmen uyarlama"
  },
  "returnee": {
-  "bekleme_gun": 14,
-  "tekrar_gun": 60,
-  "sure_gun": 15,
-  "takvim_gun": 7,
+  "wait_days": 14,
+  "repeat_days": 60,
+  "duration_days": 15,
+  "calendar_days": 7,
   "hosgeldin": [
    [
     "currency_uridium",
@@ -997,7 +997,7 @@
     30
    ]
   ],
-  "takvim_odul": [
+  "calendar_reward": [
    [
     "ammunition_laser_ucb-100",
     5000
@@ -1027,12 +1027,12 @@
     1
    ]
   ],
-  "paketler": [
+  "packages": [
    {
     "id": "event-deal-returnee-s",
     "lootId": "package_event-deal-returnee-s",
     "ad": "Small Returnee Bundle",
-    "icerik": [
+    "contents": [
      [
       "equipment_weapon_laser_lf-4",
       2
@@ -1052,7 +1052,7 @@
     "id": "event-deal-returnee-m",
     "lootId": "package_event-deal-returnee-m",
     "ad": "Medium Returnee Bundle",
-    "icerik": [
+    "contents": [
      [
       "equipment_weapon_laser_lf-4",
       4
@@ -1076,7 +1076,7 @@
     "id": "event-deal-returnee-l",
     "lootId": "package_event-deal-returnee-l",
     "ad": "Large Returnee Bundle",
-    "icerik": [
+    "contents": [
      [
       "equipment_weapon_laser_lf-4",
       6
@@ -1100,7 +1100,7 @@
     "id": "event-deal-returnee-xl",
     "lootId": "package_event-deal-returnee-xl",
     "ad": "Mega Returnee Bundle",
-    "icerik": [
+    "contents": [
      [
       "equipment_weapon_laser_lf-4",
       10
@@ -1121,17 +1121,17 @@
     "uridyum": 250000
    }
   ],
-  "en_az_seviye": 2,
+  "min_level": 2,
   "_uyarlama": "kampanya 15 gün, takvim 7 gün; hoş geldin ve takvim ödülleri, paket içerikleri uyarlama (resmî liste yok)"
  },
  "pre_bf": {
   "takvim": "pre_prometheus",
-  "paketler": [
+  "packages": [
    {
     "id": "event-deal-pre-bf-1",
     "lootId": "package_event-deal-pre-bf-1",
     "ad": "Small Pre-Prometheus Day Deal",
-    "icerik": [
+    "contents": [
      [
       "resource_collectable_unstable-shard",
       15
@@ -1147,7 +1147,7 @@
     "id": "event-deal-pre-bf-2",
     "lootId": "package_event-deal-pre-bf-2",
     "ad": "Medium Pre-Prometheus Day Deal",
-    "icerik": [
+    "contents": [
      [
       "resource_collectable_unstable-shard",
       30
@@ -1171,7 +1171,7 @@
     "id": "event-deal-pre-bf-3",
     "lootId": "package_event-deal-pre-bf-3",
     "ad": "Large Pre-Prometheus Day Deal",
-    "icerik": [
+    "contents": [
      [
       "resource_collectable_unstable-shard",
       50
@@ -1203,7 +1203,7 @@
     "id": "event-deal-pre-bf-4",
     "lootId": "package_event-deal-pre-bf-4",
     "ad": "Giant Pre-Prometheus Day Deal",
-    "icerik": [
+    "contents": [
      [
       "resource_collectable_unstable-shard",
       130
@@ -1235,7 +1235,7 @@
     "id": "event-deal-pre-bf-5",
     "lootId": "package_event-deal-pre-bf-5",
     "ad": "Ultimate Pre-Prometheus Day Deal",
-    "icerik": [
+    "contents": [
      [
       "resource_collectable_unstable-shard",
       300
@@ -1272,7 +1272,7 @@
     "uridyum": 400000
    }
   ],
-  "kademeler": {
+  "tiers": {
    "1": 1,
    "2": 3,
    "3": 6,
@@ -1285,9 +1285,9 @@
   "takvim": "return_of_hero",
   "anahtar": "resource_booty-key-returnee",
   "gun": 7,
-  "gunluk_adet": 5,
-  "tekrarsiz_adet": 13,
-  "anahtar_odulu": {
+  "daily_count": 5,
+  "once_count": 13,
+  "key_reward": {
    "gunluk": 2,
    "tekrarsiz": 6
   },
@@ -3776,8 +3776,8 @@
     "star": 0
    }
   ],
-  "bag_suresi_sn": 86400,
-  "takas": [
+  "link_duration_sec": 86400,
+  "exchange": [
    {
     "_": "BattlePassKeyExchangeRewardModule",
     "cost": 56,
@@ -4435,7 +4435,7 @@
     "claimCount": 0
    }
   ],
-  "veteran_adlari": [
+  "veteran_names": [
    "Rhea",
    "Corvus",
    "Lyra",
@@ -4450,11 +4450,11 @@
    5,
    null
   ],
-  "paketler": [
+  "packages": [
    {
     "lootId": "package_event-deal-stellar2022-1",
     "uridyum": 400000,
-    "icerik": [
+    "contents": [
      [
       "ship_citadel",
       1
@@ -4504,7 +4504,7 @@
    {
     "lootId": "package_event-deal-stellar2022-2",
     "uridyum": 600000,
-    "icerik": [
+    "contents": [
      [
       "ship_pusat",
       1
@@ -4554,7 +4554,7 @@
    {
     "lootId": "package_event-deal-stellar2022-3",
     "uridyum": 600000,
-    "icerik": [
+    "contents": [
      [
       "ship_solace",
       1
@@ -4604,7 +4604,7 @@
    {
     "lootId": "package_event-deal-stellar2022-4",
     "uridyum": 800000,
-    "icerik": [
+    "contents": [
      [
       "ship_solaris",
       1

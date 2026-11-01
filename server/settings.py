@@ -23,7 +23,7 @@ Oyun sunucusu configure() ile dosyayı bağlar (game.main, --settings=<yol> seç
 import json, os, random, sys, threading, time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-DEFAULT_PATH = os.path.join(HERE, 'save', 'ayarlar.json')
+DEFAULT_PATH = os.path.join(HERE, 'save', 'settings.json')
 REFRESH_SEC = 1.0
 
 GROUPS = (('gemi', 'Gemin'), ('savas', 'Savaş ve uzaylılar'), ('odul', 'Ödüller'), ('ilerleme', 'İlerleme'), ('dunya', 'Dünya'),
@@ -36,18 +36,18 @@ I32 = 2 ** 31 - 1               # istemciye 32 bitlik alanla giden değerlerin �
 
 def _c(key, name, group, description, apply_mode='anında', lo=0.0, hi=10.0, step=0.1, default=1.0, limit=UPPER_LIMIT, condition=None):
     """Çarpan: panelde sürgü (lo..hi, önerilen) ve sayı kutusu (lo..sinir). kosul: yalnız o açma kapama ayarı açıkken görünür."""
-    return dict(anahtar=key, ad=name, grup=group, tur='carpan', varsayilan=default, min=lo, max=hi, sinir=max(hi, limit), adim=step,
-                aciklama=description, uygulama=apply_mode, **({'kosul': condition} if condition else {}))
+    return dict(anahtar=key, ad=name, grup=group, tur='carpan', default=default, min=lo, max=hi, sinir=max(hi, limit), adim=step,
+                aciklama=description, uygulama=apply_mode, **({'condition': condition} if condition else {}))
 
 
 def _b(key, name, group, description, apply_mode='anında', default=False):
-    return dict(anahtar=key, ad=name, grup=group, tur='bool', varsayilan=default, aciklama=description, uygulama=apply_mode)
+    return dict(anahtar=key, ad=name, grup=group, tur='bool', default=default, aciklama=description, uygulama=apply_mode)
 
 
 def _n(key, name, group, description, apply_mode='anında', lo=0, hi=10, default=1, unit='', limit=None):
     """Tam sayı (adet, saat): panelde sayı kutusu; hi önerilen üst, sinir elle yazılabilen en büyük (yoksa hi)."""
-    return dict(anahtar=key, ad=name, grup=group, tur='sayi', varsayilan=default, min=lo, max=hi, sinir=max(hi, limit or hi),
-                birim=unit, aciklama=description, uygulama=apply_mode)
+    return dict(anahtar=key, ad=name, grup=group, tur='sayi', default=default, min=lo, max=hi, sinir=max(hi, limit or hi),
+                unit=unit, aciklama=description, uygulama=apply_mode)
 
 
 SCHEMA = [
@@ -86,8 +86,8 @@ SCHEMA = [
     _c('npc_isabet', 'Uzaylıların isabet şansı', 'savas', 'Uzaylıların gemine ve P.E.T.\'ine isabet ettirme olasılığı (oyunun '
        'değeri %60, en çok %100). 0: hiç isabet etmezler.', hi=2.0, limit=100.0),
     _c('npc_hiz', 'Uzaylıların hızı', 'savas', 'Uzaylıların uçuş hızı (hareketsiz olanlar kıpırdamaz).', lo=0.1, hi=3.0, limit=10.0),
-    dict(anahtar='npc_saldirganlik', ad='Uzaylıların saldırganlığı', grup='savas', tur='seviye', varsayilan=0,
-         secenekler=['Türüne göre', 'Hepsi saldırgan', 'Hiçbiri saldırgan'], colors=['', 'err', 'ok'], uygulama='anında',
+    dict(anahtar='npc_saldirganlik', ad='Uzaylıların saldırganlığı', grup='savas', tur='seviye', default=0,
+         options=['Türüne göre', 'Hepsi saldırgan', 'Hiçbiri saldırgan'], colors=['', 'err', 'ok'], uygulama='anında',
          option_description=['Oyundaki gibi: saldırgan türler seni görünce saldırır, ötekiler vurulunca karşılık verir.',
                            'Bütün uzaylılar seni fark edince kovalar ve saldırır.',
                            'Hiçbir uzaylı kendiliğinden saldırmaz; vurduğun uzaylı yine karşılık verir.'],
@@ -250,8 +250,8 @@ SCHEMA = [
        'Mimesis Mutiny) etkinlik süresince her an açık: portal hep açık, seans/savaş/sefer girince başlar. Etkinlik uzaylıları '
        '(Curcubitor, Agatus, Lanatum, Chaos Protegit) da oyundaki saat pencerelerinin dışında doğar.'),
     # ---------------------------------------------------------------- müzayede
-    dict(anahtar='muzayede_rakip', ad='Sanal rakipler', grup='muzayede', tur='seviye', varsayilan=0,
-         secenekler=list(RIVAL_LEVELS), colors=['', 'ok', 'ok', 'info', 'err'], uygulama='anında',
+    dict(anahtar='muzayede_rakip', ad='Sanal rakipler', grup='muzayede', tur='seviye', default=0,
+         options=list(RIVAL_LEVELS), colors=['', 'ok', 'ok', 'info', 'err'], uygulama='anında',
          option_description=['Rakip yok: teklifleri yalnız sen verirsin.',
                            'Arada bir küçük teklifler verirler; seni hiç geçmezler, teklif verdiğin lot senin.',
                            'Daha sık ve biraz daha yüksek teklifler; seni yine geçmezler.',
@@ -277,8 +277,8 @@ SCHEMA = [
     _b('yonetici_modu', 'Yönetici modu', 'yonetici', 'Oyunda yönetici olursun: adının önünde yönetici rozeti (sarı A), rütbe '
        'sistemine, Şeref Salonu sıralamalarına ve şirketteki sıraya girmezsin. Botlar seni yönetici olarak tanır: sana saldırmaz, '
        'sohbetteki uyarılarına uyar, seni görünce tepki verir. Arkadaş sunucusunda yalnız sunucunun oyuncusu için.', apply_mode='giriş'),
-    dict(anahtar='yonetici_gemisi', ad='Yönetici gemisi', grup='yonetici', tur='seviye', varsayilan=0,
-         secenekler=['Kendi gemin', 'UFO', 'Polis', 'G-Admincloak', 'Goliath Admin'], colors=['', 'info', 'info', 'info', 'info'],
+    dict(anahtar='yonetici_gemisi', ad='Yönetici gemisi', grup='yonetici', tur='seviye', default=0,
+         options=['Kendi gemin', 'UFO', 'Polis', 'G-Admincloak', 'Goliath Admin'], colors=['', 'info', 'info', 'info', 'info'],
          uygulama='giriş',
          option_description=['Yönetici modunda da kendi geminle görünürsün.',
                            'Yönetici gemisi (ship_admin): oyundaki UFO uzaylısıyla aynı model.',
@@ -346,31 +346,31 @@ SUBS = {
                         ('teknoloji', 'Teknoloji eşyaları', 'Energy Leech, Chain Impulse, Battle Repair Bot, Speed Burst …'),
                         ('parcacik', 'Parçacık topları ve sürücü', 'Parçacık silahları ve Singularity Drive.')),
 }
-SCHEMA = [x for s in SCHEMA for x in [s] + [dict(s, anahtar='%s_%s' % (s['anahtar'], k), ad=name, aciklama=description, varsayilan=1.0,
-                                                 ust=s['anahtar'], kaynak=k) for k, name, description in SUBS.get(s['anahtar'], ())]]
-SUB = {(s['ust'], s['kaynak']): s['anahtar'] for s in SCHEMA if s.get('ust')}
+SCHEMA = [x for s in SCHEMA for x in [s] + [dict(s, anahtar='%s_%s' % (s['anahtar'], k), ad=name, aciklama=description, default=1.0,
+                                                 parent=s['anahtar'], kaynak=k) for k, name, description in SUBS.get(s['anahtar'], ())]]
+SUB = {(s['parent'], s['kaynak']): s['anahtar'] for s in SCHEMA if s.get('parent')}
 BY_KEY = {s['anahtar']: s for s in SCHEMA}
-DEFAULTS = {s['anahtar']: s['varsayilan'] for s in SCHEMA}
+DEFAULTS = {s['anahtar']: s['default'] for s in SCHEMA}
 EVENT_STATES = ('acik', 'kapali')         # yoksa takvime göre
 
 # hazır ayarlar (panelin "Hazır ayarlar" listesi): yalnız değişen anahtarlar, ötekiler varsayılan
 PRESETS = {
-    'varsayilan': {'ad': 'Varsayılan', 'aciklama': 'Oyunun kendi değerleri.', 'degerler': {}},
+    'default': {'ad': 'Varsayılan', 'aciklama': 'Oyunun kendi değerleri.', 'values': {}},
     'rahat': {'ad': 'Rahat', 'aciklama': 'Daha az hasar alırsın, ödüller ve kutular bol.',
-              'degerler': {'npc_hasar': 0.5, 'kredi': 2.0, 'uridyum': 2.0, 'ep': 2.0, 'onur': 2.0, 'toplama': 2.0, 'dusme': 2.0,
+              'values': {'npc_hasar': 0.5, 'kredi': 2.0, 'uridyum': 2.0, 'ep': 2.0, 'onur': 2.0, 'toplama': 2.0, 'dusme': 2.0,
                            'kutu_bolluk': 2.0, 'kutu_yenilenme': 0.5, 'mod_odul': 2.0, 'dron_puan': 2.0, 'pet_ep': 2.0,
                            'kalkan_yenilenme': 2.0}},
     'hizli': {'ad': 'Hızlı ilerleme', 'aciklama': 'Ödüller beş kat, uzaylılar kalabalık ve çabuk doğar.',
-              'degerler': {'kredi': 5.0, 'uridyum': 5.0, 'ep': 5.0, 'onur': 5.0, 'toplama': 5.0, 'dusme': 3.0, 'kutu_bolluk': 3.0,
+              'values': {'kredi': 5.0, 'uridyum': 5.0, 'ep': 5.0, 'onur': 5.0, 'toplama': 5.0, 'dusme': 3.0, 'kutu_bolluk': 3.0,
                            'kutu_yenilenme': 0.3, 'npc_sayi': 1.5, 'npc_yenilenme': 0.3, 'magaza_fiyat': 0.5, 'mod_odul': 5.0,
                            'dron_puan': 5.0, 'pet_ep': 5.0, 'sezon_puani': 3.0, 'skylab_uretim': 3.0, 'maden_bolluk': 2.0,
                            'dalga_bekleme': 0.5}},
     'zorlu': {'ad': 'Zorlu', 'aciklama': 'Uzaylılar daha sert vurur ve dayanıklıdır, ödüller az, rakipler agresif.',
-              'degerler': {'npc_hasar': 2.0, 'npc_can': 1.5, 'kredi': 0.75, 'uridyum': 0.75, 'kutu_bolluk': 0.5,
+              'values': {'npc_hasar': 2.0, 'npc_can': 1.5, 'kredi': 0.75, 'uridyum': 0.75, 'kutu_bolluk': 0.5,
                            'tamir_ucreti': 2.0, 'muzayede_rakip': 4, 'npc_isabet': 1.25, 'npc_saldirganlik': 1,
                            'kalkan_yenilenme': 0.5}},
     'creative': {'ad': 'Yaratıcı', 'aciklama': 'Gemin yok edilmez, cephane bitmez, mağaza ve hizmetler bedava, bekleme yok.',
-                 'degerler': {'dokunulmaz': True, 'sonsuz_cephane': True, 'sonsuz_teknoloji': True, 'magaza_fiyat': 0.0, 'hizmet_fiyat': 0.0,
+                 'values': {'dokunulmaz': True, 'sonsuz_cephane': True, 'sonsuz_teknoloji': True, 'magaza_fiyat': 0.0, 'hizmet_fiyat': 0.0,
                               'kapi_fiyat': 0.0, 'tamir_ucreti': 0.0, 'bekleme': 0.0, 'seviye_kisiti_yok': True,
                               'sonsuz_can': True, 'giris_siniri_yok': True, 'pet_yakit': 0.0, 'assembly_ucretsiz': True,
                               'sonsuz_kargo': True, 'sonsuz_pet_menzili': True}},
@@ -398,7 +398,7 @@ def clean(raw):
             elif s['tur'] == 'bool':
                 out[key] = bool(v)
             elif s['tur'] == 'seviye':
-                out[key] = min(len(s['secenekler']) - 1, max(0, int(v)))
+                out[key] = min(len(s['options']) - 1, max(0, int(v)))
             elif s['tur'] == 'sayi':
                 v = float(v)
                 if v != v:                                # NaN
@@ -522,7 +522,7 @@ def event_state(key):
 
 def full_name(s, name=lambda x: x):
     """Ayarın özetlerdeki adı: alt ayar üstüyle birlikte ('Uridyum kazancı › Uzaylılar'); ad: çeviri (panel)."""
-    return name(BY_KEY[s['ust']]['ad']) + ' › ' + name(s['ad']) if s.get('ust') else name(s['ad'])
+    return name(BY_KEY[s['parent']]['ad']) + ' › ' + name(s['ad']) if s.get('parent') else name(s['ad'])
 
 
 def summary(values=None):
@@ -530,15 +530,15 @@ def summary(values=None):
     d = _current() if values is None else clean(values)
     out = []
     for s in SCHEMA:
-        v = d.get(s['anahtar'], s['varsayilan'])
-        if v == s['varsayilan']:
+        v = d.get(s['anahtar'], s['default'])
+        if v == s['default']:
             continue
         if s['tur'] == 'carpan':
             out.append((full_name(s), 'x%g' % v))
         elif s['tur'] == 'bool':
             out.append((s['ad'], 'açık' if v else 'kapalı'))
         elif s['tur'] == 'sayi':
-            out.append((s['ad'], ('%d %s' % (v, s.get('birim', ''))).strip()))
+            out.append((s['ad'], ('%d %s' % (v, s.get('unit', ''))).strip()))
         else:
-            out.append((s['ad'], s['secenekler'][v]))
+            out.append((s['ad'], s['options'][v]))
     return out

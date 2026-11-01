@@ -106,7 +106,7 @@ def energy_leech(w, n, now):
 
 def leech(n, dmg, hp, now):
     if now < n.__dict__.get('leech_end', 0):
-        n.hp = min(hp, n.hp + dmg * TECH_DATA['tech_energy-leech']['lazer_can'])
+        n.hp = min(hp, n.hp + dmg * TECH_DATA['tech_energy-leech']['laser_hp'])
 
 
 def chain_impulse(w, n, now):
@@ -177,11 +177,11 @@ def emp(w, n, now):
         w.laser_stop()                     # istemcinin lazeri ve kırmızı hedef vurgusu da kalksın
     w.target, w.attacking = None, False
     w.send([('ShipDeselectionCommand', {})])
-    n.emp_lock = now + c['saskinlik_sn']      # o süre yeniden seçilemez (dunya.select; oyuncu bildirimi 2026-10-31: hemen seçiliyordu)
+    n.emp_lock = now + c['daze_sec']      # o süre yeniden seçilemez (dunya.select; oyuncu bildirimi 2026-10-31: hemen seçiliyordu)
     for m in w.npcs.values():
         if m.bot is None and m.bot_target == n.id:
             m.bot_target = None
-            m.next_think = now + c['saskinlik_sn']
+            m.next_think = now + c['daze_sec']
     b.ist('emp')
     return True
 
@@ -214,7 +214,7 @@ def aim(n, hit, is_hard):
     from . import extras as EX
     b = n.bot
     cpu = next((c for c in (EX.AIM2, EX.AIM1) if EX.var(b, c)), None)
-    if not cpu or not is_hard or not b.permission.get('ekstra', True) or not spend_xenomit(b, CIT['nisan_cpu']['xenomit']):
+    if not cpu or not is_hard or not b.permission.get('ekstra', True) or not spend_xenomit(b, CIT['aim_cpu']['xenomit']):
         return hit
     return 1 - (1 - hit) * (1 - K.ITEMS['ekstralar'][cpu]['nisan'])
 

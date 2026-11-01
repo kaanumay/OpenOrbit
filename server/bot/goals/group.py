@@ -41,7 +41,7 @@ class Group(Goal):
         if k is None:
             bot.plan['bitti'] = True
             return
-        m = int(k.profile.d['konum'].get('mapId', bot.game_map))
+        m = int(k.profile.d['position'].get('mapId', bot.game_map))
         bot.plan.update(lider=k.uid, harita=m)
         if m in K.MAPS and K.can_enter(m, bot.firma, bot.level):
             S.go(bot, m, y, now)
@@ -53,7 +53,7 @@ class Group(Goal):
         if k is None:
             bot.plan['bitti'] = True
             return
-        if int(k.profile.d['konum'].get('mapId', 0)) != bot.game_map:
+        if int(k.profile.d['position'].get('mapId', 0)) != bot.game_map:
             self._head_to(bot, y)
             return
         S.farm(bot, dt, y)

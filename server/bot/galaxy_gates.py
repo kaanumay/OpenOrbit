@@ -18,7 +18,7 @@ KAPI = D['kapilar']
 ABG = ('alpha', 'beta', 'gamma')
 ORDER = ('alpha', 'beta', 'gamma', 'lambda', 'hades', 'delta', 'epsilon', 'kappa', 'zeta', 'streuner')
 ENERGY = 'resource_extra-energy'
-PROBABILITY = {c: w for c, w in D['olasilik']}            # 1 cephane, 2 kaynak, 3 kupon, 4 parça, 5 özel, 6 log
+PROBABILITY = {c: w for c, w in D['probability']}            # 1 cephane, 2 kaynak, 3 kupon, 4 parça, 5 özel, 6 log
 _difficulty = {}
 
 
@@ -36,7 +36,7 @@ def difficulty(gate):
     if gate in _difficulty:
         return _difficulty[gate]
     import ast
-    waves = KAPI[gate].get('dalgalar') or []
+    waves = KAPI[gate].get('waves') or []
     if isinstance(waves, str):
         waves = ast.literal_eval(waves)
     out, reward = [], {}
@@ -79,7 +79,7 @@ def draw(bot, gate, n):
     for _ in range(n):
         if s.get(ENERGY, 0) > 0:
             s[ENERGY] -= 1
-        elif not bot.pay('U', D['enerji_fiyati'] * bot.game_settings.multiplier('magaza_fiyat')):
+        elif not bot.pay('U', D['energy_price'] * bot.game_settings.multiplier('magaza_fiyat')):
             break
         crafted += 1
         _draw(bot, st, gate)
@@ -101,16 +101,16 @@ def _draw(bot, st, gate):
         total = KAPI[k]['parca']
         var = st['parca'].get(k, 0)
         missing = (total - var) / total
-        new_ = r.random() < missing + (1 - missing) * 0.5 or st['carpan'] >= D['azami_carpan']
+        new_ = r.random() < missing + (1 - missing) * 0.5 or st['carpan'] >= D['max_multiplier']
         if new_:
-            earn = 1 + (st['carpan'] if st['carpan'] >= D['azami_carpan'] else 0)
+            earn = 1 + (st['carpan'] if st['carpan'] >= D['max_multiplier'] else 0)
             st['carpan'] = 0 if earn > 1 else st['carpan']
             st['parca'][k] = min(total, var + earn)
             if st['parca'][k] >= total and k not in st['kurulu']:
                 st['kurulu'].append(k)
                 bot.event('kapi_kuruldu', kapi=KAPI[k]['ad'])
         else:
-            st['carpan'] = min(D['azami_carpan'], st['carpan'] + 1)
+            st['carpan'] = min(D['max_multiplier'], st['carpan'] + 1)
         return
     if cat == 1:
         loot, _, count = r.choice(D['cephane'])
@@ -128,7 +128,7 @@ def target_gate(bot):
     """Parça toplanacak kapı: kurulmamış ve botun tahminen geçebileceği ilk kapı (oyuncuların sırası: ABG, sonra öteki)."""
     st = state(bot)
     for k in ORDER:
-        if k in st['kurulu'] or KAPI[k].get('uretilmez'):
+        if k in st['kurulu'] or KAPI[k].get('not_producible'):
             continue
         duration, death = estimate(bot, k)
         if death < KAPI[k]['can'] * 1.5:
@@ -145,8 +145,8 @@ def generator(bot):
         return 0
     n = stock(bot).get(ENERGY, 0)
     t = bot.o('tutumluluk')
-    if bot.o('hirs') + bot.o('rekabet') > 1.1 and bot.k['uridyum'] > D['enerji_fiyati'] * 300 * (1 + 2 * t):
-        n += int(bot.k['uridyum'] * 0.15 // D['enerji_fiyati'])
+    if bot.o('hirs') + bot.o('rekabet') > 1.1 and bot.k['uridyum'] > D['energy_price'] * 300 * (1 + 2 * t):
+        n += int(bot.k['uridyum'] * 0.15 // D['energy_price'])
     return draw(bot, k, min(n, 200)) if n else 0
 
 
@@ -191,9 +191,9 @@ def grant_reward(bot, gate, speed=1.0):
 
 def record_duration(save, key, sec):
     """Kapının tamamlanma süresi (istatistik; oyuncu isteği 2026-10-30) -> kayit['kapi_sureleri'][key] {en_iyi, son, sayi} (sn)."""
-    d = save.setdefault('gate_times', {}).setdefault(key, {'en_iyi': 0, 'son': 0, 'sayi': 0})
+    d = save.setdefault('gate_times', {}).setdefault(key, {'best': 0, 'son': 0, 'sayi': 0})
     sec = int(max(1, sec))
-    d.update(son=sec, sayi=d['sayi'] + 1, en_iyi=min(d['en_iyi'], sec) if d['en_iyi'] else sec)
+    d.update(son=sec, sayi=d['sayi'] + 1, best=min(d['best'], sec) if d['best'] else sec)
     return d
 
 

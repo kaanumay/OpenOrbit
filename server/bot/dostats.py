@@ -38,7 +38,7 @@ def _download(route, timeout=15):
 
 def _cache_path():
     import paths as PTH
-    return os.path.join(PTH.SAVE, 'botlar', '_dostats.json')
+    return os.path.join(PTH.SAVE, 'bots', '_dostats.json')
 
 
 def names(languages, download=None):

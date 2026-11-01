@@ -90,7 +90,7 @@ def icon(loot):
     global _icon
     if _icon is None:
         _icon = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data', 'ship_icons.json'),
-                                encoding='utf8'))['simgeler']
+                                encoding='utf8'))['icons']
     name = str(loot or '')[5:] if str(loot or '').startswith('ship_') else str(loot or '')
     on, _, last = name.partition('-')
     base = {'a': 'AEGIS', 'c': 'CITADEL', 's': 'SPEARHEAD', 'n': 'NOSTROMO', 'g': 'GOLIATH', 'v': 'VENGEANCE', 'bb': 'BIGBOY',
@@ -143,8 +143,8 @@ def position(k, now):
     elif n is not None and n.alive:
         x, y = n.mover.pos(now)
     else:
-        x, y = p.d['konum'].get('x', 0), p.d['konum'].get('y', 0)
-    return int(p.d['konum'].get('mapId', 0)), int(x), int(y)
+        x, y = p.d['position'].get('x', 0), p.d['position'].get('y', 0)
+    return int(p.d['position'].get('mapId', 0)), int(x), int(y)
 
 
 def state(k, now):
@@ -158,7 +158,7 @@ def state(k, now):
             'FactionModule': mod('FactionModule', faction=int(pl.get('factionId', 0) or 0)),
             'FightActivityModule': mod('FightActivityModule', active=bool(w is not None and now - w.last_combat < COMBAT_SEC)),
             'HealthModule': ship_hp(p),
-            'InvitationBlockModule': mod('InvitationBlockModule', active=bool(p.d.get('davet_engeli'))),
+            'InvitationBlockModule': mod('InvitationBlockModule', active=bool(p.d.get('invite_block'))),
             'LevelModule': mod('LevelModule', level=int(pl.get('level', 1))),
             'LocationModule': mod('LocationModule', mapId=m, x=x, y=y),
             'MemberLoggedOutModule': mod('MemberLoggedOutModule', loggedOut=k.session is None),
@@ -291,7 +291,7 @@ def _invite(a, b, exit, now):
         err = GROUP_FULL
     elif group_of(b.uid) is not None:
         err = CANDIDATE_IN_GROUP
-    elif b.profile.d.get('davet_engeli'):
+    elif b.profile.d.get('invite_block'):
         err = CANDIDATE_BLOCKING
     elif (a.uid, b.uid) in INVITES:
         err = DUPLICATE_INVITATION
@@ -446,7 +446,7 @@ def login_msgs(k, now=None):
         for (a, b) in list(INVITES):
             if k.uid in (a, b) and a in people and b in people:
                 out.append(invite_cmd(people[a], people[b]))
-        if k.profile.d.get('davet_engeli'):
+        if k.profile.d.get('invite_block'):
             out.append(('InvitationBlockModule', {'active': True}))
     return out
 

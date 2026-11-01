@@ -96,7 +96,7 @@ class Invasion:
         msgs = []
         if now >= self.next_score:                         # sanal puanlar: öteki firmalar ve oyuncunun firmasının sanal ekibi
             self.next_score = now + 60
-            lo, hi = D.get('dakika_puan', [20, 60])
+            lo, hi = D.get('minute_points', [20, 60])
             with self.p.lock:
                 for f in ('1', '2', '3'):
                     self.st['puan'][f] += random.randint(lo, hi)

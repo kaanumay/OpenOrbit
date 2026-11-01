@@ -45,7 +45,7 @@ class ProviderError(RuntimeError):
 
 
 def _route():
-    return os.path.join(PTH.SAVE, 'llm', 'saglayici.json')
+    return os.path.join(PTH.SAVE, 'llm', 'provider.json')
 
 
 def setting():
@@ -57,14 +57,14 @@ def setting():
         d = {}
     if d.get('secili') not in PROVIDERS:
         d['secili'] = LOCAL
-    d['saglayicilar'] = {k: v for k, v in (d.get('saglayicilar') or {}).items() if k in PROVIDERS and isinstance(v, dict)}
+    d['providers'] = {k: v for k, v in (d.get('providers') or {}).items() if k in PROVIDERS and isinstance(v, dict)}
     return d
 
 
 def selected():
     """Seçili sağlayıcının tam ayarı {kimlik, tur, adres, model, anahtar}."""
     d = setting()
-    return full(d['secili'], d['saglayicilar'].get(d['secili']) or {})
+    return full(d['secili'], d['providers'].get(d['secili']) or {})
 
 
 def full(uid, a):
@@ -87,7 +87,7 @@ def status():
     d = setting()
     out = []
     for k, s in PROVIDERS.items():
-        a = d['saglayicilar'].get(k) or {}
+        a = d['providers'].get(k) or {}
         out.append({'kimlik': k, 'ad': s['ad'], 'tur': s['tur'], 'key_required': s['anahtar'], 'yerel': s['yerel'],
                     'adres': a.get('adres') or s['adres'], 'model': a.get('model') or s['model'],
                     'default_url': s['adres'], 'anahtar': mask(a.get('anahtar') or ''), 'has_key': bool(a.get('anahtar'))})
@@ -104,7 +104,7 @@ def save(uid, address=None, model=None, key=None, sec=True):
         raise ProviderError('Adres http:// ya da https:// ile başlamalı.')
     with _LOCK:
         d = setting()
-        a = dict(d['saglayicilar'].get(uid) or {})
+        a = dict(d['providers'].get(uid) or {})
         if address is not None:
             a['adres'] = address
         if model is not None:
@@ -113,7 +113,7 @@ def save(uid, address=None, model=None, key=None, sec=True):
             a.pop('anahtar', None)
         elif key:
             a['anahtar'] = str(key).strip()
-        d['saglayicilar'][uid] = a
+        d['providers'][uid] = a
         if sec:
             d['secili'] = uid
         os.makedirs(os.path.dirname(_route()), exist_ok=True)
@@ -179,7 +179,7 @@ def models(uid, address=None, key=None):
     """Sağlayıcının modelleri (/models). Anahtar verilmezse kayıtlıdır."""
     if uid not in PROVIDERS or uid == LOCAL:
         raise ProviderError('Bilinmeyen sağlayıcı.')
-    a = dict(setting()['saglayicilar'].get(uid) or {})
+    a = dict(setting()['providers'].get(uid) or {})
     if address:
         a['adres'] = address
     if key:
@@ -371,4 +371,4 @@ def test(log=print):
                         schema={'type': 'object', 'properties': {'cevap': {'type': 'string'}, 'durum': {'type': 'string'}},
                               'required': ['cevap', 'durum']}, max_count=80)
     ok = 'TAMAM' in str(response.get('durum', '')).upper()
-    return {'ok': ok, 'acilis_sn': round(opening, 1), 'sure_sn': round(duration, 2), 'yanit': response.get('cevap'), 'saglayici': s.name}
+    return {'ok': ok, 'startup_sec': round(opening, 1), 'sure_sn': round(duration, 2), 'yanit': response.get('cevap'), 'provider': s.name}

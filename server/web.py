@@ -58,7 +58,7 @@ def profile(path=None):
     try:
         d = json.load(open(p, encoding='utf8'))
         use2d = bool(((d.get('ayarlar') or {}).get('displaySettingsModule') or {}).get('displayUse2d'))
-        return d['pilot']['userId'], d['gemi']['typeId'], d['konum']['mapId'], use2d
+        return d['pilot']['userId'], d['gemi']['typeId'], d['position']['mapId'], use2d
     except (OSError, KeyError, ValueError):
         return 1, 'ship_goliath', 1, False
 
@@ -66,7 +66,7 @@ def profile(path=None):
 def web_settings_path(path=None):
     """Web tarafının ayarları (giriş ekranında seçilen dil) profilin yanında ayrı dosyada: profili oyun sunucusu yazıyor."""
     p = path or PROFILE_PATH or default_profile()
-    return os.path.join(os.path.dirname(os.path.abspath(p)), 'web_ayarlari.json')
+    return os.path.join(os.path.dirname(os.path.abspath(p)), 'web_settings.json')
 
 
 def web_settings(path=None):
@@ -279,13 +279,13 @@ def gate_rewards_xml():
         rows += [(GATE_LOOT.get(k, k), n, 1.0) for k, n in sorted((R.get('ganimet') or {}).items())]
         for s in R.get('sans', []):
             if s.get('esya') == 'cevher_paketi':        # forum 129125: kapının cevher paketi, kalemleri ağırlığıyla
-                rows += [(loot, n[0], s.get('olasilik', 0) * w) for loot, n, w in s['paket']]
+                rows += [(loot, n[0], s.get('probability', 0) * w) for loot, n, w in s['paket']]
                 continue
-            opts = s.get('secenekler') if s.get('esya') == 'tasarim_secimi' else [s.get('esya')]
-            rows += [(loot, s.get('adet', 1), s.get('olasilik', 0) / max(1, len(opts))) for loot in opts or []]
+            opts = s.get('options') if s.get('esya') == 'tasarim_secimi' else [s.get('esya')]
+            rows += [(loot, s.get('adet', 1), s.get('probability', 0) / max(1, len(opts))) for loot in opts or []]
             # Diametrion'la birlikte gelen üç kaynaktan biri (kapi.finish 'birlikte'): rehberin "min" alanı en az miktar (70-80 ve 8-14 gibi
             # aralıklar yazılamaz), şans sınıfı üçe bölünmüş olasılıktan
-            rows += [(loot, n[0] if isinstance(n, list) else n, s.get('olasilik', 0) / len(s['birlikte'])) for loot, n in s.get('birlikte', [])]
+            rows += [(loot, n[0] if isinstance(n, list) else n, s.get('probability', 0) / len(s['together'])) for loot, n in s.get('together', [])]
         items = ''.join('<item id=%s chance="%d" min="%d"/>' % (quoteattr(loot), chance_class(p), n) for loot, n, p in rows
                         if loot and n)
         out.append('<gate name=%s>%s</gate>' % (quoteattr(key), items))
@@ -468,6 +468,9 @@ def serve_tcp(port):
 
 
 if __name__ == '__main__':          # içe aktarınca (testler) sunucu açılmaz
+    import paths as _paths
+    if _paths.MIGRATION_ERROR:      # kayıtlar yeni biçime taşınamadı: eski biçimle yarım açılmaz
+        sys.exit('save migration failed: %s' % _paths.MIGRATION_ERROR)
     for p in (80, 8090):
         threading.Thread(target=serve_http, args=(p,), daemon=True).start()
     for p in (843, 9339, 8082):         # 7771: yerel sohbet sunucusu oyun sürecinde (sohbet.py)

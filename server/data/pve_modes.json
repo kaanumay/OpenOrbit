@@ -1,5 +1,5 @@
 {
- "_aciklama": "Sonsuz ve rogue-lite PvE modları -> server/data/pve_modlari.json (yol haritası Aşama 8; sunucu: pve_modlari.py, arena.py,\nebl.py, astral.py, echoes.py).\n\nKaynaklar belgeler/wiki/pve_modlari/ (darkorbitwiki, resmî forum SSS'leri, fandom; derlenmiş JSON) ve kayıttaki yanıtlar\n(server/data/yanitlar.json: Trinity Trials geçişi, OS modülü tablosu, ödül açıklamaları; Deep Space Echoes bilgisi ve sıralama\nödülleri). Görünümler istemcinin game.xml'i (gemi türü / npcId): Whisper = Terror Shrike 396/517, Voidmare = Nightmare Reaper\n395/516, Pyrospire 385/512, Magma Stalker 386/513, Vinespire 387/514, Spore Stalker 388/515, P.E.T. Scout/Decoy/Raider 130-132,\nGygerim Overlord 248/128, Gygerthrall 128/123, Mimesis 278-294, Missile Storm 9371/407, Ufonit 21/26, Cowering Cyborg 296/253,\nUnidentified Destroyer 100/50. Portal tasarımları lib_portals: Voyagers 306, Trinity 304, Expedition 300/301, Astral 86 ve kapı\ntürleri 87-100. Haritalar maps-config: Voyager 509, Hellfire I-V 499-503, Genome I-V 504-508, Astral 466-468, Command Hall 473,\nDSE 1-8 474-481.\nKaynağın vermediği değerler (dalga dizilişleri, kutu adetleri, ölçekler …) uyarlama; her bölümün '_uyarlama' notunda.",
+ "_description": "Sonsuz ve rogue-lite PvE modları -> server/data/pve_modlari.json (yol haritası Aşama 8; sunucu: pve_modlari.py, arena.py,\nebl.py, astral.py, echoes.py).\n\nKaynaklar belgeler/wiki/pve_modlari/ (darkorbitwiki, resmî forum SSS'leri, fandom; derlenmiş JSON) ve kayıttaki yanıtlar\n(server/data/yanitlar.json: Trinity Trials geçişi, OS modülü tablosu, ödül açıklamaları; Deep Space Echoes bilgisi ve sıralama\nödülleri). Görünümler istemcinin game.xml'i (gemi türü / npcId): Whisper = Terror Shrike 396/517, Voidmare = Nightmare Reaper\n395/516, Pyrospire 385/512, Magma Stalker 386/513, Vinespire 387/514, Spore Stalker 388/515, P.E.T. Scout/Decoy/Raider 130-132,\nGygerim Overlord 248/128, Gygerthrall 128/123, Mimesis 278-294, Missile Storm 9371/407, Ufonit 21/26, Cowering Cyborg 296/253,\nUnidentified Destroyer 100/50. Portal tasarımları lib_portals: Voyagers 306, Trinity 304, Expedition 300/301, Astral 86 ve kapı\ntürleri 87-100. Haritalar maps-config: Voyager 509, Hellfire I-V 499-503, Genome I-V 504-508, Astral 466-468, Command Hall 473,\nDSE 1-8 474-481.\nKaynağın vermediği değerler (dalga dizilişleri, kutu adetleri, ölçekler …) uyarlama; her bölümün '_uyarlama' notunda.",
  "voyagers": {
   "harita": 509,
   "giris": [
@@ -10,21 +10,21 @@
   "jeton": "resource_collectable_voyagers-oath-token",
   "vip": "resource_voyagers-vip-badge",
   "ucretsiz": 1,
-  "vip_ek": 1,
-  "yildiz_sn": [
+  "vip_extra": 1,
+  "star_sec": [
    300,
    600,
    900
   ],
-  "vip_hasar": 0.2,
-  "zorluklar": [
+  "vip_damage": 0.2,
+  "difficulties": [
    {
     "ad": "Easy",
-    "turler": {
+    "kinds": {
      "Whisper": "pm_whisper_1",
      "Voidmare": "pm_voidmare_1"
     },
-    "dalgalar": [
+    "waves": [
      {
       "ad": "1",
       "gruplar": [
@@ -370,11 +370,11 @@
    },
    {
     "ad": "Normal",
-    "turler": {
+    "kinds": {
      "Whisper": "pm_whisper_2",
      "Voidmare": "pm_voidmare_2"
     },
-    "dalgalar": [
+    "waves": [
      {
       "ad": "1",
       "gruplar": [
@@ -720,11 +720,11 @@
    },
    {
     "ad": "Hard",
-    "turler": {
+    "kinds": {
      "Whisper": "pm_whisper_3",
      "Voidmare": "pm_voidmare_3"
     },
-    "dalgalar": [
+    "waves": [
      {
       "ad": "1",
       "gruplar": [
@@ -1070,11 +1070,11 @@
    },
    {
     "ad": "Expert",
-    "turler": {
+    "kinds": {
      "Whisper": "pm_whisper_4",
      "Voidmare": "pm_voidmare_4"
     },
-    "dalgalar": [
+    "waves": [
      {
       "ad": "1",
       "gruplar": [
@@ -1420,11 +1420,11 @@
    },
    {
     "ad": "Nightmare",
-    "turler": {
+    "kinds": {
      "Whisper": "pm_whisper_5",
      "Voidmare": "pm_voidmare_5"
     },
-    "dalgalar": [
+    "waves": [
      {
       "ad": "1",
       "gruplar": [
@@ -2106,8 +2106,8 @@
      1
     ]
    ],
-   "vip_puan": 0.1,
-   "vip_parametreler": [
+   "vip_points": 0.1,
+   "vip_params": [
     1,
     10,
     20
@@ -2133,7 +2133,7 @@
     508
    ]
   },
-  "gunler": {
+  "days": {
    "1": [
     0,
     2,
@@ -2155,22 +2155,22 @@
   "jeton": "resource_collectable_trinity-token",
   "vip": "resource_trinity-vip-badge",
   "ucretsiz": 1,
-  "vip_ek": 2,
-  "vip_hasar": 0.2,
+  "vip_extra": 2,
+  "vip_damage": 0.2,
   "kp": "resource_collectable_quantum-prism",
   "xy": "resource_collectable_xyralith",
-  "top_payi": 0.05,
-  "zorluklar": [
+  "cannon_share": 0.05,
+  "difficulties": [
    {
     "ad": "Easy",
-    "os_seviye": 1,
-    "turler": {
+    "os_level": 1,
+    "kinds": {
      "Magma Stalker": "pm_magmastalker_easy",
      "Pyrospire": "pm_pyrospire_easy",
      "Spore Stalker": "pm_sporestalker_easy",
      "Vinespire": "pm_vinespire_easy"
     },
-    "arenalar": {
+    "arenas": {
      "1": [
       {
        "ad": "1",
@@ -2712,7 +2712,7 @@
       }
      ]
     },
-    "kilometre": {
+    "milestones": {
      "5": {
       "qp": 21,
       "xy": 2,
@@ -2743,14 +2743,14 @@
    },
    {
     "ad": "Normal",
-    "os_seviye": 6,
-    "turler": {
+    "os_level": 6,
+    "kinds": {
      "Magma Stalker": "pm_magmastalker_normal",
      "Pyrospire": "pm_pyrospire_normal",
      "Spore Stalker": "pm_sporestalker_normal",
      "Vinespire": "pm_vinespire_normal"
     },
-    "arenalar": {
+    "arenas": {
      "1": [
       {
        "ad": "1",
@@ -3292,7 +3292,7 @@
       }
      ]
     },
-    "kilometre": {
+    "milestones": {
      "5": {
       "qp": 21,
       "xy": 2,
@@ -3323,14 +3323,14 @@
    },
    {
     "ad": "Hard",
-    "os_seviye": 11,
-    "turler": {
+    "os_level": 11,
+    "kinds": {
      "Magma Stalker": "pm_magmastalker_hard",
      "Pyrospire": "pm_pyrospire_hard",
      "Spore Stalker": "pm_sporestalker_hard",
      "Vinespire": "pm_vinespire_hard"
     },
-    "arenalar": {
+    "arenas": {
      "1": [
       {
        "ad": "1",
@@ -3872,7 +3872,7 @@
       }
      ]
     },
-    "kilometre": {
+    "milestones": {
      "5": {
       "qp": 21,
       "xy": 2,
@@ -3907,14 +3907,14 @@
    },
    {
     "ad": "Expert",
-    "os_seviye": 21,
-    "turler": {
+    "os_level": 21,
+    "kinds": {
      "Magma Stalker": "pm_magmastalker_expert",
      "Pyrospire": "pm_pyrospire_expert",
      "Spore Stalker": "pm_sporestalker_expert",
      "Vinespire": "pm_vinespire_expert"
     },
-    "arenalar": {
+    "arenas": {
      "1": [
       {
        "ad": "1",
@@ -4456,7 +4456,7 @@
       }
      ]
     },
-    "kilometre": {
+    "milestones": {
      "5": {
       "qp": 21,
       "xy": 2,
@@ -4491,14 +4491,14 @@
    },
    {
     "ad": "Nightmare",
-    "os_seviye": 31,
-    "turler": {
+    "os_level": 31,
+    "kinds": {
      "Magma Stalker": "pm_magmastalker_nightmare",
      "Pyrospire": "pm_pyrospire_nightmare",
      "Spore Stalker": "pm_sporestalker_nightmare",
      "Vinespire": "pm_vinespire_nightmare"
     },
-    "arenalar": {
+    "arenas": {
      "1": [
       {
        "ad": "1",
@@ -5040,7 +5040,7 @@
       }
      ]
     },
-    "kilometre": {
+    "milestones": {
      "5": {
       "qp": 21,
       "xy": 2,
@@ -5083,7 +5083,7 @@
     "seviye": 1,
     "maliyet": 0,
     "sure_sn": 0,
-    "nadirlik": [
+    "rarity": [
      80.0,
      10.0,
      10.0,
@@ -5097,7 +5097,7 @@
     "seviye": 2,
     "maliyet": 10,
     "sure_sn": 9000,
-    "nadirlik": [
+    "rarity": [
      70.0,
      20.0,
      9.5,
@@ -5111,7 +5111,7 @@
     "seviye": 3,
     "maliyet": 11,
     "sure_sn": 9000,
-    "nadirlik": [
+    "rarity": [
      60.0,
      30.0,
      9.0,
@@ -5125,7 +5125,7 @@
     "seviye": 4,
     "maliyet": 12,
     "sure_sn": 9000,
-    "nadirlik": [
+    "rarity": [
      50.0,
      40.0,
      8.5,
@@ -5139,7 +5139,7 @@
     "seviye": 5,
     "maliyet": 13,
     "sure_sn": 9000,
-    "nadirlik": [
+    "rarity": [
      40.0,
      50.0,
      8.0,
@@ -5153,7 +5153,7 @@
     "seviye": 6,
     "maliyet": 14,
     "sure_sn": 9000,
-    "nadirlik": [
+    "rarity": [
      40.0,
      48.4,
      9.0,
@@ -5167,7 +5167,7 @@
     "seviye": 7,
     "maliyet": 15,
     "sure_sn": 12000,
-    "nadirlik": [
+    "rarity": [
      40.0,
      46.8,
      10.0,
@@ -5181,7 +5181,7 @@
     "seviye": 8,
     "maliyet": 17,
     "sure_sn": 12000,
-    "nadirlik": [
+    "rarity": [
      40.0,
      45.2,
      11.0,
@@ -5195,7 +5195,7 @@
     "seviye": 9,
     "maliyet": 19,
     "sure_sn": 12000,
-    "nadirlik": [
+    "rarity": [
      40.0,
      43.6,
      12.0,
@@ -5209,7 +5209,7 @@
     "seviye": 10,
     "maliyet": 21,
     "sure_sn": 12000,
-    "nadirlik": [
+    "rarity": [
      40.0,
      42.0,
      13.0,
@@ -5223,7 +5223,7 @@
     "seviye": 11,
     "maliyet": 23,
     "sure_sn": 12000,
-    "nadirlik": [
+    "rarity": [
      39.5,
      41.5,
      14.0,
@@ -5237,7 +5237,7 @@
     "seviye": 12,
     "maliyet": 25,
     "sure_sn": 30000,
-    "nadirlik": [
+    "rarity": [
      39.0,
      41.0,
      15.0,
@@ -5251,7 +5251,7 @@
     "seviye": 13,
     "maliyet": 28,
     "sure_sn": 30000,
-    "nadirlik": [
+    "rarity": [
      38.5,
      40.5,
      16.0,
@@ -5265,7 +5265,7 @@
     "seviye": 14,
     "maliyet": 31,
     "sure_sn": 30000,
-    "nadirlik": [
+    "rarity": [
      38.0,
      40.0,
      17.0,
@@ -5279,7 +5279,7 @@
     "seviye": 15,
     "maliyet": 34,
     "sure_sn": 30000,
-    "nadirlik": [
+    "rarity": [
      37.5,
      39.5,
      18.0,
@@ -5293,7 +5293,7 @@
     "seviye": 16,
     "maliyet": 37,
     "sure_sn": 30000,
-    "nadirlik": [
+    "rarity": [
      37.0,
      39.0,
      19.0,
@@ -5307,7 +5307,7 @@
     "seviye": 17,
     "maliyet": 41,
     "sure_sn": 30000,
-    "nadirlik": [
+    "rarity": [
      36.5,
      38.5,
      20.0,
@@ -5321,7 +5321,7 @@
     "seviye": 18,
     "maliyet": 45,
     "sure_sn": 30000,
-    "nadirlik": [
+    "rarity": [
      36.0,
      38.0,
      21.0,
@@ -5335,7 +5335,7 @@
     "seviye": 19,
     "maliyet": 50,
     "sure_sn": 30000,
-    "nadirlik": [
+    "rarity": [
      35.5,
      37.5,
      22.0,
@@ -5349,7 +5349,7 @@
     "seviye": 20,
     "maliyet": 55,
     "sure_sn": 30000,
-    "nadirlik": [
+    "rarity": [
      35.0,
      37.0,
      23.0,
@@ -5363,7 +5363,7 @@
     "seviye": 21,
     "maliyet": 61,
     "sure_sn": 30000,
-    "nadirlik": [
+    "rarity": [
      34.4,
      37.35,
      23.0,
@@ -5377,7 +5377,7 @@
     "seviye": 22,
     "maliyet": 67,
     "sure_sn": 30000,
-    "nadirlik": [
+    "rarity": [
      33.8,
      37.7,
      23.0,
@@ -5391,7 +5391,7 @@
     "seviye": 23,
     "maliyet": 74,
     "sure_sn": 60000,
-    "nadirlik": [
+    "rarity": [
      33.2,
      38.05,
      23.0,
@@ -5405,7 +5405,7 @@
     "seviye": 24,
     "maliyet": 81,
     "sure_sn": 60000,
-    "nadirlik": [
+    "rarity": [
      32.6,
      38.4,
      23.0,
@@ -5419,7 +5419,7 @@
     "seviye": 25,
     "maliyet": 89,
     "sure_sn": 60000,
-    "nadirlik": [
+    "rarity": [
      32.0,
      38.75,
      23.0,
@@ -5433,7 +5433,7 @@
     "seviye": 26,
     "maliyet": 98,
     "sure_sn": 60000,
-    "nadirlik": [
+    "rarity": [
      31.4,
      39.1,
      23.0,
@@ -5447,7 +5447,7 @@
     "seviye": 27,
     "maliyet": 108,
     "sure_sn": 60000,
-    "nadirlik": [
+    "rarity": [
      30.8,
      39.45,
      23.0,
@@ -5461,7 +5461,7 @@
     "seviye": 28,
     "maliyet": 119,
     "sure_sn": 60000,
-    "nadirlik": [
+    "rarity": [
      30.2,
      39.8,
      23.0,
@@ -5475,7 +5475,7 @@
     "seviye": 29,
     "maliyet": 131,
     "sure_sn": 60000,
-    "nadirlik": [
+    "rarity": [
      29.6,
      40.15,
      23.0,
@@ -5489,7 +5489,7 @@
     "seviye": 30,
     "maliyet": 144,
     "sure_sn": 60000,
-    "nadirlik": [
+    "rarity": [
      29.0,
      40.5,
      23.0,
@@ -5503,7 +5503,7 @@
     "seviye": 31,
     "maliyet": 158,
     "sure_sn": 60000,
-    "nadirlik": [
+    "rarity": [
      28.87,
      40.5,
      23.0,
@@ -5517,7 +5517,7 @@
     "seviye": 32,
     "maliyet": 174,
     "sure_sn": 90000,
-    "nadirlik": [
+    "rarity": [
      28.74,
      40.5,
      23.0,
@@ -5531,7 +5531,7 @@
     "seviye": 33,
     "maliyet": 191,
     "sure_sn": 90000,
-    "nadirlik": [
+    "rarity": [
      28.61,
      40.5,
      23.0,
@@ -5545,7 +5545,7 @@
     "seviye": 34,
     "maliyet": 210,
     "sure_sn": 90000,
-    "nadirlik": [
+    "rarity": [
      28.48,
      40.5,
      23.0,
@@ -5559,7 +5559,7 @@
     "seviye": 35,
     "maliyet": 231,
     "sure_sn": 90000,
-    "nadirlik": [
+    "rarity": [
      28.35,
      40.5,
      23.0,
@@ -5573,7 +5573,7 @@
     "seviye": 36,
     "maliyet": 254,
     "sure_sn": 90000,
-    "nadirlik": [
+    "rarity": [
      28.22,
      40.5,
      23.0,
@@ -5587,7 +5587,7 @@
     "seviye": 37,
     "maliyet": 279,
     "sure_sn": 120000,
-    "nadirlik": [
+    "rarity": [
      28.09,
      40.5,
      23.0,
@@ -5601,7 +5601,7 @@
     "seviye": 38,
     "maliyet": 306,
     "sure_sn": 120000,
-    "nadirlik": [
+    "rarity": [
      27.96,
      40.5,
      23.0,
@@ -5615,7 +5615,7 @@
     "seviye": 39,
     "maliyet": 335,
     "sure_sn": 120000,
-    "nadirlik": [
+    "rarity": [
      27.83,
      40.5,
      23.0,
@@ -5629,7 +5629,7 @@
     "seviye": 40,
     "maliyet": 366,
     "sure_sn": 120000,
-    "nadirlik": [
+    "rarity": [
      27.7,
      40.5,
      23.0,
@@ -5651,7 +5651,7 @@
      "equipment_weapon_cannon_leg-helios",
      "equipment_weapon_cannon_ul-helios"
     ],
-    "kirici": [
+    "breaker": [
      "equipment_cannon_shield_mr-t01",
      "equipment_cannon_shield_mr-t02",
      "equipment_cannon_shield_mr-t03",
@@ -5670,7 +5670,7 @@
      "equipment_weapon_cannon_leg-nidhogg",
      "equipment_weapon_cannon_ul-nidhogg"
     ],
-    "kirici": [
+    "breaker": [
      "equipment_cannon_shield_mr-c01",
      "equipment_cannon_shield_mr-c02",
      "equipment_cannon_shield_mr-c03",
@@ -5680,7 +5680,7 @@
     ]
    }
   },
-  "odul_aciklama": [
+  "reward_description": [
    {
     "_": "TupleThreeModule",
     "param1": "1",
@@ -6159,14 +6159,14 @@
      1
     ]
    ],
-   "vip_puan": 0.1,
-   "vip_parametreler": [
+   "vip_points": 0.1,
+   "vip_params": [
     2,
     10,
     20
    ]
   },
-  "paketler": {
+  "packages": {
    "package_trinity-slug1-1": [
     [
      "ammunition_slug_ths-d01",
@@ -6262,7 +6262,7 @@
     ]
    ]
   },
-  "atlama_dakika_basina": 1,
+  "skip_per_minute": 1,
   "_kaynak": "resmî Trinity Trials SSS (kurallar, OS tablosu, geçiş puanları), kayıttaki geçiş ve ödül açıklaması, darkorbitwiki uzaylı değerleri",
   "_uyarlama": "dalga dizilişleri (kaynakta yok), OS atlama bedeli (kalan dakika başına 1 Xyralith), paket içerikleri"
  },
@@ -6280,28 +6280,28 @@
     "ad": "Sentinel",
     "lootId": "ship_sentinel",
     "shipId": 66,
-    "yukleme": "rl_sentinel"
+    "loadout": "rl_sentinel"
    },
    {
     "ad": "Diminisher",
     "lootId": "ship_diminisher",
     "shipId": 64,
-    "yukleme": "rl_diminisher"
+    "loadout": "rl_diminisher"
    },
    {
     "ad": "Pusat",
     "lootId": "ship_pusat",
     "shipId": 91,
-    "yukleme": "rl_pusat"
+    "loadout": "rl_pusat"
    },
    {
     "ad": "Zephyr",
     "lootId": "ship_zephyr",
     "shipId": 393,
-    "yukleme": "rl_zephyr"
+    "loadout": "rl_zephyr"
    }
   ],
-  "yukleme": {
+  "loadout": {
    "laser": [
     [
      "equipment_weapon_laser_lf-3",
@@ -6342,7 +6342,7 @@
     "tur": "drone_iris",
     "adet": 5,
     "lazer": "equipment_weapon_laser_lf-3",
-    "dron_basina": 2
+    "per_drone": 2
    },
    "cephane": {
     "ammunition_laser_lcb-10": 50000,
@@ -6352,11 +6352,11 @@
     "ammunition_rocket_r-310": 1500
    }
   },
-  "riftler": [
+  "rifts": [
    {
     "ad": "1",
     "patron": false,
-    "setler": [
+    "sets": [
      [
       {
        "ad": "1",
@@ -6432,7 +6432,7 @@
    {
     "ad": "2",
     "patron": false,
-    "setler": [
+    "sets": [
      [
       {
        "ad": "1",
@@ -6508,7 +6508,7 @@
    {
     "ad": "3",
     "patron": false,
-    "setler": [
+    "sets": [
      [
       {
        "ad": "1",
@@ -6584,7 +6584,7 @@
    {
     "ad": "4",
     "patron": false,
-    "setler": [
+    "sets": [
      [
       {
        "ad": "1",
@@ -6660,7 +6660,7 @@
    {
     "ad": "5",
     "patron": true,
-    "setler": [
+    "sets": [
      [
       {
        "ad": "patron",
@@ -6680,7 +6680,7 @@
    {
     "ad": "6",
     "patron": false,
-    "setler": [
+    "sets": [
      [
       {
        "ad": "1",
@@ -6756,7 +6756,7 @@
    {
     "ad": "7",
     "patron": false,
-    "setler": [
+    "sets": [
      [
       {
        "ad": "1",
@@ -6832,7 +6832,7 @@
    {
     "ad": "8",
     "patron": false,
-    "setler": [
+    "sets": [
      [
       {
        "ad": "1",
@@ -6908,7 +6908,7 @@
    {
     "ad": "9",
     "patron": false,
-    "setler": [
+    "sets": [
      [
       {
        "ad": "1",
@@ -6984,7 +6984,7 @@
    {
     "ad": "10",
     "patron": true,
-    "setler": [
+    "sets": [
      [
       {
        "ad": "patron",
@@ -7004,7 +7004,7 @@
    {
     "ad": "11",
     "patron": false,
-    "setler": [
+    "sets": [
      [
       {
        "ad": "1",
@@ -7080,7 +7080,7 @@
    {
     "ad": "12",
     "patron": false,
-    "setler": [
+    "sets": [
      [
       {
        "ad": "1",
@@ -7156,7 +7156,7 @@
    {
     "ad": "13",
     "patron": false,
-    "setler": [
+    "sets": [
      [
       {
        "ad": "1",
@@ -7232,7 +7232,7 @@
    {
     "ad": "14",
     "patron": false,
-    "setler": [
+    "sets": [
      [
       {
        "ad": "1",
@@ -7308,7 +7308,7 @@
    {
     "ad": "15",
     "patron": true,
-    "setler": [
+    "sets": [
      [
       {
        "ad": "patron",
@@ -7326,41 +7326,41 @@
     ]
    }
   ],
-  "kapi_turleri": [
+  "gate_kinds": [
    {
     "ad": "silah",
     "tasarim": 87,
-    "cilgin": 88
+    "frenzied": 88
    },
    {
     "ad": "jenerator",
     "tasarim": 89,
-    "cilgin": 90
+    "frenzied": 90
    },
    {
     "ad": "cephane",
     "tasarim": 91,
-    "cilgin": 92
+    "frenzied": 92
    },
    {
     "ad": "booster",
     "tasarim": 93,
-    "cilgin": 94
+    "frenzied": 94
    },
    {
     "ad": "modul",
     "tasarim": 95,
-    "cilgin": 96
+    "frenzied": 96
    },
    {
     "ad": "kaynak",
     "tasarim": 97,
-    "cilgin": 98
+    "frenzied": 98
    },
    {
     "ad": "can",
     "tasarim": 99,
-    "cilgin": null
+    "frenzied": null
    }
   ],
   "havuz": {
@@ -7580,17 +7580,17 @@
     "https://board-de.darkorbit.com/threads/faq-astralaufstieg-astral-ascension-rankings-event.120936/"
    ]
   },
-  "olcek": {
-   "rift_can": 0.12,
-   "rift_hasar": 0.08,
-   "cilgin_can": 1.3,
-   "cilgin_hasar": 1.2,
-   "patron_can": {
+  "scale": {
+   "rift_hp": 0.12,
+   "rift_damage": 0.08,
+   "frenzied_hp": 1.3,
+   "frenzied_damage": 1.2,
+   "boss_hp": {
     "5": 6.0,
     "10": 12.0,
     "15": 30.0
    },
-   "patron_hasar": {
+   "boss_damage": {
     "5": 2.5,
     "10": 4.0,
     "15": 5.0
@@ -7600,12 +7600,12 @@
   "_uyarlama": "rift dalgaları kaynaktaki iki örnek koşudan (kapı türü normal/çılgın), güçlenme oranları, patron çarpanları, ödül havuzları ve seviyeleri (kaynak yalnız \"oyunda görülür\" diyor), Salvage Core ve anahtar olasılıkları"
  },
  "echoes": {
-  "seviye_sarti": 15,
+  "level_requirement": 15,
   "bilet": "resource_key_access-dse",
-  "bilet_fiyati": 8000,
+  "ticket_price": 8000,
   "giris": "X-1",
   "portal": 300,
-  "salon": 473,
+  "hall": 473,
   "haritalar": [
    474,
    475,
@@ -7620,7 +7620,7 @@
    {
     "seviye": 1,
     "tur": "yok_et",
-    "dalgalar": [
+    "waves": [
      {
       "ad": "1",
       "gruplar": [
@@ -7650,7 +7650,7 @@
    {
     "seviye": 2,
     "tur": "koru",
-    "dalgalar": [
+    "waves": [
      {
       "ad": "2",
       "gruplar": [
@@ -7726,7 +7726,7 @@
    {
     "seviye": 3,
     "tur": "yok_et",
-    "dalgalar": [
+    "waves": [
      {
       "ad": "5",
       "gruplar": [
@@ -7761,7 +7761,7 @@
    {
     "seviye": 4,
     "tur": "eslik",
-    "dalgalar": [
+    "waves": [
      {
       "ad": "7",
       "gruplar": [
@@ -7851,7 +7851,7 @@
    {
     "seviye": 5,
     "tur": "patron",
-    "dalgalar": [
+    "waves": [
      {
       "ad": "14",
       "gruplar": [
@@ -7876,7 +7876,7 @@
    {
     "seviye": 6,
     "tur": "eslik",
-    "dalgalar": [
+    "waves": [
      {
       "ad": "1",
       "gruplar": [
@@ -7984,7 +7984,7 @@
    {
     "seviye": 7,
     "tur": "yok_et",
-    "dalgalar": [
+    "waves": [
      {
       "ad": "8",
       "gruplar": [
@@ -8044,7 +8044,7 @@
    {
     "seviye": 8,
     "tur": "koru",
-    "dalgalar": [
+    "waves": [
      {
       "ad": "9",
       "gruplar": [
@@ -8102,7 +8102,7 @@
    {
     "seviye": 9,
     "tur": "yok_et",
-    "dalgalar": [
+    "waves": [
      {
       "ad": "12",
       "gruplar": [
@@ -8154,7 +8154,7 @@
    {
     "seviye": 10,
     "tur": "patron",
-    "dalgalar": [
+    "waves": [
      {
       "ad": "15",
       "gruplar": [
@@ -8179,7 +8179,7 @@
    {
     "seviye": 11,
     "tur": "yok_et",
-    "dalgalar": [
+    "waves": [
      {
       "ad": "1",
       "gruplar": [
@@ -8238,7 +8238,7 @@
    {
     "seviye": 12,
     "tur": "eslik",
-    "dalgalar": [
+    "waves": [
      {
       "ad": "3",
       "gruplar": [
@@ -8351,7 +8351,7 @@
    {
     "seviye": 13,
     "tur": "yok_et",
-    "dalgalar": [
+    "waves": [
      {
       "ad": "11",
       "gruplar": [
@@ -8420,7 +8420,7 @@
    {
     "seviye": 14,
     "tur": "koru",
-    "dalgalar": [
+    "waves": [
      {
       "ad": "15",
       "gruplar": [
@@ -8507,7 +8507,7 @@
    {
     "seviye": 15,
     "tur": "patron",
-    "dalgalar": [
+    "waves": [
      {
       "ad": "19",
       "gruplar": [
@@ -8532,7 +8532,7 @@
    {
     "seviye": 16,
     "tur": "yok_et",
-    "dalgalar": [
+    "waves": [
      {
       "ad": "1",
       "gruplar": [
@@ -8592,7 +8592,7 @@
    {
     "seviye": 17,
     "tur": "koru",
-    "dalgalar": [
+    "waves": [
      {
       "ad": "2",
       "gruplar": [
@@ -8680,7 +8680,7 @@
    {
     "seviye": 18,
     "tur": "yok_et",
-    "dalgalar": [
+    "waves": [
      {
       "ad": "5",
       "gruplar": [
@@ -8732,7 +8732,7 @@
    {
     "seviye": 19,
     "tur": "eslik",
-    "dalgalar": [
+    "waves": [
      {
       "ad": "8",
       "gruplar": [
@@ -8876,7 +8876,7 @@
    {
     "seviye": 20,
     "tur": "patron",
-    "dalgalar": [
+    "waves": [
      {
       "ad": "15",
       "gruplar": [
@@ -8901,7 +8901,7 @@
    {
     "seviye": 21,
     "tur": "eslik",
-    "dalgalar": [
+    "waves": [
      {
       "ad": "1",
       "gruplar": [
@@ -9056,7 +9056,7 @@
    {
     "seviye": 22,
     "tur": "yok_et",
-    "dalgalar": [
+    "waves": [
      {
       "ad": "9",
       "gruplar": [
@@ -9104,7 +9104,7 @@
    {
     "seviye": 23,
     "tur": "koru",
-    "dalgalar": [
+    "waves": [
      {
       "ad": "10",
       "gruplar": [
@@ -9192,7 +9192,7 @@
    {
     "seviye": 24,
     "tur": "yok_et",
-    "dalgalar": [
+    "waves": [
      {
       "ad": "13",
       "gruplar": [
@@ -9298,7 +9298,7 @@
    {
     "seviye": 25,
     "tur": "patron",
-    "dalgalar": [
+    "waves": [
      {
       "ad": "16",
       "gruplar": [
@@ -9323,7 +9323,7 @@
    {
     "seviye": 26,
     "tur": "eslik",
-    "dalgalar": [
+    "waves": [
      {
       "ad": "1",
       "gruplar": [
@@ -9444,7 +9444,7 @@
    {
     "seviye": 27,
     "tur": "yok_et",
-    "dalgalar": [
+    "waves": [
      {
       "ad": "7",
       "gruplar": [
@@ -9498,7 +9498,7 @@
    {
     "seviye": 28,
     "tur": "koru",
-    "dalgalar": [
+    "waves": [
      {
       "ad": "8",
       "gruplar": [
@@ -9586,7 +9586,7 @@
    {
     "seviye": 29,
     "tur": "yok_et",
-    "dalgalar": [
+    "waves": [
      {
       "ad": "11",
       "gruplar": [
@@ -9640,7 +9640,7 @@
    {
     "seviye": 30,
     "tur": "patron",
-    "dalgalar": [
+    "waves": [
      {
       "ad": "12",
       "gruplar": [
@@ -9665,7 +9665,7 @@
    {
     "seviye": 31,
     "tur": "eslik",
-    "dalgalar": [
+    "waves": [
      {
       "ad": "1",
       "gruplar": [
@@ -9809,7 +9809,7 @@
    {
     "seviye": 32,
     "tur": "yok_et",
-    "dalgalar": [
+    "waves": [
      {
       "ad": "8",
       "gruplar": [
@@ -9909,7 +9909,7 @@
    {
     "seviye": 33,
     "tur": "koru",
-    "dalgalar": [
+    "waves": [
      {
       "ad": "11",
       "gruplar": [
@@ -10003,7 +10003,7 @@
    {
     "seviye": 34,
     "tur": "yok_et",
-    "dalgalar": [
+    "waves": [
      {
       "ad": "14",
       "gruplar": [
@@ -10057,7 +10057,7 @@
    {
     "seviye": 35,
     "tur": "patron",
-    "dalgalar": [
+    "waves": [
      {
       "ad": "15",
       "gruplar": [
@@ -10082,7 +10082,7 @@
    {
     "seviye": 36,
     "tur": "eslik",
-    "dalgalar": [
+    "waves": [
      {
       "ad": "1",
       "gruplar": [
@@ -10220,7 +10220,7 @@
    {
     "seviye": 37,
     "tur": "yok_et",
-    "dalgalar": [
+    "waves": [
      {
       "ad": "8",
       "gruplar": [
@@ -10279,7 +10279,7 @@
    {
     "seviye": 38,
     "tur": "koru",
-    "dalgalar": [
+    "waves": [
      {
       "ad": "10",
       "gruplar": [
@@ -10343,7 +10343,7 @@
    {
     "seviye": 39,
     "tur": "yok_et",
-    "dalgalar": [
+    "waves": [
      {
       "ad": "13",
       "gruplar": [
@@ -10415,7 +10415,7 @@
    {
     "seviye": 40,
     "tur": "patron",
-    "dalgalar": [
+    "waves": [
      {
       "ad": "boss",
       "gruplar": [
@@ -10440,7 +10440,7 @@
    {
     "seviye": 41,
     "tur": "eslik",
-    "dalgalar": [
+    "waves": [
      {
       "ad": "1",
       "gruplar": [
@@ -10580,13 +10580,13 @@
      ]
     ],
     "sure_sn": null,
-    "guc": 1.5,
+    "power": 1.5,
     "_uyarlama": "kaynakta yok: 31. seviyenin dalgaları"
    },
    {
     "seviye": 42,
     "tur": "yok_et",
-    "dalgalar": [
+    "waves": [
      {
       "ad": "8",
       "gruplar": [
@@ -10682,13 +10682,13 @@
      ]
     ],
     "sure_sn": 300,
-    "guc": 1.5,
+    "power": 1.5,
     "_uyarlama": "kaynakta yok: 32. seviyenin dalgaları"
    },
    {
     "seviye": 43,
     "tur": "koru",
-    "dalgalar": [
+    "waves": [
      {
       "ad": "11",
       "gruplar": [
@@ -10778,13 +10778,13 @@
      ]
     ],
     "sure_sn": null,
-    "guc": 1.5,
+    "power": 1.5,
     "_uyarlama": "kaynakta yok: 33. seviyenin dalgaları"
    },
    {
     "seviye": 44,
     "tur": "yok_et",
-    "dalgalar": [
+    "waves": [
      {
       "ad": "14",
       "gruplar": [
@@ -10834,7 +10834,7 @@
      ]
     ],
     "sure_sn": null,
-    "guc": 1.5,
+    "power": 1.5,
     "_uyarlama": "kaynakta yok: 34. seviyenin dalgaları"
    },
    {
@@ -10842,7 +10842,7 @@
     "tur": "patron",
     "can": 9.375,
     "_can": "Oyuncu bildirimi 2026-10-28 (Emperor Sibelon zayıf): tek Emperor'un canı/kalkanı 6,4 M ile 40. ve 50. seviyelerin Gygerim Overlord'unun (60 M) onda biriydi, önceki seviyelerin dalgalarından da zayıftı. Can ve kalkan Overlord'unkine (60 M) çıkar, hasar aynı kalır",
-    "dalgalar": [
+    "waves": [
      {
       "ad": "boss",
       "gruplar": [
@@ -10867,7 +10867,7 @@
    {
     "seviye": 46,
     "tur": "eslik",
-    "dalgalar": [
+    "waves": [
      {
       "ad": "1",
       "gruplar": [
@@ -11001,13 +11001,13 @@
      ]
     ],
     "sure_sn": null,
-    "guc": 1.5,
+    "power": 1.5,
     "_uyarlama": "kaynakta yok: 36. seviyenin dalgaları"
    },
    {
     "seviye": 47,
     "tur": "yok_et",
-    "dalgalar": [
+    "waves": [
      {
       "ad": "8",
       "gruplar": [
@@ -11062,13 +11062,13 @@
      ]
     ],
     "sure_sn": null,
-    "guc": 1.5,
+    "power": 1.5,
     "_uyarlama": "kaynakta yok: 37. seviyenin dalgaları"
    },
    {
     "seviye": 48,
     "tur": "koru",
-    "dalgalar": [
+    "waves": [
      {
       "ad": "10",
       "gruplar": [
@@ -11128,13 +11128,13 @@
      ]
     ],
     "sure_sn": null,
-    "guc": 1.5,
+    "power": 1.5,
     "_uyarlama": "kaynakta yok: 38. seviyenin dalgaları"
    },
    {
     "seviye": 49,
     "tur": "yok_et",
-    "dalgalar": [
+    "waves": [
      {
       "ad": "13",
       "gruplar": [
@@ -11202,13 +11202,13 @@
      ]
     ],
     "sure_sn": null,
-    "guc": 1.5,
+    "power": 1.5,
     "_uyarlama": "kaynakta yok: 39. seviyenin dalgaları"
    },
    {
     "seviye": 50,
     "tur": "patron",
-    "dalgalar": [
+    "waves": [
      {
       "ad": "boss",
       "gruplar": [
@@ -11233,12 +11233,12 @@
   ],
   "kadro": 5,
   "sure_sn": 600,
-  "olcek_seviye": 0.06,
+  "scale_level": 0.06,
   "tekrar": {
-   "uridyum_taban": 40,
-   "uridyum_seviye": 8,
-   "ucb_taban": 10,
-   "ucb_seviye": 2
+   "uridium_base": 40,
+   "uridium_level": 8,
+   "ucb_base": 10,
+   "ucb_level": 2
   },
   "atlama": {
    "hedefler": [
@@ -11253,7 +11253,7 @@
     41,
     46
    ],
-   "bedel_blok": 2000
+   "cost_block": 2000
   },
   "dost": {
    "koru": "277",
@@ -11261,7 +11261,7 @@
    "can": 400000,
    "kalkan": 200000
   },
-  "siralama": [
+  "ranking": [
    {
     "den": 6,
     "e": 10,
@@ -11486,7 +11486,7 @@
     "unvan": "title_expedition_202505_02"
    }
   ],
-  "kosullar": {
+  "conditions": {
    "yok_et": [
     "window_dse_vic_con1",
     "window_dse_fail_con1"
@@ -11507,8 +11507,8 @@
   ],
   "portal": 14,
   "tur": 51,
-  "carpan_tur": 1.8,
-  "uridyum_siniri": 75000,
+  "kind_multiplier": 1.8,
+  "uridium_limit": 75000,
   "kontrol": {
    "10": 1,
    "20": 1,
@@ -11517,7 +11517,7 @@
    "50": 1,
    "51": 2
   },
-  "dalgalar": [
+  "waves": [
    {
     "ad": "1",
     "oda": 1,
@@ -12264,7 +12264,7 @@
    {
     "tur": 1,
     "anahtar": "npc",
-    "degerler": [
+    "values": [
      4,
      8,
      12
@@ -12273,7 +12273,7 @@
    {
     "tur": 2,
     "anahtar": "lazer",
-    "degerler": [
+    "values": [
      5,
      10,
      15
@@ -12282,7 +12282,7 @@
    {
     "tur": 3,
     "anahtar": "roket",
-    "degerler": [
+    "values": [
      5,
      10,
      15
@@ -12291,7 +12291,7 @@
    {
     "tur": 4,
     "anahtar": "lazer_isabet",
-    "degerler": [
+    "values": [
      3,
      6,
      9
@@ -12300,7 +12300,7 @@
    {
     "tur": 6,
     "anahtar": "kalkan",
-    "degerler": [
+    "values": [
      5,
      10,
      15
@@ -12309,7 +12309,7 @@
    {
     "tur": 5,
     "anahtar": "can",
-    "degerler": [
+    "values": [
      5,
      10,
      15
@@ -12318,25 +12318,25 @@
    {
     "tur": 7,
     "anahtar": "hiz",
-    "degerler": [
+    "values": [
      5
     ]
    },
    {
     "tur": 0,
     "anahtar": "bekleme",
-    "degerler": [
+    "values": [
      5
     ]
    }
   ],
-  "booster_kademe": [
+  "booster_tier": [
    60,
    30,
    10
   ],
-  "booster_azalma": 0.7,
-  "olum_odulu": [
+  "booster_decay": 0.7,
+  "death_reward": [
    {
     "en_az": 1,
     "en_cok": 10,
@@ -12402,7 +12402,7 @@
   "_kaynak": "darkorbitwiki eternal-blacklight-gate, resmî forum SSS (EN/ES/RU), fandom: 51 dalga, 6 oda, tur başına x1,8, kontrol noktaları ve booster puanları, ölüm ödülü kademeleri, 75.000 uridyum sınırı",
   "_uyarlama": "zayıf/güçlü dalga sürümleri ödül oranıyla (can ve hasar da), Saturn Bastion değerleri, booster kademe olasılıkları (60/30/10), isabet booster değerleri, IAC olasılığı ve adedi; Strokelight Barrage hareket etmez, mayın bırakmaz"
  },
- "turler": {
+ "kinds": {
   "pm_whisper_1": {
    "ad": "-=[ Whisper ]=-",
    "model": "396",
@@ -12420,7 +12420,7 @@
    },
    "kargo": {},
    "davranis": {
-    "can_esiginde_ters": {
+    "reverse_at_hp_threshold": {
      "oran": 0.1,
      "sure_sn": 5,
      "bekleme_sn": 30
@@ -12444,7 +12444,7 @@
    },
    "kargo": {},
    "davranis": {
-    "dokunulmazsa_fuze": {
+    "fuse_if_untouched": {
      "sn": 5,
      "menzil": 500,
      "oran": 0.05
@@ -12468,7 +12468,7 @@
    },
    "kargo": {},
    "davranis": {
-    "can_esiginde_ters": {
+    "reverse_at_hp_threshold": {
      "oran": 0.1,
      "sure_sn": 5,
      "bekleme_sn": 30
@@ -12492,7 +12492,7 @@
    },
    "kargo": {},
    "davranis": {
-    "dokunulmazsa_fuze": {
+    "fuse_if_untouched": {
      "sn": 5,
      "menzil": 500,
      "oran": 0.05
@@ -12516,7 +12516,7 @@
    },
    "kargo": {},
    "davranis": {
-    "can_esiginde_ters": {
+    "reverse_at_hp_threshold": {
      "oran": 0.1,
      "sure_sn": 5,
      "bekleme_sn": 30
@@ -12540,7 +12540,7 @@
    },
    "kargo": {},
    "davranis": {
-    "dokunulmazsa_fuze": {
+    "fuse_if_untouched": {
      "sn": 5,
      "menzil": 500,
      "oran": 0.05
@@ -12564,7 +12564,7 @@
    },
    "kargo": {},
    "davranis": {
-    "can_esiginde_ters": {
+    "reverse_at_hp_threshold": {
      "oran": 0.1,
      "sure_sn": 5,
      "bekleme_sn": 30
@@ -12588,7 +12588,7 @@
    },
    "kargo": {},
    "davranis": {
-    "dokunulmazsa_fuze": {
+    "fuse_if_untouched": {
      "sn": 5,
      "menzil": 500,
      "oran": 0.05
@@ -12612,7 +12612,7 @@
    },
    "kargo": {},
    "davranis": {
-    "can_esiginde_ters": {
+    "reverse_at_hp_threshold": {
      "oran": 0.1,
      "sure_sn": 5,
      "bekleme_sn": 30
@@ -12637,7 +12637,7 @@
    },
    "kargo": {},
    "davranis": {
-    "dokunulmazsa_fuze": {
+    "fuse_if_untouched": {
      "sn": 5,
      "menzil": 500,
      "oran": 0.05
@@ -14380,7 +14380,7 @@
    },
    "kargo": {},
    "davranis": {
-    "vurulunca_cagir": {
+    "summon_on_hit": {
      "tur": "pm_ebl_abide",
      "adet": 2,
      "en_cok": 4,

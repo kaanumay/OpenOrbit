@@ -26,13 +26,13 @@ from galaxy_gates import screen
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 _PATH = os.path.join(HERE, 'data', 'extra_events.json')
-D = (json.load(open(_PATH, encoding='utf8')) if os.path.exists(_PATH) else {}).get('hitac_piyango', {})
+D = (json.load(open(_PATH, encoding='utf8')) if os.path.exists(_PATH) else {}).get('hitac_lottery', {})
 EVENT = 'hitac'
-WORD = D.get('kelime', 'HITAC')
+WORD = D.get('word', 'HITAC')
 LETTER = 'resource_wordpuzzle-letter'      # kutudaki harf (mağazanın ödül yolu: rastgele eksik harf)
 CAPSULE = 'resource_lottery-capsule'
 MINION = D.get('minion', 'etk_hitac_minion')
-MOTHERSHIP = D.get('ana_gemi', 'etk_hitac_mothership')
+MOTHERSHIP = D.get('mothership', 'etk_hitac_mothership')
 MINIONS, MOTHERSHIPS = {MINION, 'etk_hitac2_minion'}, {MOTHERSHIP, 'etk_hitac2_mothership'}      # E8: Hitac 2.0 da
 HISTORY_MAX = 20
 
@@ -49,7 +49,7 @@ class HitacLottery:
 
     @property
     def st(self):
-        d = self.p.d.setdefault('hitac_piyango', {})
+        d = self.p.d.setdefault('hitac_lottery', {})
         d.setdefault('harfler', [])
         d.setdefault('gecmis', [])
         return d
@@ -109,10 +109,10 @@ class HitacLottery:
         h = w.drop_box(kind, x, y, None, life)
         spec = {'tur': kind, 'mod': 'biri' if pool else 'hepsi', 'kesin': rows}
         if pool:
-            spec['icerik'] = pool
+            spec['contents'] = pool
         elif chance:
-            spec['icerik'] = [[l, n, SET.chance('dusme', c, 'etkinlik') * 100] for l, n, c in chance]
-        w.boxes[h]['etk'] = spec
+            spec['contents'] = [[l, n, SET.chance('dusme', c, 'etkinlik') * 100] for l, n, c in chance]
+        w.boxes[h]['event'] = spec
 
     def on_kill(self, w, npc, x, y):
         """Hitac uzaylısı öldü (dünya kilidi altında): Minion'ın kutusu (MCB-50, %50 harf), Underling (%0,5) ve Underboss'un (%18)
@@ -120,14 +120,14 @@ class HitacLottery:
         if not active():
             return []
         if npc.tip in MINIONS:
-            b = D.get('minion_kutusu', {'tur': 'HITAC_MINION', 'icerik': [['ammunition_laser_mcb-50', 300]], 'harf': 0.5})
-            rows = [[l, a] for l, a in b['icerik']] + ([[LETTER, 1]] if random.random() < SET.chance('dusme', b.get('harf', 0.5), 'etkinlik') else [])
+            b = D.get('minion_box', {'tur': 'HITAC_MINION', 'contents': [['ammunition_laser_mcb-50', 300]], 'harf': 0.5})
+            rows = [[l, a] for l, a in b['contents']] + ([[LETTER, 1]] if random.random() < SET.chance('dusme', b.get('harf', 0.5), 'etkinlik') else [])
             self.drop(w, b['tur'], x, y, rows, b.get('omur_sn', 300))
         elif npc.tip in MOTHERSHIPS:
-            b = D.get('ana_gemi_kutusu', {'tur': 'HITAC', 'kapsul': 1})
+            b = D.get('mothership_box', {'tur': 'HITAC', 'kapsul': 1})
             self.drop(w, b['tur'], x, y, [[CAPSULE, b['kapsul']]] + b.get('kesin', []), chance=b.get('sans'))      # + 50 ACM-1, 1.000 PLT-3030, şanslı teknoloji
         else:
-            for prefix, (kind, chance, *pool) in (D.get('harf_ek') or {}).items():
+            for prefix, (kind, chance, *pool) in (D.get('letter_extra') or {}).items():
                 if not npc.tip.startswith(prefix):
                     continue
                 rows = [[LETTER, 1]] if random.random() < SET.chance('dusme', chance, 'etkinlik') else []      # panel: düşme şansı
@@ -140,12 +140,12 @@ class HitacLottery:
         """Hitac bitti (extra_events.json 'bitis_cekilisi'; wiki: kullanılan kapsüller etkinlik sonunda çekilişe girer): Capsule Converter'da
         harcanan her kapsül bir hak, her hak 'paket' kadar havuz ödülü (sahip olunmayanlar; tek oyunculuda çekilişin tek katılımcısı).
         Etkinlik sürerken yazılan sayaç (profilde 'harcanan'); bitişten sonra ilk adımda (oturum kapalıyken bittiyse girişte) ödenir."""
-        c = D.get('bitis_cekilisi')
-        n = self.p.d.get('hitac_piyango', {}).get('harcanan', 0)       # her adımda çağrılır: profile boş kayıt açma
+        c = D.get('end_draw')
+        n = self.p.d.get('hitac_lottery', {}).get('spent', 0)       # her adımda çağrılır: profile boş kayıt açma
         if not n or active():
             return []
         with self.p.lock:
-            self.st['harcanan'] = 0
+            self.st['spent'] = 0
             self.p.dirty = True
         msgs, got = [], []
         for _ in range(n):
@@ -161,7 +161,7 @@ class HitacLottery:
 
     # ------------------------------------------------------------ piyango
     def roll(self):
-        rows = D.get('donusturucu') or [['currency_uridium', 100, 1]]
+        rows = D.get('converter') or [['currency_uridium', 100, 1]]
         loot, amount, _ = random.choices(rows, [r[2] for r in rows])[0]
         return loot, (random.randint(*amount) if isinstance(amount, list) else amount)
 
@@ -181,7 +181,7 @@ class HitacLottery:
             return info + ([screen('key:payment_lottery_text_dialog_nocapsules')] if want else [])
         self.p.add_resource(CAPSULE, -q)
         with self.p.lock:
-            self.st['harcanan'] = self.st.get('harcanan', 0) + q          # etkinlik sonu çekilişinin hakları
+            self.st['spent'] = self.st.get('spent', 0) + q          # etkinlik sonu çekilişinin hakları
         got = {}
         for _ in range(q):
             loot, n = self.roll()

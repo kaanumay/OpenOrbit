@@ -119,13 +119,13 @@ function saveScene(k) {
           epBar(k.ep, k.level_base, k.next_level))),
       h('div', { class: 'se-currencies' }, currency('kredi', k.kredi, T('Kredi')), currency('uridyum', k.uridyum, T('Uridyum')), currency('onur', k.onur, T('Onur'))),
       h('div', { class: 'se-metas' }, meta('map', T('Harita'), k.harita), meta('ship', T('Gemi'), T('{0} gemi', k.ship_count)),
-        meta('drone', T('Dronlar'), k.drone_count), meta('paw', 'P.E.T.', k.pet || '—'), meta('clock', T('Oynama'), fmtDur(k.oynama_sn)),
-        meta('calendar', T('Son oynama'), fmtWhen(k.son_oynama || k.last_save))),
+        meta('drone', T('Dronlar'), k.drone_count), meta('paw', 'P.E.T.', k.pet || '—'), meta('clock', T('Oynama'), fmtDur(k.play_sec)),
+        meta('calendar', T('Son oynama'), fmtWhen(k.last_played || k.last_save))),
       k.not_ ? h('div', { class: 'note' }, k.not_) : null,
       h('div', { class: 'row wrap se-action' },
         btn(T('Oyna'), () => { go('oyna'); act(() => api('/api/oyna', {})); }, 'orange', 'play', { disabled: k.in_use }),
         btn(T('Karakter editörü'), () => seOpen(k), 'primary', 'edit'),
-        btn(T('Yedekler ({0})', k.yedek_sayisi), () => backupsModal(k.id), '', 'clock'),
+        btn(T('Yedekler ({0})', k.backup_count), () => backupsModal(k.id), '', 'clock'),
         h('span', { class: 'spacer' }),
         btn('', ev => saveMenu(k, ev), 'ghost icon', 'more', { title: T('Diğer') }))));
 }
@@ -144,7 +144,7 @@ function saveCard(k) {
     h('div', { class: 'row wrap', style: { gap: '6px' } }, ...statusBadges(k)),
     h('div', { class: 'se-card-currencies' },
       h('span', null, art('kaynak_kredi', 'se-currency-icon sm'), fmtShort(k.kredi)), h('span', null, art('kaynak_uridyum', 'se-currency-icon sm'), fmtShort(k.uridyum)),
-      h('span', null, icon('ship'), k.ship_appearance ? itemName(k.ship_appearance) : k.gemi), h('span', null, icon('clock'), fmtWhen(k.son_oynama || k.last_save))),
+      h('span', null, icon('ship'), k.ship_appearance ? itemName(k.ship_appearance) : k.gemi), h('span', null, icon('clock'), fmtWhen(k.last_played || k.last_save))),
     k.not_ ? h('div', { class: 'note' }, k.not_) : null,
     h('div', { class: 'row wrap', style: { gap: '6px', marginTop: 'auto' } },
       btn(T('Etkin yap'), () => act(() => api('/api/kayitlar/aktif', { id: k.id }), T('Etkin kayıt: {0}', k.ad)).then(() => { renderSaves(); poll(); }), 'primary sm', 'check'),
@@ -295,7 +295,7 @@ function seIdentity(v) {
       h('div', { class: 'grow' }, h('div', { class: 'row between small muted' }, h('span', null, itemName(g.lootId)), h('span', { class: 'mono' }, fmtShort(p.ep) + ' EP')),
         epBar(p.ep, p.level_base, p.next_level))),
     h('div', { class: 'se-wallet' }, sell('kredi', p.kredi, T('Kredi')), sell('uridyum', p.uridyum, T('Uridyum')), sell('onur', p.onur, T('Onur'))),
-    h('div', { class: 'se-values' }, value('hitpoints_100x100', 'heart', d.can, d.max_hp), value('shield_100x100', 'shield', d.kalkan, d.kalkan_azami),
+    h('div', { class: 'se-values' }, value('hitpoints_100x100', 'heart', d.can, d.max_hp), value('shield_100x100', 'shield', d.kalkan, d.shield_max),
       value('speed_100x100', 'gauge', g.deger.hiz), value('damage_laser_100x100', 'zap', g.deger.hasar)));
 }
 
@@ -332,7 +332,7 @@ function stepBox(n, maximum, update, { min = 0 } = {}) {
 function seShip(v) {
   let g = v.gemiler.find(x => x.id === SE.gemi);
   if (!g) { g = v.gemiler.find(x => x.aktif) || v.gemiler[0]; SE.gemi = g.id; }
-  if (!g.konfigler[SE.konfig]) SE.konfig = g.aktif_konfig;
+  if (!g.konfigler[SE.konfig]) SE.konfig = g.active_config;
   return g;
 }
 // gemi ve config seçimi (Dronlar ve P.E.T. donanımı da geminin config'inde durur)
@@ -341,7 +341,7 @@ function shipPicker(v, g) {
     h('select', { class: 'input', onchange: e => { SE.gemi = e.target.value; SE.konfig = null; seRender(); } },
       v.gemiler.map(x => h('option', { value: x.id, selected: x.id === g.id }, itemName(x.lootId) + (x.aktif ? ' · ' + T('etkin') : '')))),
     h('div', { class: 'seg' }, Object.keys(g.konfigler).map(c => h('button', { class: c === SE.konfig ? 'on info' : '', onclick: () => { SE.konfig = c; seRender(); } },
-      T('Config {0}', c), c === g.aktif_konfig ? ' •' : ''))));
+      T('Config {0}', c), c === g.active_config ? ' •' : ''))));
 }
 const moveOp = (id, direction, tgt) => ({ islem: 'tasi', direction, hedef: tgt.hedef, gemi: SE.gemi, konfig: +SE.konfig, dron: tgt.dron || 0, kume: tgt.kume || '', esya: id });
 const equipTarget = tgt => ({ hedef: tgt.hedef, gemi: SE.gemi, konfig: +SE.konfig, dron: tgt.dron || 0, kume: tgt.kume || '' });
@@ -361,9 +361,9 @@ function seCell(e, tgt) {
 const seEmptyCell = (tgt, iconEl = 'plus', title = T('Boş yuva: tak')) => h('button', { class: 'se-cell bos', type: 'button', title: title, disabled: SE.v.read_only,
   onclick: () => sePickEquip(tgt) }, icon(iconEl));
 function seSlotBox(name, c, tgt, extra) {
-  return h('div', { class: 'se-slot' + (c.esyalar.length >= c.kapasite && c.kapasite ? ' dolu' : '') },
-    h('div', { class: 'se-slot-head' }, h('b', null, name), h('span', { class: 'row', style: { gap: '6px' } }, extra, h('span', { class: 'mono' }, c.esyalar.length + ' / ' + c.kapasite))),
-    h('div', { class: 'se-cells' }, c.esyalar.map(e => seCell(e, tgt)), Array.from({ length: Math.max(0, c.kapasite - c.esyalar.length) }, () => seEmptyCell(tgt))));
+  return h('div', { class: 'se-slot' + (c.esyalar.length >= c.capacity && c.capacity ? ' dolu' : '') },
+    h('div', { class: 'se-slot-head' }, h('b', null, name), h('span', { class: 'row', style: { gap: '6px' } }, extra, h('span', { class: 'mono' }, c.esyalar.length + ' / ' + c.capacity))),
+    h('div', { class: 'se-cells' }, c.esyalar.map(e => seCell(e, tgt)), Array.from({ length: Math.max(0, c.capacity - c.esyalar.length) }, () => seEmptyCell(tgt))));
 }
 function seItemMenu(anchor, e, tgt) {
   popMenu(anchor, [
@@ -378,7 +378,7 @@ function seItemMenu(anchor, e, tgt) {
 // (kararsız modül: nitelikler kesir, gemiler, yeniden çekme hakkı; parçacık silahı: nitelikler yüzde, hak, topun yıldızı; QFC: bağlı
 // gemi, seviye, nitelikler yüzde). Oyunun aralığı ipucu olarak yazılır; değer serbest. Hepsi tek işlem listesiyle taslağa.
 function seEdit(e) {
-  const v = SE.v, pool = v.havuzlar[e.lootId], r = e.rng || {}, right = v.haklar[e.lootId], fraction = pool?.birim === 'kesir';
+  const v = SE.v, pool = v.pools[e.lootId], r = e.rng || {}, right = v.haklar[e.lootId], fraction = pool?.unit === 'kesir';
   const st = { yukseltme: e.yukseltme || 0, seviye: e.seviye, cpu: right ? right[0] : null, attribute: (r.nitelik || []).map(([a, x]) => [a, fraction ? x * 100 : x]),
     gemiler: [...(r.gemiler || [])], gemi: r.gemi || v.gemiler.find(g => g.aktif)?.lootId, qlevel: r.seviye || 1, hak: r.hak ?? pool?.hak, yildiz: r.yildiz || 0 };
   const sections = [], sortedShips = () => [...v.all_ships].sort((a, b) => itemName(a).localeCompare(itemName(b)));
@@ -405,20 +405,20 @@ function seEdit(e) {
       h('label', { class: 'se-percent' }, h('input', { class: 'input num', type: 'number', min: 0, step: 0.1, value: Math.round(n[1] * 100) / 100,
         oninput: x => { n[1] = Math.max(0, +x.target.value || 0); } }), '%'),
       btn('', () => { st.nitelik.splice(i, 1); renderAttributes(); }, 'ghost sm icon', 'x', { title: T('Kaldır') }))),
-    st.nitelik.length < pool.azami_nitelik ? btn(T('Nitelik ekle'), () => {
+    st.nitelik.length < pool.max_attributes ? btn(T('Nitelik ekle'), () => {
       const a = pool.nitelik.find(x => !st.nitelik.some(m => m[0] === x)); if (a) { st.nitelik.push([a, pool.aralik[0]]); renderAttributes(); }
     }, 'sm ghost', 'plus') : null].filter(Boolean));
     renderAttributes();
-    sections.push(h('div', { class: 'se-edit' }, title(T('Nitelikler'), T('Oyunda {0}–{1}%, en çok {2} nitelik', fmtN(pool.aralik[0]), fmtN(pool.aralik[1]), pool.azami_nitelik)),
+    sections.push(h('div', { class: 'se-edit' }, title(T('Nitelikler'), T('Oyunda {0}–{1}%, en çok {2} nitelik', fmtN(pool.aralik[0]), fmtN(pool.aralik[1]), pool.max_attributes)),
       !e.rng?.nitelik ? h('div', { class: 'small muted' }, T('Nitelikler henüz çekilmedi: Uygula oyundaki gibi çeker, sonra senin değerlerin yazılır.')) : null, lines));
-    if (pool.tercih) {
+    if (pool.preference) {
       const chips = h('div', { class: 'se-ship-chips' });
       const add = h('select', { class: 'input', onchange: x => { if (x.target.value && !st.gemiler.includes(x.target.value)) st.gemiler.push(x.target.value); renderShip(); } });
       const renderShip = () => {
         chips.replaceChildren(...st.gemiler.map((g, i) => h('span', { class: 'chip' }, gameIcon(g, 22, companyLower(v.pilot.firma), 'ship'), itemName(g),
           h('button', { class: 'btn ghost sm icon', type: 'button', onclick: () => { st.gemiler.splice(i, 1); renderShip(); } }, icon('x')))));
         add.replaceChildren(h('option', { value: '' }, T('Gemi ekle…')), ...sortedShips().filter(g => !st.gemiler.includes(g))
-          .map(g => h('option', { value: g }, (pool.tercih.includes(g) ? '★ ' : '') + itemName(g))));
+          .map(g => h('option', { value: g }, (pool.preference.includes(g) ? '★ ' : '') + itemName(g))));
       };
       renderShip();
       sections.push(h('div', { class: 'se-edit' }, title(T('Geçtiği gemiler'), T('★ oyunda daha sık çıkanlar')), chips, add));
@@ -455,7 +455,7 @@ function seEdit(e) {
         if (!st.nitelik.length && e.rng?.nitelik) return toast(T('En az bir nitelik gerekli.'), 'err');
         const o = { islem: 'rng', esya: e.id };
         if (st.nitelik.length) o.nitelik = st.nitelik.map(([a, x]) => [a, fraction ? x / 100 : x]);
-        if (pool.tercih) { if (!st.gemiler.length) return toast(T('En az bir gemi seç.'), 'err'); o.gemiler = st.gemiler; }
+        if (pool.preference) { if (!st.gemiler.length) return toast(T('En az bir gemi seç.'), 'err'); o.gemiler = st.gemiler; }
         if (pool.azami_seviye) { o.gemi = st.gemi; o.seviye = st.qlevel; }
         if (pool.hak) o.hak = st.hak;
         if (pool.yildiz) o.yildiz = st.yildiz;
@@ -501,14 +501,14 @@ async function seCatalog(o = {}) {
     : o.tak.hedef === 'pet' ? (o.tak.yuva === 'heat' ? py === 'lasers' || py === 'generators' : py === o.tak.yuva) : dr && (o.tak.yuva === 'tasarim') === (gy === null && !py));
   if (o.on) entries = entries.filter(([l]) => l.startsWith(o.on));
   const tally = {}; for (const [, k] of entries) tally[k] = (tally[k] || 0) + 1;
-  const categories = ['hepsi', ...SE.katalog.kategoriler.filter(k => tally[k])];
-  const st = { kat: o.kat && tally[o.kat] ? o.kat : categories.length === 2 ? categories[1] : 'hepsi', search: '', sec: null };
+  const categories = ['hepsi', ...SE.katalog.categories.filter(k => tally[k])];
+  const st = { multiplier: o.multiplier && tally[o.multiplier] ? o.multiplier : categories.length === 2 ? categories[1] : 'hepsi', search: '', sec: null };
   const grid = h('div', { class: 'se-cat-grid' }), left = h('div', { class: 'se-cat-list' }), sub = h('div', { class: 'se-cat-bottom' });
   const search = h('input', { class: 'input', placeholder: T('Ara: ad ya da lootId…'), oninput: e => { st.ara = e.target.value.trim().toLowerCase(); render(); } });
   const render = () => {
-    left.replaceChildren(...categories.map(k => h('button', { class: k === st.kat ? 'on' : '', type: 'button', onclick: () => { st.kat = k; render(); } },
+    left.replaceChildren(...categories.map(k => h('button', { class: k === st.multiplier ? 'on' : '', type: 'button', onclick: () => { st.multiplier = k; render(); } },
       icon(SE_CATEGORY_ICON[k] || 'box'), h('span', null, T(SE_CATEGORY[k] || k)), h('small', null, fmtN(k === 'hepsi' ? entries.length : tally[k])))));
-    const its = entries.filter(([l, k]) => (st.kat === 'hepsi' || k === st.kat) && (!st.ara || l.includes(st.ara) || itemName(l).toLowerCase().includes(st.ara)));
+    const its = entries.filter(([l, k]) => (st.multiplier === 'hepsi' || k === st.multiplier) && (!st.ara || l.includes(st.ara) || itemName(l).toLowerCase().includes(st.ara)));
     const visible = its.slice(0, 300);
     // seçim yalnız sınıfı değiştirir (ızgara yeniden çizilirse kaydırma başa dönerdi)
     const sec = (l, el) => { st.sec = l; grid.querySelectorAll('.se-cat-item.on').forEach(x => x.classList.remove('on')); el.classList.add('on'); renderSub(); };
@@ -573,7 +573,7 @@ function sePilot(v) {
     seCard(T('Cüzdan'), 'star', h('div', { class: 'grid g2' }, currency('kredi', T('Kredi'), p.kredi, [1e6, 1e7, 1e8]), currency('uridyum', T('Uridyum'), p.uridyum, [1e4, 1e5, 1e6]))),
     seCard(T('Hesap'), 'info', h('div', { class: 'kv' },
       h('div', null, T('Klan'), h('b', null, p.klan ? '[' + p.klan + ']' : '—')), h('div', null, T('Rütbe'), h('b', null, p.rutbe ?? '—')),
-      h('div', null, T('Oynama'), h('b', null, fmtDur(p.oynama_sn))), h('div', null, T('Oluşturma'), h('b', null, fmtWhen(p.olusturma))),
+      h('div', null, T('Oynama'), h('b', null, fmtDur(p.play_sec))), h('div', null, T('Oluşturma'), h('b', null, fmtWhen(p.created))),
       h('div', null, T('Uridyum bankası'), h('b', null, fmtN(p.banka))), h('div', null, T('Görevler'), h('b', null, T('{0} alınmış · {1} bitmiş', v.gorevler.aktif, v.gorevler.tamam))))));
 }
 
@@ -582,16 +582,16 @@ function seHangar(v) {
   const strip = h('div', { class: 'se-ships' }, v.gemiler.map(x => h('button', { class: 'se-ship' + (x.id === g.id ? ' on' : ''), type: 'button', title: itemName(x.lootId),
     onclick: () => { SE.gemi = x.id; SE.konfig = null; seRender(); } }, shipImage(x.gorunum, 62, f), h('span', { class: 'se-ship-name' }, itemName(x.lootId)),
   x.aktif ? h('span', { class: 'se-active' }, T('Etkin')) : null, x.favori ? h('span', { class: 'se-star' }, icon('star')) : null)),
-  ro ? null : h('button', { class: 'se-ship ekle', type: 'button', onclick: () => seCatalog({ kat: 'gemi', baslik: T('Gemiler') }) },
+  ro ? null : h('button', { class: 'se-ship ekle', type: 'button', onclick: () => seCatalog({ multiplier: 'gemi', baslik: T('Gemiler') }) },
     h('span', { class: 'se-add-icon' }, icon('plus')), h('span', { class: 'se-ship-name' }, T('Gemi ekle'))));
   const value = (sp, iconEl, name, n) => h('div', { class: 'se-gauge' }, spr(sp, 26, iconEl), h('span', null, name), h('b', null, n == null ? '—' : fmtN(n)));
   const base = g.lootId.replace(/^ship_/, '');
-  const designs = h('div', { class: 'se-designs' }, g.tasarimlar.map(t => h('button', { class: 'se-design' + (t === g.gorunum ? ' on' : ''), type: 'button',
+  const designs = h('div', { class: 'se-designs' }, g.designs.map(t => h('button', { class: 'se-design' + (t === g.gorunum ? ' on' : ''), type: 'button',
     title: itemName(t), disabled: ro, onclick: () => t !== g.gorunum && seApply({ islem: 'tasarim', gemi: g.id, lootId: t }) }, shipImage(t, 46, f))),
-  ro ? null : h('button', { class: 'se-design ekle', type: 'button', title: T('Tasarım ekle'), onclick: () => seCatalog({ kat: 'tasarim', on: 'ship_' + base + '_design_', baslik: T('{0} tasarımları', itemName(g.lootId)) }) }, icon('plus')));
+  ro ? null : h('button', { class: 'se-design ekle', type: 'button', title: T('Tasarım ekle'), onclick: () => seCatalog({ multiplier: 'tasarim', on: 'ship_' + base + '_design_', baslik: T('{0} tasarımları', itemName(g.lootId)) }) }, icon('plus')));
   const tools = h('div', { class: 'row wrap', style: { gap: '6px' } },
     g.aktif ? null : btn(T('Etkin gemi yap'), () => seApply({ islem: 'etkin_gemi', gemi: g.id }), 'sm primary', 'check', { disabled: ro }),
-    SE.konfig !== g.aktif_konfig ? btn(T('Bu config\'i kullan'), () => seApply({ islem: 'konfig', gemi: g.id, konfig: +SE.konfig }), 'sm', 'check', { disabled: ro }) : null,
+    SE.konfig !== g.active_config ? btn(T('Bu config\'i kullan'), () => seApply({ islem: 'konfig', gemi: g.id, konfig: +SE.konfig }), 'sm', 'check', { disabled: ro }) : null,
     btn(g.favori ? T('Favoriden çıkar') : T('Favori yap'), () => seApply({ islem: 'favori', gemi: g.id, favori: !g.favori }), 'sm', 'star', { disabled: ro }),
     btn(T('Aktar…'), () => seTransfer(v, g), 'sm', 'copy', { disabled: ro, title: T('Bu geminin donanımını başka bir gemiye taşır.') }),
     btn(T('Temizle'), async () => await confirmBox(T('Config {0} boşaltılsın mı?', SE.konfig), T('Gemideki, dronlardaki ve P.E.T.\'teki eşyalar envantere iner.'), { ok: T('Temizle'), danger: true })
@@ -608,9 +608,9 @@ function seHangar(v) {
         g.tasarim ? h('div', { class: 'small muted' }, T('Görünüm: {0}', itemName(g.tasarim))) : null,
         h('div', { class: 'se-gauges' }, value('hitpoints_100x100', 'heart', T('Can'), g.deger.can), value('shield_100x100', 'shield', T('Kalkan'), g.deger.kalkan),
           value('speed_100x100', 'gauge', T('Hız'), g.deger.hiz), value('damage_laser_100x100', 'zap', T('Lazer hasarı'), g.deger.hasar), value(null, 'box', T('Kargo'), g.deger.kargo)),
-        g.tasarimlar.length > 1 || !ro ? h('div', null, h('div', { class: 'lbl', style: { marginBottom: '6px' } }, T('Görünüm')), designs) : null,
+        g.designs.length > 1 || !ro ? h('div', null, h('div', { class: 'lbl', style: { marginBottom: '6px' } }, T('Görünüm')), designs) : null,
         h('div', { class: 'seg' }, Object.keys(g.konfigler).map(c => h('button', { class: c === SE.konfig ? 'on info' : '', onclick: () => { SE.konfig = c; seRender(); } },
-          T('Config {0}', c), c === g.aktif_konfig ? ' •' : ''))),
+          T('Config {0}', c), c === g.active_config ? ' •' : ''))),
         tools)),
     h('div', { class: 'se-slots' }, g.yuvalar.map(y => seSlotBox(slotName(y), cfg[y], { hedef: 'ship', yuva: y }))));
 }
@@ -638,20 +638,20 @@ function seDrones(v) {
           btn('', async () => await confirmBox(T('{0} kaldırılsın mı?', itemName(d.lootId)), T('Dron kaldırılır; üstündeki eşyalar envantere iner.'), { ok: T('Kaldır'), danger: true })
             && seApply({ islem: 'dron_sil', dron: d.id }), 'ghost sm icon', 'trash', { disabled: ro, title: T('Kaldır') })),
         h('div', { class: 'se-drone-row' }, h('span', { class: 'lbl' }, T('Seviye')),
-          h('div', { class: 'se-pips' }, v.dron_seviyeleri.map((points, i) => h('button', { class: 'se-pip' + (i < d.seviye ? ' on' : ''), type: 'button', disabled: ro,
+          h('div', { class: 'se-pips' }, v.drone_levels.map((points, i) => h('button', { class: 'se-pip' + (i < d.seviye ? ' on' : ''), type: 'button', disabled: ro,
             title: T('Seviye {0} ({1} puan)', i + 1, fmtN(points)), onclick: () => i + 1 !== d.seviye && seApply({ islem: 'dron', dron: d.id, seviye: i + 1 }) }))),
           h('span', { class: 'small dim' }, T('{0} puan', fmtN(d.puan)))),
         h('div', { class: 'se-drone-row' }, h('span', { class: 'lbl' }, T('Yükseltme')),
           slider({ min: 0, max: d.max_upgrade, value: d.yukseltme, disabled: ro,
             oninput: e => { upgradeLabel.textContent = '+' + e.target.value; }, onchange: e => seApply({ islem: 'dron', dron: d.id, yukseltme: +e.target.value }) }), upgradeLabel),
-        h('div', { class: 'se-cells' }, c.esyalar.map(e => seCell(e, tgt)), Array.from({ length: Math.max(0, d.kapasite - c.esyalar.length) }, () => seEmptyCell(tgt)),
+        h('div', { class: 'se-cells' }, c.esyalar.map(e => seCell(e, tgt)), Array.from({ length: Math.max(0, d.capacity - c.esyalar.length) }, () => seEmptyCell(tgt)),
           h('span', { class: 'se-divider' }),
           c.tasarim ? seCell(c.tasarim, tgtDesign) : seEmptyCell(tgtDesign, 'wand', T('Tasarım yuvası')),
           c.gorunum ? seCell(c.gorunum, tgtDesign) : seEmptyCell(tgtDesign, 'wand', T('Görünüm yuvası')))));
   };
   return h('div', { class: 'stack' },
     h('div', { class: 'card se-card' }, h('div', { class: 'row wrap between', style: { gap: '12px' } }, shipPicker(v, g),
-      h('span', { class: 'pill' }, icon('drone'), T('Dronlar'), ' ', h('b', null, v.dronlar.filter(d => !d.tek).length + ' / ' + v.dron_azami))),
+      h('span', { class: 'pill' }, icon('drone'), T('Dronlar'), ' ', h('b', null, v.dronlar.filter(d => !d.tek).length + ' / ' + v.max_drones))),
     h('p', { class: 'desc', style: { margin: '10px 0 8px' } }, T('Donanım seçili geminin seçili config\'inde durur (oyundaki gibi her geminin iki config\'i).')),
     ro ? null : h('div', { class: 'se-drone-extras' }, new_)),
     v.dronlar.length ? h('div', { class: 'se-drones' }, v.dronlar.map(card)) : h('div', { class: 'card empty' }, icon('drone'), h('div', null, T('Dron yok.'))));
@@ -688,7 +688,7 @@ function sePet(v) {
       h('div', { class: 'se-pet-slots' }, Object.keys(p.max_slots).filter(y => y !== 'heat').map(y => h('div', { class: 'se-pet-slot' }, h('span', null, slotName(y)),
         stepBox(p.yuva[y] || 0, p.max_slots[y], n => op({ yuva: { [y]: n } })))))),
     h('div', { class: 'card se-card' }, h('div', { class: 'row wrap between', style: { gap: '12px' } }, h('h2', { style: { margin: 0 } }, icon('box'), T('Donanım')), shipPicker(v, g)),
-      h('div', { class: 'se-slots', style: { marginTop: '12px' } }, v.pet_slots.filter(y => pc[y] && (pc[y].kapasite || pc[y].esyalar.length))
+      h('div', { class: 'se-slots', style: { marginTop: '12px' } }, v.pet_slots.filter(y => pc[y] && (pc[y].capacity || pc[y].esyalar.length))
         .map(y => seSlotBox(slotName(y), pc[y], { hedef: 'pet', yuva: y, kume: y === 'heat' ? 'heat' : '' })))));
 }
 
@@ -722,9 +722,9 @@ function seAmmo(v) {
   const ro = v.read_only, groups = {};
   for (const c of v.cephane) if (!SE.ammoFilled || c[1]) (groups[c[2]] = groups[c[2]] || []).push(c);
   const box = ([l, n]) => h('div', { class: 'se-pocket' + (n ? '' : ' zero') }, itemIcon(l, 44), h('div', { class: 'grow', style: { minWidth: 0 } },
-    h('div', { class: 'se-pocket-name', title: l }, itemName(l)), numberBox(n, x => seApply({ islem: 'cephane', adetler: { [l]: x } }), { max: 1e12, cls: 'genis' })));
+    h('div', { class: 'se-pocket-name', title: l }, itemName(l)), numberBox(n, x => seApply({ islem: 'cephane', counts: { [l]: x } }), { max: 1e12, cls: 'genis' })));
   const bulkSet = async entries => { const s = await promptBox(T('Hepsine aynı adet'), T('Adet'), '100000'); if (s == null) return;
-    const n = Math.max(0, Math.round(+s) || 0); seApply({ islem: 'cephane', adetler: Object.fromEntries(entries.map(c => [c[0], n])) }); };
+    const n = Math.max(0, Math.round(+s) || 0); seApply({ islem: 'cephane', counts: Object.fromEntries(entries.map(c => [c[0], n])) }); };
   const full = h('input', { type: 'checkbox', checked: SE.ammoFilled, onchange: e => { SE.ammoFilled = e.target.checked; seRender(); } });
   return h('div', { class: 'stack' },
     h('div', { class: 'card se-card row wrap', style: { gap: '14px' } }, h('label', { class: 'row small' }, h('span', { class: 'switch' }, full, h('span')), T('Yalnız elde olanları göster')),
@@ -738,7 +738,7 @@ function seAmmo(v) {
 function seResources(v) {
   const ro = v.read_only, d = v.durum, q = SE.resourceSearch.toLowerCase();
   const ore = ([t, l, n]) => h('div', { class: 'se-pocket' + (n ? '' : ' zero') }, itemIcon(l, 44), h('div', { class: 'grow', style: { minWidth: 0 } },
-    h('div', { class: 'se-pocket-name' }, itemName(l)), numberBox(n, x => seApply({ islem: 'cevher', adetler: { [t]: x } }), { max: 1e9, cls: 'genis' })));
+    h('div', { class: 'se-pocket-name' }, itemName(l)), numberBox(n, x => seApply({ islem: 'cevher', counts: { [t]: x } }), { max: 1e9, cls: 'genis' })));
   const sources = v.kaynaklar.filter(([l]) => !q || l.includes(q) || itemName(l).toLowerCase().includes(q));
   return h('div', { class: 'stack' },
     seCard(null, null, h('div', { class: 'row between', style: { marginBottom: '12px' } }, h('h2', { style: { margin: 0 } }, icon('gem'), T('Cevherler')),
@@ -747,10 +747,10 @@ function seResources(v) {
     seCard(null, null, h('div', { class: 'row wrap between', style: { gap: '10px', marginBottom: '12px' } }, h('h2', { style: { margin: 0 } }, icon('gift'), T('Toplanabilirler ve öbür kaynaklar')),
       h('div', { class: 'row', style: { gap: '8px' } }, h('input', { class: 'input game-search', placeholder: T('Ara…'), value: SE.resourceSearch,
         oninput: e => seSearch(e, v => { SE.resourceSearch = v; }) }),
-      ro ? null : btn(T('Kaynak ekle'), () => seCatalog({ kat: 'kaynak', baslik: T('Kaynaklar') }), 'primary sm', 'plus'))),
+      ro ? null : btn(T('Kaynak ekle'), () => seCatalog({ multiplier: 'kaynak', baslik: T('Kaynaklar') }), 'primary sm', 'plus'))),
     sources.length ? h('div', { class: 'se-pockets' }, sources.map(([l, n]) => h('div', { class: 'se-pocket' }, itemIcon(l, 44), h('div', { class: 'grow', style: { minWidth: 0 } },
-      h('div', { class: 'se-pocket-name', title: l }, itemName(l)), h('div', { class: 'row', style: { gap: '4px' } }, numberBox(n, x => seApply({ islem: 'kaynak', adetler: { [l]: x } }), { max: 1e12, cls: 'genis' }),
-        ro ? null : btn('', () => seApply({ islem: 'kaynak', adetler: { [l]: 0 } }), 'ghost sm icon', 'x', { title: T('Kaldır') }))))))
+      h('div', { class: 'se-pocket-name', title: l }, itemName(l)), h('div', { class: 'row', style: { gap: '4px' } }, numberBox(n, x => seApply({ islem: 'kaynak', counts: { [l]: x } }), { max: 1e12, cls: 'genis' }),
+        ro ? null : btn('', () => seApply({ islem: 'kaynak', counts: { [l]: 0 } }), 'ghost sm icon', 'x', { title: T('Kaldır') }))))))
       : h('div', { class: 'empty' }, T('Kaynak yok.'))));
 }
 
@@ -764,7 +764,7 @@ function seBoosters(v) {
   };
   return h('div', { class: 'stack' },
     h('div', { class: 'card se-card row wrap', style: { gap: '10px' } }, h('span', { class: 'small muted grow' }, T('Editörden verilen booster, uzaylıdan düşen gibi yalnız oyun açıkken işler.')),
-      ro ? null : btn(T('Booster ekle'), () => seCatalog({ kat: 'booster', baslik: T('Boosterlar') }), 'primary sm', 'plus')),
+      ro ? null : btn(T('Booster ekle'), () => seCatalog({ multiplier: 'booster', baslik: T('Boosterlar') }), 'primary sm', 'plus')),
     v.boosterlar.length ? h('div', { class: 'card se-card se-boosts' }, v.boosterlar.map(row)) : h('div', { class: 'card empty' }, icon('zap'), h('div', null, T('Etkin booster yok.'))));
 }
 
@@ -775,9 +775,9 @@ function seMaintenance(v) {
   const boxes = Object.fromEntries(SE_RESET.map(([k]) => [k, h('input', { type: 'checkbox', disabled: ro })]));
   return h('div', { class: 'stack' },
     seCard(T('Gemi ve konum'), 'wrench',
-      row('heart', T('Gemiyi onar'), T('Can {0} / {1}, kalkan {2} / {3}.', fmtN(d.can), fmtN(d.max_hp), fmtN(d.kalkan), fmtN(d.kalkan_azami)),
-        btn(T('Onar'), () => seApply({ islem: 'onar' }), 'sm', 'wrench', { disabled: ro || (d.can >= d.max_hp && d.kalkan >= d.kalkan_azami) })),
-      row('map', T('Ana istasyona taşı'), T('Şu an {0}; firmanın ana haritası {1}. Bir haritada takılı kaldıysan.', d.harita_ad, d.ana_harita),
+      row('heart', T('Gemiyi onar'), T('Can {0} / {1}, kalkan {2} / {3}.', fmtN(d.can), fmtN(d.max_hp), fmtN(d.kalkan), fmtN(d.shield_max)),
+        btn(T('Onar'), () => seApply({ islem: 'onar' }), 'sm', 'wrench', { disabled: ro || (d.can >= d.max_hp && d.kalkan >= d.shield_max) })),
+      row('map', T('Ana istasyona taşı'), T('Şu an {0}; firmanın ana haritası {1}. Bir haritada takılı kaldıysan.', d.harita_ad, d.main_map),
         btn(T('Taşı'), () => seApply({ islem: 'ana_us' }), 'sm', 'map', { disabled: ro })),
       row('sliders', T('Tuş atamaları'), T('Varsayılana döner (oyundaki Ayarlar > Reset sunucuya ulaşmıyor).'),
         btn(T('Varsayılana döndür'), async () => await confirmBox(T('Tuş atamaları varsayılana dönsün mü?'), T('Kendi atadığın tuşlar silinir.'), { ok: T('Döndür') }) && seApply({ islem: 'tuslar' }),
@@ -787,7 +787,7 @@ function seMaintenance(v) {
     h('div', { class: 'row', style: { justifyContent: 'flex-end', marginTop: '12px' } }, btn(T('Seçilenleri sıfırla'), () => {
       const b = SE_RESET.map(([k]) => k).filter(k => boxes[k].checked);
       if (!b.length) return toast(T('Sıfırlanacak bölüm seç.'), 'err');
-      seApply({ islem: 'sifirla', bolumler: b });
+      seApply({ islem: 'sifirla', sections: b });
     }, 'sm', 'refresh', { disabled: ro }))),
     h('div', { class: 'small dim' }, T('Bütün değişiklikler önce taslakta durur; Kaydet\'e basınca kayda yazılır ve önceki hâli yedeklenir.')));
 }
@@ -807,10 +807,10 @@ function seStats(v) {
     : h('div', { class: 'small muted' }, empty);
   return h('div', { class: 'stack' },
     seCard(T('Rütbe puanı'), 'star', h('div', { class: 'row wrap', style: { gap: '8px', marginBottom: '8px' } },
-      badge(T('Rütbe puanı') + ': ' + fmtN(p.rankPoints || 0), 'info'), badge(T('Oyun süresi') + ': ' + fmtDur(s.oynama_sn || 0), '')),
+      badge(T('Rütbe puanı') + ': ' + fmtN(p.rankPoints || 0), 'info'), badge(T('Oyun süresi') + ': ' + fmtDur(s.play_sec || 0), '')),
       h('div', { class: 'se-stats' }, SE_POINTS.map(([k, name]) => h('div', { class: 'row' }, h('span', { class: 'grow muted' }, T(name)), h('b', null, fmtN(p[k] || 0)))))),
     seCard(T('Kapılar'), 'globe', table([T('Kapı'), T('Tamamlama'), T('En iyi süre'), T('Son süre')],
-      (s.kapilar || []).map(k => h('tr', null, h('td', null, k.ad), h('td', { class: 'num' }, fmtN(k.tamam)), h('td', { class: 'num' }, seDuration(k.en_iyi)), h('td', { class: 'num' }, seDuration(k.son)))),
+      (s.kapilar || []).map(k => h('tr', null, h('td', null, k.ad), h('td', { class: 'num' }, fmtN(k.tamam)), h('td', { class: 'num' }, seDuration(k.best)), h('td', { class: 'num' }, seDuration(k.son)))),
       T('Henüz tamamlanan kapı yok.')),
       h('div', { class: 'small muted', style: { marginTop: '6px' } }, T('Süre kapının ilk dalgasına girişten tamamlanmaya; bu sürümden önce biten kapıların süresi yok.'))),
     seCard(T('Öldürülen uzaylılar'), 'zap', table([T('Uzaylı'), T('Sayı'), T('Puan')],
@@ -836,10 +836,10 @@ function seChanges() {
       section(T('Değerler'), f.alanlar.map(([k, a, b]) => h('div', { class: 'se-diff-field' }, h('span', null, T(SE_FIELD[k] || k)), h('s', null, value(k, a)), icon('arrowR'), h('b', null, value(k, b))))),
       section(T('Eklenenler'), items(f.eklenen, 'arti')),
       section(T('Kaldırılanlar'), items(f.leaving, 'eksi')),
-      section(T('Adetler'), f.adetler.map(([l, a, b]) => h('div', { class: 'se-diff-field' }, h('span', { class: 'row', style: { gap: '8px' } }, itemIcon(l, 26), itemName(l)), h('s', null, fmtN(a)), icon('arrowR'), h('b', null, fmtN(b))))),
+      section(T('Adetler'), f.counts.map(([l, a, b]) => h('div', { class: 'se-diff-field' }, h('span', { class: 'row', style: { gap: '8px' } }, itemIcon(l, 26), itemName(l)), h('s', null, fmtN(a)), icon('arrowR'), h('b', null, fmtN(b))))),
       section(T('Boosterlar'), f.boosterlar.length ? h('div', { class: 'small' }, f.boosterlar.map(itemName).join(', ')) : null),
       section(T('Seviyeler'), f.seviyeler.length ? h('div', { class: 'small' }, [...new Set(f.seviyeler)].map(l => l === 'pet' ? 'P.E.T.' : itemName(l)).join(', ')) : null),
-      section(T('Donanım'), f.donanim ? h('div', { class: 'small' }, T('{0} eşyanın yeri değişti (takıldı, çıkarıldı ya da taşındı).', f.donanim)) : null),
+      section(T('Donanım'), f.hardware ? h('div', { class: 'small' }, T('{0} eşyanın yeri değişti (takıldı, çıkarıldı ya da taşındı).', f.hardware)) : null),
       !f.sayi ? h('div', { class: 'empty' }, T('Değişiklik yok.')) : null],
     foot: [btn(T('Kapat'), () => m.close(), 'ghost'), ro ? null : btn(T('Vazgeç'), () => { m.close(); seCancel(); }, 'danger', 'undo', { disabled: !f.sayi }),
       ro ? null : btn(T('Kaydet'), () => { m.close(); seSave(); }, 'primary', 'save', { disabled: !f.sayi })] });

@@ -26,7 +26,7 @@ import json, os, random, re
 HERE = os.path.dirname(os.path.abspath(__file__))
 _E = json.load(open(os.path.join(HERE, 'data', 'items.json'), encoding='utf8'))
 LS = _E['lazerler']
-EVENT_AMMO = {k: v for k, v in _E.get('etkinlik_cephane', {}).items() if not k.startswith('_')}
+EVENT_AMMO = {k: v for k, v in _E.get('event_ammo', {}).items() if not k.startswith('_')}
 OVERDRIVE_SEC = 5.0
 
 
@@ -48,7 +48,7 @@ def hit(loot, target=None, pvp=False):
     if pvp:
         return d.get('pvp_hasar', h)
     h = h * (1 + d.get('uzayli_bonus', 0))
-    c = name_match(d.get('hedef_carpan', {}), target)
+    c = name_match(d.get('target_multiplier', {}), target)
     return h * c if c else h
 
 
@@ -88,7 +88,7 @@ def crit_chance(ship):
         k = LS.get(l, {}).get('kritik')
         if k:
             n = ship.count(l)
-            out = max(out, min(k['azami'], n * k['lazer_basina'] + (k['set'] if n >= k['set_esik'] else 0)))
+            out = max(out, min(k['azami'], n * k['per_laser'] + (k['set'] if n >= k['set_threshold'] else 0)))
     return out
 
 
@@ -99,8 +99,8 @@ def crit_damage(ship):
 def overdrive(ship, target=None, pvp=False):
     """5 sn'de bir isabete eklenen düz hasar; lazerin hedef çarpanı (Prometheus x3,5) ona da işler (fandom Overdrive Mechanism:
     "overdrive damage is also affected by ... Prometheus Laser's x3.5"; Impulse II'de 410 x 3,5 = 1.435). Oransal uzayli_bonus işlemez."""
-    return sum(LS[l]['ek_hasar_5sn'] * ((None if pvp else name_match(LS[l].get('hedef_carpan', {}), target)) or 1)
-               for l in ship if LS.get(l, {}).get('ek_hasar_5sn'))
+    return sum(LS[l]['extra_damage_5sec'] * ((None if pvp else name_match(LS[l].get('target_multiplier', {}), target)) or 1)
+               for l in ship if LS.get(l, {}).get('extra_damage_5sec'))
 
 
 def range_factor(ship):
@@ -108,7 +108,7 @@ def range_factor(ship):
 
 
 def hp_bonus(ship):
-    return sum(LS[l].get('can_lazer_basina', 0) for l in ship if l in LS)
+    return sum(LS[l].get('hp_per_laser', 0) for l in ship if l in LS)
 
 
 def slow_proc(ship):
@@ -138,12 +138,12 @@ class Fervor:
             return
         if now >= self.until:
             self.level = 0
-        self.level = min(len(cfg['basamak']), self.level + 1)
-        self.until = now + (cfg['ilk_sn'] if self.level == 1 else cfg['sonraki_sn'])
+        self.level = min(len(cfg['tier']), self.level + 1)
+        self.until = now + (cfg['first_sec'] if self.level == 1 else cfg['next_sec'])
 
     def bonus(self, ship, now):
         cfg = _fervor_cfg(ship)
         if not cfg or now >= self.until:
             self.level = 0
             return 0.0
-        return sum(cfg['basamak'][:self.level])
+        return sum(cfg['tier'][:self.level])

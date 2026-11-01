@@ -153,7 +153,7 @@ def x1_cut(bot):
     """Kendi X-1'inde yüksek seviyede ödül azalır (npc.json x1_odul; dunya.World.grant_loot)."""
     if H.map_class(bot.game_map) != 'X-1' or H.company(bot.game_map) != bot.firma:
         return 1.0
-    return next((k for l, k in reversed(K.COMBAT['x1_odul']) if bot.level >= l), 1.0)
+    return next((k for l, k in reversed(K.COMBAT['x1_reward']) if bot.level >= l), 1.0)
 
 
 def pick_repair(bot, y, killer=None):
@@ -167,10 +167,10 @@ def pick_repair(bot, y, killer=None):
     far = len(route) - 1 if route else 0
     if far < 1:
         return 'istasyon'                           # zaten evinde: istasyon tamiri hem ücretsiz hem yakın
-    C, k, frugality = K.ITEMS['olum_ekrani'], bot.game_settings.multiplier('tamir_ucreti'), bot.o('tutumluluk')
-    for kind, price, urge in (('yerinde', C['yerinde_uridyum'] * k,
+    C, k, frugality = K.ITEMS['death_screen'], bot.game_settings.multiplier('tamir_ucreti'), bot.o('tutumluluk')
+    for kind, price, urge in (('yerinde', C['in_place_uridium'] * k,
                                0.12 * (1 - bot.o('sabir')) + (0.3 * bot.mood['ofke'] if killer else 0.0)),
-                              ('portal', C['portal_uridyum'] * k, 0.1 * far * (1.2 - frugality))):
+                              ('portal', C['portal_uridium'] * k, 0.1 * far * (1.2 - frugality))):
         if bot.k['uridyum'] >= price * (3 + 5 * frugality) and bot.r.random() < urge:     # birikimin küçük bir payıysa öder
             bot.earn(uridyum=-int(round(price)))
             return kind
@@ -236,8 +236,8 @@ def encounter(a, b, y, now=None):
     now = now or time.time()
     from . import extras as EX
     from . import technology as TECH
-    ga = max(0.5, a.value()['guc']) * EX.pvp_factor(a) * TECH.pvp_factor(a)
-    gb = max(0.5, b.value()['guc']) * EX.pvp_factor(b) * TECH.pvp_factor(b)
+    ga = max(0.5, a.value()['power']) * EX.pvp_factor(a) * TECH.pvp_factor(a)
+    gb = max(0.5, b.value()['power']) * EX.pvp_factor(b) * TECH.pvp_factor(b)
     ratio = gb / ga                                 # >1: b daha güçlü
     if ratio < 0.6 and b.r.random() < 1 - b.o('risk') and EX.cloak(b):          # gizlenme CPU'su: görünmeden sıvışır
         b.ist('gizlendi')
@@ -260,13 +260,13 @@ def encounter(a, b, y, now=None):
 
 def pvp_reward(winner, loser, y, now):
     """Öldürmenin onuru ve EP'si (items.json oyuncu_oldurme: onur 100 x, EP 1.000 x kurbanın gemi puanı; kabaca seviyeyle)."""
-    kill_rewards = K.ITEMS['oyuncu_oldurme']
+    kill_rewards = K.ITEMS['player_kill']
     multiplier = max(1, loser.level // 2)
     speed = y.speed(winner) if y is not None else 1.0
-    winner.reward(None, speed, ep=kill_rewards['ep_puan'] * multiplier, onur=kill_rewards['onur_puan'] * multiplier)
+    winner.reward(None, speed, ep=kill_rewards['ep_points'] * multiplier, onur=kill_rewards['honor_points'] * multiplier)
     winner.ist('oyuncu')
     from . import society as TB
     winner.ist('oyuncu_puan', TB.ship_rank_points(loser.k['ekip']['gemi']))
     winner.mood.it(moral=0.1, ozguven=0.08, ofke=-0.2)
     winner.memory.event(loser.name, 'oldurdum', now)
-    winner.event('oldurdum', now, kurban=loser.name)
+    winner.event('oldurdum', now, victim=loser.name)

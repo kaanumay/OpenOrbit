@@ -1,5 +1,5 @@
 {
- "_aciklama": "Aşama 10: yerel müzayede. Üreten: tools/sosyal.py (kayıttaki AuctionListCommand: eşya, grup, süre, adet, anında alım fiyatı).",
+ "_description": "Aşama 10: yerel müzayede. Üreten: tools/sosyal.py (kayıttaki AuctionListCommand: eşya, grup, süre, adet, anında alım fiyatı).",
  "muzayede": {
   "lotlar": [
    [
@@ -701,24 +701,24 @@
   ],
   "_lot": "[lootId, grup, süre, adet, anında alım var mı, anında alım fiyatı (uridyum)]",
   "bitis": {
-   "saat_dk": 30,
-   "gun_sn": 81000,
-   "hafta_gunu": 6
+   "hour_min": 30,
+   "day_sec": 81000,
+   "weekday": 6
   },
-  "en_az_teklif": 10000,
-  "artis": 10000,
-  "gecmis_siniri": 200,
+  "min_bid": 10000,
+  "increase": 10000,
+  "history_limit": 200,
   "rakipler": {
-   "_aciklama": "Sanal rakipler (panelin Müzayede ayarı muzayede_rakip, varsayılan 0 = kapalı). Seviye başına: ilgi (lot başına rakip olasılığı), carpan (bütçe = anında alım fiyatı x aralık, kredi), fiyatsiz (anında alımı olmayan lotta bütçe), adim (dönem içinde en çok teklif sayısı), son (karşılıksız son teklif / bütçe), gecer (oyuncuyu geçip karşılık verir mi), tepki (karşılık gecikmesi, dönemin kesri). gecer olmayan seviyelerde lot hep oyuncunun.",
+   "_description": "Sanal rakipler (panelin Müzayede ayarı muzayede_rakip, varsayılan 0 = kapalı). Seviye başına: ilgi (lot başına rakip olasılığı), carpan (bütçe = anında alım fiyatı x aralık, kredi), fiyatsiz (anında alımı olmayan lotta bütçe), adim (dönem içinde en çok teklif sayısı), son (karşılıksız son teklif / bütçe), gecer (oyuncuyu geçip karşılık verir mi), tepki (karşılık gecikmesi, dönemin kesri). gecer olmayan seviyelerde lot hep oyuncunun.",
    "seviyeler": {
     "1": {
      "ad": "Çekingen",
-     "ilgi": 0.3,
+     "interest": 0.3,
      "carpan": [
       1,
       4
      ],
-     "fiyatsiz": [
+     "unpriced": [
       20000,
       80000
      ],
@@ -727,16 +727,16 @@
       0.5,
       0.9
      ],
-     "gecer": false
+     "outbids": false
     },
     "2": {
      "ad": "Ilımlı",
-     "ilgi": 0.5,
+     "interest": 0.5,
      "carpan": [
       3,
       15
      ],
-     "fiyatsiz": [
+     "unpriced": [
       60000,
       300000
      ],
@@ -745,16 +745,16 @@
       0.5,
       0.9
      ],
-     "gecer": false
+     "outbids": false
     },
     "3": {
      "ad": "Rekabetçi",
-     "ilgi": 0.6,
+     "interest": 0.6,
      "carpan": [
       20,
       120
      ],
-     "fiyatsiz": [
+     "unpriced": [
       500000,
       3000000
      ],
@@ -763,20 +763,20 @@
       0.3,
       0.8
      ],
-     "gecer": true,
-     "tepki": [
+     "outbids": true,
+     "reaction": [
       0.05,
       0.25
      ]
     },
     "4": {
      "ad": "Agresif",
-     "ilgi": 0.8,
+     "interest": 0.8,
      "carpan": [
       40,
       250
      ],
-     "fiyatsiz": [
+     "unpriced": [
       1000000,
       6000000
      ],
@@ -785,8 +785,8 @@
       0.4,
       0.9
      ],
-     "gecer": true,
-     "tepki": [
+     "outbids": true,
+     "reaction": [
       0.01,
       0.08
      ]
@@ -824,7 +824,7 @@
     "Helix",
     "Onyx"
    ],
-   "ekler": [
+   "attachments": [
     "",
     "77",
     "_TR",

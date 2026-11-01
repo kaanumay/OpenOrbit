@@ -2856,5 +2856,6 @@
 "{0} / {1} yuva": "{0} / {1} Slots",
 "{0} paketi · {1}. bot": "Paket {0} · Bot #{1}",
 "Özellikler": "Eigenschaften",
-"Şu anki duyguları: zamanla dengeye döner. Öfkeli bot intikam peşine düşer, yorgun bot erken çıkar.": "Seine aktuellen Gefühle: sie pendeln sich mit der Zeit ein. Ein wütender Bot sinnt auf Rache, ein müder loggt früh aus."
+"Şu anki duyguları: zamanla dengeye döner. Öfkeli bot intikam peşine düşer, yorgun bot erken çıkar.": "Seine aktuellen Gefühle: sie pendeln sich mit der Zeit ein. Ein wütender Bot sinnt auf Rache, ein müder loggt früh aus.",
+"Kayıtlar yeni biçime taşınamadı (%s). Eski kayıtların yedeği server/save altında (v1_backup_*.zip); sunucular başlatılmaz.": "Deine Spielstände konnten nicht in das neue Format übertragen werden (%s). Die Sicherung der alten Spielstände liegt unter server/save (v1_backup_*.zip); die Server werden nicht gestartet."
 }

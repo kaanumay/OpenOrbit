@@ -58,7 +58,7 @@ def _memory_id(a):
 def appearance(k, roster_row, online=None):
     """Botun bütün durumu -> panelin penceresi (k: durum sözlüğü, yoksa None; kd: kadro satırı)."""
     out = {'no': roster_row['no'], 'ad': roster_row['ad'], 'firma': roster_row['firma'], 'arketip': roster_row['kisilik'].get('arketip'),
-           'aliskanlik': roster_row['kisilik'].get('aliskanlik'), 'dil': roster_row['kisilik'].get('dil'),
+           'habit': roster_row['kisilik'].get('habit'), 'dil': roster_row['kisilik'].get('dil'),
            'ozellik': {o: round(roster_row['kisilik']['ozellik'].get(o, 0.5), 3) for o in TRAITS}, 'var': k is not None,
            'cevrimici': online}
     if k is None:
@@ -76,7 +76,7 @@ def appearance(k, roster_row, online=None):
     if k.get('gorev'):
         from .goals import quest as QU
         quest = {'id': k['gorev'].get('id'), 'ad': QU.quests().get(k['gorev'].get('id'), {}).get('ad', '?')}
-    kinds = K.ITEMS['cevherler']['turler']
+    kinds = K.ITEMS['cevherler']['kinds']
     capacity = K.cargo_capacity(e)
     now = time.time()
     out.update(
@@ -84,18 +84,18 @@ def appearance(k, roster_row, online=None):
                 'base_ep': next((n for lv, n in (PF._LEVELS or []) if lv == lvl), 0),
                 'kredi': int(k.get('kredi') or 0), 'uridyum': int(k.get('uridyum') or 0), 'onur': int(k.get('onur') or 0),
                 'harita': k.get('harita'), 'harita_ad': H.name(k['harita']) if k.get('harita') else '', 'hedef': k.get('hedef'),
-                'niyet': (k.get('niyet') or {}).get('hedef'), 'klan': k.get('klan'), 'kayitli': k.get('kayitli', True),
-                'arkadaslar': list(k.get('arkadaslar') or [])},
+                'intent': (k.get('intent') or {}).get('hedef'), 'klan': k.get('klan'), 'registered': k.get('registered', True),
+                'friends': list(k.get('friends') or [])},
         ruh={d: round(float((k.get('ruh') or {}).get(d, EMOTION_BASELINE[d])), 3) for d in EMOTION_BASELINE},
         ekip={'gemi': e.get('gemi'), 'cephane': e.get('cephane'), **{multiplier: dict(e.get(multiplier) or {}) for multiplier in CATEGORY}},
         yuva={'lazer': gear['laser_slots'], 'jen': gear['gen_slot'], 'ekstra': g.get('extra', 1), 'ship_laser': g['laser']},
-        guc={'guc': round(stats.get('guc', 0), 1), 'dps': round(stats.get('dps', 0)), 'ehp': round(stats.get('ehp', 0))},
+        power={'power': round(stats.get('power', 0), 1), 'dps': round(stats.get('dps', 0)), 'ehp': round(stats.get('ehp', 0))},
         stok={l: int(n) for l, n in (k.get('stok') or {}).items()},
         kargo={_short(kinds.get(str(t), 'ore_%s' % t)): int(n) for t, n in (k.get('kargo') or {}).items() if n},
-        kargo_kapasite=capacity, gorev=quest, tamam=len(k.get('tamam') or ()), istat=dict(k.get('istat') or {}),
+        cargo_capacity=capacity, gorev=quest, tamam=len(k.get('tamam') or ()), istat=dict(k.get('istat') or {}),
         gate_times=dict(k.get('gate_times') or {}),
         uyari={x: v for x, v in (k.get('uyari') or {}).items() if x in ('sohbet', 'pvp', 'kutu') and v > time.time()},     # yönetici uyarısı
-        skylab=dict((k.get('skylab') or {}).get('mod') or {}), formasyon=k.get('formasyon'),
+        skylab=dict((k.get('skylab') or {}).get('mod') or {}), formation=k.get('formation'),
         relations=sorted(({'anahtar': a, 'ad': v.get('ad', a), 'd': round(v.get('d', 0), 3), 'n': v.get('n', {})}
                           for a, v in (k.get('hafiza') or {}).items()), key=lambda x: -abs(x['d'])),
         memories=[{'id': _memory_id(a), 'kim': a['kim'], 'ozet': a['ozet'], 't': a['t'], 'n': a.get('n', 1), 'tur': a.get('tur'),
@@ -130,7 +130,7 @@ def apply(k, roster_row, value, online=False):
             raise EditError('aralik', 'harita')
         if online:
             raise EditError('cevrimici', 'harita')     # çevrimiçi botu ışınlamak soyut/somut konumunu bozar
-        jobs.append(lambda m=m: k.update(harita=m, niyet=None, hedef=None))
+        jobs.append(lambda m=m: k.update(harita=m, intent=None, hedef=None))
     if 'gemi' in value:
         g = value['gemi']
         if g not in E['gemiler'] or 'taban' in E['gemiler'][g]:

@@ -64,9 +64,9 @@ function weOpen(did, section) { DE.did = did; DE.section = section || 'genel'; D
 function weLibrary() {
   const r = DE.liste, special = r.liste.filter(w => !w.standart);
   const card = w => {
-    const pilots = w.kullananlar || [];
+    const pilots = w.users || [];
     return h('div', { class: 'we-card' + (w.standart ? ' standard' : ''), onclick: e => { if (!e.target.closest('button')) weOpen(w.id); } },
-      weCover(w.kapak, 'buyuk'),
+      weCover(w.cover, 'buyuk'),
       h('div', { class: 'we-card-body' },
         h('div', { class: 'row between', style: { gap: '8px' } }, h('div', { class: 'we-card-name' }, w.standart ? icon('lock') : null, w.ad),
           w.standart ? badge(T('Salt okunur'), 'info') : badge(w.changes ? T('{0} değişiklik', w.changes) : T('Değişiklik yok'), w.changes ? 'orange' : '')),
@@ -133,13 +133,13 @@ async function weRename(w) {
 
 // yeni dünya: ad, açıklama, kapak, başlangıç (standart ya da bir dünya); taslaktan=true ise standart dünyanın taslağı
 function weNewWorld({ from_draft = false } = {}) {
-  const w = { ad: '', aciklama: '', kapak: 'nebula', kaynak: 'standart', kayit: null };
+  const w = { ad: '', aciklama: '', cover: 'nebula', kaynak: 'standart', kayit: null };
   const active = DE.liste.kayitlar.find(k => k.aktif);
   const name = h('input', { class: 'input', placeholder: T('Örn. Zor Uzay, Avcı Cenneti'), maxlength: 40, oninput: e => { w.ad = e.target.value; } });
   const is_open = h('textarea', { class: 'input', rows: 2, maxlength: 240, placeholder: T('Bu dünyada ne farklı? (isteğe bağlı)'), oninput: e => { w.aciklama = e.target.value; } });
   const covers = h('div', { class: 'we-covers' });
   const renderCover = () => fill(covers, ...DE.liste.covers.filter(k => k !== 'standart').map(k =>
-    h('button', { type: 'button', class: 'we-cover-pick' + (w.kapak === k ? ' on' : ''), onclick: () => { w.kapak = k; renderCover(); } }, weCover(k))));
+    h('button', { type: 'button', class: 'we-cover-pick' + (w.cover === k ? ' on' : ''), onclick: () => { w.cover = k; renderCover(); } }, weCover(k))));
   renderCover();
   const source = from_draft ? null : h('select', { class: 'input', onchange: e => { w.kaynak = e.target.value; } },
     DE.liste.liste.map(x => h('option', { value: x.id }, x.standart ? T('Standart dünya (boş başla)') : T('Kopyala: {0}', x.ad))));
@@ -173,7 +173,7 @@ function weBar() {
   const w = DE.ozet;
   return h('div', { class: 'card we-bar' },
     btn('', () => { DE.did = null; renderWorld(); }, 'ghost icon', 'arrowL', { title: T('Dünyalar') }),
-    weCover(w.kapak, 'kucuk'),
+    weCover(w.cover, 'kucuk'),
     h('div', { class: 'we-bar-name' }, h('div', { class: 'row', style: { gap: '8px' } }, h('b', null, w.ad),
       w.standart ? badge([icon('lock'), T('Standart · salt okunur')], 'info') : badge(T('Özel dünya'), 'orange')),
       h('div', { class: 'muted small ellipsis' }, w.aciklama || (w.standart ? '' : T('Açıklama yok.')))),
@@ -218,7 +218,7 @@ function weWarning() {
 
 function deMenu() {
   return h('nav', { class: 'de-menu', id: 'de-menu' }, WE_SECTIONS.map(([id, name, iconEl, , ready]) => {
-    const n = DE.ozet.bolumler[id] || 0;
+    const n = DE.ozet.sections[id] || 0;
     return h('button', { type: 'button', class: (DE.section === id ? 'on ' : '') + (ready ? '' : 'soon'), 'data-b': id, disabled: !ready,
       title: ready ? null : T('Yakında'), onclick: () => { DE.section = id; DE.sec = {}; weMenuCount(); weRenderSection(); } },
       weIcon(id), h('span', null, T(name)), ready ? (n ? h('span', { class: 'we-count' }, n) : null) : h('span', { class: 'we-soon' }, T('Yakında')));
@@ -227,7 +227,7 @@ function deMenu() {
 function weMenuCount() {
   document.querySelectorAll('#de-menu button').forEach(b => {
     b.classList.toggle('on', b.dataset.b === DE.section);
-    const n = DE.ozet.bolumler[b.dataset.b] || 0, s = b.querySelector('.we-count');
+    const n = DE.ozet.sections[b.dataset.b] || 0, s = b.querySelector('.we-count');
     if (b.disabled) return;
     if (n && s) s.textContent = n; else if (n) b.append(h('span', { class: 'we-count' }, n)); else if (s) s.remove();
   });
@@ -350,22 +350,22 @@ function weGeneral(area, b) {
   const w = DE.ozet;
   const covers = h('div', { class: 'we-covers' });
   const renderCover = () => fill(covers, ...DE.liste.covers.filter(k => k !== 'standart').map(k =>
-    h('button', { type: 'button', class: 'we-cover-pick' + (w.kapak === k ? ' on' : ''), disabled: w.standart, onclick: () =>
-      act(() => api('/api/dunya/update', { id: w.id, kapak: k })).then(x => { if (x) { DE.liste = x; w.kapak = k; renderCover(); $('#de-kok .we-bar .we-cover').replaceWith(weCover(k, 'kucuk')); } }) }, weCover(k))));
+    h('button', { type: 'button', class: 'we-cover-pick' + (w.cover === k ? ' on' : ''), disabled: w.standart, onclick: () =>
+      act(() => api('/api/dunya/update', { id: w.id, cover: k })).then(x => { if (x) { DE.liste = x; w.cover = k; renderCover(); $('#de-kok .we-bar .we-cover').replaceWith(weCover(k, 'kucuk')); } }) }, weCover(k))));
   renderCover();
   const saveMeta = (fieldName, v) => act(() => api('/api/dunya/update', { id: w.id, [fieldName]: v })).then(x => { if (x) { DE.liste = x; w[fieldName] = v; weSaveStatus('kaydedildi'); } });
-  const card = h('div', { class: 'card we-overview-card' }, weCover(w.kapak, 'buyuk'),
+  const card = h('div', { class: 'card we-overview-card' }, weCover(w.cover, 'buyuk'),
     h('div', { class: 'stack', style: { gap: '12px' } },
       w.standart ? h('div', null, h('h3', { class: 'de-h3' }, icon('lock'), w.ad), h('p', { class: 'muted' }, w.aciklama))
         : [field(T('Ad'), h('input', { class: 'input', value: w.ad, maxlength: 40, onchange: e => saveMeta('ad', e.target.value).then(() => weEditor()) })),
           field(T('Açıklama'), h('textarea', { class: 'input', rows: 2, maxlength: 240, onchange: e => saveMeta('aciklama', e.target.value) }, w.aciklama || '')),
           field(T('Kapak'), covers)],
-      h('div', { class: 'row wrap small muted', style: { gap: '14px' } }, w.olusturma ? h('span', null, T('Oluşturuldu {0}', fmtWhen(w.olusturma))) : null,
+      h('div', { class: 'row wrap small muted', style: { gap: '14px' } }, w.created ? h('span', null, T('Oluşturuldu {0}', fmtWhen(w.created))) : null,
         w.guncelleme ? h('span', null, T('Son değişiklik {0}', fmtWhen(w.guncelleme))) : null)));
   const sections = h('div', { class: 'card' }, h('h2', null, icon('layers'), T('Değişiklikler')),
     h('p', { class: 'desc' }, w.changes ? T('Bu dünyada standarttan farklı olanlar. Bir bölümü tek tıkla standarda döndürebilirsin.') : T('Bu dünya henüz standart dünyayla aynı. Soldaki bölümlerden düzenlemeye başla.')),
     h('div', { class: 'we-summary-grid' }, WE_SECTIONS.filter(x => x[0] !== 'genel').map(x => {
-      const n = w.bolumler[x[0]] || 0;
+      const n = w.sections[x[0]] || 0;
       return h('div', { class: 'we-summary-box' + (n ? ' dolu' : '') + (x[4] ? '' : ' soon') },
         h('div', { class: 'row', style: { gap: '8px' } }, weIcon(x[0], 'we-icon orta'), h('b', null, T(x[1]))),
         h('div', { class: 'we-summary-count' }, x[4] ? (n ? T('{0} değişiklik', n) : T('Standart')) : T('Yakında')),
@@ -375,7 +375,7 @@ function weGeneral(area, b) {
               weRevert(null, null, x[0]).then(r => r && weRenderSection());
           }, 'sm ghost icon', 'undo', { title: T('Standarda döndür') }) : null));
     })));
-  const users = (DE.liste.liste.find(x => x.id === w.id) || {}).kullananlar || [];
+  const users = (DE.liste.liste.find(x => x.id === w.id) || {}).users || [];
   const pilots = h('div', { class: 'card' }, h('h2', null, icon('users'), T('Bu dünyada oynayanlar')),
     h('p', { class: 'desc' }, users.length ? T('Bu pilotlar OYNA\'ya basınca bu dünyaya girer.') : T('Henüz bu dünyayı varsayılan yapan pilot yok.')),
     h('div', { class: 'chips' }, users.map(p => h('span', { class: 'chip' }, icon('users'), p.pilot || p.ad))),
@@ -494,12 +494,12 @@ async function weMaps(area, b) {
 
 function mapEditor(hm, canvas, panel, f) {
   const [W, H] = hm.boyut, layout = JSON.parse(JSON.stringify(hm.duzen || {}));
-  layout.guvenli = layout.guvenli || []; layout.inler = layout.inler || {}; layout.portallar = layout.portallar || {};
+  layout.guvenli = layout.guvenli || []; layout.lairs = layout.lairs || {}; layout.portals = layout.portals || {};
   const npc = hm.npc.map(g => Object.assign({}, g));
   const aliens = tip => (DE.uzayli || []).find(u => u.tip === tip);
   const saveNpc = () => { wePatch('npc.json', jp('haritalar', hm.id, 'npc'), npc.map(g => g.bolge ? { tip: g.tip, adet: g.adet, bolge: g.bolge } : { tip: g.tip, adet: g.adet })); markSelected(); };
-  const saveLayout = () => { const d = JSON.parse(JSON.stringify(layout)); if (!d.guvenli.length) delete d.guvenli; if (!Object.keys(d.inler).length) delete d.inler;
-    if (!Object.keys(d.portallar).length) delete d.portallar; wePatch('map_layout.json', jp('haritalar', hm.id), d); markSelected(); };
+  const saveLayout = () => { const d = JSON.parse(JSON.stringify(layout)); if (!d.guvenli.length) delete d.guvenli; if (!Object.keys(d.lairs).length) delete d.lairs;
+    if (!Object.keys(d.portals).length) delete d.portals; wePatch('map_layout.json', jp('haritalar', hm.id), d); markSelected(); };
   const markSelected = () => { const c = document.querySelector('.we-map-chip.on'); if (c) c.classList.add('degisti'); };
 
   // ---- tuval (SVG, oyun birimleri)
@@ -525,7 +525,7 @@ function mapEditor(hm, canvas, panel, f) {
       const sec = candidates.length === 1 ? candidates[0] : await new Promise(res => popMenuAt(e.clientX, e.clientY, candidates.map(g => ({ label: npcName(aliens(g.tip)) + ' ×' + g.adet, ic: 'alien', fn: () => res(g) }))));
       if (!sec) return;
       if (f.arac === 'bolge') { sec.bolge = [x, y, 2500 * S1 | 0]; f.nesne = { tur: 'bolge', tip: sec.tip }; saveNpc(); }
-      else { (layout.inler[sec.tip] = layout.inler[sec.tip] || []).push([x, y]); f.nesne = { tur: 'in', tip: sec.tip, i: layout.inler[sec.tip].length - 1 }; saveLayout(); }
+      else { (layout.lairs[sec.tip] = layout.lairs[sec.tip] || []).push([x, y]); f.nesne = { tur: 'in', tip: sec.tip, i: layout.lairs[sec.tip].length - 1 }; saveLayout(); }
     } else { f.nesne = null; }
     renderMapPanel(); render();
   });
@@ -534,7 +534,7 @@ function mapEditor(hm, canvas, panel, f) {
     svg.append(el('rect', { x: 0, y: 0, width: W, height: H, class: 'we-ground' }));
     if (f.layer.izgara) for (let x = 1000; x < W; x += 1000) svg.append(el('line', { x1: x, y1: 0, x2: x, y2: H, class: x % 5000 ? 'iz' : 'iz thick' }));
     if (f.layer.izgara) for (let y = 1000; y < H; y += 1000) svg.append(el('line', { x1: 0, y1: y, x2: W, y2: y, class: y % 5000 ? 'iz' : 'iz thick' }));
-    if (f.layer.engel) hm.engeller.forEach(([x0, y0, x1, y1]) => svg.append(el('rect', { x: x0, y: y0, width: x1 - x0, height: y1 - y0, class: 'engel' })));
+    if (f.layer.engel) hm.obstacles.forEach(([x0, y0, x1, y1]) => svg.append(el('rect', { x: x0, y: y0, width: x1 - x0, height: y1 - y0, class: 'engel' })));
     if (hm.istasyon) { const [sx, sy] = hm.istasyon; svg.append(el('circle', { cx: sx, cy: sy, r: 1800 * S1, class: 'station-area' }), beacon('istasyon', sx, sy, 1100),
       el('text', { x: sx, y: sy + 860 * S1, class: 'etiket' }, document.createTextNode(T('İstasyon')))); }
     if (hm.yapi) svg.append(beacon('gorev_verici', hm.yapi[0], hm.yapi[1], 700));
@@ -547,15 +547,15 @@ function mapEditor(hm, canvas, panel, f) {
       gr.append(el('circle', { cx: z[0], cy: z[1], r: z[2] }), el('text', { x: z[0], y: z[1], class: 'etiket ortada' }, document.createTextNode(npcName(aliens(g.tip)) + ' ×' + g.adet)));
       gr.addEventListener('pointerdown', e => f.arac === 'sec' && dragStart(e, { tur: 'bolge', tip: g.tip }, ([x, y]) => { z[0] = x; z[1] = y; }, saveNpc));
       svg.append(gr); if (on) svg.append(handle(z, () => saveNpc())); });
-    if (f.layer.in) Object.entries(layout.inler).forEach(([tip, pts]) => pts.forEach((p, i) => { const on = f.nesne?.tur === 'in' && f.nesne.tip === tip && f.nesne.i === i;
+    if (f.layer.in) Object.entries(layout.lairs).forEach(([tip, pts]) => pts.forEach((p, i) => { const on = f.nesne?.tur === 'in' && f.nesne.tip === tip && f.nesne.i === i;
       const pg = el('g', { class: 'in' + (on ? ' on' : '') }, el('circle', { cx: p[0], cy: p[1], r: 420 * S1, class: 'in-halo' }), beacon('in', p[0], p[1], 720));
       pg.addEventListener('pointerdown', e => f.arac === 'sec' && dragStart(e, { tur: 'in', tip, i }, ([x, y]) => { p[0] = x; p[1] = y; }, saveLayout));
       svg.append(pg, el('text', { x: p[0], y: p[1] + 620 * S1, class: 'etiket kucuk' }, document.createTextNode(npcName(aliens(tip))))); }));
-    if (f.layer.portal) hm.portallar.forEach(g => { const on = f.nesne?.tur === 'portal' && f.nesne.key === g.key, r = 330 * S1;
-      const gr = el('g', { class: 'portal' + (on ? ' on' : '') + (layout.portallar[g.key] ? ' tasindi' : '') });
+    if (f.layer.portal) hm.portals.forEach(g => { const on = f.nesne?.tur === 'portal' && f.nesne.key === g.key, r = 330 * S1;
+      const gr = el('g', { class: 'portal' + (on ? ' on' : '') + (layout.portals[g.key] ? ' tasindi' : '') });
       gr.append(el('circle', { cx: g.x, cy: g.y, r: r * 1.9, class: 'portal-area' }), el('circle', { cx: g.x, cy: g.y, r: r * 1.25, class: 'portal-halo' }), beacon('portal', g.x, g.y, 900),
         el('text', { x: g.x, y: g.y - r * 2.3, class: 'etiket' }, document.createTextNode('→ ' + g.hedef)));
-      gr.addEventListener('pointerdown', e => f.arac === 'sec' && dragStart(e, { tur: 'portal', key: g.key }, ([x, y]) => { g.x = x; g.y = y; layout.portallar[g.key] = [x, y]; }, saveLayout));
+      gr.addEventListener('pointerdown', e => f.arac === 'sec' && dragStart(e, { tur: 'portal', key: g.key }, ([x, y]) => { g.x = x; g.y = y; layout.portals[g.key] = [x, y]; }, saveLayout));
       svg.append(gr); });
   };
   // yarıçap tutamacı (seçili daire): sağ kenarından sürükle
@@ -582,9 +582,9 @@ function mapEditor(hm, canvas, panel, f) {
     if (n) {
       const back = btn(T('Seçimi bırak'), () => { f.nesne = null; renderMapPanel(); render(); }, 'sm ghost', 'arrowL');
       if (n.tur === 'portal') {
-        const g = hm.portallar.find(x => x.key === n.key);
-        out.push(h('div', { class: 'we-subtitle' }, T('Portal → {0}', g.hedef)), position(g, v => { g.x = v[0]; g.y = v[1]; layout.portallar[g.key] = v; saveLayout(); render(); }),
-          layout.portallar[g.key] ? btn(T('Standart yerine döndür'), () => { delete layout.portallar[g.key]; saveLayout(); toast(T('Portal standart yerinde (sayfayı yenileyince görünür).'), 'info'); }, 'sm ghost', 'undo') : null);
+        const g = hm.portals.find(x => x.key === n.key);
+        out.push(h('div', { class: 'we-subtitle' }, T('Portal → {0}', g.hedef)), position(g, v => { g.x = v[0]; g.y = v[1]; layout.portals[g.key] = v; saveLayout(); render(); }),
+          layout.portals[g.key] ? btn(T('Standart yerine döndür'), () => { delete layout.portals[g.key]; saveLayout(); toast(T('Portal standart yerinde (sayfayı yenileyince görünür).'), 'info'); }, 'sm ghost', 'undo') : null);
       } else if (n.tur === 'guvenli') {
         const z = layout.guvenli[n.i];
         out.push(h('div', { class: 'we-subtitle' }, T('Güvenli bölge')), position(z, v => { z[0] = v[0]; z[1] = v[1]; saveLayout(); render(); }),
@@ -598,10 +598,10 @@ function mapEditor(hm, canvas, panel, f) {
           h('p', { class: 'small muted' }, T('Uzaylılar bu dairenin içinde doğar ve yeniden doğar; sonra haritada dolaşırlar.')),
           btn(T('Bölgeyi kaldır (haritaya dağılsın)'), () => { delete g.bolge; f.nesne = null; saveNpc(); renderMapPanel(); render(); }, 'sm danger', 'trash'));
       } else if (n.tur === 'in') {
-        const p = layout.inler[n.tip][n.i];
+        const p = layout.lairs[n.tip][n.i];
         out.push(h('div', { class: 'we-subtitle' }, T('İn: {0}', npcName(aliens(n.tip)))), position(p, v => { p[0] = v[0]; p[1] = v[1]; saveLayout(); render(); }),
           h('p', { class: 'small muted' }, T('Bu türün uzaylıları yalnız inlerinde doğar (birden çok in varsa boş olanda).')),
-          btn(T('İni sil'), () => { layout.inler[n.tip].splice(n.i, 1); if (!layout.inler[n.tip].length) delete layout.inler[n.tip]; f.nesne = null; saveLayout(); renderMapPanel(); render(); }, 'sm danger', 'trash'));
+          btn(T('İni sil'), () => { layout.lairs[n.tip].splice(n.i, 1); if (!layout.lairs[n.tip].length) delete layout.lairs[n.tip]; f.nesne = null; saveLayout(); renderMapPanel(); render(); }, 'sm danger', 'trash'));
       }
       fill(panel, h('div', { class: 'stack', style: { gap: '10px' } }, back, ...out));
       return;
@@ -609,7 +609,7 @@ function mapEditor(hm, canvas, panel, f) {
     const total = npc.reduce((a, g) => a + g.adet, 0);
     const row = g => { const u = aliens(g.tip);
       return h('div', { class: 'we-spawn' }, npcIcon(u, 34), h('div', { class: 'we-spawn-name' }, h('b', { title: npcName(u) }, npcName(u)),
-        h('div', { class: 'small muted' }, u?.saldirgan ? T('Saldırgan') : T('Barışçıl'), g.bolge ? ' · ' + T('bölgede') : '', layout.inler[g.tip] ? ' · ' + T('{0} in', layout.inler[g.tip].length) : ''),
+        h('div', { class: 'small muted' }, u?.saldirgan ? T('Saldırgan') : T('Barışçıl'), g.bolge ? ' · ' + T('bölgede') : '', layout.lairs[g.tip] ? ' · ' + T('{0} in', layout.lairs[g.tip].length) : ''),
         weNumber(g.adet, v => { g.adet = v; saveNpc(); totalEl.textContent = T('{0} uzaylı', fmtN(npc.reduce((a, x) => a + x.adet, 0))); render(); }, { max: 300, width: 52 })),
         h('div', { class: 'we-spawn-action' },
           btn('', () => { if (g.bolge) { f.nesne = { tur: 'bolge', tip: g.tip }; } else { g.bolge = [W / 2 | 0, H / 2 | 0, 2500 * S1 | 0]; f.nesne = { tur: 'bolge', tip: g.tip }; saveNpc(); } renderMapPanel(); render(); },
@@ -660,7 +660,7 @@ function mapLabel(x) {
 }
 // koşulun hedefi (ne): uzaylı, eşya, cevher, harita adları
 function conditionTarget(c) {
-  const t = QU_KIND[c.tur], es = c.eslesme || [];
+  const t = QU_KIND[c.tur], es = c.matches || [];
   if (!t) return '';
   if (t[2] === 'npc') return es.map(k => npcName((DE.uzayli || []).find(u => String(u.npc_kimlik) === String(k))) || k).join(', ') || T('uzaylı');
   if (t[2] === 'esya') return es.map(itemName).join(', ');
@@ -681,14 +681,14 @@ async function weQuests(area, b) {
   const r = await act(() => api('/api/dunya/section?bolum=gorevler&dunya=' + encodeURIComponent(DE.did))); if (!r || DE.section !== 'gorevler') return;
   const f = DE.sec.quests || (DE.sec.quests = { q: '', filter_by: 'ana', secili: null, sinir: 150 });
   const entries = h('div', { class: 'we-quest-list' }), detail = h('div', { class: 'we-detail' });
-  const eligible = g => ({ hepsi: true, ana: !g.havuz && !g.etkinlik && g.turler.includes(2), tekrar: g.havuz || g.turler.some(t => t === 3 || t === 6),
-    etkinlik: g.etkinlik || g.turler.includes(5), degisti: g.degisti, yeni: g.yeni, kapali: g.kapali })[f.filter_by];
+  const eligible = g => ({ hepsi: true, ana: !g.havuz && !g.etkinlik && g.kinds.includes(2), tekrar: g.havuz || g.kinds.some(t => t === 3 || t === 6),
+    etkinlik: g.etkinlik || g.kinds.includes(5), degisti: g.degisti, yeni: g.yeni, kapali: g.kapali })[f.filter_by];
   const render = () => {
     const s = f.q.trim().toLowerCase();
     const l = r.gorevler.filter(g => eligible(g) && (!s || g.ad.toLowerCase().includes(s) || String(g.id) === s));
     fill(entries, ...l.slice(0, f.sinir).map(g => h('button', { type: 'button', class: 'we-quest' + (f.secili === g.id ? ' on' : '') + (g.degisti ? ' degisti' : '') + (g.kapali ? ' kapali' : ''),
       onclick: () => { f.secili = g.id; render(); } }, h('span', { class: 'we-lv' }, g.seviye || '—'),
-      h('div', { class: 'we-quest-name' }, h('b', null, g.ad), h('div', { class: 'small muted ellipsis' }, g.kosullar.slice(0, 3).map(c => (QU_KIND[c.tur] ? T(QU_KIND[c.tur][1]) : '?') + ' ' + conditionText(c)).join(' · '))),
+      h('div', { class: 'we-quest-name' }, h('b', null, g.ad), h('div', { class: 'small muted ellipsis' }, g.conditions.slice(0, 3).map(c => (QU_KIND[c.tur] ? T(QU_KIND[c.tur][1]) : '?') + ' ' + conditionText(c)).join(' · '))),
       h('div', { class: 'we-quest-reward' }, g.oduller.slice(0, 3).map(([l]) => gameIcon(l, 22, null, 'gift'))),
       g.yeni ? badge(T('Yeni'), 'orange') : g.kapali ? badge(T('Kapalı'), '') : null)),
       l.length > f.sinir ? h('button', { type: 'button', class: 'btn sm we-more', onclick: () => { f.sinir += 300; render(); } }, T('{0} görev daha', fmtN(l.length - f.sinir))) : null,
@@ -713,33 +713,33 @@ async function questDetail(qid, box, updated) {
     const x = await act(() => api('/api/dunya/gorev', { dunya: DE.did, id: qid, changes }));
     if (!x) return weSaveStatus('hazir');
     const summary = await api('/api/dunya?dunya=' + encodeURIComponent(DE.did)).catch(() => null); if (summary) { DE.ozet = summary; weMenuCount(); weWarning(); }
-    weSaveStatus('kaydedildi'); updated({ id: x.id, oduller: x.oduller, seviye: x.seviye, kosullar: x.kosullar.map(c => ({ tur: c.tur, hedef: c.hedef, eslesme: c.eslesme })), degisti: x.degisti, kapali: x.kapali, ad: x.ad });
+    weSaveStatus('kaydedildi'); updated({ id: x.id, oduller: x.oduller, seviye: x.seviye, conditions: x.conditions.map(c => ({ tur: c.tur, hedef: c.hedef, matches: c.matches })), degisti: x.degisti, kapali: x.kapali, ad: x.ad });
     if (regenerate) questDetail(qid, box, updated);
   };
   let timer = null;
   const delay = (fn, ms = 500) => { clearTimeout(timer); weSaveStatus('kaydediliyor'); timer = setTimeout(fn, ms); };
   const condition = (c, i) => {
-    const t = QU_KIND[c.tur] || ['info', N('Özel koşul'), null], kind = t[2], sc = std?.kosullar?.[i];
-    const subMaps = (c.alt.find(a => a.tur === 77) || {}).eslesme || [];
+    const t = QU_KIND[c.tur] || ['info', N('Özel koşul'), null], kind = t[2], sc = std?.conditions?.[i];
+    const subMaps = (c.sub.find(a => a.tur === 77) || {}).matches || [];
     const pickTarget = async () => {
       let es = null;
       if (kind === 'npc') { const u = await pickAlien(T('Hangi uzaylı?'), { with_id: true }); if (u) es = [String(u.npc_kimlik)]; }
       else if (kind === 'esya') { const l = await pickItem(T('Hangi eşya toplanacak?')); if (l) es = [l]; }
       else if (kind === 'cevher') { const l = await new Promise(res => popMenu(box.querySelector('.we-condition[data-i="' + i + '"] .de-kosul-hedef'), Object.entries(ORE_OLD).map(([k, loot]) => ({ label: itemName(loot), ic: 'box', fn: () => res([k]) })))); es = l; }
       else if (kind === 'harita') { const l = await pickMap(T('Hangi harita?'), [], { coklu: false }); if (l) es = l; }
-      if (es) save({ kosullar: [{ id: c.id, eslesme: es }] });
+      if (es) save({ conditions: [{ id: c.id, matches: es }] });
     };
-    const mapRestriction = async () => { const l = await pickMap(T('Yalnız bu haritalarda'), subMaps.map(x => String(x).replace(/^@/, ''))); if (l) save({ kosullar: [{ id: c.id, harita: l }] }); };
+    const mapRestriction = async () => { const l = await pickMap(T('Yalnız bu haritalarda'), subMaps.map(x => String(x).replace(/^@/, ''))); if (l) save({ conditions: [{ id: c.id, harita: l }] }); };
     return h('div', { class: 'we-condition', 'data-i': i }, h('div', { class: 'we-condition-icon' }, icon(t[0])),
       h('div', { class: 'we-condition-body' }, h('div', { class: 'small muted' }, T(t[1])),
         h('div', { class: 'row wrap', style: { gap: '8px' } },
-          kind === 'sure' ? h('span', { class: 'we-condition-text' }, fmtDur(c.hedef / 1000)) : c.tur === 34 ? null : weNumber(c.hedef, v => delay(() => save({ kosullar: [{ id: c.id, hedef: v }] }, false)), { min: 0, max: 1e7, width: 70 }),
+          kind === 'sure' ? h('span', { class: 'we-condition-text' }, fmtDur(c.hedef / 1000)) : c.tur === 34 ? null : weNumber(c.hedef, v => delay(() => save({ conditions: [{ id: c.id, hedef: v }] }, false)), { min: 0, max: 1e7, width: 70 }),
           kind && kind !== 'sure' ? h('button', { type: 'button', class: 'chip link de-kosul-hedef', onclick: pickTarget, title: T('Değiştir') },
-            kind === 'esya' ? gameIcon(c.eslesme[0], 20, null, 'box') : kind === 'npc' ? npcIcon((DE.uzayli || []).find(u => String(u.npc_kimlik) === String(c.eslesme[0])), 20) : icon(t[0]),
+            kind === 'esya' ? gameIcon(c.matches[0], 20, null, 'box') : kind === 'npc' ? npcIcon((DE.uzayli || []).find(u => String(u.npc_kimlik) === String(c.matches[0])), 20) : icon(t[0]),
             conditionTarget(c) || T('Seç'), icon('edit')) : null,
           ['npc', 'esya', null].includes(kind) && c.tur !== 62 ? h('button', { type: 'button', class: 'chip link', onclick: mapRestriction, title: T('Harita kısıtı') }, icon('map'),
             subMaps.length ? subMaps.map(mapLabel).join(', ') : T('Her haritada')) : null,
-          sc && sc.hedef !== c.hedef && kind !== 'sure' ? weStd(sc.hedef, c.hedef, () => save({ kosullar: [{ id: c.id, hedef: sc.hedef }] })) : null)));
+          sc && sc.hedef !== c.hedef && kind !== 'sure' ? weStd(sc.hedef, c.hedef, () => save({ conditions: [{ id: c.id, hedef: sc.hedef }] })) : null)));
   };
   const reward = ([l, n], i) => h('div', { class: 'we-reward-chip' }, gameIcon(l, 36, null, 'gift'), h('div', { class: 'we-reward-chip-name' }, h('div', { class: 'small ellipsis', title: l }, itemName(l)),
     weNumber(n, v => { g.oduller[i][1] = Math.max(1, v); delay(() => save({ oduller: g.oduller }, false)); }, { min: 1, max: 1e9, width: 84 })),
@@ -759,7 +759,7 @@ async function questDetail(qid, box, updated) {
     h('div', { class: 'we-field-row' }, h('label', null, T('Görev listede')), h('label', { class: 'switch' }, h('input', { type: 'checkbox', checked: !g.kapali, onchange: e => save({ kapali: !e.target.checked }) }), h('span')),
       h('span', { class: 'small muted' }, g.kapali ? T('Kapalı: görev vericide görünmez (sürüyorsa bitirilebilir).') : T('Açık: koşulları tutan pilot alabilir.'))),
     h('div', { class: 'we-subtitle' }, T('Hedefler')),
-    g.kosullar.length ? h('div', { class: 'stack', style: { gap: '8px' } }, g.kosullar.map(condition)) : h('div', { class: 'small muted' }, T('Bu görevin hedefi yok.')),
+    g.conditions.length ? h('div', { class: 'stack', style: { gap: '8px' } }, g.conditions.map(condition)) : h('div', { class: 'small muted' }, T('Bu görevin hedefi yok.')),
     h('div', { class: 'we-subtitle' }, T('Ödüller')),
     h('div', { class: 'we-rewards' }, g.oduller.map(reward),
       h('button', { type: 'button', class: 'we-reward-add', onclick: async () => { const l = await pickItem(T('Ödül ekle')); if (!l) return; g.oduller.push([l, l.startsWith('currency_') ? 1000 : 1]); save({ oduller: g.oduller }); } }, icon('plus'), T('Ödül ekle'))),
@@ -804,16 +804,16 @@ function newQuest() {
   const targetRow = (x, i) => {
     const s = QU_TEMPLATE.find(y => y[0] === x.tur);
     const sec = async () => {
-      if (x.tur === 'avla') { const u = await pickAlien(T('Hangi uzaylı?'), { with_id: true }); if (u) { x.eslesme = [String(u.npc_kimlik)]; x.etiket = npcName(u); x.ikon = u; } }
-      else if (x.tur === 'topla') { const l = await pickItem(T('Hangi eşya toplanacak?')); if (l) { x.eslesme = [l]; x.etiket = itemName(l); x.loot = l; } }
-      else if (x.tur === 'sat') { const l = await new Promise(res => popMenu(body.querySelector('[data-h="' + i + '"] .de-kosul-hedef'), Object.entries(ORE_OLD).map(([k, loot]) => ({ label: itemName(loot), ic: 'box', fn: () => res([k, loot]) })))); if (l) { x.eslesme = [l[0]]; x.etiket = itemName(l[1]); x.loot = l[1]; } }
-      else if (x.tur === 'kesif') { const l = await pickMap(T('Hangi harita?'), [], { coklu: false }); if (l) { x.eslesme = l; x.etiket = l[0]; } }
+      if (x.tur === 'avla') { const u = await pickAlien(T('Hangi uzaylı?'), { with_id: true }); if (u) { x.matches = [String(u.npc_kimlik)]; x.etiket = npcName(u); x.ikon = u; } }
+      else if (x.tur === 'topla') { const l = await pickItem(T('Hangi eşya toplanacak?')); if (l) { x.matches = [l]; x.etiket = itemName(l); x.loot = l; } }
+      else if (x.tur === 'sat') { const l = await new Promise(res => popMenu(body.querySelector('[data-h="' + i + '"] .de-kosul-hedef'), Object.entries(ORE_OLD).map(([k, loot]) => ({ label: itemName(loot), ic: 'box', fn: () => res([k, loot]) })))); if (l) { x.matches = [l[0]]; x.etiket = itemName(l[1]); x.loot = l[1]; } }
+      else if (x.tur === 'kesif') { const l = await pickMap(T('Hangi harita?'), [], { coklu: false }); if (l) { x.matches = l; x.etiket = l[0]; } }
       render();
     };
     const selectable = ['avla', 'topla', 'sat', 'kesif'].includes(x.tur);
     return h('div', { class: 'we-condition', 'data-h': i }, h('div', { class: 'we-condition-icon' }, icon(s[1])), h('div', { class: 'we-condition-body' }, h('div', { class: 'small muted' }, T(s[3])),
       h('div', { class: 'row wrap', style: { gap: '8px' } }, x.tur !== 'kesif' ? weNumber(x.hedef, v => { x.hedef = Math.max(1, v); }, { min: 1, max: 1e7, width: 70 }) : null,
-        selectable ? h('button', { type: 'button', class: 'chip link de-kosul-hedef' + (x.eslesme?.length ? '' : ' bos'), onclick: sec },
+        selectable ? h('button', { type: 'button', class: 'chip link de-kosul-hedef' + (x.matches?.length ? '' : ' bos'), onclick: sec },
           x.loot ? gameIcon(x.loot, 20, null, 'box') : x.ikon ? npcIcon(x.ikon, 20) : icon(s[1]), x.etiket || T('Seç'), icon('edit')) : null,
         x.tur !== 'kesif' ? h('button', { type: 'button', class: 'chip link', onclick: async () => { const l = await pickMap(T('Yalnız bu haritalarda'), x.harita || []); if (l) { x.harita = l; render(); } } },
           icon('map'), x.harita?.length ? x.harita.join(', ') : T('Her haritada')) : null)),
@@ -836,11 +836,11 @@ function newQuest() {
       h('div', { class: 'we-field-row' }, h('label', null, T('Gereken seviye')), weNumber(g.seviye, v => { g.seviye = v; }, { min: 1, max: 40, width: 56 })),
       h('div', { class: 'small muted' }, T('Görev, firmanın görev vericisinde (istasyon) listelenir; ad oyunda görevin başlığı olur.'))];
     fill(body, h('div', { class: 'stack', style: { gap: '12px' } }, steps, ...iconEl));
-    const missing = step === 0 && (!g.hedefler.length || g.hedefler.some(x => ['avla', 'topla', 'sat', 'kesif'].includes(x.tur) && !x.eslesme?.length));
+    const missing = step === 0 && (!g.hedefler.length || g.hedefler.some(x => ['avla', 'topla', 'sat', 'kesif'].includes(x.tur) && !x.matches?.length));
     fill(sub, btn(step ? T('Geri') : T('Vazgeç'), () => { if (step) { step--; render(); } else m.close(); }, 'ghost', step ? 'arrowL' : null),
       step < 2 ? btn(T('İleri'), () => { step++; render(); }, 'primary', 'arrowR', { disabled: missing, title: missing ? T('Her hedef için ne yapılacağını seç.') : null })
         : btn(T('Görevi oluştur'), async () => {
-          const x = await act(() => api('/api/dunya/new_quest', { dunya: DE.did, ad: g.ad, seviye: g.seviye, hedefler: g.hedefler.map(y => ({ tur: y.tur, hedef: y.hedef, eslesme: y.eslesme, harita: y.harita })), oduller: g.oduller }), T('Görev oluşturuldu.'));
+          const x = await act(() => api('/api/dunya/new_quest', { dunya: DE.did, ad: g.ad, seviye: g.seviye, hedefler: g.hedefler.map(y => ({ tur: y.tur, hedef: y.hedef, matches: y.matches, harita: y.harita })), oduller: g.oduller }), T('Görev oluşturuldu.'));
           if (!x) return;
           m.close(); DE.sec.quests = { q: '', filter_by: 'yeni', secili: x.id, sinir: 150 };
           const summary = await api('/api/dunya?dunya=' + encodeURIComponent(DE.did)).catch(() => null); if (summary) { DE.ozet = summary; weMenuCount(); weWarning(); }
@@ -853,29 +853,29 @@ function newQuest() {
 // ================================================================== MAĞAZA
 async function weShop(area, b) {
   const r = await act(() => api('/api/dunya/section?bolum=magaza&dunya=' + encodeURIComponent(DE.did))); if (!r || DE.section !== 'magaza') return;
-  const cats = Object.keys(r.kategoriler);
+  const cats = Object.keys(r.categories);
   if (!cats.length) return fill(area, h('div', { class: 'card' }, weTitle(b), h('div', { class: 'empty muted' }, T('Mağaza kataloğu bulunamadı (data/yanitlar.json).'))));
-  const f = DE.sec.shop || (DE.sec.shop = { kat: cats[0], q: '', filter_by: 'hepsi' });
-  if (!cats.includes(f.kat)) f.kat = cats[0];
+  const f = DE.sec.shop || (DE.sec.shop = { multiplier: cats[0], q: '', filter_by: 'hepsi' });
+  if (!cats.includes(f.multiplier)) f.multiplier = cats[0];
   const grid = h('div', { class: 'shop-grid we-shop' });
   const priceText = (u, p) => fmtN(u) + (p === 'C' ? ' C.' : ' U.');
   const render = () => {
     const s = f.q.trim().toLowerCase();
-    const l = r.kategoriler[f.kat].filter(it => (f.filter_by === 'hepsi' || (f.filter_by === 'degisti' ? it.dunya : it.dunya?.on_sale === false)) && (!s || itemName(it.lootId).toLowerCase().includes(s) || it.lootId.includes(s)));
+    const l = r.categories[f.multiplier].filter(it => (f.filter_by === 'hepsi' || (f.filter_by === 'degisti' ? it.dunya : it.dunya?.on_sale === false)) && (!s || itemName(it.lootId).toLowerCase().includes(s) || it.lootId.includes(s)));
     fill(grid, ...l.map(it => { const d = it.dunya || {}, closed = d.on_sale === false, changed = d.fiyat != null;
       return h('button', { type: 'button', class: 'shop-card we-shop-card' + (closed ? ' kapali' : '') + (it.dunya ? ' degisti' : ''), onclick: () => editProduct(it, render) },
         gameIcon(it.lootId, 64, null, 'cart'), h('div', { class: 'shop-name', title: it.lootId }, itemName(it.lootId)),
-        h('div', { class: 'shop-price ' + ((changed ? d.para : it.para) === 'C' ? 'cred' : 'uri') }, closed ? T('Satışta değil') : priceText(changed ? d.fiyat : it.fiyat, changed ? d.para : it.para)),
-        changed && !closed ? h('div', { class: 'small dim we-strikethrough' }, priceText(it.fiyat, it.para)) : null); }),
+        h('div', { class: 'shop-price ' + ((changed ? d.currency : it.currency) === 'C' ? 'cred' : 'uri') }, closed ? T('Satışta değil') : priceText(changed ? d.fiyat : it.fiyat, changed ? d.currency : it.currency)),
+        changed && !closed ? h('div', { class: 'small dim we-strikethrough' }, priceText(it.fiyat, it.currency)) : null); }),
       !l.length ? h('div', { class: 'empty small muted' }, T('Ürün yok.')) : null);
   };
   const CAT = typeof SHP_CATEGORY !== 'undefined' ? SHP_CATEGORY : {};
   fill(area, h('div', { class: 'stack' }, h('div', { class: 'card' },
     weTitle(b, h('input', { class: 'input', style: { width: '180px' }, placeholder: T('Ara…'), value: f.q, oninput: e => { f.q = e.target.value; render(); } }),
-      btn(T('Toplu fiyat'), () => bulkPrice(r.kategoriler[f.kat], render), 'sm', 'sliders')),
+      btn(T('Toplu fiyat'), () => bulkPrice(r.categories[f.multiplier], render), 'sm', 'sliders')),
     h('div', { class: 'row wrap', style: { gap: '10px', marginTop: '12px' } },
-      h('div', { class: 'seg' }, cats.map(c => h('button', { class: c === f.kat ? 'on info' : '', onclick: () => { f.kat = c; weRenderSection(); } }, CAT[c] ? T(CAT[c]) : c,
-        r.kategoriler[c].some(it => it.dunya) ? h('span', { class: 'we-dot' }) : null))),
+      h('div', { class: 'seg' }, cats.map(c => h('button', { class: c === f.multiplier ? 'on info' : '', onclick: () => { f.multiplier = c; weRenderSection(); } }, CAT[c] ? T(CAT[c]) : c,
+        r.categories[c].some(it => it.dunya) ? h('span', { class: 'we-dot' }) : null))),
       h('div', { class: 'seg' }, [['hepsi', N('Hepsi')], ['degisti', N('Değiştirilenler')], ['kapali', N('Satıştan kaldırılanlar')]].map(([k, name]) =>
         h('button', { class: f.filter_by === k ? 'on info' : '', onclick: () => { f.filter_by = k; weRenderSection(); } }, T(name))))),
     h('p', { class: 'small muted', style: { margin: '10px 0 0' } }, T('Oyun Ayarları\'ndaki mağaza fiyatı çarpanı bu fiyatların üstüne uygulanır. Dronların ve seviyeli P.E.T. ürünlerinin fiyatı kendi kuralıyla işler.'))),
@@ -885,9 +885,9 @@ async function weShop(area, b) {
 
 function editProduct(it, refresh) {
   const d = Object.assign({}, it.dunya || {}), fixed = it.sabit;
-  let price = d.fiyat ?? it.fiyat, currency = d.para || it.para, on_sale = d.on_sale !== false;
+  let price = d.fiyat ?? it.fiyat, currency = d.currency || it.currency, on_sale = d.on_sale !== false;
   const save = async () => {
-    const value = {}; if (!fixed && (price !== it.fiyat || currency !== it.para)) { value.fiyat = price; value.para = currency; } if (!on_sale) value.on_sale = false;
+    const value = {}; if (!fixed && (price !== it.fiyat || currency !== it.currency)) { value.fiyat = price; value.currency = currency; } if (!on_sale) value.on_sale = false;
     const empty = !Object.keys(value).length;
     const r = empty ? await weRevert('magaza', jp('urunler', it.lootId)) : await wePatch('magaza', jp('urunler', it.lootId), value, { ms: 0 });
     if (r) { it.dunya = empty ? null : value; refresh(); m.close(); }
@@ -895,7 +895,7 @@ function editProduct(it, refresh) {
   const seg = h('div', { class: 'seg' }, [['C', N('Kredi')], ['U', N('Uridyum')]].map(([k, name]) => h('button', { class: currency === k ? 'on info' : '', disabled: fixed,
     onclick: e => { currency = k; seg.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === e.currentTarget)); seg.querySelectorAll('button').forEach(x => x.classList.toggle('info', x === e.currentTarget)); } }, T(name))));
   const m = modal({ title: itemName(it.lootId), sub: it.lootId, body: h('div', { class: 'stack', style: { gap: '14px' } },
-    h('div', { class: 'row', style: { gap: '14px' } }, gameIcon(it.lootId, 72, null, 'cart'), h('div', { class: 'small muted' }, T('Standart fiyat: {0}', fmtN(it.fiyat) + (it.para === 'C' ? ' C.' : ' U.')))),
+    h('div', { class: 'row', style: { gap: '14px' } }, gameIcon(it.lootId, 72, null, 'cart'), h('div', { class: 'small muted' }, T('Standart fiyat: {0}', fmtN(it.fiyat) + (it.currency === 'C' ? ' C.' : ' U.')))),
     fixed ? h('div', { class: 'alert bilgi' }, icon('info'), h('div', null, T('Bu ürünün fiyatı kendi kuralıyla hesaplanır (dron sayısı, P.E.T. seviyesi); yalnız satıştan kaldırabilirsin.'))) : null,
     h('div', { class: 'we-field-row' }, h('label', null, T('Fiyat')), weNumber(price, v => { price = v; }, { min: 0, max: 1e10, adim: currency === 'C' ? 1000 : 10, width: 130 }), seg),
     h('div', { class: 'we-field-row' }, h('label', null, T('Satışta')), h('label', { class: 'switch' }, h('input', { type: 'checkbox', checked: on_sale, onchange: e => { on_sale = e.target.checked; } }), h('span')),
@@ -912,7 +912,7 @@ function bulkPrice(products, refresh) {
     foot: [btn(T('Vazgeç'), () => m.close(), 'ghost'), btn(T('Uygula'), async () => {
       m.close(); const l = products.filter(it => !it.sabit && it.dunya?.on_sale !== false);
       for (const it of l) {
-        const value = { fiyat: Math.round(it.fiyat * percent / 100), para: it.para };
+        const value = { fiyat: Math.round(it.fiyat * percent / 100), currency: it.currency };
         const r = percent === 100 ? await weRevert('magaza', jp('urunler', it.lootId)) : await act(() => api('/api/dunya/yama', { dunya: DE.did, dosya: 'magaza', yol: jp('urunler', it.lootId), value }));
         if (r) { it.dunya = percent === 100 ? null : value; DE.ozet = Object.assign(DE.ozet, r); }
       }
@@ -963,14 +963,14 @@ function oreBlock(hm, markSelected) {
   const c = hm.cevher, count = Object.assign({}, c.adet), box = h('div', { class: 'stack', style: { gap: '6px' } });
   const save = () => { c.ozel = true; wePatch('items.json', c.yol, count); markSelected(); render(); };
   const render = () => {
-    const var_ = Object.keys(c.turler).filter(t => count[t] > 0);
+    const var_ = Object.keys(c.kinds).filter(t => count[t] > 0);
     fill(box, 
       h('div', { class: 'small muted' }, c.ozel ? T('Bu haritaya özel.') : T('{0} sınıfının değerleri (aynı sınıftaki bütün haritalar). Değiştirince yalnız bu haritaya özel olur.', c.sinif)),
-      ...var_.map(t => h('div', { class: 'we-ore' }, gameIcon(c.turler[t], 24, null, 'box'), h('span', { class: 'small ellipsis' }, itemName(c.turler[t])),
+      ...var_.map(t => h('div', { class: 'we-ore' }, gameIcon(c.kinds[t], 24, null, 'box'), h('span', { class: 'small ellipsis' }, itemName(c.kinds[t])),
         weNumber(count[t], v => { count[t] = v; save(); }, { max: 1000, adim: 5, width: 52 }))),
       !var_.length ? h('div', { class: 'small dim' }, T('Bu haritada cevher yok.')) : null,
       h('div', { class: 'row wrap', style: { gap: '6px' } },
-        btn(T('Cevher ekle'), ev => popMenu(ev.currentTarget, Object.keys(c.turler).filter(t => !(count[t] > 0)).map(t => ({ label: itemName(c.turler[t]), ic: 'plus',
+        btn(T('Cevher ekle'), ev => popMenu(ev.currentTarget, Object.keys(c.kinds).filter(t => !(count[t] > 0)).map(t => ({ label: itemName(c.kinds[t]), ic: 'plus',
           fn: () => { count[t] = 20; save(); } }))), 'sm', 'plus'),
         c.ozel ? btn(T('Sınıfın değerine döndür'), async () => { if (await weRevert('items.json', c.yol)) weRenderSection(); }, 'sm ghost', 'undo') : null),
       h('div', { class: 'we-field-row' }, h('label', null, T('Yeniden doğma')), weNumber(c.yeniden_sn[0], v => { c.yeniden_sn[0] = v; regeneration(); }, { min: 1, max: 3600, width: 46 }),
@@ -994,13 +994,13 @@ async function weBoxes(area, b) {
   const r = await act(() => api('/api/dunya/section?bolum=kutular&dunya=' + encodeURIComponent(DE.did))); if (!r || DE.section !== 'kutular') return;
   const f = DE.sec.box_kinds || (DE.sec.box_kinds = { secili: 'bonus' });
   const entries = h('div', { class: 'we-npc-list' }), detail = h('div', { class: 'we-detail' });
-  const items = [{ id: 'bonus', ad: T('Bonus kutusu'), alt: T('Bütün haritalarda (4-X hariç)'), ikon: 'bonus_box', degisti: r.bonus_changed },
-    { id: 'bonus_4x', ad: T('Zengin bonus kutusu'), alt: T('Savaş haritalarında (4-X)'), ikon: 'bonus_box_green', degisti: r.bonus_4x_changed },
-    ...r.kutular.map(k => ({ id: k.tur, ad: k.ad, alt: !k.yerde ? T('Haritalarda doğmaz') : k.takvim ? T('Etkinlikte') : T('Her zaman'), box: k, changed: k.degisti }))];
+  const items = [{ id: 'bonus', ad: T('Bonus kutusu'), sub: T('Bütün haritalarda (4-X hariç)'), ikon: 'bonus_box', degisti: r.bonus_changed },
+    { id: 'bonus_4x', ad: T('Zengin bonus kutusu'), sub: T('Savaş haritalarında (4-X)'), ikon: 'bonus_box_green', degisti: r.bonus_4x_changed },
+    ...r.kutular.map(k => ({ id: k.tur, ad: k.ad, sub: !k.spawns ? T('Haritalarda doğmaz') : k.takvim ? T('Etkinlikte') : T('Her zaman'), box: k, changed: k.degisti }))];
   const render = () => {
     fill(entries, ...items.map(o => h('button', { type: 'button', class: 'de-npc' + (f.secili === o.id ? ' on' : '') + (o.degisti ? ' degisti' : ''),
       onclick: () => { f.secili = o.id; render(); } }, o.kutu ? boxIcon(o.kutu, 36) : (GI.index?.sprite[o.ikon] ? sprite(o.ikon, 36) : icon('gift')),
-      h('div', { class: 'we-npc-name' }, h('b', null, o.ad), h('div', { class: 'small muted' }, o.alt)))));
+      h('div', { class: 'we-npc-name' }, h('b', null, o.ad), h('div', { class: 'small muted' }, o.sub)))));
     const o = items.find(x => x.id === f.secili) || items[0];
     fill(detail, o.kutu ? boxDetail(o, r) : bonusDetail(o, r));
   };
@@ -1021,7 +1021,7 @@ function bonusDetail(o, r) {
       icon('plus'), T('Ödül ekle')));
   render();
   return h('div', { class: 'stack', style: { gap: '12px' } },
-    h('div', { class: 'we-detail-head' }, GI.index?.sprite[o.ikon] ? sprite(o.ikon, 56) : icon('gift'), h('div', null, h('div', { class: 'de-h3' }, o.ad), h('div', { class: 'small muted' }, o.alt))),
+    h('div', { class: 'we-detail-head' }, GI.index?.sprite[o.ikon] ? sprite(o.ikon, 56) : icon('gift'), h('div', null, h('div', { class: 'de-h3' }, o.ad), h('div', { class: 'small muted' }, o.sub))),
     h('p', { class: 'small muted', style: { margin: 0 } }, T('Kutu toplanınca satırlardan biri eşit şansla düşer. Haritadaki kutu sayısı Haritalar bölümünde.')),
     box,
     o.degisti ? btn(T('Standarda döndür'), async () => { if (await weRevert('npc.json', route)) weRenderSection(); }, 'sm ghost', 'undo') : null);
@@ -1080,7 +1080,7 @@ async function weGates(area, b) {
   const render = () => {
     fill(entries, ...r.kapilar.map(g => h('button', { type: 'button', class: 'de-npc' + (f.secili === g.key ? ' on' : '') + (g.degisti ? ' degisti' : ''),
       onclick: () => { f.secili = g.key; render(); } }, art('ed_kapilar', 'we-gate-icon'),
-      h('div', { class: 'we-npc-name' }, h('b', null, g.ad), h('div', { class: 'small muted' }, T('{0} dalga · {1} parça', g.dalgalar.length, g.parca))))));
+      h('div', { class: 'we-npc-name' }, h('b', null, g.ad), h('div', { class: 'small muted' }, T('{0} dalga · {1} parça', g.waves.length, g.parca))))));
     const g = r.kapilar.find(x => x.key === f.secili) || r.kapilar[0];
     fill(detail, gateDetail(g, f));
   };
@@ -1092,8 +1092,8 @@ function gateDetail(g, f) {
   const route = jp('kapilar', g.key), std = g.standart;
   const save = () => {
     g.degisti = true;
-    return wePatch('gates.json', route, { parca: g.parca, can: g.can, odul: Object.assign({}, g.odul, { cephane: g.cephane, sans: g.sans.map(x => ({ adet: x.adet, olasilik: x.olasilik })) }),
-      dalgalar: g.dalgalar.map(w => ({ uzaylilar: w.uzaylilar.map(a => ({ tur: a.tur, adet: a.adet, hp: a.hp, kalkan: a.kalkan, hasar: a.hasar, hiz: a.hiz })) })) });
+    return wePatch('gates.json', route, { parca: g.parca, can: g.can, odul: Object.assign({}, g.odul, { cephane: g.cephane, sans: g.sans.map(x => ({ adet: x.adet, probability: x.probability })) }),
+      waves: g.waves.map(w => ({ uzaylilar: w.uzaylilar.map(a => ({ tur: a.tur, adet: a.adet, hp: a.hp, kalkan: a.kalkan, hasar: a.hasar, hiz: a.hiz })) })) });
   };
   const row = (name, k, opts) => h('div', { class: 'we-field-row' + (std && std[k] !== g[k] ? ' degisti' : '') }, h('label', null, name),
     weNumber(g[k], v => { g[k] = v; save(); }, opts), std ? weStd(std[k], g[k], () => { g[k] = std[k]; save(); weRenderSection(); }) : null);
@@ -1108,7 +1108,7 @@ function gateDetail(g, f) {
     const is_open = !!f.acik[g.key + n], total = w.uzaylilar.reduce((a, x) => a + x.adet, 0);
     const value = (name, v, cb, opts) => h('label', { class: 'we-wave-value' }, h('span', null, name), weNumber(v, cb, opts));
     const body = is_open ? h('div', { class: 'we-wave-body' }, w.uzaylilar.map(a => h('div', { class: 'we-wave-row' }, npcIcon(a, 30),
-      h('div', { class: 'we-box-body' }, h('div', { class: 'we-npc-name' }, h('b', null, npcName(a)), a.kalici ? badge(T('Patron'), 'orange') : null,
+      h('div', { class: 'we-box-body' }, h('div', { class: 'we-npc-name' }, h('b', null, npcName(a)), a.permanent ? badge(T('Patron'), 'orange') : null,
           a.changed_kind ? badge(T('Değiştirildi'), 'orange') : null, h('span', { class: 'spacer' }),
           a.sabit ? null : btn(T('Değiştir'), async () => {
             const u = await pickAlien(T('Bu dalgada hangi uzaylı olsun?'), { numeric: true }); if (!u) return;
@@ -1124,7 +1124,7 @@ function gateDetail(g, f) {
       icon(is_open ? 'chevR' : 'chevR'), h('b', null, T('Dalga {0}', ROMAN(n))), h('span', { class: 'we-wave-icons' }, w.uzaylilar.slice(0, 6).map(a => npcIcon(a, 22))), h('span', { class: 'spacer' }), summary), body);
   };
   return h('div', { class: 'stack', style: { gap: '12px' } },
-    h('div', { class: 'we-detail-head' }, art('ed_kapilar', 'we-gate-icon buyuk'), h('div', null, h('div', { class: 'de-h3' }, g.ad), h('div', { class: 'small muted' }, T('{0} dalga', g.dalgalar.length)))),
+    h('div', { class: 'we-detail-head' }, art('ed_kapilar', 'we-gate-icon buyuk'), h('div', null, h('div', { class: 'de-h3' }, g.ad), h('div', { class: 'small muted' }, T('{0} dalga', g.waves.length)))),
     row(T('Gereken parça'), 'parca', { min: 1, max: 10000, width: 64 }), row(T('Can'), 'can', { min: 1, max: 100, width: 50 }),
     h('div', { class: 'we-subtitle' }, T('Kapı ödülü')),
     h('div', { class: 'we-reward-grid' }, GATE_REWARD_FIELD.filter(([k]) => k in g.odul).map(([k, name, looks]) => h('div', { class: 'we-reward' + (std && std.odul[k] !== g.odul[k] ? ' degisti' : '') },
@@ -1135,11 +1135,11 @@ function gateDetail(g, f) {
       x.paket ? icon('gift') : gameIcon(x.esya, 32, null, 'gift'), h('div', { class: 'we-box-body' }, h('span', { class: 'we-box-name' }, x.paket ? T('Cevher paketi') : itemName(x.esya)),
         h('div', { class: 'we-box-controls' },
           typeof x.adet === 'number' && !x.paket ? [h('span', { class: 'small muted' }, T('Adet')), weNumber(x.adet, v => { x.adet = Math.max(1, v); save(); }, { min: 1, max: 1e7, width: 60 })] : null,
-          h('span', { class: 'small muted' }, T('Şans')), h('input', { class: 'input num we-weight', type: 'number', min: 0, max: 100, step: 'any', value: +(x.olasilik * 100).toFixed(3),
-            onchange: e => { x.olasilik = Math.max(0, Math.min(100, +e.target.value || 0)) / 100; save(); } }), h('span', { class: 'we-percent' }, '%'))), h('span'))))] : null,
+          h('span', { class: 'small muted' }, T('Şans')), h('input', { class: 'input num we-weight', type: 'number', min: 0, max: 100, step: 'any', value: +(x.probability * 100).toFixed(3),
+            onchange: e => { x.probability = Math.max(0, Math.min(100, +e.target.value || 0)) / 100; save(); } }), h('span', { class: 'we-percent' }, '%'))), h('span'))))] : null,
     h('div', { class: 'we-subtitle' }, T('Dalgalar')),
     h('p', { class: 'small muted', style: { margin: 0 } }, T('Adet değişince dalganın alt grupları orantılı bölünür. Oyun Ayarları\'ndaki dalga uzaylı çarpanı bunun üstüne uygulanır.')),
-    h('div', { class: 'stack', style: { gap: '6px' } }, g.dalgalar.map(wave)),
+    h('div', { class: 'stack', style: { gap: '6px' } }, g.waves.map(wave)),
     g.degisti ? btn(T('Kapıyı standarda döndür'), async () => { if (await weRevert('gates.json', route)) weRenderSection(); }, 'sm ghost', 'undo') : null);
 }
 
@@ -1175,7 +1175,7 @@ async function weEvents(area, b) {
 function eventDetail(e, r, f) {
   const route = jp('etkinlikler', e.key);
   const save = () => { e.degisti = true; wePatch('events.json', route, { world_status: e.world_status, donemler: e.donemler || undefined,
-    harita: e.harita ? { haritalar: e.harita.haritalar, uzaylilar: e.harita.uzaylilar.map(a => ({ adet: a.adet })), kota: e.harita.kota, patron: e.harita.patron } : undefined }); };
+    harita: e.harita ? { haritalar: e.harita.haritalar, uzaylilar: e.harita.uzaylilar.map(a => ({ adet: a.adet })), quota: e.harita.quota, patron: e.harita.patron } : undefined }); };
   const state = h('div', { class: 'seg' }, EVENT_STATUS.map(([k, name, c]) => h('button', { class: e.world_status === k ? 'on ' + c : '',
     onclick: () => { e.world_status = k; save(); weRenderSection(); } }, T(name))));
   const out = [h('div', { class: 'we-detail-head' }, e.harita?.uzaylilar[0] ? npcIcon(e.harita.uzaylilar[0], 56) : weIcon('etkinlikler', 'we-gate-icon buyuk'),
@@ -1203,24 +1203,24 @@ function eventDetail(e, r, f) {
     };
     renderPeriods();
     out.push(h('div', { class: 'we-subtitle' }, T('Dönemler')), h('p', { class: 'small muted', style: { margin: 0 } }, T('Etkinlik bu tarihler arasında açılır (bitiş günü dahil). "Her yıl" dönemleri her yıl aynı günlerde tekrar eder.')), box);
-  } else if (e.gunler || e.saatler) {
+  } else if (e.days || e.saatler) {
     const WEEKDAYS = [N('Pzt'), N('Sal'), N('Çar'), N('Per'), N('Cum'), N('Cmt'), N('Paz')];
     out.push(h('div', { class: 'we-subtitle' }, T('Haftalık düzen')), h('div', { class: 'small muted' },
-      (e.gunler ? e.gunler.map(g => T(WEEKDAYS[g])).join(', ') : T('Her gün')) + (e.saatler ? ' · ' + e.saatler.map(([a, b2]) => String(a).padStart(2, '0') + ':00–' + String(b2).padStart(2, '0') + ':00').join(', ') : '')),
+      (e.days ? e.days.map(g => T(WEEKDAYS[g])).join(', ') : T('Her gün')) + (e.saatler ? ' · ' + e.saatler.map(([a, b2]) => String(a).padStart(2, '0') + ':00–' + String(b2).padStart(2, '0') + ':00').join(', ') : '')),
       h('div', { class: 'small dim' }, T('Haftalık düzen değiştirilemez; "Hep açık" ya da "Kapalı" ile bu dünyada sabitleyebilirsin.')));
   }
   if (e.harita) {
     const gameMap = e.harita;
     const classes = h('div', { class: 'chips' }, r.classes.map(m => { const var_ = gameMap.haritalar.includes(m), allowed = gameMap.selectable.includes(m);
       return h('button', { type: 'button', class: 'chip link we-class' + (var_ ? ' on' : ''), disabled: !allowed && !var_, title: allowed ? null : T('Bu etkinliğin bu harita sınıfı için uzaylısı yok'),
-        onclick: () => { gameMap.haritalar = var_ ? gameMap.haritalar.filter(x => x !== m) : [...gameMap.haritalar, m]; if (!var_ && gameMap.kota[m] == null) gameMap.kota[m] = Math.max(20, ...Object.values(gameMap.kota)); save(); weRenderSection(); } },
+        onclick: () => { gameMap.haritalar = var_ ? gameMap.haritalar.filter(x => x !== m) : [...gameMap.haritalar, m]; if (!var_ && gameMap.quota[m] == null) gameMap.quota[m] = Math.max(20, ...Object.values(gameMap.quota)); save(); weRenderSection(); } },
         var_ ? icon('check') : icon('plus'), m); }));
     out.push(h('div', { class: 'we-subtitle' }, T('Harita etkinliği')), h('div', { class: 'small muted' }, T('Etkinliğin uzaylılarının doğduğu harita sınıfları:')), classes,
       ...gameMap.uzaylilar.map(a => h('div', { class: 'we-field-row' }, npcIcon(a, 28), h('b', { class: 'small', style: { minWidth: '120px' } }, npcName(a)),
         weNumber(a.adet, v => { a.adet = v; save(); }, { max: 200, width: 56 }), h('span', { class: 'small muted' }, T('haritada aynı anda')))),
-      Object.keys(gameMap.kota).length ? h('div', { class: 'small muted' }, T('Harita başına kota (etkinlik boyunca o haritada en çok doğan):')) : null,
-      Object.keys(gameMap.kota).length ? h('div', { class: 'we-quota' }, gameMap.haritalar.filter(m => m in gameMap.kota).map(m => h('label', { class: 'we-wave-value' }, h('span', null, m),
-        weNumber(gameMap.kota[m], v => { gameMap.kota[m] = v; save(); }, { max: 10000, width: 56 })))) : null,
+      Object.keys(gameMap.quota).length ? h('div', { class: 'small muted' }, T('Harita başına kota (etkinlik boyunca o haritada en çok doğan):')) : null,
+      Object.keys(gameMap.quota).length ? h('div', { class: 'we-quota' }, gameMap.haritalar.filter(m => m in gameMap.quota).map(m => h('label', { class: 'we-wave-value' }, h('span', null, m),
+        weNumber(gameMap.quota[m], v => { gameMap.quota[m] = v; save(); }, { max: 10000, width: 56 })))) : null,
       gameMap.patron ? h('div', { class: 'we-field-row' }, h('label', null, T('Patron')), h('label', { class: 'we-wave-value' }, h('span', null, T('Adet')),
         weNumber(gameMap.patron.adet, v => { gameMap.patron.adet = v; save(); }, { max: 50, width: 46 })),
         h('label', { class: 'we-wave-value' }, h('span', null, T('Süre (dk)')), weNumber(Math.round(gameMap.patron.sure_sn / 60), v => { gameMap.patron.sure_sn = Math.max(1, v) * 60; save(); }, { min: 1, max: 1440, width: 52 }))) : null);
@@ -1237,10 +1237,10 @@ const RANK_FORMULA = [['ep', N('Deneyim puanı başına')], ['onur', N('Onur pua
 
 async function weEconomy(area, b) {
   const r = await act(() => api('/api/dunya/section?bolum=ekonomi&dunya=' + encodeURIComponent(DE.did))); if (!r || DE.section !== 'ekonomi') return;
-  const f = DE.sec.ek || (DE.sec.ek = { tum: false });
+  const f = DE.sec.ek || (DE.sec.ek = { all: false });
   const lv = r.seviyeler.map(x => x.slice()), es = r.esikler.slice(), fo = Object.assign({}, r.formul);
   const saveLevels = () => wePatch('levels.json', jp('seviyeler'), lv.map(x => x[1]));
-  const limit = f.tum ? lv.length : 26;
+  const limit = f.all ? lv.length : 26;
   const levels = h('div', { class: 'we-level-grid' }, lv.slice(1, limit).map((x, i) => h('label', { class: 'we-wave-value' + (x[1] !== r.levels_default[i + 1][1] ? ' degisti' : '') },
     h('span', { class: 'we-lv' }, x[0]), weNumber(x[1], v => { x[1] = v; saveLevels(); }, { min: 1, max: 1e15, adim: 1000, width: 112 }))));
   const percent = h('div', { class: 'chips' }, [50, 75, 125, 200].map(p => h('button', { type: 'button', class: 'chip link', onclick: () => {
@@ -1257,7 +1257,7 @@ async function weEconomy(area, b) {
     h('div', { class: 'card' }, weTitle(b)),
     h('div', { class: 'card' }, h('div', { class: 'row between wrap' }, h('h2', null, icon('star'), T('Seviye eşikleri')), h('div', { class: 'row', style: { gap: '6px' } }, percent, back('levels.json', jp('seviyeler')))),
       h('p', { class: 'desc' }, T('Her seviyeye ulaşmak için gereken toplam deneyim (EP). Hızlı ilerleme için standart eşiklerin yüzdesini seç.')), levels,
-      lv.length > limit || f.tum ? btn(f.tum ? T('Daha az göster') : T('Bütün seviyeler ({0})', lv.length), () => { f.tum = !f.tum; weRenderSection(); }, 'sm ghost', 'chevR') : null),
+      lv.length > limit || f.all ? btn(f.all ? T('Daha az göster') : T('Bütün seviyeler ({0})', lv.length), () => { f.all = !f.all; weRenderSection(); }, 'sm ghost', 'chevR') : null),
     h('div', { class: 'card' }, h('div', { class: 'row between wrap' }, h('h2', null, icon('shield'), T('Rütbe puanı formülü')), back('ranks.json', jp('formul'))),
       h('p', { class: 'desc' }, T('Rütbe puanı bu katsayılarla toplanır; eksi katsayılar puan düşürür.')), formula),
     h('div', { class: 'card' }, h('div', { class: 'row between wrap' }, h('h2', null, icon('shield'), T('Rütbe eşikleri')), back('ranks.json', jp('esikler'))),
@@ -1268,18 +1268,18 @@ async function weEconomy(area, b) {
 // ================================================================== PAYLAŞIM (dışa / içe aktarma, paylaşım kodu)
 async function weExport(w) {
   const r = await act(() => api('/api/dunya/kod', { dunya: w.id })); if (!r) return;
-  const long = r.kod.length > 1900;
-  const code = h('textarea', { class: 'input mono we-code', rows: 4, readonly: true }, r.kod);
+  const long = r.code.length > 1900;
+  const code = h('textarea', { class: 'input mono we-code', rows: 4, readonly: true }, r.code);
   const m = modal({ title: T('"{0}" dünyasını paylaş', w.ad), wide: true, body: h('div', { class: 'stack', style: { gap: '12px' } },
-    h('div', { class: 'we-share-summary' }, weCover(w.kapak, 'kucuk'), h('div', null, h('b', null, w.ad), h('div', { class: 'small muted' },
+    h('div', { class: 'we-share-summary' }, weCover(w.cover, 'kucuk'), h('div', null, h('b', null, w.ad), h('div', { class: 'small muted' },
       w.standart ? T('Standart dünyanın taslağı') : T('{0} değişiklik', w.changes)))),
     h('div', { class: 'we-share-paths' },
       h('div', { class: 'we-share-path' }, icon('download'), h('b', null, T('Dosya olarak')), h('div', { class: 'small muted' }, T('Bir .json dosyası: arkadaşın Dünya Editörü\'nde "İçe aktar" ile ekler.')),
         btn(T('Dosyaya kaydet'), () => act(() => api('/api/dunya/disari', { dunya: w.id })).then(x => { if (x && x.yol) { toast(T('Kaydedildi: {0}', x.yol), 'ok'); m.close(); } }), 'sm primary', 'download')),
       h('div', { class: 'we-share-path' }, icon('copy'), h('b', null, T('Paylaşım kodu')), h('div', { class: 'small muted' },
-        long ? T('Kod {0} karakter: Discord mesajına sığmaz, dosya olarak paylaş ya da metin dosyası olarak gönder.', fmtN(r.kod.length))
-          : T('Kod {0} karakter: sohbete ya da Discord\'a yapıştırabilirsin.', fmtN(r.kod.length))),
-        btn(T('Kodu kopyala'), async () => { try { await navigator.clipboard.writeText(r.kod); toast(T('Kod kopyalandı.'), 'ok'); } catch (e) { code.select(); document.execCommand('copy'); toast(T('Kod kopyalandı.'), 'ok'); } }, 'sm', 'copy'))),
+        long ? T('Kod {0} karakter: Discord mesajına sığmaz, dosya olarak paylaş ya da metin dosyası olarak gönder.', fmtN(r.code.length))
+          : T('Kod {0} karakter: sohbete ya da Discord\'a yapıştırabilirsin.', fmtN(r.code.length))),
+        btn(T('Kodu kopyala'), async () => { try { await navigator.clipboard.writeText(r.code); toast(T('Kod kopyalandı.'), 'ok'); } catch (e) { code.select(); document.execCommand('copy'); toast(T('Kod kopyalandı.'), 'ok'); } }, 'sm', 'copy'))),
     code,
     h('div', { class: 'small dim' }, T('Paylaşılan dünya yalnız değişiklikleri taşır; kayıtlar, pilotlar ve ilerleme paylaşılmaz.'))),
     foot: [btn(T('Kapat'), () => m.close(), 'ghost')] });
@@ -1293,7 +1293,7 @@ function weImport() {
       h('div', { class: 'we-share-path' }, icon('folder'), h('b', null, T('Dosyadan')), h('div', { class: 'small muted' }, T('Paylaşılan .json dosyasını seç.')),
         btn(T('Dosya seç…'), () => act(() => api('/api/dunya/import', {})).then(result), 'sm primary', 'upload')),
       h('div', { class: 'we-share-path' }, icon('copy'), h('b', null, T('Paylaşım kodundan')), h('div', { class: 'small muted' }, T('Kodu aşağıya yapıştır.')),
-        btn(T('Koddan içe aktar'), () => code.value.trim() ? act(() => api('/api/dunya/import', { kod: code.value })).then(result) : toast(T('Önce kodu yapıştır.'), 'info'), 'sm', 'upload'))),
+        btn(T('Koddan içe aktar'), () => code.value.trim() ? act(() => api('/api/dunya/import', { code: code.value })).then(result) : toast(T('Önce kodu yapıştır.'), 'info'), 'sm', 'upload'))),
     code, h('div', { class: 'small dim' }, T('İçe aktarılan dünya yeni bir dünya olarak eklenir; hiçbir dünyanın üzerine yazılmaz.'))),
     foot: [btn(T('Vazgeç'), () => m.close(), 'ghost')] });
 }
@@ -1313,7 +1313,7 @@ function weImportReport(x) {
 function playWorldChip(a) {
   const w = a.world_info;
   return h('button', { type: 'button', class: 'game-world', title: T('OYNA bu dünyayı açar. Değiştirmek için tıkla.'), onclick: ev => playWorldMenu(ev.currentTarget, a) },
-    weCover(w.kapak, 'mini'), h('span', { class: 'game-world-name' }, h('small', null, T('Dünya')), h('b', null, w.ad)),
+    weCover(w.cover, 'mini'), h('span', { class: 'game-world-name' }, h('small', null, T('Dünya')), h('b', null, w.ad)),
     w.standart ? icon('lock') : w.changes ? badge(T('{0} değişiklik', w.changes), 'orange') : null, icon('chevR'));
 }
 async function playWorldMenu(anchor, a) {
@@ -1330,7 +1330,7 @@ function hostWorldChip(v) {
     onclick: ev => popMenu(ev.currentTarget, [{ label: T('Kaydının dünyası ({0})', v.dunya.save_world.ad) + (!v.dunya.secim ? '  ✓' : ''), ic: 'save', fn: () => hostPickWorld('') },
       ...v.dunya.liste.map(x => ({ label: x.ad + (v.dunya.secim === x.id ? '  ✓' : ''), ic: x.standart ? 'lock' : 'globe', fn: () => hostPickWorld(x.id) })), '-',
       { label: T('Dünya Editörü'), ic: 'edit', fn: () => { DE.did = w.id; DE.section = 'genel'; go('dunya'); } }]) },
-    weCover(w.kapak, 'mini'), h('span', { class: 'game-world-name' }, h('small', null, T('Sunucunun dünyası')), h('b', null, w.ad)),
+    weCover(w.cover, 'mini'), h('span', { class: 'game-world-name' }, h('small', null, T('Sunucunun dünyası')), h('b', null, w.ad)),
     w.standart ? icon('lock') : w.changes ? badge(T('{0} değişiklik', w.changes), 'orange') : null, icon('chevR'));
 }
 function hostPickWorld(id) {

@@ -16,13 +16,13 @@ from . import catalog as K
 S = json.load(open(os.path.join(K.HERE, 'data', 'skylab.json'), encoding='utf8'))
 ROW = S['seviyeler']
 MOD = S['moduller']
-COSTS = S['maliyetler']
+COSTS = S['costs']
 ORES = S['cevherler']                       # skylab cevheri -> [ad, depo sütunu, kargo cevheri]
-COLLECTORS = S['toplayicilar']              # modül -> cevher
-REFINERIES = S['rafineriler']               # modül -> [ürün, girdiler, sütun]
+COLLECTORS = S['collectors']              # modül -> cevher
+REFINERIES = S['refineries']               # modül -> [ürün, girdiler, sütun]
 REFINE_ORDER = ('PROMETID_REFINERY', 'DURANIUM_REFINERY', 'PROMERIUM_REFINERY', 'SEPROM_REFINERY')
 XENO = S['xeno']
-TRANSPORT_SEC = S['tasima']['birim_sn']
+TRANSPORT_SEC = S['transport']['birim_sn']
 RESOURCES = ('1', '2', '3')                    # yükseltmenin kaynakları: Prometium, Endurium, Terbium (her birinden 'kaynak' kadar)
 STEP_SEC = 1800.0
 ORDER = ('PROMETIUM_COLLECTOR', 'ENDURIUM_COLLECTOR', 'TERBIUM_COLLECTOR', 'PROMETID_REFINERY', 'DURANIUM_REFINERY',
@@ -37,8 +37,8 @@ def state(bot, now):
     st = bot.k.get('skylab')
     if st is None:
         st = bot.k['skylab'] = {'mod': {m: lv for m, (lv, _) in S['baslangic']['moduller'].items()},
-                                'depo': {o: float(n) for o, n in S['baslangic']['depo'].items()}, 'son': now, 'insa': None,
-                                'tasima': now}
+                                'storage': {o: float(n) for o, n in S['baslangic']['storage'].items()}, 'son': now, 'build': None,
+                                'transport': now}
     return st
 
 
@@ -52,7 +52,7 @@ def energy(m, lv):
 
 def workers(st):
     """Enerjisi yeten modüller (güneş, taban, depo, taşıma hep açık; ötekiler SIRA'yla, güneş biterse sonrakiler kapalı)."""
-    solar = row(level(st, 'SOLAR_MODULE'))['gunes']
+    solar = row(level(st, 'SOLAR_MODULE'))['solar']
     spent = sum(energy(m, level(st, m)) for m in ('BASE_MODULE', 'STORAGE_MODULE'))
     is_open = set()
     for m in ORDER:
@@ -64,7 +64,7 @@ def workers(st):
 
 
 def capacity(st, ore):
-    return row(level(st, 'STORAGE_MODULE'))['depo'][ORES[ore][1]]
+    return row(level(st, 'STORAGE_MODULE'))['storage'][ORES[ore][1]]
 
 
 def production(st, m):
@@ -76,12 +76,12 @@ def production(st, m):
     if m in REFINERIES:
         return row(lv)['uretim'][REFINERIES[m][2]]
     if m == 'XENO_MODULE':
-        return row(lv)['uretim'][XENO['sutun']]
+        return row(lv)['uretim'][XENO['column']]
     return 0
 
 
 def produce(st, hour, multiplier=1.0):
-    dep = st['depo']
+    dep = st['storage']
     is_open = workers(st)
 
     def add(ore, n):
@@ -109,14 +109,14 @@ def advance(bot, now):
     t = max(st['son'], now - 24 * 3600)                 # uzun boşlukta en çok bir günlük üretim (telafi sınırı gibi)
     k = bot.game_settings.multiplier('skylab_uretim')
     while t < now:
-        end_time = st['insa'][1] if st.get('insa') else None
+        end_time = st['build'][1] if st.get('build') else None
         nxt = min(now, t + STEP_SEC, end_time if end_time and end_time > t else now)
         produce(st, (nxt - t) / 3600.0, k)
         t = nxt
-        if st.get('insa') and st['insa'][1] <= t:
-            m = st['insa'][0]
+        if st.get('build') and st['build'][1] <= t:
+            m = st['build'][0]
             st['mod'][m] = level(st, m) + 1
-            st['insa'] = None
+            st['build'] = None
             bot.event('skylab', modul=m, seviye=st['mod'][m])
     st['son'] = now
     return st
@@ -131,7 +131,7 @@ def cost(st, m):
 
 
 def upgradable(st, m):
-    if cost(st, m) is None or st.get('insa'):
+    if cost(st, m) is None or st.get('build'):
         return False
     if m != 'BASE_MODULE' and level(st, m) + 1 > level(st, 'BASE_MODULE'):
         return False
@@ -143,11 +143,11 @@ def upgradable(st, m):
 def next_up(st):
     """Gerçek oyuncunun sırası: enerji yetmiyorsa güneş, depo doluysa depo; taban tavana dayandıysa taban; sonra SIRA'daki en
     düşük seviyeli (toplayıcılar önce)."""
-    solar = row(level(st, 'SOLAR_MODULE'))['gunes']
+    solar = row(level(st, 'SOLAR_MODULE'))['solar']
     need = sum(energy(m, level(st, m)) for m in st['mod'] if m != 'SOLAR_MODULE')
     if need > solar * 0.9 and upgradable(st, 'SOLAR_MODULE'):
         return 'SOLAR_MODULE'
-    if any(st['depo'].get(o, 0) > 0.9 * capacity(st, o) for o in st['depo']) and upgradable(st, 'STORAGE_MODULE'):
+    if any(st['storage'].get(o, 0) > 0.9 * capacity(st, o) for o in st['storage']) and upgradable(st, 'STORAGE_MODULE'):
         return 'STORAGE_MODULE'
     candidates = [m for m in ORDER if upgradable(st, m)]
     if not candidates:
@@ -169,13 +169,13 @@ def invest(bot, now):
     if not c:
         return None
     credits = c['kredi'] * bot.game_settings.multiplier('hizmet_fiyat', 'skylab')
-    if bot.k['kredi'] < credits * (2.5 - bot.o('tutumluluk') - 0.5 * bot.o('sabir')) or any(st['depo'].get(o, 0) < c['kaynak'] for o in RESOURCES):
+    if bot.k['kredi'] < credits * (2.5 - bot.o('tutumluluk') - 0.5 * bot.o('sabir')) or any(st['storage'].get(o, 0) < c['kaynak'] for o in RESOURCES):
         return None
     if not bot.pay('C', credits):
         return None
     for o in RESOURCES:
-        st['depo'][o] -= c['kaynak']
-    st['insa'] = [m, now + c['sure_sn']]
+        st['storage'][o] -= c['kaynak']
+    st['build'] = [m, now + c['sure_sn']]
     bot.ist('skylab_yukseltme')
     return m
 
@@ -190,14 +190,14 @@ def carry(bot, now, max_count):
     if not bot.permission.get('skylab', True):
         return {}
     st = advance(bot, now)
-    right = min(max_count, (now - st.get('tasima', now)) / TRANSPORT_SEC)
-    st['tasima'] = now
+    right = min(max_count, (now - st.get('transport', now)) / TRANSPORT_SEC)
+    st['transport'] = now
     out = {}
-    for ore in sorted(st['depo'], key=lambda o: VALUE.get(o, 9)):
-        n = int(min(right, st['depo'][ore]))
+    for ore in sorted(st['storage'], key=lambda o: VALUE.get(o, 9)):
+        n = int(min(right, st['storage'][ore]))
         if n <= 0:
             continue
-        st['depo'][ore] -= n
+        st['storage'][ore] -= n
         right -= n
         cargo = ORES[ore][2]
         out[cargo] = out.get(cargo, 0) + n

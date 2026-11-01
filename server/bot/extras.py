@@ -60,7 +60,7 @@ def repair_sec(bot):
     for r in reversed(ORDER):
         if var(bot, r):
             v = REPAIR_BOTS[r]
-            return v.get('tam_onarim_sn') or (bot.value()['can'] / max(1, v.get('dakikada_hp', 1000)) * 60)
+            return v.get('full_repair_sec') or (bot.value()['can'] / max(1, v.get('hp_per_minute', 1000)) * 60)
     return None
 
 
@@ -101,7 +101,7 @@ def candidates(bot):
     """Alışveriş adayları [(güç artışı, para, fiyat, loot)]: boş yuva varsa (ya da yuva CPU'su) faydalı ve sahip olunmayan ekstralar."""
     if not bot.permission.get('ekstra', True):
         return []
-    power = bot.value()['guc']
+    power = bot.value()['power']
     empty = slot(bot) - len(equipped(bot))
     out = []
     for loot in list(ORDER) + [ROKT, CARGO_CPU, HM7, JP1, JP2, CLOAK[1], ISH, SMB, AIM2, AIM1] + list(SLE):

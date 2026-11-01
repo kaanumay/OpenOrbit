@@ -42,7 +42,7 @@ class NewSystems:
         self.world = world
         self.nova.at_station = world.in_station
         # bot range: a share of the real laser range (menzil_orani), so it does not fight at the very edge
-        self.autopilot.laser_range = lambda: world.laser_range() * OP.D['menzil_orani']
+        self.autopilot.laser_range = lambda: world.laser_range() * OP.D['range_ratio']
         self.autopilot.maps = world.omega_maps                   # seçim listeleri: harita -> orada çıkan uzaylılar
 
     def handle(self, name, f):
@@ -63,7 +63,7 @@ class NewSystems:
             from inventory import update_msgs
             K = PC.D['kilit']
             return [('LockAttributeItemRerollCommand', {'result': ok}), PC.lock_list_cmd(self.p)] + \
-                (update_msgs(self.m, self.p, [K['yenileme_esya'], K['kilit_esya']]) if ok else [])
+                (update_msgs(self.m, self.p, [K['renewal_item'], K['lock_item']]) if ok else [])
         return []
 
     def reward(self, loot, n):

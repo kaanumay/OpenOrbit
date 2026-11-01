@@ -20,19 +20,21 @@ SERVER = os.path.dirname(PANEL_DIR)
 if SERVER not in sys.path:
     sys.path.insert(0, SERVER)
 import paths as PTH  # noqa: E402
+import save_migration as SM  # noqa: E402
 from lang import t as _  # noqa: E402
 
 COMPANIES = {1: 'MMO', 2: 'EIC', 3: 'VRU'}
 BEFORE_COUNT = 5
-KINDS = ('oto', 'elle', 'once')
-KIND_NAMES = {'oto': 'Otomatik', 'elle': 'Elle', 'once': 'Geri yükleme öncesi'}
+KINDS = ('auto', 'manual', 'before')
+KIND_NAMES = {'auto': 'Otomatik', 'manual': 'Elle', 'before': 'Geri yükleme öncesi'}
+TIE_ORDER = {'manual': 0, 'before': 1, 'auto': 2}
 _TR = str.maketrans('çğıöşüÇĞİÖŞÜâîû', 'cgiosuCGIOSUaiu')
 
 
 def default_key_bindings():
     """Oyunun varsayılan tuş atamaları: giriş şablonunun tohumu (player_profile.py yeni profilde de bunu kullanır)."""
-    p = PTH.template('giris.json')                 # kendi kaydın, yoksa paylaşılabilir kopya
-    t = (_read_json(p).get('tohum') if p else None) or {}
+    p = PTH.template('login.json')                 # kendi kaydın, yoksa paylaşılabilir kopya
+    t = (_read_json(p).get('seed') if p else None) or {}
     return list((t.get('UserKeyBindingsUpdate') or {}).get('changedKeyBindings', []))
 
 
@@ -75,10 +77,20 @@ def _copy_atomic(src, dst):
             time.sleep(0.1 * (k + 1))
 
 
+V1_SLOT_FILES = {'profil.json': 'profile.json', 'web_ayarlari.json': 'web_settings.json', 'kayit.json': 'slot.json',
+                 'yedek/notlar.json': 'backups/notes.json'}
+def _v2_slot_path(rel):
+    """Eski sürümün dışa aktardığı zip'teki yol (profil.json, yedek/oto_…) -> yuvadaki yeni yol; yeni yollar olduğu gibi."""
+    rel = V1_SLOT_FILES.get(rel, rel)
+    if rel.startswith('yedek/'):
+        rel = 'backups/' + SM.backup_name(rel[len('yedek/'):])
+    return rel
+
+
 def validate_profile(d):
     """Profil sözlüğü mü? (içe aktarma, geri yükleme)"""
     if not (isinstance(d, dict) and isinstance(d.get('pilot'), dict) and isinstance(d.get('gemi'), dict)
-            and isinstance(d.get('konum'), dict) and 'mapId' in d['konum']):
+            and isinstance(d.get('position'), dict) and 'mapId' in d['position']):
         raise SaveError(_('Bu dosya bir DarkOrbit profili değil (pilot, gemi ve konum bölümleri yok).'))
     return d
 
@@ -117,13 +129,13 @@ def level_bounds(level):
 
 def profile_summary(d):
     """Profilden panelin gösterdiği özet."""
-    pl, g, k = d.get('pilot') or {}, d.get('gemi') or {}, d.get('konum') or {}
+    pl, g, k = d.get('pilot') or {}, d.get('gemi') or {}, d.get('position') or {}
     base, next_ = level_bounds(pl.get('level', 1))
     return {'ship_appearance': g.get('typeId'), 'level_base': base, 'next_level': next_, 'drone_count': len(d.get('dronlar') or []),
             'pet': (d.get('pet') or {}).get('ad'), 'premium': bool(pl.get('premium')),'pilot': pl.get('userName') or '?', 'firma': COMPANIES.get(pl.get('factionId'), '?'), 'firma_id': pl.get('factionId'),
             'seviye': pl.get('level', 1), 'ep': pl.get('ep', 0), 'onur': pl.get('honourPoints', 0), 'kredi': pl.get('credits', 0),
             'uridyum': pl.get('uridium', 0), 'gemi': ship_name(g.get('typeId')), 'harita': _map_name(k.get('mapId', 0)),
-            'oynama_sn': int(d.get('oynama_sn') or 0), 'olusturma': d.get('olusturma'),
+            'play_sec': int(d.get('play_sec') or 0), 'created': d.get('created'),
             'can': g.get('hitPoints'), 'max_hp': g.get('hitMax'),
             'klan': pl.get('clanTag') or '', 'ship_count': len(d.get('gemiler') or {}) or 1}
 
@@ -143,12 +155,12 @@ class Saves:
         return os.path.join(self.root, slot)
 
     def profile(self, slot):
-        return os.path.join(self.dir(slot), 'profil.json')
+        return os.path.join(self.dir(slot), 'profile.json')
 
     def settings(self, slot):
         """Kaydın oyun ayarları (settings.py; kayda özgü: etkin kayıt değişince ayarlar da). Yoksa eski ortak dosyadan
         (save/ayarlar.json) kopyalanır, o da yoksa boş (varsayılanlar)."""
-        p = os.path.join(self.dir(slot), 'ayarlar.json')
+        p = os.path.join(self.dir(slot), 'settings.json')
         if not os.path.isfile(p) and os.path.isdir(self.dir(slot)):
             with self.lock:
                 if not os.path.isfile(p):
@@ -160,10 +172,10 @@ class Saves:
         if not self.exists(src) or not self.exists(dst):
             raise SaveError(_('Kayıt bulunamadı.'))
         if src != dst:
-            shutil.copyfile(self.settings(src), os.path.join(self.dir(dst), 'ayarlar.json'))
+            shutil.copyfile(self.settings(src), os.path.join(self.dir(dst), 'settings.json'))
 
     def backup_dir(self, slot):
-        return os.path.join(self.dir(slot), 'yedek')
+        return os.path.join(self.dir(slot), 'backups')
 
     def exists(self, slot):
         try:
@@ -178,7 +190,7 @@ class Saves:
 
     def meta(self, slot):
         try:
-            d = _read_json(os.path.join(self.dir(slot), 'kayit.json'))
+            d = _read_json(os.path.join(self.dir(slot), 'slot.json'))
             return d if isinstance(d, dict) else {}
         except (OSError, ValueError):
             return {}
@@ -187,7 +199,7 @@ class Saves:
         with self.lock:
             m = self.meta(slot)
             m.update(kw)
-            _write_json(os.path.join(self.dir(slot), 'kayit.json'), m)
+            _write_json(os.path.join(self.dir(slot), 'slot.json'), m)
             return m
 
     def new_id(self, name):
@@ -227,25 +239,25 @@ class Saves:
             save = os.path.dirname(self.legacy)
             sid = self.new_id('ana')
             d = os.path.join(self.root, sid)
-            os.makedirs(os.path.join(d, 'yedek'), exist_ok=True)
+            os.makedirs(os.path.join(d, 'backups'), exist_ok=True)
             pr = profile_summary(_read_json(self.legacy))
-            shutil.copy2(self.legacy, os.path.join(d, 'yedek', 'once_%s.json' % time.strftime('%Y%m%d_%H%M%S')))    # güvenlik kopyası
-            web = os.path.join(save, 'web_ayarlari.json')
+            shutil.copy2(self.legacy, os.path.join(d, 'backups', 'before_%s.json' % time.strftime('%Y%m%d_%H%M%S')))    # güvenlik kopyası
+            web = os.path.join(save, 'web_settings.json')
             if os.path.isfile(web):
-                shutil.move(web, os.path.join(d, 'web_ayarlari.json'))
-            old_bk = os.path.join(save, 'yedek')
+                shutil.move(web, os.path.join(d, 'web_settings.json'))
+            old_bk = os.path.join(save, 'backups')
             if os.path.isdir(old_bk):
                 for f in sorted(os.listdir(old_bk)):
-                    m = re.fullmatch(r'profil_(\d{8}_\d{6})\.json', f)
+                    m = re.fullmatch(r'profile_(\d{8}_\d{6})\.json', f)
                     if m:
-                        shutil.move(os.path.join(old_bk, f), os.path.join(d, 'yedek', 'oto_%s.json' % m.group(1)))
+                        shutil.move(os.path.join(old_bk, f), os.path.join(d, 'backups', 'auto_%s.json' % m.group(1)))
                 try:
                     os.rmdir(old_bk)
                 except OSError:
                     pass
-            _write_json(os.path.join(d, 'kayit.json'), {'ad': _('Ana kayıt (%s)', pr['pilot']), 'olusturma': pr['olusturma'] or
+            _write_json(os.path.join(d, 'slot.json'), {'ad': _('Ana kayıt (%s)', pr['pilot']), 'created': pr['created'] or
                                                         time.strftime('%Y-%m-%d %H:%M:%S'), 'not': 'Eski save/profil.json'})
-            shutil.move(self.legacy, os.path.join(d, 'profil.json'))
+            shutil.move(self.legacy, os.path.join(d, 'profile.json'))
             if not self.cfg.get('aktif_kayit') or not self.exists(self.cfg.get('aktif_kayit')):
                 self.cfg.update({'aktif_kayit': sid})
             return sid
@@ -264,9 +276,9 @@ class Saves:
             self._cache[p] = c = (st.st_mtime_ns, s)
         m = self.meta(slot)
         out = dict(c[1])
-        out.update(id=slot, ad=m.get('ad') or slot, not_=m.get('not', ''), save_created=m.get('olusturma'),
-                   son_oynama=m.get('son_oynama'), son_kayit=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(st.st_mtime)),
-                   boyut=st.st_size, yedek_sayisi=len(self.backup_files(slot)), aktif=(slot == self.active()),
+        out.update(id=slot, ad=m.get('ad') or slot, not_=m.get('not', ''), save_created=m.get('created'),
+                   last_played=m.get('last_played'), last_save=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(st.st_mtime)),
+                   boyut=st.st_size, backup_count=len(self.backup_files(slot)), aktif=(slot == self.active()),
                    in_use=self.in_use(slot), dunya=m.get('dunya') or 'standart', draft=self._draft_valid(slot))
         return out
 
@@ -277,8 +289,8 @@ class Saves:
                 out.append(self.summary(s))
             except OSError:
                 continue
-        out.sort(key=lambda x: (not x['aktif'], -(time.mktime(time.strptime(x['son_oynama'], '%Y-%m-%d %H:%M:%S'))
-                                                    if x.get('son_oynama') else 0), x['ad'].lower()))
+        out.sort(key=lambda x: (not x['aktif'], -(time.mktime(time.strptime(x['last_played'], '%Y-%m-%d %H:%M:%S'))
+                                                    if x.get('last_played') else 0), x['ad'].lower()))
         return out
 
     # ------------------------------------------------------------ yeni, ad, kopya, silme
@@ -318,8 +330,8 @@ class Saves:
         with self.lock:
             sid = self.new_id(label)
             d = os.path.join(self.root, sid)
-            os.makedirs(os.path.join(d, 'yedek'), exist_ok=True)
-            args = ['yeni', os.path.join(d, 'profil.json'), pilot, str(firma)]
+            os.makedirs(os.path.join(d, 'backups'), exist_ok=True)
+            args = ['yeni', os.path.join(d, 'profile.json'), pilot, str(firma)]
             for key, v, lo, hi in (('kredi', credits, 0, 10 ** 12), ('uridyum', uridium, 0, 10 ** 12), ('seviye', level, 1, 50),
                                    ('onur', honor, 0, 10 ** 12), ('lazer', laser, 0, 10 ** 9), ('roket', rocket, 0, 10 ** 9)):
                 if v not in (None, ''):
@@ -333,7 +345,7 @@ class Saves:
             except Exception:
                 shutil.rmtree(d, ignore_errors=True)
                 raise
-            _write_json(os.path.join(d, 'kayit.json'), {'ad': label, 'olusturma': time.strftime('%Y-%m-%d %H:%M:%S'), 'not': ''})
+            _write_json(os.path.join(d, 'slot.json'), {'ad': label, 'created': time.strftime('%Y-%m-%d %H:%M:%S'), 'not': ''})
             if settings_source and self.exists(settings_source):        # ayarlar başka bir kayıttan (yoksa eski ortak dosyadan)
                 self.copy_settings(settings_source, sid)
             return sid
@@ -354,14 +366,14 @@ class Saves:
             label = (label or '').strip() or _('%s (kopya)', self.meta(slot).get('ad') or slot)
             sid = self.new_id(label)
             dst = os.path.join(self.root, sid)
-            os.makedirs(os.path.join(dst, 'yedek'), exist_ok=True)
-            _copy_atomic(os.path.join(src, 'profil.json'), os.path.join(dst, 'profil.json'))
-            if os.path.isfile(os.path.join(src, 'web_ayarlari.json')):
-                shutil.copy2(os.path.join(src, 'web_ayarlari.json'), os.path.join(dst, 'web_ayarlari.json'))
-            meta = {'ad': label, 'olusturma': time.strftime('%Y-%m-%d %H:%M:%S'), 'not': _('Kopyalandı: %s', self.meta(slot).get('ad') or slot)}
+            os.makedirs(os.path.join(dst, 'backups'), exist_ok=True)
+            _copy_atomic(os.path.join(src, 'profile.json'), os.path.join(dst, 'profile.json'))
+            if os.path.isfile(os.path.join(src, 'web_settings.json')):
+                shutil.copy2(os.path.join(src, 'web_settings.json'), os.path.join(dst, 'web_settings.json'))
+            meta = {'ad': label, 'created': time.strftime('%Y-%m-%d %H:%M:%S'), 'not': _('Kopyalandı: %s', self.meta(slot).get('ad') or slot)}
             if self.meta(slot).get('dunya'):              # varsayılan dünya (Dünya Editörü) kopyaya geçer
                 meta['dunya'] = self.meta(slot)['dunya']
-            _write_json(os.path.join(dst, 'kayit.json'), meta)
+            _write_json(os.path.join(dst, 'slot.json'), meta)
             return sid
 
     def delete(self, slot):
@@ -384,14 +396,14 @@ class Saves:
         for name in sorted(os.listdir(self.trash), reverse=True):
             d = os.path.join(self.trash, name)
             m = re.fullmatch(r'([a-z0-9_]+)_(\d{8})_(\d{6})', name)
-            if not (m and os.path.isfile(os.path.join(d, 'profil.json'))):
+            if not (m and os.path.isfile(os.path.join(d, 'profile.json'))):
                 continue
             try:
-                meta = _read_json(os.path.join(d, 'kayit.json'))
+                meta = _read_json(os.path.join(d, 'slot.json'))
             except (OSError, ValueError):
                 meta = {}
             try:
-                pr = profile_summary(_read_json(os.path.join(d, 'profil.json')))
+                pr = profile_summary(_read_json(os.path.join(d, 'profile.json')))
             except (OSError, ValueError):
                 pr = {'pilot': '?'}
             t = time.strptime(m.group(2) + m.group(3), '%Y%m%d%H%M%S')
@@ -429,10 +441,10 @@ class Saves:
         with zipfile.ZipFile(dest, 'w', zipfile.ZIP_DEFLATED) as z:
             for root, dirs, files in os.walk(src):
                 rel = os.path.relpath(root, src)
-                if rel.split(os.sep)[0] == 'yedek' and not with_backups:
+                if rel.split(os.sep)[0] == 'backups' and not with_backups:
                     continue
                 for f in files:
-                    if f.endswith('.tmp') or (rel == '.' and f == 'duzenleme.json'):     # editörün kaydedilmemiş taslağı
+                    if f.endswith('.tmp') or (rel == '.' and f == 'edit_base.json'):     # editörün kaydedilmemiş taslağı
                         continue
                     z.write(os.path.join(root, f), os.path.join(slot, rel, f) if rel != '.' else os.path.join(slot, f))
         return dest
@@ -445,44 +457,49 @@ class Saves:
             if path.lower().endswith('.zip'):
                 with zipfile.ZipFile(path) as z:
                     names = [n for n in z.namelist() if not n.endswith('/')]
-                    prof = [n for n in names if n.replace('\\', '/').split('/')[-1] == 'profil.json'
+                    prof = [n for n in names if n.replace('\\', '/').split('/')[-1] in ('profile.json', 'profil.json')   # v1 zip: profil.json
                             and n.replace('\\', '/').count('/') <= 1]
                     if not prof:
                         raise SaveError(_('Zip içinde profil.json yok.'))
                     base = prof[0].replace('\\', '/').rsplit('/', 1)[0] + '/' if '/' in prof[0].replace('\\', '/') else ''
-                    d = validate_profile(json.loads(z.read(prof[0]).decode('utf8')))
+                    d = validate_profile(SM.migrate_obj(json.loads(z.read(prof[0]).decode('utf8'))))
                     meta = {}
-                    if base + 'kayit.json' in names:
-                        try:
-                            meta = json.loads(z.read(base + 'kayit.json').decode('utf8'))
-                        except ValueError:
-                            meta = {}
+                    for mn in ('slot.json', 'kayit.json'):
+                        if base + mn in names:
+                            try:
+                                meta = SM.migrate_obj(json.loads(z.read(base + mn).decode('utf8')))
+                            except ValueError:
+                                meta = {}
+                            break
                     label = (label or meta.get('ad') or profile_summary(d)['pilot']).strip()
                     sid = self.new_id(label)
                     dst = os.path.join(self.root, sid)
-                    os.makedirs(os.path.join(dst, 'yedek'), exist_ok=True)
+                    os.makedirs(os.path.join(dst, 'backups'), exist_ok=True)
                     for n in names:
                         nn = n.replace('\\', '/')
                         if not nn.startswith(base):
                             continue
-                        rel = nn[len(base):]
-                        ok = rel in ('profil.json', 'web_ayarlari.json') or re.fullmatch(r'yedek/(oto|elle|once)_\d{8}_\d{6}(_\d+)?\.json',
-                                                                                        rel) or rel == 'yedek/notlar.json'
+                        rel = _v2_slot_path(nn[len(base):])
+                        ok = rel in ('profile.json', 'web_settings.json') or re.fullmatch(r'backups/(auto|manual|before)_\d{8}_\d{6}(_\d+)?\.json',
+                                                                                        rel) or rel == 'backups/notes.json'
                         if ok:
-                            out = os.path.join(dst, *rel.split('/'))
-                            with open(out, 'wb') as fh:
-                                fh.write(z.read(n))
+                            try:
+                                d_ = json.loads(z.read(n).decode('utf8'))
+                                _write_json(os.path.join(dst, *rel.split('/')), SM.migrate_backup_notes(d_) if rel == 'backups/notes.json'
+                                            else SM.migrate_obj(d_))
+                            except ValueError:
+                                pass                         # bozuk yedek: atlanır
             else:
                 try:
-                    d = validate_profile(_read_json(path))
+                    d = validate_profile(SM.migrate_obj(_read_json(path)))
                 except ValueError:
                     raise SaveError(_('Dosya okunamadı (geçerli JSON değil).'))
                 label = (label or _('%s (içe aktarıldı)', profile_summary(d)['pilot'])).strip()
                 sid = self.new_id(label)
                 dst = os.path.join(self.root, sid)
-                os.makedirs(os.path.join(dst, 'yedek'), exist_ok=True)
-                shutil.copy2(path, os.path.join(dst, 'profil.json'))
-            _write_json(os.path.join(dst, 'kayit.json'), {'ad': label[:60], 'olusturma': time.strftime('%Y-%m-%d %H:%M:%S'),
+                os.makedirs(os.path.join(dst, 'backups'), exist_ok=True)
+                _write_json(os.path.join(dst, 'profile.json'), SM.migrate_obj(d))
+            _write_json(os.path.join(dst, 'slot.json'), {'ad': label[:60], 'created': time.strftime('%Y-%m-%d %H:%M:%S'),
                                                           'not': _('İçe aktarıldı: %s', os.path.basename(path))})
             return sid
 
@@ -515,7 +532,7 @@ class Saves:
             if values.get('tuslar'):
                 # oyunun Ayarlar > Reset'i sunucuya ulaşmıyor (istemci bağlantıyı kapatmadan ResetSettingsRequest gönderemiyor;
                 # CANLI_TEST N12): tuşlar tohumdakine (kayıttaki varsayılan dizilim) döner, sonraki girişte istemciye gider
-                d['tus_atamalari'] = default_key_bindings()
+                d['key_bindings'] = default_key_bindings()
                 changed.append(_('tuş atamaları varsayılana döndü'))
             if values.get('onar'):
                 g['hitPoints'], g['shield'] = g.get('hitMax', g.get('hitPoints', 1)), g.get('shieldMax', g.get('shield', 0))
@@ -524,7 +541,7 @@ class Saves:
             resets = [r for r in (values.get('sifirla') or []) if r]
             if not changed and not values.get('ana_us') and not give and not resets:
                 return []
-            safety = self.backup(slot, 'once', _('Düzenlemeden önce'))
+            safety = self.backup(slot, 'before', _('Düzenlemeden önce'))
             try:
                 if changed:
                     _write_json(p, d)
@@ -533,7 +550,7 @@ class Saves:
                     changed.append(_('ana üsse taşındı'))
                 if give:
                     r = self.run_tool('ver', p, json.dumps(give))
-                    changed.append(_('verildi: %s', ', '.join('%s x%d' % (l, n) for l, n in r['verilen'])))
+                    changed.append(_('verildi: %s', ', '.join('%s x%d' % (l, n) for l, n in r['given'])))
                 if resets:
                     r = self.run_tool('sifirla', p, ','.join(resets))
                     changed.append(_('sıfırlandı: %s', ', '.join(r['reset_items'])))
@@ -550,12 +567,12 @@ class Saves:
 
     # ------------------------------------------------------------ karakter editörü (taslak)
     def draft(self, slot):
-        return os.path.join(self.dir(slot), 'duzenleme.json')
+        return os.path.join(self.dir(slot), 'edit_base.json')
 
     def _draft_valid(self, slot):
         """Taslak var ve profil o açıldığından beri değişmedi mi."""
         try:
-            return os.path.isfile(self.draft(slot)) and self.meta(slot).get('duzenleme_taban') == os.stat(self.profile(slot)).st_mtime_ns
+            return os.path.isfile(self.draft(slot)) and self.meta(slot).get('edit_base') == os.stat(self.profile(slot)).st_mtime_ns
         except OSError:
             return False
 
@@ -566,7 +583,7 @@ class Saves:
                 return
             validate_profile(_read_json(self.profile(slot)))
             _copy_atomic(self.profile(slot), self.draft(slot))
-            self.set_meta(slot, duzenleme_taban=os.stat(self.profile(slot)).st_mtime_ns)
+            self.set_meta(slot, edit_base=os.stat(self.profile(slot)).st_mtime_ns)
 
     def editor_open(self, slot):
         """Editörün görünümü: taslak varsa taslak (asıl kayda göre farkıyla), yoksa profil. Kayıt oyundaysa profil salt okunur
@@ -602,7 +619,7 @@ class Saves:
             if not self._draft_valid(slot):
                 raise SaveError(_('Kaydedilecek değişiklik yok.'))
             validate_profile(_read_json(self.draft(slot)))
-            safety = self.backup(slot, 'once', _('Karakter editöründen önce'))
+            safety = self.backup(slot, 'before', _('Karakter editöründen önce'))
             _copy_atomic(self.draft(slot), self.profile(slot))
             self.editor_discard(slot)
             return safety
@@ -612,15 +629,15 @@ class Saves:
             if os.path.isfile(self.draft(slot)):
                 os.remove(self.draft(slot))
             m = self.meta(slot)
-            if 'duzenleme_taban' in m:
-                del m['duzenleme_taban']
-                _write_json(os.path.join(self.dir(slot), 'kayit.json'), m)
+            if 'edit_base' in m:
+                del m['edit_base']
+                _write_json(os.path.join(self.dir(slot), 'slot.json'), m)
 
     def editor_catalog(self):
         """Editörün eşya kataloğu (save_editor.py katalog; ilk istekten sonra bellekte)."""
         if getattr(self, '_catalog', None) is None:
             self._catalog = self.run_tool('katalog', tool='save_editor.py')
-        return {'esyalar': self._catalog['esyalar'], 'kategoriler': self._catalog['kategoriler']}
+        return {'esyalar': self._catalog['esyalar'], 'categories': self._catalog['categories']}
 
     def item_info(self):
         """Eşya ipucunun değerleri (save_editor.py bilgi; ilk istekten sonra bellekte): panelin Hangar, Mağaza ve editör sayfaları."""
@@ -633,12 +650,12 @@ class Saves:
         bid = self.backup_dir(slot)
         if not os.path.isdir(bid):
             return []
-        return sorted((f for f in os.listdir(bid) if re.fullmatch(r'(oto|elle|once)_\d{8}_\d{6}(_\d+)?\.json', f)),
-                      key=lambda f: f.split('_', 1)[1], reverse=True)
+        return sorted((f for f in os.listdir(bid) if re.fullmatch(r'(auto|manual|before)_\d{8}_\d{6}(_\d+)?\.json', f)),
+                      key=lambda f: (f.split('_', 1)[1], -TIE_ORDER[f.split('_', 1)[0]]), reverse=True)   # aynı saniyede: elle, önce, oto
 
     def notes(self, slot):
         try:
-            d = _read_json(os.path.join(self.backup_dir(slot), 'notlar.json'))
+            d = _read_json(os.path.join(self.backup_dir(slot), 'notes.json'))
             return d if isinstance(d, dict) else {}
         except (OSError, ValueError):
             return {}
@@ -657,11 +674,11 @@ class Saves:
                 self._cache[p] = c = (st.st_mtime_ns, s)
             kind, stamp = f.split('_', 1)
             t = time.strptime(stamp[:15], '%Y%m%d_%H%M%S')
-            out.append(dict(c[1], dosya=f, tur=kind, kind_name=_(KIND_NAMES[kind]), zaman=time.strftime('%Y-%m-%d %H:%M:%S', t),
+            out.append(dict(c[1], dosya=f, tur=kind, kind_name=_(KIND_NAMES[kind]), time=time.strftime('%Y-%m-%d %H:%M:%S', t),
                             boyut=st.st_size, not_=notes.get(f, '')))
         return out
 
-    def backup(self, slot, kind='elle', note='', keep=None):
+    def backup(self, slot, kind='manual', note='', keep=None):
         """Profilin yedeği -> dosya adı. oto/once türleri döndürülür (eskiler silinir)."""
         if kind not in KINDS:
             raise SaveError(_('Geçersiz yedek türü.'))
@@ -688,11 +705,11 @@ class Saves:
             if note:
                 n = self.notes(slot)
                 n[name] = note[:200]
-                _write_json(os.path.join(bid, 'notlar.json'), n)
-            if kind == 'oto':
-                self.rotate(slot, 'oto', keep or self.cfg.get('yedek_sayisi'))
-            elif kind == 'once':
-                self.rotate(slot, 'once', BEFORE_COUNT)
+                _write_json(os.path.join(bid, 'notes.json'), n)
+            if kind == 'auto':
+                self.rotate(slot, 'auto', keep or self.cfg.get('backup_count'))
+            elif kind == 'before':
+                self.rotate(slot, 'before', BEFORE_COUNT)
             return name
 
     def rotate(self, slot, kind, keep):
@@ -702,7 +719,7 @@ class Saves:
         return files[keep:]
 
     def _backup_path(self, slot, name):
-        if not re.fullmatch(r'(oto|elle|once)_\d{8}_\d{6}(_\d+)?\.json', name or ''):
+        if not re.fullmatch(r'(auto|manual|before)_\d{8}_\d{6}(_\d+)?\.json', name or ''):
             raise SaveError(_('Geçersiz yedek adı.'))
         p = os.path.join(self.backup_dir(slot), name)
         if not os.path.isfile(p):
@@ -714,7 +731,7 @@ class Saves:
         n = self.notes(slot)
         if name in n:
             del n[name]
-            _write_json(os.path.join(self.backup_dir(slot), 'notlar.json'), n)
+            _write_json(os.path.join(self.backup_dir(slot), 'notes.json'), n)
 
     def delete_backup(self, slot, name):
         with self.lock:
@@ -728,7 +745,7 @@ class Saves:
                 n[name] = note[:200]
             else:
                 n.pop(name, None)
-            _write_json(os.path.join(self.backup_dir(slot), 'notlar.json'), n)
+            _write_json(os.path.join(self.backup_dir(slot), 'notes.json'), n)
 
     def restore(self, slot, name):
         """Yedeği geri yükle: önce şimdiki profilin 'once' yedeği -> o yedeğin adı."""
@@ -739,7 +756,7 @@ class Saves:
             copy = p + '.geri'                       # en eski 'once' yedeği geri yüklenirken güvenlik yedeğinin döndürmesi onu siliyordu
             shutil.copy2(p, copy)
             try:
-                safety = self.backup(slot, 'once', _('Geri yükleme öncesi (%s)', name))
+                safety = self.backup(slot, 'before', _('Geri yükleme öncesi (%s)', name))
                 _copy_atomic(copy, self.profile(slot))
             finally:
                 os.remove(copy)
@@ -752,12 +769,12 @@ class Saves:
             label = (label or '').strip() or _('%s (%s yedeği)', self.meta(slot).get('ad') or slot, name.split('_', 1)[1][:8])
             sid = self.new_id(label)
             dst = os.path.join(self.root, sid)
-            os.makedirs(os.path.join(dst, 'yedek'), exist_ok=True)
-            shutil.copy2(p, os.path.join(dst, 'profil.json'))
-            web = os.path.join(self.dir(slot), 'web_ayarlari.json')
+            os.makedirs(os.path.join(dst, 'backups'), exist_ok=True)
+            shutil.copy2(p, os.path.join(dst, 'profile.json'))
+            web = os.path.join(self.dir(slot), 'web_settings.json')
             if os.path.isfile(web):
-                shutil.copy2(web, os.path.join(dst, 'web_ayarlari.json'))
-            _write_json(os.path.join(dst, 'kayit.json'), {'ad': label[:60], 'olusturma': time.strftime('%Y-%m-%d %H:%M:%S'),
+                shutil.copy2(web, os.path.join(dst, 'web_settings.json'))
+            _write_json(os.path.join(dst, 'slot.json'), {'ad': label[:60], 'created': time.strftime('%Y-%m-%d %H:%M:%S'),
                                                           'not': _('Yedekten: %s / %s (%s)', self.meta(slot).get('ad') or slot, name,
                                                                                                profile_summary(d)['pilot'])})
             return sid

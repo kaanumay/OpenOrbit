@@ -1,5 +1,5 @@
 {
- "_aciklama": "Etkinlik kapıları ve Frozen Labyrinth -> server/data/etkinlik_kapilari.json (yol haritası Aşama 7b; sunucu: etkinlik_kapi.py,\nlabirent.py).\n\nKaynaklar belgeler/wiki/etkinlikler/ (darkorbitwiki, fandom ve resmî forumdan derlenen veri):\n  gauntlet_of_plutus.json   Easy (X-1, haritalar 450-455, portal 235) ve Normal (X-8, 410-415, portal 24): 5 harita dalgaları rastgele\n                            sırayla, patron haritasında 4 kule + Plutus; günde bir giriş (iki mod birlikte), 5 can, süre ölçülür.\n                            Easy'de uzaylılar yarı güçte ve yarı ödüllü (wiki: \"2x weaker\").\n  vortex_of_terror.json     Halloween; X-4, 8 harita (227, 230-236, istemci \"GG Trial of Terror\"), portal 81; 12 saat bekleme; \"ya da\"\n                            dalgalarından biri girişte rastgele seçilir (wiki seçimi anlatmıyor); bitiş ödülü yok, Frightful Curcubitor\n                            kutusu düşürür.\n  kutular_ve_etkinlikler.json  Birthday Gate (Y6, harita 57 \"GG Y6\", portal 15): 11 Aralık, 3 can, yılda bir.\n  frozen_labyrinth.json     16 harita (430-445, ATLAS A-C giriş), bölgeler, 2019 kapı tablosu, uzaylılar, anahtar düşme olasılıkları,\n                            Skoll, Synk.\n  permafrost_fissure.json   Permafrost Fissure (X-1, Subglacial CPU, istemcinin harita 228'i): 10 bölümün 45 dalgası tek kapıda, UFO ve\n                            Ufonit'in Proxium kutuları, bitiş ödülü (Proxium Drop Booster ...). cold_wave_2014.json: The Breach (Easy ve\n                            Hard; 20 can, 3 dalga). devolarium_attack.json: Devolarium Attack (yalnız \"Preemptive Strike Force\" görevi\n                            sürerken; harita 223). plutus_deney.json: Plutus' Experiments (üç risk, kule, uzaylı kademeleri, kutu tablosu,\n                            ilerleme puanı takası) -> 'deney' bölümü (sunucu: plutus_deney.py).\nGörünümler istemcinin game.xml'i ve lib_ships'i (gemi türü / npcId): Cote Lo 260/213, Kodkod 261/214, Aura Dun Jig 262/215,\nLac Lion 263/216, Natal Nap 264/217, Plutus 265/218, Plutus Warhead 266/219, Plutus Turret 267/220, Ufonit 21/26, Demon Drone 151\n(\"deamon drone npc\"), Frightful Curcubitor 317, Frozen Icy 103/221, Frozen Kristallin 109/222, Frozen Kristallon\n154/223, Frozen Boss Kristallin 110/224, Frozen Boss Kristallon 155/225, Frozen Meteoroid 101/226, Frozen Super Meteoroid 33/227,\nSkoll 127/280, Synk 271/228 (demaNeR kapilar.json'dan). Kutu türleri istemcinin lib_collectables'ı (GOP_EASY_BOX, GOP_NORMAL_BOX, DEMON_BOX,\nFRIGHTFUL_CURCUBITOR_BOSS_BOX, FROZEN_LABYRINTH_BOX …).\nUyarlamalar (kaynak vermediği için) \"_uyarlama\" notlarında: Demon Drone ve Frightful Curcubitor değerleri, Warhead hasarı, kutu\nadetleri ve olasılıkları, labirent nüfusu, Synk ve Skoll aralıkları, hızlar.",
+ "_description": "Etkinlik kapıları ve Frozen Labyrinth -> server/data/event_gates.json (yol haritası Aşama 7b; sunucu: etkinlik_kapi.py,\nlabirent.py).\n\nKaynaklar belgeler/wiki/etkinlikler/ (darkorbitwiki, fandom ve resmî forumdan derlenen veri):\n  gauntlet_of_plutus.json   Easy (X-1, haritalar 450-455, portal 235) ve Normal (X-8, 410-415, portal 24): 5 harita dalgaları rastgele\n                            sırayla, patron haritasında 4 kule + Plutus; günde bir giriş (iki mod birlikte), 5 can, süre ölçülür.\n                            Easy'de uzaylılar yarı güçte ve yarı ödüllü (wiki: \"2x weaker\").\n  vortex_of_terror.json     Halloween; X-4, 8 harita (227, 230-236, istemci \"GG Trial of Terror\"), portal 81; 12 saat bekleme; \"ya da\"\n                            dalgalarından biri girişte rastgele seçilir (wiki seçimi anlatmıyor); bitiş ödülü yok, Frightful Curcubitor\n                            kutusu düşürür.\n  kutular_ve_etkinlikler.json  Birthday Gate (Y6, harita 57 \"GG Y6\", portal 15): 11 Aralık, 3 can, yılda bir.\n  frozen_labyrinth.json     16 harita (430-445, ATLAS A-C giriş), bölgeler, 2019 kapı tablosu, uzaylılar, anahtar düşme olasılıkları,\n                            Skoll, Synk.\n  permafrost_fissure.json   Permafrost Fissure (X-1, Subglacial CPU, istemcinin harita 228'i): 10 bölümün 45 dalgası tek kapıda, UFO ve\n                            Ufonit'in Proxium kutuları, bitiş ödülü (Proxium Drop Booster ...). cold_wave_2014.json: The Breach (Easy ve\n                            Hard; 20 can, 3 dalga). devolarium_attack.json: Devolarium Attack (yalnız \"Preemptive Strike Force\" görevi\n                            sürerken; harita 223). plutus_deney.json: Plutus' Experiments (üç risk, kule, uzaylı kademeleri, kutu tablosu,\n                            ilerleme puanı takası) -> 'deney' bölümü (sunucu: plutus_deney.py).\nGörünümler istemcinin game.xml'i ve lib_ships'i (gemi türü / npcId): Cote Lo 260/213, Kodkod 261/214, Aura Dun Jig 262/215,\nLac Lion 263/216, Natal Nap 264/217, Plutus 265/218, Plutus Warhead 266/219, Plutus Turret 267/220, Ufonit 21/26, Demon Drone 151\n(\"deamon drone npc\"), Frightful Curcubitor 317, Frozen Icy 103/221, Frozen Kristallin 109/222, Frozen Kristallon\n154/223, Frozen Boss Kristallin 110/224, Frozen Boss Kristallon 155/225, Frozen Meteoroid 101/226, Frozen Super Meteoroid 33/227,\nSkoll 127/280, Synk 271/228 (demaNeR kapilar.json'dan). Kutu türleri istemcinin lib_collectables'ı (GOP_EASY_BOX, GOP_NORMAL_BOX, DEMON_BOX,\nFRIGHTFUL_CURCUBITOR_BOSS_BOX, FROZEN_LABYRINTH_BOX …).\nUyarlamalar (kaynak vermediği için) \"_uyarlama\" notlarında: Demon Drone ve Frightful Curcubitor değerleri, Warhead hasarı, kutu\nadetleri ve olasılıkları, labirent nüfusu, Synk ve Skoll aralıkları, hızlar.",
  "kapilar": {
   "plutus_kolay": {
    "kimlik": 1,
@@ -14,7 +14,7 @@
     "grup": "plutus",
     "rastgele": true,
     "sure": true,
-    "giris_sn": 15
+    "entry_sec": 15
    },
    "haritalar": [
     450,
@@ -24,7 +24,7 @@
     454,
     455
    ],
-   "dalgalar": [
+   "waves": [
     {
      "ad": "1-1",
      "harita": 450,
@@ -365,10 +365,10 @@
        "adet": 1,
        "kutu": {
         "tur": "GOP_EASY_BOX",
-        "olasilik": 1.0,
+        "probability": 1.0,
         "omur_sn": 600,
         "mod": "biri",
-        "icerik": [
+        "contents": [
          [
           "ammunition_laser_rsb-75",
           5000,
@@ -613,10 +613,10 @@
        "adet": 1,
        "kutu": {
         "tur": "GOP_EASY_BOX",
-        "olasilik": 1.0,
+        "probability": 1.0,
         "omur_sn": 600,
         "mod": "biri",
-        "icerik": [
+        "contents": [
          [
           "ammunition_laser_rsb-75",
           5000,
@@ -1077,10 +1077,10 @@
        "kalkan_emme": 0.7,
        "kutu": {
         "tur": "GOP_EASY_BOX",
-        "olasilik": 1.0,
+        "probability": 1.0,
         "omur_sn": 600,
         "mod": "biri",
-        "icerik": [
+        "contents": [
          [
           "ammunition_laser_rsb-75",
           5000,
@@ -1465,10 +1465,10 @@
        "kalkan_emme": 0.7,
        "kutu": {
         "tur": "GOP_EASY_BOX",
-        "olasilik": 1.0,
+        "probability": 1.0,
         "omur_sn": 600,
         "mod": "biri",
-        "icerik": [
+        "contents": [
          [
           "ammunition_laser_rsb-75",
           5000,
@@ -2017,10 +2017,10 @@
        "kalkan_emme": 0.7,
        "kutu": {
         "tur": "GOP_EASY_BOX",
-        "olasilik": 1.0,
+        "probability": 1.0,
         "omur_sn": 600,
         "mod": "biri",
-        "icerik": [
+        "contents": [
          [
           "ammunition_laser_rsb-75",
           5000,
@@ -2342,7 +2342,7 @@
        "kargo": {},
        "adet": 1,
        "davranis": {
-        "vurulunca_cagir": {
+        "summon_on_hit": {
          "tur": "eg_plutus_kolay_ek_kacak",
          "adet": 1,
          "en_cok": 3,
@@ -2371,12 +2371,12 @@
         2400,
         2600
        ],
-       "kalici": true,
+       "permanent": true,
        "menzil": 450,
        "isabet": 0.8,
        "kalkan_emme": 0.5,
        "davranis": {
-        "vurulunca_cagir": {
+        "summon_on_hit": {
          "tur": "eg_plutus_kolay_ek_warhead",
          "adet": 1,
          "en_cok": 3,
@@ -2386,15 +2386,15 @@
        "radyoaktif": {
         "sure_sn": 10,
         "hasar_sn": 20000,
-        "azami_oran": 0.25,
-        "daire": 3,
+        "max_ratio": 0.25,
+        "circle": 3,
         "yaricap": 600,
-        "iyilesme_sn": 20000,
-        "uzaklik": [
+        "heal_sec": 20000,
+        "distance": [
          1500,
          3500
         ],
-        "uyari_sn": 3,
+        "warning_sec": 3,
         "bekleme_sn": 45
        }
       }
@@ -2414,7 +2414,7 @@
      "sabit": true
     }
    ],
-   "ek_turler": {
+   "extra_kinds": {
     "warhead": {
      "tur": "266",
      "ad": "Warhead",
@@ -2460,11 +2460,11 @@
      "adet": 1,
      "kutu": {
       "tur": "GOP_EASY_BOX",
-      "olasilik": 1.0,
+      "probability": 1.0,
       "omur_sn": 600,
       "mod": "biri",
       "_kaynak": "wiki \"Bountiful Alien CPU content\"; adetler uyarlama (Normal Kolay'ın iki katı: forum 143902)",
-      "icerik": [
+      "contents": [
        [
         "equipment_weapon_laser_lf-4-hp",
         1,
@@ -2554,7 +2554,7 @@
    "cpu": {
     "esya": "ammunition_specialammo_bountiful-alien-cpu-easy",
     "taban": 0.05,
-    "jig_artis": 0.005
+    "jig_increment": 0.005
    },
    "odul": {
     "esyalar": [
@@ -2571,7 +2571,7 @@
      ]
     ]
    },
-   "_odul": "fandom: bitişte 4.000-4.500 PIB-100 (Easy yarısı); EP/onur/kredi/uridyum Plutus'un kendi ödülünde (wiki); Cubi Portal CPU (darkorbitwiki equipment/cpu: Gauntlet of Plutus etkinliği), olasılık uyarlama: Easy %1, Normal %2",
+   "_reward": "fandom: bitişte 4.000-4.500 PIB-100 (Easy yarısı); EP/onur/kredi/uridyum Plutus'un kendi ödülünde (wiki); Cubi Portal CPU (darkorbitwiki equipment/cpu: Gauntlet of Plutus etkinliği), olasılık uyarlama: Easy %1, Normal %2",
    "mesajlar": {
     "tamam": {
      "buyuk": "key:log_msg_gg_completed_gop_easy"
@@ -2597,7 +2597,7 @@
     "grup": "plutus",
     "rastgele": true,
     "sure": true,
-    "giris_sn": 1
+    "entry_sec": 1
    },
    "haritalar": [
     410,
@@ -2607,7 +2607,7 @@
     414,
     415
    ],
-   "dalgalar": [
+   "waves": [
     {
      "ad": "1-1",
      "harita": 410,
@@ -2948,10 +2948,10 @@
        "adet": 1,
        "kutu": {
         "tur": "GOP_NORMAL_BOX",
-        "olasilik": 1.0,
+        "probability": 1.0,
         "omur_sn": 600,
         "mod": "biri",
-        "icerik": [
+        "contents": [
          [
           "ammunition_laser_rsb-75",
           5000,
@@ -3186,10 +3186,10 @@
        "adet": 1,
        "kutu": {
         "tur": "GOP_NORMAL_BOX",
-        "olasilik": 1.0,
+        "probability": 1.0,
         "omur_sn": 600,
         "mod": "biri",
-        "icerik": [
+        "contents": [
          [
           "ammunition_laser_rsb-75",
           5000,
@@ -3640,10 +3640,10 @@
        "kalkan_emme": 0.7,
        "kutu": {
         "tur": "GOP_NORMAL_BOX",
-        "olasilik": 1.0,
+        "probability": 1.0,
         "omur_sn": 600,
         "mod": "biri",
-        "icerik": [
+        "contents": [
          [
           "ammunition_laser_rsb-75",
           5000,
@@ -4018,10 +4018,10 @@
        "kalkan_emme": 0.7,
        "kutu": {
         "tur": "GOP_NORMAL_BOX",
-        "olasilik": 1.0,
+        "probability": 1.0,
         "omur_sn": 600,
         "mod": "biri",
-        "icerik": [
+        "contents": [
          [
           "ammunition_laser_rsb-75",
           5000,
@@ -4560,10 +4560,10 @@
        "kalkan_emme": 0.7,
        "kutu": {
         "tur": "GOP_NORMAL_BOX",
-        "olasilik": 1.0,
+        "probability": 1.0,
         "omur_sn": 600,
         "mod": "biri",
-        "icerik": [
+        "contents": [
          [
           "ammunition_laser_rsb-75",
           5000,
@@ -4875,7 +4875,7 @@
        "kargo": {},
        "adet": 1,
        "davranis": {
-        "vurulunca_cagir": {
+        "summon_on_hit": {
          "tur": "eg_plutus_ek_kacak",
          "adet": 1,
          "en_cok": 3,
@@ -4904,12 +4904,12 @@
         2400,
         2600
        ],
-       "kalici": true,
+       "permanent": true,
        "menzil": 450,
        "isabet": 0.8,
        "kalkan_emme": 0.5,
        "davranis": {
-        "vurulunca_cagir": {
+        "summon_on_hit": {
          "tur": "eg_plutus_ek_warhead",
          "adet": 1,
          "en_cok": 3,
@@ -4919,24 +4919,24 @@
        "radyoaktif": {
         "sure_sn": 10,
         "hasar_sn": 40000,
-        "azami_oran": 0.25,
-        "daire": 3,
+        "max_ratio": 0.25,
+        "circle": 3,
         "yaricap": 600,
-        "iyilesme_sn": 40000,
-        "uzaklik": [
+        "heal_sec": 40000,
+        "distance": [
          1500,
          3500
         ],
-        "uyari_sn": 3,
+        "warning_sec": 3,
         "bekleme_sn": 45
        },
        "kutu": {
         "tur": "GOP_NORMAL_BOX",
-        "olasilik": 0.35,
+        "probability": 0.35,
         "omur_sn": 900,
         "mod": "biri",
         "_kaynak": "forum 2019: %35; içerik wiki",
-        "icerik": [
+        "contents": [
          [
           "currency_uridium",
           5000000,
@@ -5044,7 +5044,7 @@
      "sabit": true
     }
    ],
-   "ek_turler": {
+   "extra_kinds": {
     "warhead": {
      "tur": "266",
      "ad": "Warhead",
@@ -5090,11 +5090,11 @@
      "adet": 1,
      "kutu": {
       "tur": "GOP_NORMAL_BOX",
-      "olasilik": 1.0,
+      "probability": 1.0,
       "omur_sn": 600,
       "mod": "biri",
       "_kaynak": "wiki \"Bountiful Alien CPU content\"; adetler uyarlama (Normal Kolay'ın iki katı: forum 143902)",
-      "icerik": [
+      "contents": [
        [
         "equipment_weapon_laser_lf-4-hp",
         2,
@@ -5194,7 +5194,7 @@
    "cpu": {
     "esya": "ammunition_specialammo_bountiful-alien-cpu-normal",
     "taban": 0.05,
-    "jig_artis": 0.005
+    "jig_increment": 0.005
    },
    "odul": {
     "esyalar": [
@@ -5211,7 +5211,7 @@
      ]
     ]
    },
-   "_odul": "fandom: bitişte 4.000-4.500 PIB-100 (Easy yarısı); EP/onur/kredi/uridyum Plutus'un kendi ödülünde (wiki); Cubi Portal CPU (darkorbitwiki equipment/cpu: Gauntlet of Plutus etkinliği), olasılık uyarlama: Easy %1, Normal %2",
+   "_reward": "fandom: bitişte 4.000-4.500 PIB-100 (Easy yarısı); EP/onur/kredi/uridyum Plutus'un kendi ödülünde (wiki); Cubi Portal CPU (darkorbitwiki equipment/cpu: Gauntlet of Plutus etkinliği), olasılık uyarlama: Easy %1, Normal %2",
    "mesajlar": {
     "tamam": {
      "buyuk": "key:log_msg_gg_completed_gop"
@@ -5234,7 +5234,7 @@
    "kural": {
     "bekleme_sn": 43200,
     "rastgele": true,
-    "portallar": 3
+    "portals": 3
    },
    "haritalar": [
     227,
@@ -5246,7 +5246,7 @@
     235,
     236
    ],
-   "dalgalar": [
+   "waves": [
     {
      "ad": "1-1",
      "harita": 227,
@@ -5318,10 +5318,10 @@
        "adet": 1,
        "kutu": {
         "tur": "CURCUBITOR_BOX",
-        "olasilik": 0.25,
+        "probability": 0.25,
         "omur_sn": 600,
         "mod": "biri",
-        "icerik": [
+        "contents": [
          [
           "ammunition_laser_ucb-100",
           8500,
@@ -5390,10 +5390,10 @@
        "adet": 1,
        "kutu": {
         "tur": "CANDY_CARGO",
-        "olasilik": 0.15,
+        "probability": 0.15,
         "omur_sn": 600,
         "mod": "biri",
-        "icerik": [
+        "contents": [
          [
           "ammunition_laser_mcb-50",
           24000,
@@ -5463,10 +5463,10 @@
        "adet": 1,
        "kutu": {
         "tur": "CURCUBITOR_BOSS_BOX",
-        "olasilik": 1.0,
+        "probability": 1.0,
         "omur_sn": 600,
         "mod": "biri",
-        "icerik": [
+        "contents": [
          [
           "ammunition_laser_ucb-100",
           25000,
@@ -5694,10 +5694,10 @@
        "adet": 1,
        "kutu": {
         "tur": "DEMON_BOX",
-        "olasilik": 1.0,
+        "probability": 1.0,
         "omur_sn": 900,
         "mod": "biri",
-        "icerik": [
+        "contents": [
          [
           "ammunition_laser_job-100",
           10000,
@@ -5877,10 +5877,10 @@
        "adet": 1,
        "kutu": {
         "tur": "CURCUBITOR_BOX",
-        "olasilik": 0.25,
+        "probability": 0.25,
         "omur_sn": 600,
         "mod": "biri",
-        "icerik": [
+        "contents": [
          [
           "ammunition_laser_ucb-100",
           8500,
@@ -5950,10 +5950,10 @@
        "adet": 1,
        "kutu": {
         "tur": "CURCUBITOR_BOSS_BOX",
-        "olasilik": 1.0,
+        "probability": 1.0,
         "omur_sn": 600,
         "mod": "biri",
-        "icerik": [
+        "contents": [
          [
           "ammunition_laser_ucb-100",
           25000,
@@ -6021,10 +6021,10 @@
        "adet": 1,
        "kutu": {
         "tur": "CANDY_CARGO",
-        "olasilik": 0.15,
+        "probability": 0.15,
         "omur_sn": 600,
         "mod": "biri",
-        "icerik": [
+        "contents": [
          [
           "ammunition_laser_mcb-50",
           24000,
@@ -6119,7 +6119,7 @@
        ]
       ]
      ],
-     "secenek": "4-1"
+     "option": "4-1"
     },
     {
      "ad": "4-1b",
@@ -6152,10 +6152,10 @@
        "adet": 1,
        "kutu": {
         "tur": "CURCUBITOR_BOX",
-        "olasilik": 0.25,
+        "probability": 0.25,
         "omur_sn": 600,
         "mod": "biri",
-        "icerik": [
+        "contents": [
          [
           "ammunition_laser_ucb-100",
           8500,
@@ -6199,7 +6199,7 @@
        ]
       ]
      ],
-     "secenek": "4-1"
+     "option": "4-1"
     },
     {
      "ad": "4-1c",
@@ -6232,7 +6232,7 @@
        ]
       ]
      ],
-     "secenek": "4-1"
+     "option": "4-1"
     },
     {
      "ad": "4-2",
@@ -6310,10 +6310,10 @@
        "adet": 1,
        "kutu": {
         "tur": "CURCUBITOR_BOSS_BOX",
-        "olasilik": 1.0,
+        "probability": 1.0,
         "omur_sn": 600,
         "mod": "biri",
-        "icerik": [
+        "contents": [
          [
           "ammunition_laser_ucb-100",
           25000,
@@ -6395,10 +6395,10 @@
        "adet": 1,
        "kutu": {
         "tur": "CURCUBITOR_BOSS_BOX",
-        "olasilik": 1.0,
+        "probability": 1.0,
         "omur_sn": 600,
         "mod": "biri",
-        "icerik": [
+        "contents": [
          [
           "ammunition_laser_ucb-100",
           25000,
@@ -6461,10 +6461,10 @@
        "adet": 1,
        "kutu": {
         "tur": "DEMON_BOX",
-        "olasilik": 1.0,
+        "probability": 1.0,
         "omur_sn": 900,
         "mod": "biri",
-        "icerik": [
+        "contents": [
          [
           "ammunition_laser_job-100",
           10000,
@@ -6599,10 +6599,10 @@
        "adet": 1,
        "kutu": {
         "tur": "CURCUBITOR_BOX",
-        "olasilik": 0.25,
+        "probability": 0.25,
         "omur_sn": 600,
         "mod": "biri",
-        "icerik": [
+        "contents": [
          [
           "ammunition_laser_ucb-100",
           8500,
@@ -6640,7 +6640,7 @@
        ]
       ]
      ],
-     "secenek": "5-1"
+     "option": "5-1"
     },
     {
      "ad": "5-1b",
@@ -6686,7 +6686,7 @@
        ]
       ]
      ],
-     "secenek": "5-1"
+     "option": "5-1"
     },
     {
      "ad": "5-2",
@@ -6756,10 +6756,10 @@
        "adet": 1,
        "kutu": {
         "tur": "CANDY_CARGO",
-        "olasilik": 0.15,
+        "probability": 0.15,
         "omur_sn": 600,
         "mod": "biri",
-        "icerik": [
+        "contents": [
          [
           "ammunition_laser_mcb-50",
           24000,
@@ -6841,10 +6841,10 @@
        "adet": 1,
        "kutu": {
         "tur": "CURCUBITOR_BOX",
-        "olasilik": 0.25,
+        "probability": 0.25,
         "omur_sn": 600,
         "mod": "biri",
-        "icerik": [
+        "contents": [
          [
           "ammunition_laser_ucb-100",
           8500,
@@ -6926,7 +6926,7 @@
        ]
       ]
      ],
-     "secenek": "5-5"
+     "option": "5-5"
     },
     {
      "ad": "5-5b",
@@ -6959,10 +6959,10 @@
        "adet": 1,
        "kutu": {
         "tur": "CURCUBITOR_BOSS_BOX",
-        "olasilik": 1.0,
+        "probability": 1.0,
         "omur_sn": 600,
         "mod": "biri",
-        "icerik": [
+        "contents": [
          [
           "ammunition_laser_ucb-100",
           25000,
@@ -7000,7 +7000,7 @@
        ]
       ]
      ],
-     "secenek": "5-5"
+     "option": "5-5"
     },
     {
      "ad": "6-1a",
@@ -7033,10 +7033,10 @@
        "adet": 1,
        "kutu": {
         "tur": "CURCUBITOR_BOSS_BOX",
-        "olasilik": 1.0,
+        "probability": 1.0,
         "omur_sn": 600,
         "mod": "biri",
-        "icerik": [
+        "contents": [
          [
           "ammunition_laser_ucb-100",
           25000,
@@ -7074,7 +7074,7 @@
        ]
       ]
      ],
-     "secenek": "6-1"
+     "option": "6-1"
     },
     {
      "ad": "6-1b",
@@ -7107,10 +7107,10 @@
        "adet": 1,
        "kutu": {
         "tur": "CURCUBITOR_BOSS_BOX",
-        "olasilik": 1.0,
+        "probability": 1.0,
         "omur_sn": 600,
         "mod": "biri",
-        "icerik": [
+        "contents": [
          [
           "ammunition_laser_ucb-100",
           25000,
@@ -7148,7 +7148,7 @@
        ]
       ]
      ],
-     "secenek": "6-1"
+     "option": "6-1"
     },
     {
      "ad": "6-2",
@@ -7221,10 +7221,10 @@
        "adet": 1,
        "kutu": {
         "tur": "CURCUBITOR_BOSS_BOX",
-        "olasilik": 1.0,
+        "probability": 1.0,
         "omur_sn": 600,
         "mod": "biri",
-        "icerik": [
+        "contents": [
          [
           "ammunition_laser_ucb-100",
           25000,
@@ -7339,10 +7339,10 @@
        "adet": 1,
        "kutu": {
         "tur": "DEMON_BOX",
-        "olasilik": 1.0,
+        "probability": 1.0,
         "omur_sn": 900,
         "mod": "biri",
-        "icerik": [
+        "contents": [
          [
           "ammunition_laser_job-100",
           10000,
@@ -7514,10 +7514,10 @@
        "adet": 1,
        "kutu": {
         "tur": "CANDY_CARGO",
-        "olasilik": 0.15,
+        "probability": 0.15,
         "omur_sn": 600,
         "mod": "biri",
-        "icerik": [
+        "contents": [
          [
           "ammunition_laser_mcb-50",
           24000,
@@ -7593,10 +7593,10 @@
        "adet": 1,
        "kutu": {
         "tur": "CURCUBITOR_BOX",
-        "olasilik": 0.25,
+        "probability": 0.25,
         "omur_sn": 600,
         "mod": "biri",
-        "icerik": [
+        "contents": [
          [
           "ammunition_laser_ucb-100",
           8500,
@@ -7710,10 +7710,10 @@
        "adet": 1,
        "kutu": {
         "tur": "CURCUBITOR_BOSS_BOX",
-        "olasilik": 1.0,
+        "probability": 1.0,
         "omur_sn": 600,
         "mod": "biri",
-        "icerik": [
+        "contents": [
          [
           "ammunition_laser_ucb-100",
           25000,
@@ -7776,10 +7776,10 @@
        "adet": 1,
        "kutu": {
         "tur": "DEMON_BOX",
-        "olasilik": 1.0,
+        "probability": 1.0,
         "omur_sn": 900,
         "mod": "biri",
-        "icerik": [
+        "contents": [
          [
           "ammunition_laser_job-100",
           10000,
@@ -7954,10 +7954,10 @@
        "adet": 1,
        "kutu": {
         "tur": "CURCUBITOR_BOX",
-        "olasilik": 0.25,
+        "probability": 0.25,
         "omur_sn": 600,
         "mod": "biri",
-        "icerik": [
+        "contents": [
          [
           "ammunition_laser_ucb-100",
           8500,
@@ -8027,10 +8027,10 @@
        "adet": 1,
        "kutu": {
         "tur": "CURCUBITOR_BOX",
-        "olasilik": 0.25,
+        "probability": 0.25,
         "omur_sn": 600,
         "mod": "biri",
-        "icerik": [
+        "contents": [
          [
           "ammunition_laser_ucb-100",
           8500,
@@ -8100,10 +8100,10 @@
        "adet": 1,
        "kutu": {
         "tur": "CURCUBITOR_BOSS_BOX",
-        "olasilik": 1.0,
+        "probability": 1.0,
         "omur_sn": 600,
         "mod": "biri",
-        "icerik": [
+        "contents": [
          [
           "ammunition_laser_ucb-100",
           25000,
@@ -8171,10 +8171,10 @@
        "adet": 1,
        "kutu": {
         "tur": "CANDY_CARGO",
-        "olasilik": 0.15,
+        "probability": 0.15,
         "omur_sn": 600,
         "mod": "biri",
-        "icerik": [
+        "contents": [
          [
           "ammunition_laser_mcb-50",
           24000,
@@ -8243,7 +8243,7 @@
        "adet": 1,
        "kutu": {
         "tur": "FRIGHTFUL_CURCUBITOR_BOSS_BOX",
-        "olasilik": 1.0,
+        "probability": 1.0,
         "omur_sn": 1800,
         "mod": "biri",
         "kesin": [
@@ -8262,7 +8262,7 @@
           ]
          ]
         ],
-        "icerik": [
+        "contents": [
          [
           "currency_uridium",
           [
@@ -8309,15 +8309,15 @@
         ],
         "_uyarlama": "adetler kaynakta yok"
        },
-       "kalici": true,
+       "permanent": true,
        "davranis": {
-        "yapiskan_bomba": {
+        "sticky_bomb": {
          "hasar": 60000,
          "aralik_sn": 25,
-         "gecikme_sn": 10,
+         "delay_sec": 10,
          "grup": 1
         },
-        "vurulunca_cagir": {
+        "summon_on_hit": {
          "tur": "eg_vortex_ek_curcubitor",
          "adet": 2,
          "en_cok": 6,
@@ -8336,7 +8336,7 @@
      ]
     }
    ],
-   "ek_turler": {
+   "extra_kinds": {
     "curcubitor": {
      "tur": "119",
      "ad": "Curcubitor",
@@ -8364,7 +8364,7 @@
    },
    "odul": {},
    "karanlik": true,
-   "_karanlik": "haritalar karanlık, yalnız geminin baktığı yön aydınlık (kullanıcının gerçek oyundaki gözlemi; istemcide VisualModifier FLASHLIGHT 62 / FlashLightEffect; kamuya açık kaynaklarda yazılı değil)",
+   "_dark": "haritalar karanlık, yalnız geminin baktığı yön aydınlık (kullanıcının gerçek oyundaki gözlemi; istemcide VisualModifier FLASHLIGHT 62 / FlashLightEffect; kamuya açık kaynaklarda yazılı değil)",
    "_kaynak": "wiki vortex-of-terrors-gate (8 harita, 90 Curcubitor; 2023 oyuncu yorumu da 90), resmî forum SSS 2020-2026 (X-4, 12 saat bekleme, bitiş ödülü yok, kapıda Curcubitor yalnız Treat bırakır); can 5 eski sürümden (SSS can sayısı vermiyor)",
    "_uyarlama": "\"ya da\" dalgalarından biri rastgele; Box A Uber, Box B Boss (%25), Box C Curcubitor (%15) uzaylılarından (kaynak hangisinin düşürdüğünü vermiyor); Frightful Curcubitor yapışkan bomba ve Curcubitor çağırır",
    "mesajlar": {
@@ -8377,7 +8377,7 @@
    "kimlik": 4,
    "ad": "Birthday Gate",
    "etkinlik": "dogum_gunu",
-   "kapi_turu": "BIRTHDAY",
+   "gate_kind": "BIRTHDAY",
    "giris": "X-1",
    "portal": 15,
    "can": 3,
@@ -8387,7 +8387,7 @@
    "haritalar": [
     57
    ],
-   "dalgalar": [
+   "waves": [
     {
      "ad": "1",
      "harita": 57,
@@ -9136,7 +9136,7 @@
    "haritalar": [
     229
    ],
-   "dalgalar": [
+   "waves": [
     {
      "ad": "1",
      "harita": 229,
@@ -9232,7 +9232,7 @@
        },
        "kargo": {},
        "adet": 1,
-       "kalici": true,
+       "permanent": true,
        "ek_odul": {
         "resource_collectable_indoctrineoil": [
          0,
@@ -9240,7 +9240,7 @@
         ]
        },
        "davranis": {
-        "vurulunca_cagir": {
+        "summon_on_hit": {
          "tur": "eg_karantina_ek_viral",
          "adet": 3,
          "en_cok": 8,
@@ -9263,7 +9263,7 @@
      ]
     }
    ],
-   "ek_turler": {
+   "extra_kinds": {
     "viral": {
      "tur": "249",
      "ad": "Viral Gygerthrall",
@@ -9350,7 +9350,7 @@
       0.05
      ]
     ],
-    "ruller": [
+    "rolls": [
      "resource_collectable_indoctrineoil",
      [
       [
@@ -9374,8 +9374,8 @@
       ]
      ]
     ],
-    "buyuk_paket": {
-     "olasilik": 1e-05,
+    "big_pack": {
+     "probability": 1e-05,
      "esyalar": [
       [
        "currency_uridium",
@@ -9440,7 +9440,7 @@
    "haritalar": [
     305
    ],
-   "dalgalar": [
+   "waves": [
     {
      "ad": "1",
      "harita": 305,
@@ -10834,7 +10834,7 @@
         "5": 200,
         "6": 25
        },
-       "_odul_kaynagi": "wiki kapı",
+       "_reward_source": "wiki kapı",
        "davranis": {
         "roket": {
          "hasar": 1000,
@@ -10915,7 +10915,7 @@
        },
        "kargo": {},
        "adet": 1,
-       "kalici": true
+       "permanent": true
       }
      ],
      "gruplar": [
@@ -10945,12 +10945,12 @@
    "can": 2,
    "kural": {
     "cpu": "ammunition_ggportal_permafrost-fissure-cpu",
-    "cpu_can": 2
+    "cpu_hp": 2
    },
    "haritalar": [
     228
    ],
-   "dalgalar": [
+   "waves": [
     {
      "ad": "1",
      "harita": 228,
@@ -11394,11 +11394,11 @@
        "adet": 1,
        "kutu": {
         "tur": "PERMAFROST_AA",
-        "olasilik": 1.0,
+        "probability": 1.0,
         "omur_sn": 900,
         "mod": "biri",
         "proxium": true,
-        "icerik": [
+        "contents": [
          [
           "ammunition_laser_ucb-100",
           10000,
@@ -11425,7 +11425,7 @@
           2
          ]
         ],
-        "ayrica": [
+        "additional": [
          [
           "resource_collectable_proxium",
           7,
@@ -11938,11 +11938,11 @@
        "adet": 1,
        "kutu": {
         "tur": "PERMAFROST_AA",
-        "olasilik": 1.0,
+        "probability": 1.0,
         "omur_sn": 900,
         "mod": "biri",
         "proxium": true,
-        "icerik": [
+        "contents": [
          [
           "ammunition_laser_ucb-100",
           10000,
@@ -11969,7 +11969,7 @@
           2
          ]
         ],
-        "ayrica": [
+        "additional": [
          [
           "resource_collectable_proxium",
           7,
@@ -12437,11 +12437,11 @@
        "adet": 1,
        "kutu": {
         "tur": "PERMAFROST_AA",
-        "olasilik": 1.0,
+        "probability": 1.0,
         "omur_sn": 900,
         "mod": "biri",
         "proxium": true,
-        "icerik": [
+        "contents": [
          [
           "ammunition_laser_ucb-100",
           10000,
@@ -12468,7 +12468,7 @@
           2
          ]
         ],
-        "ayrica": [
+        "additional": [
          [
           "resource_collectable_proxium",
           7,
@@ -13019,11 +13019,11 @@
        "adet": 1,
        "kutu": {
         "tur": "PERMAFROST_AA",
-        "olasilik": 1.0,
+        "probability": 1.0,
         "omur_sn": 900,
         "mod": "biri",
         "proxium": true,
-        "icerik": [
+        "contents": [
          [
           "ammunition_laser_ucb-100",
           10000,
@@ -13050,7 +13050,7 @@
           2
          ]
         ],
-        "ayrica": [
+        "additional": [
          [
           "resource_collectable_proxium",
           7,
@@ -13644,11 +13644,11 @@
        "adet": 1,
        "kutu": {
         "tur": "PERMAFROST_AA",
-        "olasilik": 1.0,
+        "probability": 1.0,
         "omur_sn": 900,
         "mod": "biri",
         "proxium": true,
-        "icerik": [
+        "contents": [
          [
           "ammunition_laser_ucb-100",
           10000,
@@ -13675,7 +13675,7 @@
           2
          ]
         ],
-        "ayrica": [
+        "additional": [
          [
           "resource_collectable_proxium",
           7,
@@ -13915,11 +13915,11 @@
        "adet": 1,
        "kutu": {
         "tur": "PERMAFROST_AA",
-        "olasilik": 1.0,
+        "probability": 1.0,
         "omur_sn": 900,
         "mod": "biri",
         "proxium": true,
-        "icerik": [
+        "contents": [
          [
           "ammunition_laser_ucb-100",
           10000,
@@ -13946,7 +13946,7 @@
           2
          ]
         ],
-        "ayrica": [
+        "additional": [
          [
           "resource_collectable_proxium",
           7,
@@ -14051,11 +14051,11 @@
        "adet": 1,
        "kutu": {
         "tur": "PERMAFROST_AAA",
-        "olasilik": 1.0,
+        "probability": 1.0,
         "omur_sn": 900,
         "mod": "biri",
         "proxium": true,
-        "icerik": [
+        "contents": [
          [
           "ammunition_laser_ucb-100",
           20000,
@@ -14082,7 +14082,7 @@
           12.5
          ]
         ],
-        "ayrica": [
+        "additional": [
          [
           "resource_collectable_proxium",
           15,
@@ -14502,11 +14502,11 @@
        "adet": 1,
        "kutu": {
         "tur": "PERMAFROST_AA",
-        "olasilik": 1.0,
+        "probability": 1.0,
         "omur_sn": 900,
         "mod": "biri",
         "proxium": true,
-        "icerik": [
+        "contents": [
          [
           "ammunition_laser_ucb-100",
           10000,
@@ -14533,7 +14533,7 @@
           2
          ]
         ],
-        "ayrica": [
+        "additional": [
          [
           "resource_collectable_proxium",
           7,
@@ -14868,11 +14868,11 @@
        "adet": 1,
        "kutu": {
         "tur": "PERMAFROST_AA",
-        "olasilik": 1.0,
+        "probability": 1.0,
         "omur_sn": 900,
         "mod": "biri",
         "proxium": true,
-        "icerik": [
+        "contents": [
          [
           "ammunition_laser_ucb-100",
           10000,
@@ -14899,7 +14899,7 @@
           2
          ]
         ],
-        "ayrica": [
+        "additional": [
          [
           "resource_collectable_proxium",
           7,
@@ -15288,11 +15288,11 @@
        "adet": 1,
        "kutu": {
         "tur": "PERMAFROST_AA",
-        "olasilik": 1.0,
+        "probability": 1.0,
         "omur_sn": 900,
         "mod": "biri",
         "proxium": true,
-        "icerik": [
+        "contents": [
          [
           "ammunition_laser_ucb-100",
           10000,
@@ -15319,7 +15319,7 @@
           2
          ]
         ],
-        "ayrica": [
+        "additional": [
          [
           "resource_collectable_proxium",
           7,
@@ -15626,11 +15626,11 @@
        "adet": 1,
        "kutu": {
         "tur": "PERMAFROST_AA",
-        "olasilik": 1.0,
+        "probability": 1.0,
         "omur_sn": 900,
         "mod": "biri",
         "proxium": true,
-        "icerik": [
+        "contents": [
          [
           "ammunition_laser_ucb-100",
           10000,
@@ -15657,7 +15657,7 @@
           2
          ]
         ],
-        "ayrica": [
+        "additional": [
          [
           "resource_collectable_proxium",
           7,
@@ -15963,11 +15963,11 @@
        "adet": 1,
        "kutu": {
         "tur": "PERMAFROST_AAA",
-        "olasilik": 1.0,
+        "probability": 1.0,
         "omur_sn": 900,
         "mod": "biri",
         "proxium": true,
-        "icerik": [
+        "contents": [
          [
           "ammunition_laser_ucb-100",
           20000,
@@ -15994,7 +15994,7 @@
           12.5
          ]
         ],
-        "ayrica": [
+        "additional": [
          [
           "resource_collectable_proxium",
           15,
@@ -16155,7 +16155,7 @@
    "kimlik": 8,
    "ad": "The Breach (Easy)",
    "etkinlik": "kis",
-   "kapi_turu": "COLDWAVE_EASY",
+   "gate_kind": "COLDWAVE_EASY",
    "giris": "X-1",
    "portal": 77,
    "can": 20,
@@ -16170,7 +16170,7 @@
    "haritalar": [
     77
    ],
-   "dalgalar": [
+   "waves": [
     {
      "ad": "1",
      "harita": 77,
@@ -16468,7 +16468,7 @@
    "kimlik": 9,
    "ad": "The Breach (Hard)",
    "etkinlik": "kis",
-   "kapi_turu": "COLDWAVE_HARD",
+   "gate_kind": "COLDWAVE_HARD",
    "giris": "X-1",
    "portal": 78,
    "can": 20,
@@ -16484,7 +16484,7 @@
    "haritalar": [
     78
    ],
-   "dalgalar": [
+   "waves": [
     {
      "ad": "1",
      "harita": 78,
@@ -16786,7 +16786,7 @@
    "kimlik": 10,
    "ad": "Devolarium Attack",
    "etkinlik": null,
-   "kapi_turu": "STARTER_GATE",
+   "gate_kind": "STARTER_GATE",
    "giris": "X-1",
    "portal": 2,
    "can": 3,
@@ -16796,7 +16796,7 @@
    "haritalar": [
     223
    ],
-   "dalgalar": [
+   "waves": [
     {
      "ad": "1",
      "harita": 223,
@@ -17089,7 +17089,7 @@
      ]
     }
    ],
-   "konum": {
+   "position": {
     "1": [
      12500,
      8500
@@ -17142,9 +17142,9 @@
   "haritalar": {
    "430": {
     "ad": "ATLAS A",
-    "bolgeler": {
+    "zones": {
      "TL": {
-      "nufus": [
+      "population": [
        [
         "Frozen Icy",
         6
@@ -17182,7 +17182,7 @@
       }
      },
      "TR": {
-      "nufus": [
+      "population": [
        [
         "Frozen Icy",
         6
@@ -17220,7 +17220,7 @@
       }
      },
      "BL": {
-      "nufus": [
+      "population": [
        [
         "Frozen Icy",
         6
@@ -17262,7 +17262,7 @@
       }
      },
      "BR": {
-      "nufus": [
+      "population": [
        [
         "Frozen Icy",
         6
@@ -17307,9 +17307,9 @@
    },
    "431": {
     "ad": "ATLAS B",
-    "bolgeler": {
+    "zones": {
      "TL": {
-      "nufus": [
+      "population": [
        [
         "Frozen Icy",
         6
@@ -17347,7 +17347,7 @@
       }
      },
      "TR": {
-      "nufus": [
+      "population": [
        [
         "Frozen Icy",
         6
@@ -17385,7 +17385,7 @@
       }
      },
      "BL": {
-      "nufus": [
+      "population": [
        [
         "Frozen Icy",
         6
@@ -17427,7 +17427,7 @@
       }
      },
      "BR": {
-      "nufus": [
+      "population": [
        [
         "Frozen Icy",
         6
@@ -17472,9 +17472,9 @@
    },
    "432": {
     "ad": "ATLAS C",
-    "bolgeler": {
+    "zones": {
      "TL": {
-      "nufus": [
+      "population": [
        [
         "Frozen Icy",
         6
@@ -17512,7 +17512,7 @@
       }
      },
      "TR": {
-      "nufus": [
+      "population": [
        [
         "Frozen Icy",
         6
@@ -17550,7 +17550,7 @@
       }
      },
      "BL": {
-      "nufus": [
+      "population": [
        [
         "Frozen Icy",
         6
@@ -17592,7 +17592,7 @@
       }
      },
      "BR": {
-      "nufus": [
+      "population": [
        [
         "Frozen Icy",
         6
@@ -17637,9 +17637,9 @@
    },
    "433": {
     "ad": "Cygni",
-    "bolgeler": {
+    "zones": {
      "TL": {
-      "nufus": [
+      "population": [
        [
         "Frozen Icy",
         6
@@ -17677,7 +17677,7 @@
       }
      },
      "TR": {
-      "nufus": [
+      "population": [
        [
         "Frozen Icy",
         6
@@ -17715,7 +17715,7 @@
       }
      },
      "BL": {
-      "nufus": [
+      "population": [
        [
         "Frozen Icy",
         6
@@ -17757,7 +17757,7 @@
       }
      },
      "BR": {
-      "nufus": [
+      "population": [
        [
         "Frozen Icy",
         6
@@ -17802,9 +17802,9 @@
    },
    "434": {
     "ad": "Helvetios",
-    "bolgeler": {
+    "zones": {
      "TL": {
-      "nufus": [
+      "population": [
        [
         "Frozen Icy",
         6
@@ -17842,7 +17842,7 @@
       }
      },
      "TR": {
-      "nufus": [
+      "population": [
        [
         "Frozen Icy",
         6
@@ -17880,7 +17880,7 @@
       }
      },
      "BL": {
-      "nufus": [
+      "population": [
        [
         "Frozen Icy",
         6
@@ -17922,7 +17922,7 @@
       }
      },
      "BR": {
-      "nufus": [
+      "population": [
        [
         "Frozen Icy",
         6
@@ -17967,9 +17967,9 @@
    },
    "435": {
     "ad": "Eridani",
-    "bolgeler": {
+    "zones": {
      "TL": {
-      "nufus": [
+      "population": [
        [
         "Frozen Icy",
         6
@@ -18007,7 +18007,7 @@
       }
      },
      "TR": {
-      "nufus": [
+      "population": [
        [
         "Frozen Icy",
         6
@@ -18045,7 +18045,7 @@
       }
      },
      "BL": {
-      "nufus": [
+      "population": [
        [
         "Frozen Icy",
         6
@@ -18087,7 +18087,7 @@
       }
      },
      "BR": {
-      "nufus": [
+      "population": [
        [
         "Frozen Icy",
         6
@@ -18132,9 +18132,9 @@
    },
    "436": {
     "ad": "Sirius",
-    "bolgeler": {
+    "zones": {
      "TL": {
-      "nufus": [
+      "population": [
        [
         "Frozen Icy",
         6
@@ -18172,7 +18172,7 @@
       }
      },
      "TR": {
-      "nufus": [
+      "population": [
        [
         "Frozen Icy",
         6
@@ -18210,7 +18210,7 @@
       }
      },
      "BL": {
-      "nufus": [
+      "population": [
        [
         "Frozen Icy",
         6
@@ -18252,7 +18252,7 @@
       }
      },
      "BR": {
-      "nufus": [
+      "population": [
        [
         "Frozen Icy",
         6
@@ -18297,9 +18297,9 @@
    },
    "437": {
     "ad": "Sadatoni",
-    "bolgeler": {
+    "zones": {
      "TL": {
-      "nufus": [
+      "population": [
        [
         "Frozen Icy",
         6
@@ -18337,7 +18337,7 @@
       }
      },
      "TR": {
-      "nufus": [
+      "population": [
        [
         "Frozen Icy",
         6
@@ -18375,7 +18375,7 @@
       }
      },
      "BL": {
-      "nufus": [
+      "population": [
        [
         "Frozen Icy",
         6
@@ -18417,7 +18417,7 @@
       }
      },
      "BR": {
-      "nufus": [
+      "population": [
        [
         "Frozen Icy",
         6
@@ -18462,9 +18462,9 @@
    },
    "438": {
     "ad": "Persei",
-    "bolgeler": {
+    "zones": {
      "TL": {
-      "nufus": [
+      "population": [
        [
         "Frozen Icy",
         6
@@ -18502,7 +18502,7 @@
       }
      },
      "TR": {
-      "nufus": [
+      "population": [
        [
         "Frozen Icy",
         6
@@ -18540,7 +18540,7 @@
       }
      },
      "BL": {
-      "nufus": [
+      "population": [
        [
         "Frozen Icy",
         6
@@ -18582,7 +18582,7 @@
       }
      },
      "BR": {
-      "nufus": [
+      "population": [
        [
         "Frozen Icy",
         6
@@ -18627,9 +18627,9 @@
    },
    "439": {
     "ad": "Volantis",
-    "bolgeler": {
+    "zones": {
      "TL": {
-      "nufus": [
+      "population": [
        [
         "Frozen Icy",
         6
@@ -18667,7 +18667,7 @@
       }
      },
      "TR": {
-      "nufus": [
+      "population": [
        [
         "Frozen Icy",
         6
@@ -18705,7 +18705,7 @@
       }
      },
      "BL": {
-      "nufus": [
+      "population": [
        [
         "Frozen Icy",
         6
@@ -18747,7 +18747,7 @@
       }
      },
      "BR": {
-      "nufus": [
+      "population": [
        [
         "Frozen Icy",
         6
@@ -18792,9 +18792,9 @@
    },
    "440": {
     "ad": "Alcyone",
-    "bolgeler": {
+    "zones": {
      "TL": {
-      "nufus": [
+      "population": [
        [
         "Frozen Icy",
         6
@@ -18832,7 +18832,7 @@
       }
      },
      "TR": {
-      "nufus": [
+      "population": [
        [
         "Frozen Icy",
         6
@@ -18870,7 +18870,7 @@
       }
      },
      "BL": {
-      "nufus": [
+      "population": [
        [
         "Frozen Icy",
         6
@@ -18912,7 +18912,7 @@
       }
      },
      "BR": {
-      "nufus": [
+      "population": [
        [
         "Frozen Icy",
         6
@@ -18957,9 +18957,9 @@
    },
    "441": {
     "ad": "Auriga",
-    "bolgeler": {
+    "zones": {
      "TL": {
-      "nufus": [
+      "population": [
        [
         "Frozen Icy",
         6
@@ -18997,7 +18997,7 @@
       }
      },
      "TR": {
-      "nufus": [
+      "population": [
        [
         "Frozen Icy",
         6
@@ -19035,7 +19035,7 @@
       }
      },
      "BL": {
-      "nufus": [
+      "population": [
        [
         "Frozen Icy",
         6
@@ -19077,7 +19077,7 @@
       }
      },
      "BR": {
-      "nufus": [
+      "population": [
        [
         "Frozen Icy",
         6
@@ -19122,9 +19122,9 @@
    },
    "442": {
     "ad": "Bootes",
-    "bolgeler": {
+    "zones": {
      "TL": {
-      "nufus": [
+      "population": [
        [
         "Frozen Icy",
         6
@@ -19162,7 +19162,7 @@
       }
      },
      "TR": {
-      "nufus": [
+      "population": [
        [
         "Frozen Icy",
         6
@@ -19200,7 +19200,7 @@
       }
      },
      "BL": {
-      "nufus": [
+      "population": [
        [
         "Frozen Icy",
         6
@@ -19242,7 +19242,7 @@
       }
      },
      "BR": {
-      "nufus": [
+      "population": [
        [
         "Frozen Icy",
         6
@@ -19287,9 +19287,9 @@
    },
    "443": {
     "ad": "Aquila",
-    "bolgeler": {
+    "zones": {
      "TL": {
-      "nufus": [
+      "population": [
        [
         "Frozen Icy",
         6
@@ -19327,7 +19327,7 @@
       }
      },
      "TR": {
-      "nufus": [
+      "population": [
        [
         "Frozen Icy",
         6
@@ -19365,7 +19365,7 @@
       }
      },
      "BL": {
-      "nufus": [
+      "population": [
        [
         "Frozen Icy",
         6
@@ -19407,7 +19407,7 @@
       }
      },
      "BR": {
-      "nufus": [
+      "population": [
        [
         "Frozen Icy",
         6
@@ -19452,9 +19452,9 @@
    },
    "444": {
     "ad": "Orion",
-    "bolgeler": {
+    "zones": {
      "TL": {
-      "nufus": [
+      "population": [
        [
         "Frozen Icy",
         6
@@ -19492,7 +19492,7 @@
       }
      },
      "TR": {
-      "nufus": [
+      "population": [
        [
         "Frozen Icy",
         6
@@ -19530,7 +19530,7 @@
       }
      },
      "BL": {
-      "nufus": [
+      "population": [
        [
         "Frozen Icy",
         6
@@ -19572,7 +19572,7 @@
       }
      },
      "BR": {
-      "nufus": [
+      "population": [
        [
         "Frozen Icy",
         6
@@ -19617,9 +19617,9 @@
    },
    "445": {
     "ad": "Maia",
-    "bolgeler": {
+    "zones": {
      "TL": {
-      "nufus": [
+      "population": [
        [
         "Frozen Icy",
         6
@@ -19657,7 +19657,7 @@
       }
      },
      "TR": {
-      "nufus": [
+      "population": [
        [
         "Frozen Icy",
         6
@@ -19695,7 +19695,7 @@
       }
      },
      "BL": {
-      "nufus": [
+      "population": [
        [
         "Frozen Icy",
         6
@@ -19737,7 +19737,7 @@
       }
      },
      "BR": {
-      "nufus": [
+      "population": [
        [
         "Frozen Icy",
         6
@@ -20074,7 +20074,7 @@
      ]
     ],
     "davranis": {
-     "vurulunca_cagir": {
+     "summon_on_hit": {
       "tur": "lab_frozen_icy",
       "adet": 2,
       "en_cok": 4,
@@ -20102,10 +20102,10 @@
     "saldirgan": false,
     "kutu": {
      "tur": "FROZEN_LABYRINTH_BOX",
-     "olasilik": 1.0,
+     "probability": 1.0,
      "omur_sn": 900,
      "mod": "hepsi",
-     "icerik": [
+     "contents": [
       [
        "ship_holo_design_holo-frost",
        1,
@@ -20176,10 +20176,10 @@
     "_uyarlama": "IceMine istemcide ayrı eşya değil: yavaşlatan mayın (SLM-01) görünümü; aralık, sayı ve menzil uyarlama"
    }
   },
-  "anahtar_ucreti": 1,
+  "key_cost": 1,
   "skoll": {
    "aralik_sn": 300,
-   "olasilik": 1.0,
+   "probability": 1.0,
    "adet": 3
   },
   "synk": {
@@ -20187,7 +20187,7 @@
     300,
     600
    ],
-   "haber_sn": 300
+   "notice_sec": 300
   },
   "saatler": [
    [
@@ -20207,7 +20207,7 @@
     23
    ]
   ],
-  "saatler_hafta_sonu": [
+  "hours_weekend": [
    [
     8,
     10
@@ -20230,9 +20230,9 @@
  },
  "deney": {
   "etkinlik": "plutus",
-  "atis_sn": 120,
-  "dalga_sn": 45,
-  "ipucu_sn": 10,
+  "fire_sec": 120,
+  "wave_sec": 45,
+  "hint_sec": 10,
   "isaret": {
    "tur": "deney_isaret",
    "ad": "Plutus Beacon",
@@ -20246,10 +20246,10 @@
    "odul": {},
    "kargo": {}
   },
-  "riskler": {
+  "risks": {
    "low": {
     "ad": "Low Risk",
-    "harita_sinifi": "X-1",
+    "map_class": "X-1",
     "pvp": false,
     "bekleme_sn": 1200,
     "uzaylilar": [
@@ -20276,7 +20276,7 @@
        "5": 2
       },
       "adet": 1,
-      "esik": 0
+      "threshold": 0
      },
      {
       "tur": "230",
@@ -20303,7 +20303,7 @@
        "3": 2
       },
       "adet": 1,
-      "esik": 500000
+      "threshold": 500000
      },
      {
       "tur": "231",
@@ -20329,7 +20329,7 @@
        "6": 1
       },
       "adet": 1,
-      "esik": 1500000
+      "threshold": 1500000
      },
      {
       "tur": "232",
@@ -20356,7 +20356,7 @@
        "3": 8
       },
       "adet": 1,
-      "esik": 3000000
+      "threshold": 3000000
      },
      {
       "tur": "233",
@@ -20382,7 +20382,7 @@
        "6": 2
       },
       "adet": 1,
-      "esik": 6000000
+      "threshold": 6000000
      }
     ],
     "kutular": [
@@ -20612,7 +20612,7 @@
    },
    "medium": {
     "ad": "Medium Risk",
-    "harita_sinifi": "X-5",
+    "map_class": "X-5",
     "pvp": false,
     "bekleme_sn": 1200,
     "uzaylilar": [
@@ -20640,7 +20640,7 @@
        "6": 1
       },
       "adet": 1,
-      "esik": 0
+      "threshold": 0
      },
      {
       "tur": "235",
@@ -20667,7 +20667,7 @@
        "3": 6
       },
       "adet": 1,
-      "esik": 1000000
+      "threshold": 1000000
      },
      {
       "tur": "236",
@@ -20693,7 +20693,7 @@
        "6": 16
       },
       "adet": 1,
-      "esik": 3000000
+      "threshold": 3000000
      },
      {
       "tur": "237",
@@ -20720,7 +20720,7 @@
        "3": 64
       },
       "adet": 1,
-      "esik": 6000000
+      "threshold": 6000000
      },
      {
       "tur": "238",
@@ -20747,7 +20747,7 @@
        "3": 128
       },
       "adet": 1,
-      "esik": 12000000
+      "threshold": 12000000
      }
     ],
     "kutular": [
@@ -21204,7 +21204,7 @@
    },
    "high": {
     "ad": "High Risk",
-    "harita_sinifi": "4-4",
+    "map_class": "4-4",
     "pvp": true,
     "bekleme_sn": 1800,
     "uzaylilar": [
@@ -21232,7 +21232,7 @@
        "6": 8
       },
       "adet": 1,
-      "esik": 0
+      "threshold": 0
      },
      {
       "tur": "240",
@@ -21259,7 +21259,7 @@
        "3": 32
       },
       "adet": 1,
-      "esik": 4000000
+      "threshold": 4000000
      },
      {
       "tur": "241",
@@ -21286,7 +21286,7 @@
        "3": 128
       },
       "adet": 1,
-      "esik": 10000000
+      "threshold": 10000000
      }
     ],
     "kutular": [
@@ -21543,7 +21543,7 @@
     ]
    }
   },
-  "puan_takasi": [
+  "point_exchange": [
    {
     "puan": 1000,
     "odul": [
@@ -21605,13 +21605,13 @@
     "X-7",
     "X-8"
    ],
-   "bekleme_grubu": 56,
+   "cooldown_group": 56,
    "bekleme_sn": 60,
-   "turler": [
+   "kinds": [
     "eg_plutus_ek_bountiful"
    ],
    "etkinlik": "plutus",
-   "npc_siniri": 250,
+   "npc_limit": 250,
    "_kaynak": "darkorbitwiki gauntlet-of-plutus-gate / equipment/cpu: Normal X-5..X-8, Easy X-3..X-5 ve savaş haritaları (4-x); 250 NPC üstünde, DMZ’de ve CPU uzaylısı yaşarken kullanılamaz; etkinlik bitince silinir. Bekleme: öteki uzaylı CPU’ları gibi (uyarlama)"
   },
   "ammunition_specialammo_bountiful-alien-cpu-easy": {
@@ -21620,13 +21620,13 @@
     "X-4",
     "X-5"
    ],
-   "bekleme_grubu": 56,
+   "cooldown_group": 56,
    "bekleme_sn": 60,
-   "turler": [
+   "kinds": [
     "eg_plutus_kolay_ek_bountiful"
    ],
    "etkinlik": "plutus",
-   "npc_siniri": 250,
+   "npc_limit": 250,
    "_kaynak": "darkorbitwiki gauntlet-of-plutus-gate / equipment/cpu: Normal X-5..X-8, Easy X-3..X-5 ve savaş haritaları (4-x); 250 NPC üstünde, DMZ’de ve CPU uzaylısı yaşarken kullanılamaz; etkinlik bitince silinir. Bekleme: öteki uzaylı CPU’ları gibi (uyarlama)"
   }
  }

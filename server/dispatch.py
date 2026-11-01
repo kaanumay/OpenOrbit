@@ -24,7 +24,7 @@ import galaxy_gates as KAPI
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 D = json.load(open(os.path.join(HERE, 'data', 'dispatch.json'), encoding='utf8'))
-R = D['toplayicilar']
+R = D['collectors']
 AVAILABLE, IN_PROGRESS, READY = 0, 1, 2                    # StatusType (istemci)
 NO_RESOURCE, COLLECTED = 0, 1                             # DispatchLootMessageCommand.MessageType
 (SUCCESS_SEND_RETRIEVER, SUCCESS_SEND_GATE, SUCCESS_ADD_SLOT, ERROR_NO_GATE, ERROR_NO_SLOT, ERROR_NO_RESOURCE, ERROR_NOT_READY,
@@ -54,7 +54,7 @@ def gate_day(now=None):
 def event_ranges(code, now=None):
     """Süren etkinliklerin bu toplayıcıya (ya da 'kapi' gönderimine) eklediği kalemler: {lootId: [en az, en çok]} (etkinlik_oduller)."""
     import event_calendar as CAL
-    return {l: rngs[code] for ev, items in D['etkinlik_oduller'].items() if CAL.is_active(ev, now)
+    return {l: rngs[code] for ev, items in D['event_rewards'].items() if CAL.is_active(ev, now)
             for l, rngs in items.items() if code in rngs}
 
 
@@ -112,14 +112,14 @@ class Dispatch:
             return [('DispatchMessageCommand', {'messageType': ERROR_NO_SLOT})]
         miss = INV.missing(self.p, r['ucret'])
         if miss:
-            self.log('   Dispatch: %s için yetmiyor %s' % (r['kod'], miss))
+            self.log('   Dispatch: %s için yetmiyor %s' % (r['code'], miss))
             return [('DispatchLootMessageCommand', dict(messageType=NO_RESOURCE, loots=[loot(l, n) for l, n in miss.items()]))]
-        removed = INV.spend(self.p, r['ucret'], reason='buy_SPECIAL', detail=r['kod'])
+        removed = INV.spend(self.p, r['ucret'], reason='buy_SPECIAL', detail=r['code'])
         with self.p.lock:
             self.st['gonderilen'][str(slot)] = dict(id=int(rid), bitis=time.time() + SET.duration(r['sure_sn'], 'dispatch'))
             self.p.dirty = True
-        self.p.ach('dispatch_send', kod=r['kod'])
-        self.log('   Dispatch: %s gönderildi (yuva %d, %d sn)' % (r['kod'], slot, r['sure_sn']))
+        self.p.ach('dispatch_send', code=r['code'])
+        self.log('   Dispatch: %s gönderildi (yuva %d, %d sn)' % (r['code'], slot, r['sure_sn']))
         # liste gönderilmez: istemci her DispatchGetRetrieverListCommand'da (durumu ne olursa olsun) süren gönderimleri kendi
         # önbelleğinden açık sekmeye çiziyor (DispatchGetRetrieverListUpdateEvent -> CreateUIDispatchProgressItem; yalnız
         # statusType 1 önbelleği yeniler). Süren listesi Available'a çiziliyordu (H34), Available listesi de eski önbelleği: son
@@ -130,34 +130,34 @@ class Dispatch:
     @staticmethod
     def fixed(r):
         """Serinin her dönüşteki kalemleri: kademe tablosu (sabit_kademe; forum 160334) ya da eski sabit x doğrusal kademe."""
-        tab = D.get('sabit_kademe', {}).get(r['seri'])
+        tab = D.get('fixed_tier', {}).get(r['series'])
         if tab:
             return {l: v[r['kademe'] - 1] for l, v in tab.items() if v[r['kademe'] - 1]}
-        f_ = 1 + D['kademe_artisi'] * (r['kademe'] - 1)
-        return {l: max(1, int(round(n * f_))) for l, n in D['sabit'][r['seri']].items()}
+        f_ = 1 + D['tier_increase'] * (r['kademe'] - 1)
+        return {l: max(1, int(round(n * f_))) for l, n in D['sabit'][r['series']].items()}
 
     @staticmethod
     def amount(x, r):
         """Rastgele kalemin kademedeki adedi: kalem x kademe tablosu (kademe_adet), yoksa tekil 1 ya da taban x doğrusal kademe."""
-        tab = D.get('kademe_adet', {}).get(x)
+        tab = D.get('tier_count', {}).get(x)
         if tab and r['kademe'] > 1:                  # 1. kademe gerçek kayıttaki taban adetler (R-01: Mucosum 8, yakıt 1.000)
             return tab[r['kademe'] - 1]
-        return 1 if x in D['tekil'] else max(1, int(round(D['taban_adet'][x] * (1 + D['kademe_artisi'] * (r['kademe'] - 1)))))
+        return 1 if x in D['single'] else max(1, int(round(D['base_count'][x] * (1 + D['tier_increase'] * (r['kademe'] - 1)))))
 
     def rewards(self, rid, now=None):
         """Bir dönüşün ödülleri (kayıt: sabit kalemler + 4 farklı rastgele kalem): serinin sabit kalemleri (Solidus, EXP), listeden
         odul_sayisi farklı eşya (seyrekler düşük ağırlıkla); adet kademeyle artar, Dispatch Day x1,5; süren etkinliğin kalemi eklenir."""
         r = R[str(rid)]
-        f = D['dispatch_gunu_carpani'] if dispatch_day(now) else 1
+        f = D['dispatch_day_multiplier'] if dispatch_day(now) else 1
         out = {l: max(1, int(round(n * f))) for l, n in Dispatch.fixed(r).items()}
-        pool = [x for x in D['oduller'][r['kod']] if x not in out]
+        pool = [x for x in D['oduller'][r['code']] if x not in out]
         extra = sum(1 for l in out if l not in ('currency_experience', 'resource_collectable_solidus'))   # A-01/02 LCB-10, PLT-2026 …
-        for _ in range(min(D['odul_sayisi'] - extra, len(pool))):
-            weights = [D['seyrek'].get(x, 1.0) for x in pool]
+        for _ in range(min(D['reward_count'] - extra, len(pool))):
+            weights = [D['sparse'].get(x, 1.0) for x in pool]
             pick = random.choices(pool, weights)[0]
             pool.remove(pick)
             out[pick] = max(1, int(round(Dispatch.amount(pick, r) * f)))
-        out.update(event_loot(r['kod'], now))
+        out.update(event_loot(r['code'], now))
         return out
 
     def grant(self, items):
@@ -181,9 +181,9 @@ class Dispatch:
         with self.p.lock:
             del self.st['gonderilen'][slot]
             self.p.dirty = True
-        self.p.ach('dispatch_collect', kod=R[str(g['id'])]['kod'])
+        self.p.ach('dispatch_collect', code=R[str(g['id'])]['code'])
         self.p.ach('dispatch', olay='DISPATCH_RETRIEVER')            # başarım: "N Retriever Dispatch"
-        self.log('   Dispatch: %s toplandı %s' % (R[str(g['id'])]['kod'], items))
+        self.log('   Dispatch: %s toplandı %s' % (R[str(g['id'])]['code'], items))
         return (self.grant(items) + [('DispatchLootMessageCommand', dict(messageType=COLLECTED, loots=[loot(l, n) for l, n in items.items()])),
                                      self.slot_info()] + self.retriever_list(IN_PROGRESS)[:1])
 
@@ -192,7 +192,7 @@ class Dispatch:
         g = self.st['gonderilen'].get(slot)
         if not g:
             return [('DispatchMessageCommand', {'messageType': ERROR_COLLECT})]
-        cost = R[str(g['id'])]['aninda']
+        cost = R[str(g['id'])]['instant']
         miss = INV.missing(self.p, cost)
         if miss:
             return [('DispatchLootMessageCommand', dict(messageType=NO_RESOURCE, loots=[loot(l, n) for l, n in miss.items()]))]
@@ -222,12 +222,12 @@ class Dispatch:
         if not r:
             return []
         fixed = Dispatch.fixed(r)
-        pool = [x for x in D['oduller'][r['kod']] if x not in fixed]
-        total = sum(D['seyrek'].get(x, 1.0) for x in pool)
+        pool = [x for x in D['oduller'][r['code']] if x not in fixed]
+        total = sum(D['sparse'].get(x, 1.0) for x in pool)
         lst = [mod('DispatchRewardModule', lootId=l, amount=n, chance=100) for l, n in fixed.items()]
         lst += [mod('DispatchRewardModule', lootId=x, amount=Dispatch.amount(x, r),
-                    chance=max(1, int(round(100 * D['odul_sayisi'] * D['seyrek'].get(x, 1.0) / total)))) for x in pool]
-        lst += [mod('DispatchRewardModule', lootId=l, amount=lohi[0], chance=100) for l, lohi in event_ranges(r['kod']).items()]
+                    chance=max(1, int(round(100 * D['reward_count'] * D['sparse'].get(x, 1.0) / total)))) for x in pool]
+        lst += [mod('DispatchRewardModule', lootId=l, amount=lohi[0], chance=100) for l, lohi in event_ranges(r['code']).items()]
         return [('DispatchGetRewardPackageCommand', dict(name=r['ad'], rewards=lst))]
 
     # ------------------------------------------------------------ kapılar
@@ -281,7 +281,7 @@ class Dispatch:
             del self.st['kapilar'][key]
             self.p.dirty = True
         self.p.ach('dispatch', olay='DISPATCH_GATE')                 # başarım: "N Gate Dispatch"
-        msgs = self.k.dispatch_complete(key, D['dispatch_gunu_carpani'] if dispatch_day(now) else 1)     # Sevkiyat Günü kapıda da
+        msgs = self.k.dispatch_complete(key, D['dispatch_day_multiplier'] if dispatch_day(now) else 1)     # Sevkiyat Günü kapıda da
         extra = event_loot('kapi', now)                              # Chaos Omen / Protegit: kapı gönderiminden Chaos Fragment
         if extra:
             msgs[-1][1]['loots'] += [loot(l, n) for l, n in extra.items()]       # son ileti DispatchLootMessageCommand

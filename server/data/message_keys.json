@@ -1,6 +1,6 @@
 {
-"_aciklama": "İstemcinin BaseKey enum'u (global-metadata.dat, 194 değer): sunucunun hata/başarı mesajı anahtarları. BaseStackCommand{type 0, enumBaseKey: bu değer} istemcide bu adla yerelleştirilir (ShowCallBackText.ReturnTipString). 179 istemcide 'captain_hangar_error_perk-lvl-cap' olarak özel işlenir.",
-"anahtarlar": {
+"_description": "İstemcinin BaseKey enum'u (global-metadata.dat, 194 değer): sunucunun hata/başarı mesajı anahtarları. BaseStackCommand{type 0, enumBaseKey: bu değer} istemcide bu adla yerelleştirilir (ShowCallBackText.ReturnTipString). 179 istemcide 'captain_hangar_error_perk-lvl-cap' olarak özel işlenir.",
+"keys": {
 "empty": 0,
 "eqt_error_generic": 1,
 "info_text_switch_hangar_station_only": 2,

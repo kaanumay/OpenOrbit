@@ -146,7 +146,7 @@ class Console:
         import world
         import loot as LOOT
         import quest as QU
-        boxes = ['BONUS_BOX'] + sorted(LOOT.BOXES) + sorted({k for k in world.CFG.get('kutu_turleri', [])})
+        boxes = ['BONUS_BOX'] + sorted(LOOT.BOXES) + sorted({k for k in world.CFG.get('box_kinds', [])})
         box_list = mod('CCListRangeModule', valueList=[mod('CCStringValueModule', name=b, value=b) for b in dict.fromkeys(boxes)])
         quest_list = mod('CCListRangeModule', valueList=[mod('CCQuestValueModule', name='%d %s' % (q, d['ad']), value=q)
                                                          for q, d in sorted(QU.QUESTS.items())])
@@ -365,8 +365,8 @@ class Console:
                 last = str(flat.get('lastWave') or (parts[3] if len(parts) > 3 else '')).lower() in ('true', '1')
                 with k.p.lock:
                     G = k.gate(key)
-                    G.update(hazir=True, can=lifes, alinan_can=0, parcalar=list(range(1, g['parca'] + 1)),
-                             dalga=len(g['dalgalar']) - 1 if last else max(0, min(len(g['dalgalar']) - 1, wave - 1 if wave else 0)))
+                    G.update(hazir=True, can=lifes, lives_bought=0, parcalar=list(range(1, g['parca'] + 1)),
+                             dalga=len(g['waves']) - 1 if last else max(0, min(len(g['waves']) - 1, wave - 1 if wave else 0)))
                     k.p.dirty = True
                 return self.say('%s kuruldu: %d can, dalga %d (X-1 portalı)' % (g['ad'], lifes, G['dalga'] + 1))
         return self.say('kapı komutu anlaşılmadı')

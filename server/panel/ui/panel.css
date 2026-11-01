@@ -964,4 +964,4 @@ button.chip:hover { border-color: var(--accent); color: #fff; box-shadow: 0 0 10
 .rp-buttons { display: grid; gap: 8px; margin-top: 12px; }
 .rp-buttons span { background: #4e5058; color: #fff; border-radius: 4px; padding: 6px; text-align: center; font-size: 13px; font-weight: 500; }
 .set-row.condition-off { display: none; }
-.set-row[data-kosul] { margin-left: 22px; border-left: 2px solid var(--line-2); padding-left: 12px; }
+.set-row[data-condition] { margin-left: 22px; border-left: 2px solid var(--line-2); padding-left: 12px; }

@@ -44,7 +44,7 @@ def _registry(p):
     r = p.d.setdefault('rehber', {})
     for target_name, _ in LISTS:
         r.setdefault(target_name, [])
-    r.setdefault('davet_engeli', False)
+    r.setdefault('invite_block', False)
     r.setdefault('suzgec', dict(FILTER))
     return r
 
@@ -97,7 +97,7 @@ def lines(p, people):
                  mod('ContactListEntryAttributeOnlineModule', online=k is not None and k.session is not None)]
         if k is not None:
             pl = k.profile.d['pilot']
-            attrs += [mod('ContactListEntryAttributeMapModule', currentMap=int(k.profile.d['konum'].get('mapId', 0))),
+            attrs += [mod('ContactListEntryAttributeMapModule', currentMap=int(k.profile.d['position'].get('mapId', 0))),
                       mod('ContactListEntryAttributeLevelModule', level=int(pl.get('level', 1))),
                       mod('ContactListEntryAttributeClanTagModule', clanTag=str(pl.get('clanTag', ''))),
                       mod('ContactListEntryAttributeClanModule', clanId=int(pl.get('clanId', 0) or 0)),
@@ -117,7 +117,7 @@ def login_cmd(p):
         LAST[p.user_id] = cur
     launch()
     return ('ContactListInitializationCommand', {
-        'blockInvitations': mod('ContactListBlockInvitationsModule', blockAllInvitations=bool(r['davet_engeli'])),
+        'blockInvitations': mod('ContactListBlockInvitationsModule', blockAllInvitations=bool(r['invite_block'])),
         'filterSettings': mod('ContactListSettingsModule', **dict(FILTER, **r['suzgec'])),
         'contactsCommand': mod('ContactListUpdateContactsCommand', contacts=[e for _, e in cur.values()])})
 
@@ -157,9 +157,9 @@ def handle(k, name, f):
         return []
     if name == 'ContactListBlockInvitationsModule':
         with p.lock:
-            _registry(p)['davet_engeli'] = bool(f.get('blockAllInvitations'))
+            _registry(p)['invite_block'] = bool(f.get('blockAllInvitations'))
             p.dirty = True
-        return [('ContactListBlockInvitationsModule', {'blockAllInvitations': save(p)['davet_engeli']})]
+        return [('ContactListBlockInvitationsModule', {'blockAllInvitations': save(p)['invite_block']})]
     if name == 'ContactListRequest':
         # posta penceresinin kişiler sekmesi: bekleyen istekler (type 1: Accept/Decline) ve arkadaşlar (type 0: sil, posta yaz;
         # istemcide denendi 2026-10-24)
@@ -193,7 +193,7 @@ def handle(k, name, f):
             _remove(p, 'reddeden', target_name)
             _add(p, 'giden', target_name)
             rb = save(b.profile)
-            if not rb['davet_engeli'] and not _var(rb['engelli'], k.name):    # engelleyen görmez
+            if not rb['invite_block'] and not _var(rb['engelli'], k.name):    # engelleyen görmez
                 _add(b.profile, 'gelen', k.name)
             out.append(stm('log_msg_contact_invite_sent', NAME=target_name))
     elif kind == ACCEPT and _var(r['gelen'], target_name):

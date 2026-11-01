@@ -46,29 +46,29 @@ def sessions(a, b):
     out = []
     v = BIG_CONTENT.get('vortex')
     if v:
-        duration, double = v.get('seans_sn', 900), v.get('cift_saat')
-        out.append({'kimlik': 'vortex', 'etkinlik': v.get('etkinlik'), 'araliklar': [
-            [s, s + datetime.timedelta(seconds=duration), int(d.isoweekday() in v.get('cift_gunler', []) and s - d == _hm(double or '99:00'))]
-            for s, d in _starts(a, b, [_hm(x) for x in v.get('seanslar', [])], duration=duration)]})
+        duration, double = v.get('session_sec', 900), v.get('double_hour')
+        out.append({'kimlik': 'vortex', 'etkinlik': v.get('etkinlik'), 'ranges': [
+            [s, s + datetime.timedelta(seconds=duration), int(d.isoweekday() in v.get('double_days', []) and s - d == _hm(double or '99:00'))]
+            for s, d in _starts(a, b, [_hm(x) for x in v.get('sessions', [])], duration=duration)]})
     for uid, key, day_list in (('dunya_patronu', 'dunya_patronu', range(7)), ('kristallon', 'kristallon_apotheosis', None)):
         p = BIG_CONTENT.get(key)
         if p:
-            days = p.get('gunler', range(7)) if day_list is None else day_list
-            out.append({'kimlik': uid, 'etkinlik': p.get('etkinlik'), 'araliklar': [
-                [d + _hm(x), d + _hm(y), 0] for d in CAL._days(a, b) if d.weekday() in days for x, y in p.get('pencereler', [])
+            days = p.get('days', range(7)) if day_list is None else day_list
+            out.append({'kimlik': uid, 'etkinlik': p.get('etkinlik'), 'ranges': [
+                [d + _hm(x), d + _hm(y), 0] for d in CAL._days(a, b) if d.weekday() in days for x, y in p.get('windows', [])
                 if d + _hm(x) < b and d + _hm(y) > a]})
     m = BIG_CONTENT.get('mimesis')
     if m:
-        duration, entry = m.get('sure_sn', 2700), m.get('giris_sn', 300)
-        out.append({'kimlik': 'mimesis', 'etkinlik': m.get('etkinlik'), 'araliklar': [
+        duration, entry = m.get('sure_sn', 2700), m.get('entry_sec', 300)
+        out.append({'kimlik': 'mimesis', 'etkinlik': m.get('etkinlik'), 'ranges': [
             [s, s + datetime.timedelta(seconds=duration), s + datetime.timedelta(seconds=entry)]
             for s, _ in _starts(a, b, [datetime.timedelta(hours=h) for h in m.get('saatler', [])], duration=duration)]})
     u = EX.get('unvan_avi')
     if u:
         out.append({'kimlik': 'unvan_avi', 'etkinlik': u.get('etkinlik', 'unvan_avi'),
-                    'araliklar': [[s, e, 0] for s, e in CAL._daily(a, b, lambda d: u.get('saatler', []))]})
+                    'ranges': [[s, e, 0] for s, e in CAL._daily(a, b, lambda d: u.get('saatler', []))]})
     for x in out:
-        x['araliklar'] = [r for r in x['araliklar'] if r[1] > a and r[0] < b]
+        x['ranges'] = [r for r in x['ranges'] if r[1] > a and r[0] < b]
     return out
 
 
@@ -99,17 +99,17 @@ def schedule(start, bit, always_open=False, statuses=None):
     for k in CAL.EVENTS:
         iv = [_ts(r) for r in CAL.intervals(k, a, b)]
         st = statuses.get(k)
-        out[k] = {'araliklar': iv, 'etkin': [[start, bit]] if st == 'acik' else [] if st == 'kapali' else iv, 'seanslar': []}
+        out[k] = {'ranges': iv, 'etkin': [[start, bit]] if st == 'acik' else [] if st == 'kapali' else iv, 'sessions': []}
     for k, e in CAL.EVENTS.items():
         for i, s in enumerate(_sections(e)):
             iv = [_ts(r) + [0] for r in CAL.section_intervals(s, a, b, always_open)]
-            out[k]['seanslar'].append({'kimlik': 'harita_%d' % i, 'tur': 'uzayli' if 'uzaylilar' in s else 'kutu' if 'kutular' in s else 'harita',
-                                       'haritalar': s.get('haritalar', []), 'araliklar': _cut(iv, out[k]['etkin'])})
+            out[k]['sessions'].append({'kimlik': 'harita_%d' % i, 'tur': 'uzayli' if 'uzaylilar' in s else 'kutu' if 'kutular' in s else 'harita',
+                                       'haritalar': s.get('haritalar', []), 'ranges': _cut(iv, out[k]['etkin'])})
     for x in sessions(a, b):
         if x['etkinlik'] in out:
-            iv = [[start, bit, 0]] if always_open else [_ts(r) for r in x['araliklar']]
-            out[x['etkinlik']]['seanslar'].append({'kimlik': x['kimlik'], 'tur': 'seans', 'haritalar': [],
-                                                   'araliklar': _cut(iv, out[x['etkinlik']]['etkin'])})
+            iv = [[start, bit, 0]] if always_open else [_ts(r) for r in x['ranges']]
+            out[x['etkinlik']]['sessions'].append({'kimlik': x['kimlik'], 'tur': 'seans', 'haritalar': [],
+                                                   'ranges': _cut(iv, out[x['etkinlik']]['etkin'])})
     return out
 
 

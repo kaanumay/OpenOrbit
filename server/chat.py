@@ -371,7 +371,7 @@ class Chat:
 
     def report(self, c, path, d):
         """Sohbet raporu (/report): sunucu günlüğüne bir satır (forum 132515; tek oyunculuda moderatör yok)."""
-        row = {'zaman': time.strftime('%Y-%m-%d %H:%M:%S'), 'reporter': c.user.get('userId'), 'oda': path.rsplit('/reportUser', 1)[0],
+        row = {'time': time.strftime('%Y-%m-%d %H:%M:%S'), 'reporter': c.user.get('userId'), 'oda': path.rsplit('/reportUser', 1)[0],
                **{k: d.get(k) for k in ('targetUserId', 'targetGlobalId', 'reason', 'reasonKey', 'message')}}
         os.makedirs(os.path.dirname(self.report_path), exist_ok=True)
         with self.lock, open(self.report_path, 'a', encoding='utf8') as fh:

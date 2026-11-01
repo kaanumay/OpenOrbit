@@ -11,10 +11,10 @@ satışta ham hâlinden ucuz olduğu için yalnız yükleyeceği kadar arıtıl�
 """
 from . import catalog as K
 
-LAB = K.ITEMS['laboratuvar']
-RECIPES = {int(u): {int(t): n for t, n in g.items()} for u, g in LAB['tarifler'].items()}      # 4, 5, 6
-BONUS = {int(p): {int(c): v for c, v in g.items()} for p, g in LAB['bonuslar'].items()}
-UNIT = {int(p): v for p, v in LAB['birim'].items()}
+LAB = K.ITEMS['lab']
+RECIPES = {int(u): {int(t): n for t, n in g.items()} for u, g in LAB['recipes'].items()}      # 4, 5, 6
+BONUS = {int(p): {int(c): v for c, v in g.items()} for p, g in LAB['bonuses'].items()}
+UNIT = {int(p): v for p, v in LAB['unit'].items()}
 LAZER, ROCKET, SHIELD = 0, 1, 2
 PROMETID, DURANIUM, PROMERIUM = 4, 5, 6
 
@@ -70,7 +70,7 @@ def load(bot, part, ore, count):
     if cargo[str(ore)] <= 0:
         del cargo[str(ore)]
     y = lab_data(bot)
-    duration = count * UNIT[part] * (LAB.get('dakika_sn', 60) if part >= 2 else 1)
+    duration = count * UNIT[part] * (LAB.get('minute_sec', 60) if part >= 2 else 1)
     v = y.get(str(part))
     y[str(part)] = [ore, (v[1] if v and int(v[0]) == ore else 0) + duration]
     bot.ist('lab_yukleme', count)

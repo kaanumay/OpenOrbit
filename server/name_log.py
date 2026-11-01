@@ -17,12 +17,12 @@ import json, os, threading, time
 import paths as PTH
 
 LOCK = threading.RLock()
-_cache = {'mtime': None, 'olaylar': []}
+_cache = {'mtime': None, 'events': []}
 BOT_UID = (1800000000, 1900000000)        # bot kimlikleri (bot/durum.BOT_UID_TABAN ...): klan liderliği insana geçerken
 
 
 def file():
-    return os.path.join(PTH.SAVE, 'botlar', '_ad_kaydi.json')
+    return os.path.join(PTH.SAVE, 'bots', '_name_log.json')
 
 
 def read():
@@ -36,11 +36,11 @@ def read():
         if _cache['mtime'] != m:
             try:
                 with open(p, encoding='utf8') as f:
-                    _cache['olaylar'] = json.load(f).get('olaylar') or []
+                    _cache['events'] = json.load(f).get('events') or []
             except (OSError, ValueError):
-                _cache['olaylar'] = []
+                _cache['events'] = []
             _cache['mtime'] = m
-        return _cache['olaylar']
+        return _cache['events']
 
 
 def last():
@@ -63,7 +63,7 @@ def add(events):
         p = file()
         os.makedirs(os.path.dirname(p), exist_ok=True)
         with open(p + '.tmp', 'w', encoding='utf8') as f:
-            json.dump({'olaylar': all_}, f, ensure_ascii=False)
+            json.dump({'events': all_}, f, ensure_ascii=False)
         os.replace(p + '.tmp', p)
         _cache['mtime'] = None
         return n
@@ -109,11 +109,11 @@ def apply_clan(k, events):
                 if k['lider'] == old:
                     k['lider'] = new_
                 changed = True
-            for b in k.get('basvurular', []):
+            for b in k.get('applications', []):
                 if _k(b.get('ad')) == old:
                     b.update(ad=new_, isim=e['yeni'])
                     changed = True
-            k['retler'] = [new_ if _k(r) == old else r for r in k.get('retler', [])]
+            k['rejected'] = [new_ if _k(r) == old else r for r in k.get('rejected', [])]
         else:                                            # sil, klan_cik
             a = _k(e['ad'])
             if a in k['uyeler']:
@@ -124,17 +124,17 @@ def apply_clan(k, events):
                         return 'bos'
                     human = [x for x, u in k['uyeler'].items() if not BOT_UID[0] <= int(u.get('uid') or 0) < BOT_UID[1]]
                     k['lider'] = (human or list(k['uyeler']))[0]
-            n = len(k.get('basvurular', []))
-            k['basvurular'] = [b for b in k.get('basvurular', []) if _k(b.get('ad')) != a]
-            changed = changed or n != len(k['basvurular'])
+            n = len(k.get('applications', []))
+            k['applications'] = [b for b in k.get('applications', []) if _k(b.get('ad')) != a]
+            changed = changed or n != len(k['applications'])
             if e['tur'] == 'sil':
-                k['retler'] = [r for r in k.get('retler', []) if _k(r) != a]
+                k['rejected'] = [r for r in k.get('rejected', []) if _k(r) != a]
     return changed
 
 
 def apply_profile(p):
     """Profilin rehberine ve klan kopyasına bekleyen olaylar (oturum açılırken, rehber okunurken) -> değişti mi."""
-    new_ = events_since(p.d.get('bot_ad_kaydi', 0))
+    new_ = events_since(p.d.get('bot_name_log', 0))
     if not new_:
         return False
     changed = False
@@ -152,7 +152,7 @@ def apply_profile(p):
                 p.d['klan'] = None
                 p.d['pilot'].update(clanId=0, clanTag='')
             changed = changed or bool(s)
-        p.d['bot_ad_kaydi'] = new_[-1]['n']
+        p.d['bot_name_log'] = new_[-1]['n']
         p.dirty = True
     return changed
 
@@ -171,7 +171,7 @@ def apply_clans(KL):
                 KL.DELETED[cid] = k.get('anahtar')
                 for c in KL.CLANS.values():
                     c['diplomasi'] = [d for d in c.get('diplomasi', []) if d['klan'] != cid]
-                    c['diplo_istek'] = [r for r in c.get('diplo_istek', []) if cid not in (r['kimden'], r['kime'])]
+                    c['diplomacy_requests'] = [r for r in c.get('diplomacy_requests', []) if cid not in (r['kimden'], r['to'])]
             elif s:
                 out.append(k)
         KL.BOT_NAME_N = new_[-1]['n']

@@ -22,14 +22,14 @@ class Duel(Goal):
     min_sec = 300
 
     def eligible(self, bot, b):
-        n = bot.k.get('niyet') or {}
+        n = bot.k.get('intent') or {}
         return n.get('hedef') == self.name and bool((n.get('plan') or {}).get('ad'))
 
     def points(self, bot, b):
         return 0.5 + 0.4 * bot.o('rekabet')
 
     def start(self, bot, b):
-        bot.plan.update((bot.k.get('niyet') or {}).get('plan') or {})
+        bot.plan.update((bot.k.get('intent') or {}).get('plan') or {})
         if not S.go(bot, bot.plan['harita'], b.y, b.now):
             bot.plan['bitti'] = True
 
@@ -40,7 +40,7 @@ class Duel(Goal):
         if o is None or o.session is None:
             bot.plan['bitti'] = True                     # oyuncu çıktı
             return
-        m = int(o.profile.d['konum'].get('mapId', 0))
+        m = int(o.profile.d['position'].get('mapId', 0))
         if m != bot.game_map and m in K.MAPS and K.can_enter(m, bot.firma, bot.level) and K.route(bot.game_map, m, bot.firma,
                                                                                                      bot.level):
             bot.plan['harita'] = m
@@ -63,5 +63,5 @@ class Duel(Goal):
         return False
 
     def finished(self, bot, b):
-        n = bot.k.get('niyet') or {}
+        n = bot.k.get('intent') or {}
         return bot.plan.get('bitti', False) or n.get('hedef') != self.name

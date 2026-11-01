@@ -34,9 +34,9 @@ class Exploration(Goal):
             return
         S.farm(bot, dt, y)
         if bot.game_map == bot.plan.get('harita'):
-            bot.plan.setdefault('vardi', 0)
-            bot.plan['vardi'] += dt
-            if bot.plan['vardi'] > 120:
+            bot.plan.setdefault('arrived', 0)
+            bot.plan['arrived'] += dt
+            if bot.plan['arrived'] > 120:
                 bot.plan['bitti'] = True
 
     def finished(self, bot, b):

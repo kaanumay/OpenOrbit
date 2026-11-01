@@ -63,7 +63,7 @@ class Arena:
         return self.p.resource(self.D['vip']) > 0
 
     def free_max(self):
-        return self.D['ucretsiz'] + (self.D['vip_ek'] if self.vip() else 0)
+        return self.D['ucretsiz'] + (self.D['vip_extra'] if self.vip() else 0)
 
     def free_used(self, where):
         if SET.get('giris_siniri_yok'):                  # panel: ücretsiz girişler tükenmez
@@ -183,17 +183,17 @@ class Voyagers(Arena):
     key, name, D, slot = 'voyagers', "Voyagers' Ascent", D['voyagers'], 1
 
     def opened(self):
-        return max(1, min(len(self.D['zorluklar']), self.st.get('acik', 1)))
+        return max(1, min(len(self.D['difficulties']), self.st.get('acik', 1)))
 
     def wave_list(self, d):
-        return self.D['zorluklar'][d - 1]['dalgalar']
+        return self.D['difficulties'][d - 1]['waves']
 
     def window(self, where):
-        s = self.D['yildiz_sn']
+        s = self.D['star_sec']
         stars = [dict(_='VoyagersGateStarRewardCommand', instanceLevel=i + 1,
                       star1Loots=[loot_prob(l, a) for l, a in z['oduller']['1']],
                       star2Loots=[loot_prob(l, a) for l, a in z['oduller']['2']],
-                      star3Loots=[loot_prob(l, a) for l, a in z['oduller']['3']]) for i, z in enumerate(self.D['zorluklar'])]
+                      star3Loots=[loot_prob(l, a) for l, a in z['oduller']['3']]) for i, z in enumerate(self.D['difficulties'])]
         return ('VoyagersGateWindowCommand', dict(
             maxOpenLevel=self.opened(), Star1Seconds=s[2], Star2Seconds=s[1], Star3Seconds=s[0], curLootAmount=int(self.tokens()),
             lootId=self.D['jeton'], maxFreeNum=self.free_max() + self.st.get('bonus', 0),
@@ -217,9 +217,9 @@ class Voyagers(Arena):
     def complete(self, now):
         r, w = self.run, self.world
         secs = int(now - (r['bas'] or now))
-        lim = self.D['yildiz_sn']
+        lim = self.D['star_sec']
         stars = 3 if secs <= lim[0] else 2 if secs <= lim[1] else 1 if secs <= lim[2] else 0
-        z = self.D['zorluklar'][r['zorluk'] - 1]
+        z = self.D['difficulties'][r['zorluk'] - 1]
         self.use_entry()
         msgs, got = [], []
         if stars:
@@ -227,12 +227,12 @@ class Voyagers(Arena):
             self.reward_pass.add(z['puan'][str(stars)])
         with self.p.lock:
             s = self.st
-            best = s.setdefault('en_iyi', {})
+            best = s.setdefault('best', {})
             if stars > best.get(str(r['zorluk']), 0):
                 best[str(r['zorluk'])] = stars
             if stars == 3:
                 s['bonus'] = s.get('bonus', 0) + 1                  # 3 yıldız: bir ek ücretsiz giriş
-                if r['zorluk'] == s.get('acik', 1) and r['zorluk'] < len(self.D['zorluklar']):
+                if r['zorluk'] == s.get('acik', 1) and r['zorluk'] < len(self.D['difficulties']):
                     s['acik'] = r['zorluk'] + 1
             self.p.dirty = True
         self.p.ach('gate', tur='VOYAGERS_GATE')
@@ -250,7 +250,7 @@ class Voyagers(Arena):
             return
         hx, hy = w.hero_pos(now)
         for n in list(w.npcs.values()):
-            v = n.d.get('davranis', {}).get('dokunulmazsa_fuze')
+            v = n.d.get('davranis', {}).get('fuse_if_untouched')
             if not v or not n.alive or not n.engaged:
                 continue
             nx, ny = n.mover.pos(now)
@@ -291,14 +291,14 @@ class Trinity(Arena):
 
     def opened(self):
         lv = self.os_level()
-        return max(i + 1 for i, z in enumerate(self.D['zorluklar']) if lv >= z['os_seviye'])
+        return max(i + 1 for i, z in enumerate(self.D['difficulties']) if lv >= z['os_level'])
 
     def arenas_today(self, now=None):
         wd = datetime.date.fromtimestamp(time.time() if now is None else now).weekday()
-        return [int(a) for a, days in self.D['gunler'].items() if wd in days]
+        return [int(a) for a, days in self.D['days'].items() if wd in days]
 
     def wave_list(self, d):
-        return self.D['zorluklar'][d - 1]['arenalar'][str(self.run['arena'])]
+        return self.D['difficulties'][d - 1]['arenas'][str(self.run['arena'])]
 
     def window(self, where, now=None):
         today_ = self.arenas_today(now)
@@ -325,10 +325,10 @@ class Trinity(Arena):
 
     def wave_done(self, i, now):
         n = i + 1
-        z = self.D['zorluklar'][self.run['zorluk'] - 1]
+        z = self.D['difficulties'][self.run['zorluk'] - 1]
         msgs = []
-        if str(n) in z['kilometre']:                # her 5 dalgada Quantum Prism, Xyralith, geçiş puanı
-            k = z['kilometre'][str(n)]
+        if str(n) in z['milestones']:                # her 5 dalgada Quantum Prism, Xyralith, geçiş puanı
+            k = z['milestones'][str(n)]
             msgs += self.grant(self.D['kp'], k['qp']) + self.grant(self.D['xy'], k['xy'])
             if k['puan']:
                 self.reward_pass.add(k['puan'])
@@ -341,19 +341,19 @@ class Trinity(Arena):
         return 'mola' if n % 5 == 0 else 'devam'
 
     def roll_rarity(self):
-        row = self.D['os'][self.os_level() - 1]['nadirlik']
+        row = self.D['os'][self.os_level() - 1]['rarity']
         return random.choices(range(7), row)[0]
 
     def drop(self):
         """Bitiş donanımı: zorluğa göre adet (ödül açıklaması), her biri %5 top / %95 kırıcı, nitelik OS tablosundan."""
-        z = self.D['zorluklar'][self.run['zorluk'] - 1]
+        z = self.D['difficulties'][self.run['zorluk'] - 1]
         counts, weights = zip(*z['dusme'])
         n = random.choices(counts, weights)[0] if sum(weights) >= 100 else (counts[0] if random.random() * 100 < weights[0] else 0)
         eq = self.D['esyalar'][str(self.run['arena'])]
         out = []
         for _ in range(n):
             r = self.roll_rarity()
-            out.append(eq['top'][r] if random.random() < self.D['top_payi'] else eq['kirici'][min(r, len(eq['kirici']) - 1)])
+            out.append(eq['top'][r] if random.random() < self.D['cannon_share'] else eq['breaker'][min(r, len(eq['breaker']) - 1)])
         return out
 
     def complete(self, z):
@@ -383,14 +383,14 @@ class Trinity(Arena):
         building = bool(o.get('bitis'))          # yükseltme sürerken pencere atlama bedelini (Xyralith) gösterir; resmî ekran: "Xyralith 9/9"
         skip = self.skip_cost(left)
         cost_id = self.D['xy'] if building else self.D['kp']
-        q = lambda r: [dict(_='TupleTwoModule', param0=str(i + 1), param1='%.1f' % v) for i, v in enumerate(r['nadirlik'])]
+        q = lambda r: [dict(_='TupleTwoModule', param0=str(i + 1), param1='%.1f' % v) for i, v in enumerate(r['rarity'])]
         return ('TrinityTrialsDropLevelCommand', dict(
             costLootAmount=skip if building else (0 if mx else nxt['maliyet']), currentLevel=lv, nextLevel=min(lv + 1, len(rows)), building=bool(o.get('bitis')),
             max=mx, skipConsume=skip, currentLevelQualityRandomList=q(cur), totalBuildSeconds=0 if mx else nxt['sure_sn'],
             lootAmount=int(self.p.resource(cost_id)), nextLevelQualityRandomList=q(nxt), buildSeconds=left, costLootId=cost_id))
 
     def skip_cost(self, left):
-        return int(math.ceil(left / 1000.0)) * self.D['atlama_dakika_basina'] if left else 0      # resmî ekran: kalan 2:29:50 -> 9 Xyralith (1000 sn'de 1)
+        return int(math.ceil(left / 1000.0)) * self.D['skip_per_minute'] if left else 0      # resmî ekran: kalan 2:29:50 -> 9 Xyralith (1000 sn'de 1)
 
     def drop_level_optional(self, f, now=None):
         """Yükselt (Quantum Prism) ya da süreyi atla (Xyralith) -> mesajlar."""
@@ -430,14 +430,14 @@ class Trinity(Arena):
         if t == 2:
             return [self.drop_level_cmd(now)]
         return [self.reward_pass.cmd('TrinityTrialsPassCommand', now),
-                ('TrinityTrialsRewardDescriptionCommand', dict(rewardDescriptionList=[dict(x) for x in self.D['odul_aciklama']])),
+                ('TrinityTrialsRewardDescriptionCommand', dict(rewardDescriptionList=[dict(x) for x in self.D['reward_description']])),
                 self.drop_level_cmd(now)]
 
     def reward(self, loot, n):
         """Geçişin paketleri (package_trinity-*): içerikleri."""
-        if loot in self.D['paketler']:
+        if loot in self.D['packages']:
             out = []
-            for l, k in self.D['paketler'][loot]:
+            for l, k in self.D['packages'][loot]:
                 out += self.m.reward(l, k * n) if self.m else []
             return out
         return super().reward(loot, n)

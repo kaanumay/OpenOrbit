@@ -2856,5 +2856,6 @@
 "{0} / {1} yuva": "{0} / {1} slots",
 "{0} paketi · {1}. bot": "{0} pack · bot #{1}",
 "Özellikler": "Traits",
-"Şu anki duyguları: zamanla dengeye döner. Öfkeli bot intikam peşine düşer, yorgun bot erken çıkar.": "Its current feelings: they settle back over time. An angry bot seeks revenge, a tired one logs off early."
+"Şu anki duyguları: zamanla dengeye döner. Öfkeli bot intikam peşine düşer, yorgun bot erken çıkar.": "Its current feelings: they settle back over time. An angry bot seeks revenge, a tired one logs off early.",
+"Kayıtlar yeni biçime taşınamadı (%s). Eski kayıtların yedeği server/save altında (v1_backup_*.zip); sunucular başlatılmaz.": "Your saves could not be moved to the new format (%s). The backup of the old saves is under server/save (v1_backup_*.zip); the servers will not start."
 }

@@ -24,7 +24,7 @@ static class QuestTexts
 
     internal static void Apply(Harmony h)
     {
-        route = Path.Combine(Paths.BepInExRootPath, "openorbit", "gorev_metinleri.json");
+        route = Path.Combine(Paths.BepInExRootPath, "openorbit", "quest_texts.json");
         Type t = typeof(QuestLocale);
         MethodBase titleEx = AccessTools.Method(t, "GetTitleEx"), title = AccessTools.Method(t, "GetTitle"),
             descriptionEx = AccessTools.Method(t, "GetDescriptionEx"), description = AccessTools.Method(t, "GetDescription"),

@@ -51,7 +51,7 @@ class Pass:
     def add(self, points):
         """Puan ekler (VIP oranıyla) -> eklenen."""
         s = self.st
-        n = int(points * (1 + (self.D.get('vip_puan', 0) if self.is_vip() else 0)))
+        n = int(points * (1 + (self.D.get('vip_points', 0) if self.is_vip() else 0)))
         with self.p.lock:
             s['puan'] += n
             self.p.dirty = True
@@ -75,7 +75,7 @@ class Pass:
         items = lambda rows, vip: [dict(_='PassItemModule', level=l, lootId=loot, amount=n, statusType=self.status(l, vip))
                                    for l, loot, n in rows]
         return (name, dict(isVip=self.is_vip(), normalItemList=items(self.D['ucretsiz'], False), vipItemList=items(self.D['vip'], True),
-                           currentLevel=cur, vipParams=list(self.D.get('vip_parametreler', [])), remainSeconds=seconds_left(now),
+                           currentLevel=cur, vipParams=list(self.D.get('vip_params', [])), remainSeconds=seconds_left(now),
                            nextLevelExp=nxt, currentExp=s['puan'] - prev))
 
     def claim(self, lvl, vip, grant):

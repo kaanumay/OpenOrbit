@@ -26,7 +26,7 @@ X = E.get('ekstralar', {})
 def equipped(p, sid=None):
     """Etkin (ya da verilen) geminin etkin config'indeki ekstraların lootId'leri; dronlara takılı ekstralar (CPU'lar) da sayılır."""
     if sid is None or str(sid) == str(p.d['aktif_gemi']):
-        own, drones = list(p.d.get('ekipman', {}).get('extra', [])), p.d.get('dron_ekipman', [])
+        own, drones = list(p.d.get('ekipman', {}).get('extra', [])), p.d.get('drone_equipment', [])
     else:
         own, drones = p.loadout(sid).get('extra', []), [(x, loots) for x, loots in p.drone_loadout(sid)]
     return own + [l for _, loots in drones for l in loots if l.startswith('equipment_extra_')]
@@ -77,15 +77,15 @@ UNLIMITED = 10 ** 6
 def unlimited(p, loot):
     """Hakkı sınırsız mı: HM-7 için Goliath'ın Amber, Jade ya da Sapphire tasarımına sahip olanlar (wiki: eski kural; istemci
     items_equipment_extra_hmd-07_hint_unlimited "You already have an unlimited trade drone")."""
-    designs = X.get(loot, {}).get('sinirsiz_tasarim')
-    return bool(designs) and any(d in s.get('tasarimlar', []) for s in p.d['gemiler'].values() for d in designs)
+    designs = X.get(loot, {}).get('unlimited_design')
+    return bool(designs) and any(d in s.get('designs', []) for s in p.d['gemiler'].values() for d in designs)
 
 
 def uses(p, loot):
     """Kullanım sınırlı ekstranın kalan hakkı (HM-7 satış, Jump CPU atlama, gizlenme): profilde, ilk takılışta tam."""
     if unlimited(p, loot):
         return UNLIMITED
-    st = p.d.setdefault('ekstra_haklari', {})
+    st = p.d.setdefault('extra_uses', {})
     if loot not in st:
         st[loot] = X.get(loot, {}).get('hak', 0)
     return st[loot]
@@ -96,14 +96,14 @@ def recharge(p, loot, n=1):
     if 'hak' not in X.get(loot, {}):
         return
     with p.lock:
-        st = p.d.setdefault('ekstra_haklari', {})
+        st = p.d.setdefault('extra_uses', {})
         st[loot] = st.get(loot, 0) + X[loot]['hak'] * n
         p.dirty = True
 
 
 def attached(p, loot):
     """Otomatik alım CPU'sunun hangarda seçilen cephanesi (HangarShipAutoBuyCpuAmmoRequest) ya da None."""
-    return p.d.get('oto_alim_cephane', {}).get(loot)
+    return p.d.get('auto_buy_ammo', {}).get(loot)
 
 
 def use(p, loot, n=1):
@@ -111,6 +111,6 @@ def use(p, loot, n=1):
         return UNLIMITED
     with p.lock:
         left = uses(p, loot) - n
-        p.d['ekstra_haklari'][loot] = max(0, left)
+        p.d['extra_uses'][loot] = max(0, left)
         p.dirty = True
     return max(0, left)

@@ -10,6 +10,7 @@ Bölümler (editörün görünümleri): standart değer + dünyanınki + değiş
 import base64, copy, datetime, hashlib, json, os, re, threading, zlib
 
 import paths as PTH
+import save_migration as SM
 import game_data as DATA
 from lang import t as _
 
@@ -58,12 +59,12 @@ class WorldError(ValueError):
 
 
 def folder():
-    return os.path.join(PTH.SAVE, 'dunyalar')
+    return os.path.join(PTH.SAVE, 'worlds')
 
 
 def _route(did):
     if did == STANDARD:
-        return os.path.join(folder(), '_taslak.json')
+        return os.path.join(folder(), '_draft.json')
     if not isinstance(did, str) or not re.fullmatch(r'[a-z0-9_]{1,40}', did):
         raise WorldError(_('Dünya bulunamadı.'))
     return os.path.join(folder(), did + '.json')
@@ -99,7 +100,7 @@ def read(did):
     if did == STANDARD:
         d = _read_file(_route(did)) or {}
         return {'id': STANDARD, 'ad': _('Standart dünya'), 'aciklama': _('Oyunun kendi içeriği. Düzenlenemez: değişikliklerini yeni bir dünya olarak kaydet.'),
-                'kapak': 'standart', 'standart': True, 'yamalar': d.get('yamalar') or {}}
+                'cover': 'standart', 'standart': True, 'yamalar': d.get('yamalar') or {}}
     d = _read_file(_route(did))
     if d is None:
         raise WorldError(_('Dünya bulunamadı.'))
@@ -139,9 +140,9 @@ def section_of(file, route):
 def summary(did, users=None):
     d = read(did)
     n = counts(d['yamalar'])
-    return {'id': did, 'ad': d.get('ad') or did, 'aciklama': d.get('aciklama', ''), 'kapak': d.get('kapak') if d.get('kapak') in COVERS else 'nebula',
-            'standart': did == STANDARD, 'olusturma': d.get('olusturma'), 'guncelleme': d.get('guncelleme'),
-            'changes': sum(n.values()), 'bolumler': n, 'kullananlar': (users or {}).get(did, [])}
+    return {'id': did, 'ad': d.get('ad') or did, 'aciklama': d.get('aciklama', ''), 'cover': d.get('cover') if d.get('cover') in COVERS else 'nebula',
+            'standart': did == STANDARD, 'created': d.get('created'), 'guncelleme': d.get('guncelleme'),
+            'changes': sum(n.values()), 'sections': n, 'users': (users or {}).get(did, [])}
 
 
 def entries(users=None):
@@ -187,8 +188,8 @@ def create(name, description='', cover='nebula', source=None, from_draft=False):
         elif source and source != STANDARD:
             patches = copy.deepcopy(read(source)['yamalar'])
         did = _new_id(name)
-        _save(did, {'ad': name, 'aciklama': str(description or '')[:DESCRIPTION_LENGTH], 'kapak': cover if cover in COVERS[1:] else 'nebula',
-                      'olusturma': _now(), 'yamalar': patches})
+        _save(did, {'ad': name, 'aciklama': str(description or '')[:DESCRIPTION_LENGTH], 'cover': cover if cover in COVERS[1:] else 'nebula',
+                      'created': _now(), 'yamalar': patches})
         if from_draft:
             discard_draft()
         return did
@@ -204,7 +205,7 @@ def update(did, name=None, description=None, cover=None):
         if description is not None:
             d['aciklama'] = str(description)[:DESCRIPTION_LENGTH]
         if cover is not None and cover in COVERS[1:]:
-            d['kapak'] = cover
+            d['cover'] = cover
         _save(did, d)
 
 
@@ -214,13 +215,13 @@ def remove(did):
     p = _route(did)
     if not os.path.isfile(p):
         raise WorldError(_('Dünya bulunamadı.'))
-    os.makedirs(os.path.join(folder(), '_silinenler'), exist_ok=True)
-    os.replace(p, os.path.join(folder(), '_silinenler', '%s_%s.json' % (did, datetime.datetime.now().strftime('%Y%m%d%H%M%S'))))
+    os.makedirs(os.path.join(folder(), '_trash'), exist_ok=True)
+    os.replace(p, os.path.join(folder(), '_trash', '%s_%s.json' % (did, datetime.datetime.now().strftime('%Y%m%d%H%M%S'))))
 
 
 def duplicate(did, name=None):
     d = read(did)
-    return create(name or _('{0} (kopya)').format(d.get('ad') or did)[:NAME_LENGTH], d.get('aciklama', ''), d.get('kapak', 'nebula'),
+    return create(name or _('{0} (kopya)').format(d.get('ad') or did)[:NAME_LENGTH], d.get('aciklama', ''), d.get('cover', 'nebula'),
                    source=did if did != STANDARD else None, from_draft=False) if did != STANDARD else \
         create(name or _('Yeni dünya'), '', 'nebula')
 
@@ -242,8 +243,8 @@ def data_signature(files):
 def export(did):
     """Paylaşılacak dünya: ad, açıklama, kapak, yamalar; hazırlandığı veri (veri_imzasi) ve bölüm sayıları (içe aktarırken uyarı)."""
     d = read(did)
-    return {'openorbit_world': VERSION, 'ad': d.get('ad'), 'aciklama': d.get('aciklama', ''), 'kapak': d.get('kapak', 'nebula'),
-            'tarih': _now(), 'veri': data_signature(d['yamalar']), 'bolumler': counts(d['yamalar']), 'yamalar': d['yamalar']}
+    return {'openorbit_world': VERSION, 'ad': d.get('ad'), 'aciklama': d.get('aciklama', ''), 'cover': d.get('cover', 'nebula'),
+            'tarih': _now(), 'veri': data_signature(d['yamalar']), 'sections': counts(d['yamalar']), 'yamalar': d['yamalar']}
 
 
 def code(did):
@@ -265,6 +266,8 @@ def from_code(text):
 def import_(data):
     """Paylaşılan dünyayı yeni dünya olarak ekler -> (kimlik, rapor). İzinsiz yollar atlanır, her değer düzenleyicinin süzgecinden
     geçer (bozuk olan atlanır); dünya başka bir oyun verisiyle hazırlandıysa rapor söyler."""
+    if isinstance(data, dict):
+        data = SM.migrate_world(data)                 # eski sürümde paylaşılan dünya: veri dosyası adları ve yollar yeni adlara
     if not isinstance(data, dict) or 'yamalar' not in data or not isinstance(data['yamalar'], dict):
         raise WorldError(_('Bu dosya bir OpenOrbit dünyası değil.'))
     if int(data.get('openorbit_world') or 1) > VERSION:
@@ -276,7 +279,7 @@ def import_(data):
                 cleared.setdefault(file, {})[y] = v
             else:
                 skipped += 1
-    did = create(data.get('ad') or _('İçe aktarılan dünya'), data.get('aciklama', ''), data.get('kapak', 'nebula'))
+    did = create(data.get('ad') or _('İçe aktarılan dünya'), data.get('aciklama', ''), data.get('cover', 'nebula'))
     issues = []
     with _LOCK:
         d = read(did)
@@ -424,10 +427,10 @@ def clean_up(did, file, route, v):
         v = copy.deepcopy(v)
         if 'guvenli' in v:
             v['guvenli'] = [[_int(a, 0, 42000), _int(b, 0, 26200), _int(r, 100, 6000)] for a, b, r in v['guvenli']]
-        if 'inler' in v:
-            v['inler'] = {str(t): [[_int(a, 0, 42000), _int(b, 0, 26200)] for a, b in pts] for t, pts in v['inler'].items() if pts}
-        if 'portallar' in v:
-            v['portallar'] = {str(k): [_int(p[0], 0, 42000), _int(p[1], 0, 26200)] for k, p in v['portallar'].items()}
+        if 'lairs' in v:
+            v['lairs'] = {str(t): [[_int(a, 0, 42000), _int(b, 0, 26200)] for a, b in pts] for t, pts in v['lairs'].items() if pts}
+        if 'portals' in v:
+            v['portals'] = {str(k): [_int(p[0], 0, 42000), _int(p[1], 0, 26200)] for k, p in v['portals'].items()}
         return v
     if file in ('quests.json', 'quest_extras.json'):
         if not isinstance(v, dict) or 'kok' not in v:
@@ -449,7 +452,7 @@ def clean_up(did, file, route, v):
         out = {}
         if v.get('fiyat') is not None:
             out['fiyat'] = _int(v['fiyat'], 0, 10 ** 10)
-            out['para'] = 'C' if v.get('para') == 'C' else 'U'
+            out['currency'] = 'C' if v.get('currency') == 'C' else 'U'
         if v.get('on_sale') is False:
             out['on_sale'] = False
         return out
@@ -488,7 +491,7 @@ def clean_up(did, file, route, v):
         if part[-1] == 'yeniden_dogma_sn':
             lo, hi = sorted(_int(x, 1, 86400) for x in (v if isinstance(v, list) and len(v) == 2 else [15, 30]))
             return [lo, hi]
-        kinds = raw('items.json')['cevherler']['turler']
+        kinds = raw('items.json')['cevherler']['kinds']
         out = {str(t): _int(n, 0, 1000) for t, n in (v or {}).items() if str(t) in kinds}
         return out or {'0': 0}                   # hepsi 0: haritada cevher yok (boş sözlük sınıfın değerine düşerdi)
     if file == 'social.json':
@@ -578,21 +581,21 @@ def _clean_gate(key, v, types=None):
         o['cephane'] = {str(l): _int(n, 1, 10 ** 8) for l, n in value_reward['cephane'].items() if str(l)}
     for i, x in enumerate(value_reward.get('sans') or []):
         if i < len(o.get('sans', [])) and isinstance(x, dict):
-            if 'olasilik' in x:
-                o['sans'][i]['olasilik'] = max(0.0, min(1.0, float(x['olasilik'])))
+            if 'probability' in x:
+                o['sans'][i]['probability'] = max(0.0, min(1.0, float(x['probability'])))
             if 'adet' in x and isinstance(o['sans'][i].get('adet'), int):
                 o['sans'][i]['adet'] = _int(x['adet'], 1, 10 ** 7)
-    for n, value_wave in enumerate(v.get('dalgalar') or []):
-        if n >= len(out['dalgalar']) or not isinstance(value_wave, dict):
+    for n, value_wave in enumerate(v.get('waves') or []):
+        if n >= len(out['waves']) or not isinstance(value_wave, dict):
             continue
-        w = out['dalgalar'][n]
+        w = out['waves'][n]
         for i, va in enumerate(value_wave.get('uzaylilar') or []):
             if i >= len(w['uzaylilar']) or not isinstance(va, dict):
                 continue
             a = w['uzaylilar'][i]
             kind = str(va.get('tur') or a['tur'])
             # yalnız istemcinin gemi türü olan anahtarlar (kapi.register_npcs türü model olarak gönderir: "ozel_1", "etk_…" olmaz)
-            if kind != a['tur'] and not a.get('kalici') and a['tur'] != 'oyuncu' and kind.isdigit() and kind in (types or {}):
+            if kind != a['tur'] and not a.get('permanent') and a['tur'] != 'oyuncu' and kind.isdigit() and kind in (types or {}):
                 t = types[kind]                          # uzaylıyı başka türle değiştir: türün değerleri, dalgadaki adet ve yer aynı
                 a.update(tur=kind, ad=re.sub(r'^[-=\[\]:.{}\s]+|[-=\[\]:.{}\s]+$', '', t['ad']) or kind, gorunen_ad=t['ad'],
                          npc_kimlik=t.get('npc_kimlik', a.get('npc_kimlik')), hp=t['hp'], kalkan=t['kalkan'], hasar=t['hasar'], hiz=t['hiz'],
@@ -629,7 +632,7 @@ def _date(x):
 
 def event_classes(h, types):
     """Harita etkinliğinin seçilebilen sınıfları: uzaylılarının ve patronunun o sınıfa özgü türü (etk_<ad>_x<n>) olanlar."""
-    kinds = [a['tur'] for a in h.get('uzaylilar', [])] + list((h.get('patron') or {}).get('turler', []))
+    kinds = [a['tur'] for a in h.get('uzaylilar', [])] + list((h.get('patron') or {}).get('kinds', []))
     return [m for m in MAP_CLASSES if all(t.replace('{x}', 'x' + m[2:]) in types for t in kinds)]
 
 
@@ -660,9 +663,9 @@ def _clean_event(key, v, types):
         for i, a in enumerate(value_map.get('uzaylilar') or []):
             if i < len(h.get('uzaylilar', [])) and isinstance(a, dict) and 'adet' in a:
                 h['uzaylilar'][i]['adet'] = _int(a['adet'], 0, 200)
-        if isinstance(value_map.get('kota'), dict) and 'kota' in h:
-            h['kota'] = dict({m: n for m, n in h['kota'].items() if m not in MAP_CLASSES},
-                             **{m: _int(value_map['kota'].get(m, h['kota'].get(m, max(h['kota'].values(), default=20))), 0, 10000)
+        if isinstance(value_map.get('quota'), dict) and 'quota' in h:
+            h['quota'] = dict({m: n for m, n in h['quota'].items() if m not in MAP_CLASSES},
+                             **{m: _int(value_map['quota'].get(m, h['quota'].get(m, max(h['quota'].values(), default=20))), 0, 10000)
                                 for m in MAP_CLASSES if m in h['haritalar']})
         if isinstance(value_map.get('patron'), dict) and h.get('patron'):
             for k, parent in (('adet', 50), ('sure_sn', 86400)):
@@ -759,9 +762,9 @@ def game_map(did, mid):
     w, h = H.map_size(int(mid)) if hasattr(H, 'map_size') else (H.MAP_W, H.MAP_H)
     portals = []
     for g in H.GATES.get(int(mid), []):
-        p = (layout.get('portallar') or {}).get(str(g['key']))
+        p = (layout.get('portals') or {}).get(str(g['key']))
         portals.append({'key': g['key'], 'x': p[0] if p else g['x'], 'y': p[1] if p else g['y'], 'hedef': map_name(g['hedef']),
-                          'firma': g.get('yalniz_firma'), 'tasindi': bool(p) and p != (layout0.get('portallar') or {}).get(str(g['key']))})
+                          'firma': g.get('yalniz_firma'), 'moved': bool(p) and p != (layout0.get('portals') or {}).get(str(g['key']))})
     ist = None
     if int(mid) in H.STATION_MAPS:
         gs = H.GATES.get(int(mid), [])
@@ -771,8 +774,8 @@ def game_map(did, mid):
     return {'id': mid, 'ad': map_name(mid), 'firma': _firma(map_name(mid)), 'boyut': [w, h],
             'npc': [dict(g, ad=types.get(g['tip'], {}).get('ad', g['tip']), ikon=npc_icon(g['tip'], types.get(g['tip'], {})),
                          saldirgan=types.get(g['tip'], {}).get('saldirgan', False)) for g in m.get('npc', [])],
-            'bonus_kutu': m.get('bonus_kutu', 0), 'portallar': portals, 'istasyon': ist, 'yapi': layout.get('yapi'),
-            'guvenli': layout.get('guvenli', []), 'inler': layout.get('inler', {}), 'engeller': [e[1:5] for e in layout.get('engeller', [])],
+            'bonus_kutu': m.get('bonus_kutu', 0), 'portals': portals, 'istasyon': ist, 'yapi': layout.get('yapi'),
+            'guvenli': layout.get('guvenli', []), 'lairs': layout.get('lairs', {}), 'obstacles': [e[1:5] for e in layout.get('obstacles', [])],
             'duzen': layout, 'standart': {'npc': base.get('npc', []), 'bonus_kutu': base.get('bonus_kutu', 0), 'duzen': layout0},
             'degisti': {'npc': m.get('npc', []) != base.get('npc', []), 'bonus_kutu': m.get('bonus_kutu', 0) != base.get('bonus_kutu', 0),
                         'duzen': layout != layout0},
@@ -798,8 +801,8 @@ def conditions(root):
         for el in case.get('modifier', []):
             c = el.get('condition') or {}
             if c.get('id'):
-                out.append({'id': c['id'], 'tur': c['type'], 'gosterim': c.get('displayType', c['type']), 'eslesme': list(c.get('matches', [])),
-                            'hedef': c.get('targetValue', 0), 'alt': [{'tur': s['type'], 'eslesme': list(s.get('matches', []))}
+                out.append({'id': c['id'], 'tur': c['type'], 'gosterim': c.get('displayType', c['type']), 'matches': list(c.get('matches', [])),
+                            'hedef': c.get('targetValue', 0), 'sub': [{'tur': s['type'], 'matches': list(s.get('matches', []))}
                                                                      for s in c.get('subConditions', [])]})
             q = el.get('questCase') or {}
             if q.get('id'):
@@ -810,8 +813,8 @@ def conditions(root):
 
 def _quest_summary(qid, q, file, patch_count, root_count=None):
     k = conditions(q['kok'])
-    return {'id': int(qid), 'ad': q.get('ad', str(qid)), 'seviye': q.get('seviye', 1), 'turler': q.get('turler', []),
-            'kaynak': 'ana' if file == 'quests.json' else 'ek', 'kosullar': [{'tur': c['tur'], 'hedef': c['hedef'], 'eslesme': c['eslesme'][:3]} for c in k],
+    return {'id': int(qid), 'ad': q.get('ad', str(qid)), 'seviye': q.get('seviye', 1), 'kinds': q.get('kinds', []),
+            'kaynak': 'ana' if file == 'quests.json' else 'ek', 'conditions': [{'tur': c['tur'], 'hedef': c['hedef'], 'matches': c['matches'][:3]} for c in k],
             'oduller': q.get('oduller', []), 'kapali': bool(q.get('kapali')), 'yeni': int(qid) >= NEW_QUEST,
             'degisti': DATA.build_path('gorevler', qid) in patch_count, 'etkinlik': bool(q.get('etkinlik')), 'havuz': bool(q.get('havuz'))}
 
@@ -831,9 +834,9 @@ def quest(did, qid):
     w = read(did)
     patch_count = set(w['yamalar'].get(file) or {})
     o = _quest_summary(qid, q, file, patch_count)
-    o.update(onceki=q.get('onceki', []), kosullar=conditions(q['kok']), sure_sn=q.get('sure_sn'), baslik=q.get('baslik', ''), aciklama=q.get('aciklama', ''),
+    o.update(onceki=q.get('onceki', []), conditions=conditions(q['kok']), sure_sn=q.get('sure_sn'), baslik=q.get('baslik', ''), aciklama=q.get('aciklama', ''),
              standart={'seviye': base['seviye'], 'oduller': base.get('oduller', []), 'onceki': base.get('onceki', []),
-                       'kosullar': conditions(base['kok'])} if base else None,
+                       'conditions': conditions(base['kok'])} if base else None,
              adlar={str(x): all_[str(x)][1].get('ad', str(x)) for x in q.get('onceki', []) if str(x) in all_})
     return o
 
@@ -862,8 +865,8 @@ def save_quest(did, qid, changes):
     for k in ('baslik', 'aciklama'):
         if k in d:
             q[k] = d[k]
-    if 'kosullar' in d:
-        new_ = {int(c['id']): c for c in d['kosullar']}
+    if 'conditions' in d:
+        new_ = {int(c['id']): c for c in d['conditions']}
 
         def walk(case):
             for el in case.get('modifier', []):
@@ -871,8 +874,8 @@ def save_quest(did, qid, changes):
                 if c.get('id') in new_:
                     y = new_[c['id']]
                     c['targetValue'] = _int(y.get('hedef', c.get('targetValue', 1)), 0, 10 ** 9)
-                    if 'eslesme' in y and CONDITION.get(c['type']) in ('npc', 'harita', 'esya', 'cevher'):
-                        es = [map_match(x) if CONDITION[c['type']] == 'harita' else str(x) for x in y['eslesme'] if str(x)]
+                    if 'matches' in y and CONDITION.get(c['type']) in ('npc', 'harita', 'esya', 'cevher'):
+                        es = [map_match(x) if CONDITION[c['type']] == 'harita' else str(x) for x in y['matches'] if str(x)]
                         c['matches'] = es or c['matches']
                     if 'harita' in y:          # ON_MAP alt koşulu: boş liste -> her haritada
                         c['subConditions'] = [s for s in c.get('subConditions', []) if s['type'] != SUB_MAP]
@@ -919,13 +922,13 @@ def new_quest(did, name, level, targets, rewards):
         if x.get('tur') not in QUEST_TEMPLATES:
             raise WorldError(_('Bilinmeyen görev hedefi.'))
         kind = QUEST_TEMPLATES[x['tur']][0]
-        es = x.get('eslesme') or []
+        es = x.get('matches') or []
         if CONDITION[kind] in ('npc', 'esya', 'cevher', 'harita') and not es:
             raise WorldError(_('Her hedef için ne yapılacağını seç.'))
         if CONDITION[kind] == 'harita':
             es = [map_match(m) for m in es]
         mods.append(_condition(root_id + 1 + i, kind, es, _int(x.get('hedef', 1), 1, 10 ** 7), x.get('harita') or None))
-    q = {'ad': ' '.join(str(name or '').split())[:60] or _('Yeni görev'), 'seviye': _int(level or 1, 1, 40), 'oncelik': 500, 'turler': [2],
+    q = {'ad': ' '.join(str(name or '').split())[:60] or _('Yeni görev'), 'seviye': _int(level or 1, 1, 40), 'priority': 500, 'kinds': [2],
          'simge': 0, 'onceki': [], 'kaynak': 'dunya', 'pvp': False,
          'kok': {'_': 'QuestCaseModule', 'id': root_id, 'active': False, 'mandatory': True, 'ordered': False, 'mandatoryCount': len(mods),
                  'modifier': mods},
@@ -941,7 +944,7 @@ _CATALOG = {}
 
 def catalog():
     if 'k' not in _CATALOG:
-        p = PTH.template('yanitlar.json')
+        p = PTH.template('responses.json')
         if not p:
             _CATALOG['k'] = {}
         else:
@@ -984,7 +987,7 @@ def boxes(did):
         if not b.get('odul'):                    # Battle Pass Box (etkinliğe göre), içeriği başka yerde olanlar
             continue
         out.append({'tur': kind, 'ad': b['ad'], 'anahtar': b['anahtar'], 'haritalar': b['haritalar'], 'adet': b['adet'], 'yeniden_sn': b['yeniden_sn'],
-                    'takvim': b.get('takvim'), 'odul': b['odul'], 'degisti': b != kb.get(kind), 'yerde': bool(b['haritalar'] and b['adet'])})
+                    'takvim': b.get('takvim'), 'odul': b['odul'], 'degisti': b != kb.get(kind), 'spawns': bool(b['haritalar'] and b['adet'])})
     return {'bonus': npc['bonus_kutu'], 'bonus_4x': npc['bonus_kutu_4x'], 'bonus_changed': npc['bonus_kutu'] != base['bonus_kutu'],
             'bonus_4x_changed': npc['bonus_kutu_4x'] != base['bonus_kutu_4x'], 'kutular': out, 'classes': list(raw('boxes.json')['haritalar'])}
 
@@ -997,16 +1000,16 @@ def gates(did):
         o = g['odul']
         out.append({'key': key, 'ad': g['ad'], 'parca': g['parca'], 'can': g['can'], 'degisti': g != kb.get(key),
                     'odul': {x: o.get(x) for x in GATE_REWARD if x in o}, 'cephane': o.get('cephane') or {},
-                    'sans': [{'esya': x['esya'], 'adet': x.get('adet'), 'olasilik': x.get('olasilik', 0), 'paket': x['esya'] == 'cevher_paketi'}
+                    'sans': [{'esya': x['esya'], 'adet': x.get('adet'), 'probability': x.get('probability', 0), 'paket': x['esya'] == 'cevher_paketi'}
                              for x in o.get('sans', [])],
                     'standart': {'parca': kb[key]['parca'], 'can': kb[key]['can'], 'odul': {x: kb[key]['odul'].get(x) for x in GATE_REWARD}} if key in kb else None,
-                    'dalgalar': [{'ad': w['ad'], 'uzaylilar': [{'tur': a['tur'], 'ad': a.get('gorunen_ad') or a.get('ad'), 'adet': a['adet'], 'hp': a['hp'],
-                                                               'changed_kind': key in kb and i < len(kb[key]['dalgalar'][n]['uzaylilar']) and a['tur'] != kb[key]['dalgalar'][n]['uzaylilar'][i]['tur'],
-                                                               'sabit': bool(a.get('kalici')) or a['tur'] == 'oyuncu',
-                                                               'kalkan': a['kalkan'], 'hasar': a['hasar'], 'hiz': a['hiz'], 'kalici': bool(a.get('kalici')),
+                    'waves': [{'ad': w['ad'], 'uzaylilar': [{'tur': a['tur'], 'ad': a.get('gorunen_ad') or a.get('ad'), 'adet': a['adet'], 'hp': a['hp'],
+                                                               'changed_kind': key in kb and i < len(kb[key]['waves'][n]['uzaylilar']) and a['tur'] != kb[key]['waves'][n]['uzaylilar'][i]['tur'],
+                                                               'sabit': bool(a.get('permanent')) or a['tur'] == 'oyuncu',
+                                                               'kalkan': a['kalkan'], 'hasar': a['hasar'], 'hiz': a['hiz'], 'permanent': bool(a.get('permanent')),
                                                                'en_az': sum(1 for grp in w['gruplar'] for j, _ in grp if j == i),
                                                                'ikon': npc_icon(a['tur'], {})}
-                                                              for i, a in enumerate(w['uzaylilar'])]} for n, w in enumerate(g['dalgalar'])]})
+                                                              for i, a in enumerate(w['uzaylilar'])]} for n, w in enumerate(g['waves'])]})
     return out
 
 
@@ -1017,12 +1020,12 @@ def ores(did, mid):
     name, klass = map_name(mid), H.map_class(int(mid))
     special = c['haritalar'].get(name) if name != klass else None
     return {'adet': special if special is not None else c['haritalar'].get(klass, {}), 'ozel': special is not None, 'sinif': klass, 'ad': name,
-            'turler': c['turler'], 'yeniden_sn': c['yeniden_dogma_sn'], 'respawn_default': raw('items.json')['cevherler']['yeniden_dogma_sn'],
+            'kinds': c['kinds'], 'yeniden_sn': c['yeniden_dogma_sn'], 'respawn_default': raw('items.json')['cevherler']['yeniden_dogma_sn'],
             'yol': DATA.build_path('cevherler', 'haritalar', name)}
 
 
 # ---- oyundaki görev metinleri (eklenti: GorevMetinleri.cs)
-TEXT_FILE = os.path.join('BepInEx', 'openorbit', 'gorev_metinleri.json')
+TEXT_FILE = os.path.join('BepInEx', 'openorbit', 'quest_texts.json')
 
 
 def quest_texts(did):
@@ -1054,14 +1057,14 @@ def events(did):
         h = x.get('harita')
         game_map = None
         if h:
-            game_map = {'haritalar': h.get('haritalar', []), 'kota': h.get('kota', {}),
+            game_map = {'haritalar': h.get('haritalar', []), 'quota': h.get('quota', {}),
                       'uzaylilar': [{'tur': a['tur'], 'adet': a['adet'], 'ad': (types.get(a['tur'].replace('{x}', 'x2')) or types.get(a['tur'].replace('{x}', 'x3')) or {}).get('ad', a['tur']),
                                      'ikon': npc_icon(a['tur'], types.get(a['tur'].replace('{x}', 'x2')) or {})} for a in h.get('uzaylilar', [])],
                       'patron': {k: h['patron'][k] for k in ('adet', 'sure_sn') if k in h['patron']} if h.get('patron') else None,
                       'selectable': event_classes(h, types)}
         kind = 'harita' if h else 'yillik' if 'donemler' in x else 'haftalik'
         out.append({'key': key, 'ad': x.get('ad', key), 'tur': kind, 'donemler': [r[:2] for r in x.get('donemler', [])] if 'donemler' in x else None,
-                    'gunler': x.get('gunler'), 'saatler': x.get('saatler'), 'world_status': x.get('world_status', 'takvim'), 'harita': game_map,
+                    'days': x.get('days'), 'saatler': x.get('saatler'), 'world_status': x.get('world_status', 'takvim'), 'harita': game_map,
                     'degisti': x != events_raw.get(key)})
     return sorted(out, key=lambda x: ({'harita': 0, 'yillik': 1, 'haftalik': 2}[x['tur']], x['ad'].lower()))
 

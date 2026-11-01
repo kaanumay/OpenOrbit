@@ -42,7 +42,7 @@ def observe_status(y, b, arg):
     PF.level_for(0)                                      # seviye eşikleri yüklensin
     next_ = next((need for lv, need in (PF._LEVELS or []) if lv == b.level + 1), None)
     out = ['Level %d (EP %s%s). Ship %s, power %.0f (damage/s %.0f, effective HP %.0f).' % (
-        b.level, _fmt_money(b.k['ep']), (' / next level at %s' % _fmt_money(next_)) if next_ else '', _short(b.k['ekip']['gemi']), d['guc'],
+        b.level, _fmt_money(b.k['ep']), (' / next level at %s' % _fmt_money(next_)) if next_ else '', _short(b.k['ekip']['gemi']), d['power'],
         d['dps'], d['ehp']),
         'Credits %s, uridium %s, honor %s. Cargo %d%% full.' % (_fmt_money(b.k['kredi']), _fmt_money(b.k['uridyum']), _fmt_money(b.k['onur']),
                                                               100 * b.cargo_fill()),
@@ -94,7 +94,7 @@ def observe_shop(y, b, arg):
     if not y.permission('magaza'):
         return 'The shop is closed for you.'
     m = b.game_settings.multiplier('magaza_fiyat')
-    power = max(1.0, b.value()['guc'])
+    power = max(1.0, b.value()['power'])
     currency = {'C': b.k['kredi'], 'U': b.k['uridyum']}
     all_ = SHOP.candidates(b)
     all_candidates = sorted(all_, key=lambda c: -c[0] / max(1.0, c[2] * m * (SHOP.EXCHANGE_RATE if c[1] == 'U' else 1)))[:7]
@@ -130,7 +130,7 @@ def available_quests(b):
     out = []
     try:
         for qid, q in QU.eligible(b):
-            b.k['gorev'] = dict(id=qid, kosullar={})
+            b.k['gorev'] = dict(id=qid, conditions={})
             s = QU.next_up(b)
             if s and s[1]:
                 out.append((qid, q))
@@ -165,7 +165,7 @@ def observe_surroundings(y, b, arg):
     if human:
         out.append('Real players online: %s.' % '; '.join('%s (%s, on %s, you feel %s)' % (
             k.name, ('MMO', 'EIC', 'VRU')[int(k.profile.d['pilot'].get('factionId', 1)) - 1],
-            H.name(int(k.profile.d['konum'].get('mapId', 0))), _his(b.memory.relation(k.name, y.now))) for k in human[:6]))
+            H.name(int(k.profile.d['position'].get('mapId', 0))), _his(b.memory.relation(k.name, y.now))) for k in human[:6]))
     friend = [x for x in y.bots if x is not b and x.online and b.memory.relation(x.name, y.now) >= 0.3][:5]
     if friend:
         out.append('Friends online: %s.' % ', '.join('%s (on %s)' % (x.name, H.name(x.game_map)) for x in friend))
@@ -379,7 +379,7 @@ def run(br, y, b, tool, arg):
         if tool != 'posta_gonder':
             b.__dict__.setdefault('_agent_wrote', {})[target] = y.now
     r = TL.call(y, b, tool, {k: v for k, v in arg.items() if v not in (None, '')} if tool != 'biriktir' else arg)
-    return ('ok' if r.get('ok') else 'failed') + (': %s' % r['mesaj'] if r.get('mesaj') else '')
+    return ('ok' if r.get('ok') else 'failed') + (': %s' % r['message'] if r.get('message') else '')
 
 
 # ------------------------------------------------------------------------------------------------------------ döngü
@@ -466,7 +466,7 @@ def think(br, b, reason, max_count=STEPS):
                                                                     if i == max_count - 2 else 'Your next step as JSON.')}]
     with y.lock:
         trace = b.k.setdefault('ajan', [])
-        trace.extend({'t': y.now, 'sebep': reason[:120], 'dusunce': d, 'arac': a, 'arg': g, 'sonuc': s[:200]} for d, a, g, s in steps)
+        trace.extend({'t': y.now, 'reason': reason[:120], 'dusunce': d, 'arac': a, 'arg': g, 'result': s[:200]} for d, a, g, s in steps)
         del trace[:-20]
     return steps
 

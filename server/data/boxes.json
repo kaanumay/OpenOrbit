@@ -1,5 +1,5 @@
 {
- "_aciklama": "belgeler/wiki/boxes.md (darkorbitwiki: kutular) -> server/data/kutular.json: haritalardaki anahtarlı ganimet kutuları.\n\nKutu türleri istemcinin kendi adları (AddBoxCommand.boxType; çeviri dosyasında PIRATE_BOOTY = Green Booty Box …), anahtarlar\nistemcinin eşya kimlikleri (resource_booty-key …), anahtarsız toplama metni istemcinin msg_loot_failed_no_booty-key-* anahtarları,\nseyir defterine \"booty_key_<tür>_used\", HUD'daki anahtar sayacı eski protokolün \"0|A|<kod>|<adet>\" satırı (SetAttributeAssemblyHelper.AssembleBootyKeysUpdate: BK yeşil,\nBKR kırmızı, BKB mavi, BKS gümüş, BKBB obsidiyen, BKBLC / BKBLD Black Light Cipher / Decoder).\nİçerikler wiki'den: kırmızı, mavi ve obsidiyen kutuların grup ve grup içi olasılıkları ve adetleri aynen; yeşil, altın ve gümüş\nkutularda wiki adet ve olasılık vermiyor (adet ADET tablosu, ağırlık AGIRLIK tablosu: uyarlama). Black Light Cache: bir Centurion\ntasarımı (sahipse 10.000 uridyum, wiki); Black Light Crypt: X1 / X2 gemi modülleri (wiki'nin \"?\" satırları atlanır).\nKutu sayıları, yeniden doğma süreleri uyarlama; altın kutular ayın 2. ve 4. cuması; E8: Obsidian, R&B ve Apocalypse haftalık\nrotasyonda (takvim.py obsidian_booty, rb_booty, apocalypse_booty; gerçek oyunun bp-calendar'ı), Perseus' Blessing Perseus' Grace'te,\nBattle Pass Box Battle Pass'li etkinliklerde (içerik etkinliğin grubu: 'odul_etkinlik').\nE7: Astral (BKA), Prime Astral (BKAP), Apocalypse (MASQUE_BOOTY_BOX, BKM), Prometheus (BKPR), Perseus' Blessing (BKPG) ve\nLaurel (BKLL) kutuları; kodlar kayıttaki girişin \"0|A|BK…|0\" satırlarından adla eşlendi. Wiki adet vermeyenlerde adet ADET_E7\n(uyarlama); wiki'nin yazım hatalı ya da istemcide başka adla geçen satırları E7_NAMES'te (XHV02 = XV02, HP-XHU2 = HP-XU02, CC-A / CC-C =\nCosmic Class A / C, Prime Coupon = PrimeCoupon, Travel Permit = Deep Space Echoes bileti; Booster Package: damage booster'ın 10 saati,\nuyarlama). \"Package:\" satırları Epic tasarım paketidir: ['paket', [[lootId, adet] …], ağırlık], açılışta paketin hepsi verilir\n(ganimet.pick_all; sahip olunan tasarım paketten atlanır). Prometheus ve Laurel'in anahtarının kaynağı yok: takvimleri E8'in\netkinlikleri (prometheus, athena), o güne dek doğmazlar.\nModül kaynakları (uyarlama): ek mağazada satılan, wiki'ye göre bir etkinlikle kazanılan modüller o etkinliğin Battle Pass Box\nsütununa çok düşük ağırlıkla (BP_EK); Battle Pass'i olmayan Chromin Rush ve Eternal Gate'in modülleri o etkinliklerin araçlarına bırakıldı.\nÜreten: tools/kutular.py.",
+ "_description": "belgeler/wiki/boxes.md (darkorbitwiki: kutular) -> server/data/kutular.json: haritalardaki anahtarlı ganimet kutuları.\n\nKutu türleri istemcinin kendi adları (AddBoxCommand.boxType; çeviri dosyasında PIRATE_BOOTY = Green Booty Box …), anahtarlar\nistemcinin eşya kimlikleri (resource_booty-key …), anahtarsız toplama metni istemcinin msg_loot_failed_no_booty-key-* anahtarları,\nseyir defterine \"booty_key_<tür>_used\", HUD'daki anahtar sayacı eski protokolün \"0|A|<kod>|<adet>\" satırı (SetAttributeAssemblyHelper.AssembleBootyKeysUpdate: BK yeşil,\nBKR kırmızı, BKB mavi, BKS gümüş, BKBB obsidiyen, BKBLC / BKBLD Black Light Cipher / Decoder).\nİçerikler wiki'den: kırmızı, mavi ve obsidiyen kutuların grup ve grup içi olasılıkları ve adetleri aynen; yeşil, altın ve gümüş\nkutularda wiki adet ve olasılık vermiyor (adet ADET tablosu, ağırlık AGIRLIK tablosu: uyarlama). Black Light Cache: bir Centurion\ntasarımı (sahipse 10.000 uridyum, wiki); Black Light Crypt: X1 / X2 gemi modülleri (wiki'nin \"?\" satırları atlanır).\nKutu sayıları, yeniden doğma süreleri uyarlama; altın kutular ayın 2. ve 4. cuması; E8: Obsidian, R&B ve Apocalypse haftalık\nrotasyonda (takvim.py obsidian_booty, rb_booty, apocalypse_booty; gerçek oyunun bp-calendar'ı), Perseus' Blessing Perseus' Grace'te,\nBattle Pass Box Battle Pass'li etkinliklerde (içerik etkinliğin grubu: 'reward_event').\nE7: Astral (BKA), Prime Astral (BKAP), Apocalypse (MASQUE_BOOTY_BOX, BKM), Prometheus (BKPR), Perseus' Blessing (BKPG) ve\nLaurel (BKLL) kutuları; kodlar kayıttaki girişin \"0|A|BK…|0\" satırlarından adla eşlendi. Wiki adet vermeyenlerde adet ADET_E7\n(uyarlama); wiki'nin yazım hatalı ya da istemcide başka adla geçen satırları E7_NAMES'te (XHV02 = XV02, HP-XHU2 = HP-XU02, CC-A / CC-C =\nCosmic Class A / C, Prime Coupon = PrimeCoupon, Travel Permit = Deep Space Echoes bileti; Booster Package: damage booster'ın 10 saati,\nuyarlama). \"Package:\" satırları Epic tasarım paketidir: ['paket', [[lootId, adet] …], ağırlık], açılışta paketin hepsi verilir\n(ganimet.pick_all; sahip olunan tasarım paketten atlanır). Prometheus ve Laurel'in anahtarının kaynağı yok: takvimleri E8'in\netkinlikleri (prometheus, athena), o güne dek doğmazlar.\nModül kaynakları (uyarlama): ek mağazada satılan, wiki'ye göre bir etkinlikle kazanılan modüller o etkinliğin Battle Pass Box\nsütununa çok düşük ağırlıkla (BP_EK); Battle Pass'i olmayan Chromin Rush ve Eternal Gate'in modülleri o etkinliklerin araçlarına bırakıldı.\nÜreten: tools/kutular.py.",
  "haritalar": {
   "X-2..X-8": "^[123]-[2-8]$",
   "4-X": "^4-\\d$",
@@ -8,18 +8,18 @@
   "BL": "^BL-\\d$",
   "X-1..X-8": "^[123]-[1-8]$"
  },
- "tekil": [
+ "single": [
   "ship_",
   "pet_designs_",
   "drone_"
  ],
- "bl_tekrar_uridyum": 10000,
+ "bl_repeat_uridium": 10000,
  "kutular": {
   "PIRATE_BOOTY": {
    "ad": "Green Box",
    "anahtar": "resource_booty-key",
-   "kod": "BK",
-   "yok_mesaji": "msg_loot_failed_no_booty-key-green",
+   "code": "BK",
+   "missing_message": "msg_loot_failed_no_booty-key-green",
    "haritalar": [
     "X-2..X-8",
     "4-X",
@@ -303,8 +303,8 @@
   "PIRATE_BOOTY_GOLD": {
    "ad": "Gold Box",
    "anahtar": "resource_booty-key",
-   "kod": "BK",
-   "yok_mesaji": "msg_loot_failed_no_booty-key-green",
+   "code": "BK",
+   "missing_message": "msg_loot_failed_no_booty-key-green",
    "haritalar": [
     "X-2..X-8",
     "4-X",
@@ -603,8 +603,8 @@
   "PIRATE_BOOTY_RED": {
    "ad": "Red Box",
    "anahtar": "resource_booty-key-red",
-   "kod": "BKR",
-   "yok_mesaji": "msg_loot_failed_no_booty-key-red",
+   "code": "BKR",
+   "missing_message": "msg_loot_failed_no_booty-key-red",
    "haritalar": [
     "X-2..X-8",
     "4-X",
@@ -783,8 +783,8 @@
   "PIRATE_BOOTY_BLUE": {
    "ad": "Blue Box",
    "anahtar": "resource_booty-key-blue",
-   "kod": "BKB",
-   "yok_mesaji": "msg_loot_failed_no_booty-key-blue",
+   "code": "BKB",
+   "missing_message": "msg_loot_failed_no_booty-key-blue",
    "haritalar": [
     "X-2..X-8",
     "4-X",
@@ -963,8 +963,8 @@
   "BLACK_BOOTY_BOX": {
    "ad": "Obsidian Box",
    "anahtar": "resource_booty-key-black",
-   "kod": "BKBB",
-   "yok_mesaji": "msg_loot_failed_no_booty-key-black",
+   "code": "BKBB",
+   "missing_message": "msg_loot_failed_no_booty-key-black",
    "haritalar": [
     "X-2..X-8",
     "5-X"
@@ -1152,8 +1152,8 @@
   "PIRATE_BOOTY_SILVER": {
    "ad": "Silver Box",
    "anahtar": "resource_booty-key-silver",
-   "kod": "BKS",
-   "yok_mesaji": "msg_loot_failed_no_booty-key-silver",
+   "code": "BKS",
+   "missing_message": "msg_loot_failed_no_booty-key-silver",
    "haritalar": [
     "5-4"
    ],
@@ -1217,8 +1217,8 @@
   "UNSTABLE_BLACKLIGHT_CACHE": {
    "ad": "Black Light Cache",
    "anahtar": "resource_booty-key-blacklight-cipher",
-   "kod": "BKBLC",
-   "yok_mesaji": "msg_loot_failed_no_booty-key-blacklight-cipher",
+   "code": "BKBLC",
+   "missing_message": "msg_loot_failed_no_booty-key-blacklight-cipher",
    "haritalar": [
     "BL"
    ],
@@ -1485,8 +1485,8 @@
   "BLACKLIGHT-CRYPT": {
    "ad": "Black Light Crypt",
    "anahtar": "resource_booty-key-blacklight-decoder",
-   "kod": "BKBLD",
-   "yok_mesaji": "msg_loot_failed_no_booty-key-blacklight-decoder",
+   "code": "BKBLD",
+   "missing_message": "msg_loot_failed_no_booty-key-blacklight-decoder",
    "haritalar": [
     "BL"
    ],
@@ -1543,8 +1543,8 @@
   "ASTRAL_BOOTY_BOX": {
    "ad": "Astral Box",
    "anahtar": "resource_booty-key-astral",
-   "kod": "BKA",
-   "yok_mesaji": "msg_loot_failed_no_booty-key-astral",
+   "code": "BKA",
+   "missing_message": "msg_loot_failed_no_booty-key-astral",
    "haritalar": [
     "X-2..X-8",
     "4-X"
@@ -1657,8 +1657,8 @@
   "ASTRAL_PRIME_BOOTY_BOX": {
    "ad": "Prime Astral Box",
    "anahtar": "resource_booty-key-astral-prime",
-   "kod": "BKAP",
-   "yok_mesaji": "msg_loot_failed_no_booty-key-astral-prime",
+   "code": "BKAP",
+   "missing_message": "msg_loot_failed_no_booty-key-astral-prime",
    "haritalar": [
     "X-2..X-8",
     "4-X"
@@ -1806,8 +1806,8 @@
   "MASQUE_BOOTY_BOX": {
    "ad": "Apocalypse Box",
    "anahtar": "resource_booty-key-masque",
-   "kod": "BKM",
-   "yok_mesaji": "msg_loot_failed_no_booty-key-masque",
+   "code": "BKM",
+   "missing_message": "msg_loot_failed_no_booty-key-masque",
    "haritalar": [
     "X-2..X-8",
     "5-X"
@@ -2000,8 +2000,8 @@
   "PROMETHEUS_BOOTY_BOX": {
    "ad": "Prometheus Box",
    "anahtar": "resource_booty-key-prometheus",
-   "kod": "BKPR",
-   "yok_mesaji": "msg_loot_failed_no_booty-key-prometheus",
+   "code": "BKPR",
+   "missing_message": "msg_loot_failed_no_booty-key-prometheus",
    "haritalar": [
     "X-2..X-8",
     "4-X",
@@ -2264,8 +2264,8 @@
   "PERSEUS_BLESSING_BOOTY_BOX": {
    "ad": "Perseus Blessing",
    "anahtar": "resource_booty-key-perseus",
-   "kod": "BKPG",
-   "yok_mesaji": "msg_loot_failed_no_booty-key-perseus",
+   "code": "BKPG",
+   "missing_message": "msg_loot_failed_no_booty-key-perseus",
    "haritalar": [
     "X-1..X-8"
    ],
@@ -2493,8 +2493,8 @@
   "LAUREL_BOX": {
    "ad": "Laurel Box",
    "anahtar": "resource_booty-key-laurel",
-   "kod": "BKLL",
-   "yok_mesaji": "msg_loot_failed_no_booty-key-laurel",
+   "code": "BKLL",
+   "missing_message": "msg_loot_failed_no_booty-key-laurel",
    "haritalar": [
     "X-1..X-8"
    ],
@@ -2594,8 +2594,8 @@
   "BATTLEPASS": {
    "ad": "Battle Pass Box",
    "anahtar": "resource_battle-pass-key",
-   "kod": null,
-   "yok_mesaji": "msg_loot_failed_no_booty-key-battle-pass-key",
+   "code": null,
+   "missing_message": "msg_loot_failed_no_booty-key-battle-pass-key",
    "haritalar": [
     "X-2..X-8",
     "4-X",
@@ -2621,7 +2621,7 @@
    ],
    "defter": "booty_key_battle-pass-key_used",
    "odul": [],
-   "odul_etkinlik": {
+   "reward_event": {
     "galactic_strife": [
      [
       "ammunition_laser_sab-50",
@@ -3965,8 +3965,8 @@
   "EMPYRIAN_BOOTY_BOX": {
    "ad": "Empyrian Box",
    "anahtar": "resource_booty-key-empyrian",
-   "kod": "BKE",
-   "yok_mesaji": "msg_loot_failed_no_booty-key-empyrian",
+   "code": "BKE",
+   "missing_message": "msg_loot_failed_no_booty-key-empyrian",
    "haritalar": [
     "X-2..X-8",
     "4-X",
@@ -4226,8 +4226,8 @@
   "PROSPEROUS_BOOTY_BOX": {
    "ad": "Prosperous Box",
    "anahtar": "resource_booty-key-prosperous",
-   "kod": "BKP",
-   "yok_mesaji": "msg_loot_failed_no_booty-key-prosperous",
+   "code": "BKP",
+   "missing_message": "msg_loot_failed_no_booty-key-prosperous",
    "haritalar": [
     "X-2..X-8",
     "4-X",
@@ -4517,8 +4517,8 @@
   "LUCENT_ALIEN_EGG_BOOTY_BOX": {
    "ad": "Lucent Egg",
    "anahtar": "resource_booty-key-lucent",
-   "kod": "BKL",
-   "yok_mesaji": "msg_loot_failed_no_booty-key-lucent",
+   "code": "BKL",
+   "missing_message": "msg_loot_failed_no_booty-key-lucent",
    "haritalar": [
     "X-2..X-8"
    ],
@@ -4769,8 +4769,8 @@
   "GREEN_ECHO_BOX": {
    "ad": "Common Echo Chest",
    "anahtar": "resource_echo-key-green",
-   "kod": "BKEG",
-   "yok_mesaji": "msg_loot_failed_no_echo-key-green",
+   "code": "BKEG",
+   "missing_message": "msg_loot_failed_no_echo-key-green",
    "haritalar": [],
    "adet": 0,
    "yeniden_sn": null,
@@ -4798,13 +4798,13 @@
      50
     ]
    ],
-   "_arac": "yeni_sistemler"
+   "_tool": "yeni_sistemler"
   },
   "BLUE_ECHO_BOX": {
    "ad": "Rare Echo Chest",
    "anahtar": "resource_echo-key-blue",
-   "kod": "BKEB",
-   "yok_mesaji": "msg_loot_failed_no_echo-key-blue",
+   "code": "BKEB",
+   "missing_message": "msg_loot_failed_no_echo-key-blue",
    "haritalar": [],
    "adet": 0,
    "yeniden_sn": null,
@@ -4832,13 +4832,13 @@
      50
     ]
    ],
-   "_arac": "yeni_sistemler"
+   "_tool": "yeni_sistemler"
   },
   "PURPLE_ECHO_BOX": {
    "ad": "Epic Echo Chest",
    "anahtar": "resource_echo-key-purple",
-   "kod": "BKEP",
-   "yok_mesaji": "msg_loot_failed_no_echo-key-purple",
+   "code": "BKEP",
+   "missing_message": "msg_loot_failed_no_echo-key-purple",
    "haritalar": [],
    "adet": 0,
    "yeniden_sn": null,
@@ -4866,13 +4866,13 @@
      50
     ]
    ],
-   "_arac": "yeni_sistemler"
+   "_tool": "yeni_sistemler"
   },
   "RED_ECHO_BOX": {
    "ad": "Legendary Echo Chest",
    "anahtar": "resource_echo-key-red",
-   "kod": "BKER",
-   "yok_mesaji": "msg_loot_failed_no_echo-key-red",
+   "code": "BKER",
+   "missing_message": "msg_loot_failed_no_echo-key-red",
    "haritalar": [],
    "adet": 0,
    "yeniden_sn": null,
@@ -4890,13 +4890,13 @@
      50
     ]
    ],
-   "_arac": "yeni_sistemler"
+   "_tool": "yeni_sistemler"
   },
   "APOTHEOSIS": {
    "ad": "Apotheosis Booty Box",
    "anahtar": "resource_booty-key-apotheosis",
-   "kod": "BKAPO",
-   "yok_mesaji": "msg_loot_failed_no_booty-key-apotheosis",
+   "code": "BKAPO",
+   "missing_message": "msg_loot_failed_no_booty-key-apotheosis",
    "haritalar": [],
    "adet": 0,
    "yeniden_sn": null,
@@ -5069,9 +5069,9 @@
      0.03
     ]
    ],
-   "_arac": "surum_115",
+   "_tool": "surum_115",
    "_kaynak": "board-en 130459 (FAQ Kristallon Apotheosis): Emperor Kristallon yenilince 20 kutu; istemcinin box_APOTHEOSIS varlığı, HUD sayacı BKAPO"
   }
  },
- "_etkinlik_kutulari": "EMPYRIAN_BOOTY_BOX, PROSPEROUS_BOOTY_BOX, LUCENT_ALIEN_EGG_BOOTY_BOX tools/etkinlik_kutulari.py ile; takvim = etkinlik adı."
+ "_event_boxes": "EMPYRIAN_BOOTY_BOX, PROSPEROUS_BOOTY_BOX, LUCENT_ALIEN_EGG_BOOTY_BOX tools/etkinlik_kutulari.py ile; takvim = etkinlik adı."
 }

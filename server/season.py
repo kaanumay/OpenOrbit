@@ -46,12 +46,12 @@ from legacy_protocol import legacy
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 S = json.load(open(os.path.join(HERE, 'data', 'tickets.json'), encoding='utf8'))['sezon']
-COST, UCOST = S['puan_bedeli'], S['uridyum_bedeli']
+COST, UCOST = S['point_cost'], S['uridium_cost']
 MAX_LEVEL = len(COST) - 1
 MISSIONS = {int(k): v for k, v in S['gorevler'].items()}
 DAILY, WEEKLY, SEASON = 3, 6, 9
 DAILY_N, WEEKLY_N = (3, 2), (5, 3)            # (normal, Gold) (kayıt)
-REFRESH_LADDER = [tuple(x) for x in S['yenileme_basamak']]        # (bu sıraya dek yenileme ya da None, bedel U)
+REFRESH_LADDER = [tuple(x) for x in S['refresh_ladder']]        # (bu sıraya dek yenileme ya da None, bedel U)
 OVERFLOW_HONOR = 10                           # azami seviyenin üstündeki satın alınan puan: 1 puan = 10 Onur (wiki)
 DONE_TEXT = {DAILY: 'sp_daily-mission-completed', WEEKLY: 'sp_weekly-mission-completed', SEASON: 'sp_season-mission-completed'}
 TRACKS = (('ucretsiz', False, False), ('gold', True, False), ('ext', False, True))
@@ -216,7 +216,7 @@ def duration():
 
 
 def points_of(qid):
-    return sum(r['amount'] for r in MISSIONS[qid]['tanim']['rewards'] if r['lootId'] == POINT_ITEM)
+    return sum(r['amount'] for r in MISSIONS[qid]['definition']['rewards'] if r['lootId'] == POINT_ITEM)
 
 
 class Season:
@@ -256,19 +256,19 @@ class Season:
         if st.get('donem') and not st.get('bas'):    # takvime bağlı eski kayıt: ilerlemesi kalır, sezonu bugünden sürer
             with self.p.lock:
                 st['bas'] = now
-                st.setdefault('oynanan', [st['donem']])
+                st.setdefault('played', [st['donem']])
                 self.p.dirty = True
         if not st.get('donem') or self.ended(now):
-            wait, played = [], list(st.get('oynanan', []))
+            wait, played = [], list(st.get('played', []))
             if st.get('donem'):
                 ended, wait = self.close_season()
                 msgs += ended
             sid = next_season(played, bool(self.p.d.get('ilerlemeli')), now)
             with self.p.lock:
                 st.clear()
-                st.update(donem=sid, bas=now, oynanan=played + [sid], puan=0, gold=False, ext=False,
+                st.update(donem=sid, bas=now, played=played + [sid], puan=0, gold=False, ext=False,
                           alinan={k: [] for k, g, e in TRACKS}, deger={}, tamam=[], sezonluk=pool(SEASON, False) + pool(SEASON, True),
-                          yenileme={'gun': 0, 'hafta': 0}, bekleyen=wait)
+                          yenileme={'gun': 0, 'hafta': 0}, pending=wait)
                 self.p.dirty = True
             self.log('   Season Pass sezonu başladı: %s (%s, %d gün)' % (sid, EG.season(sid)['ad'], duration() // 86400))
             msgs += self.activate_items()
@@ -305,7 +305,7 @@ class Season:
 
     def image(self):
         """Pencerenin görseli: oynanan sezonunki (resmî CDN'de olmayanlarda kayıttaki)."""
-        return S['gorseller'].get(self.st.get('donem'), S['gorsel'])
+        return S['images'].get(self.st.get('donem'), S['gorsel'])
 
     def status_code(self, qid):
         gold, done = MISSIONS[qid]['gold'], qid in self.st['tamam']
@@ -346,7 +346,7 @@ class Season:
     def mission_cmd(self):
         st = self.st
         items = [mod('SeasonPassMissionModule', missionStatus=mod('SeasonPassMissionStatusModule', type=self.status_code(q)),
-                     questDefinitionModule=GT.with_state(MISSIONS[q]['tanim'], st['deger'].get(str(q), {}), q in st['tamam']))
+                     questDefinitionModule=GT.with_state(MISSIONS[q]['definition'], st['deger'].get(str(q), {}), q in st['tamam']))
                  for q in self.missions()]
         return ('SeasonPassMissionInfoCommand', dict(refreshInfo=self.refresh_info(), missionInfoType=0, missionItems=items))
 
@@ -370,14 +370,14 @@ class Season:
 
     def roster_full(self, loot, n):
         """N.O.V.A. ödülü için kadroda yer yok mu (nova.py'nin hire'ı kadro doluyken kaptanı uridyuma çevirirdi)."""
-        return loot.startswith('captain_') and self.roster() + n > NV.D['azami_kadro']
+        return loot.startswith('captain_') and self.roster() + n > NV.D['max_roster']
 
     def unclaimed_msgs(self):
         """Önceki sezondan bekleyen N.O.V.A.'lar varsa sezon sonu penceresi."""
-        wait = sum(n for l, n in self.st.get('bekleyen', []))
+        wait = sum(n for l, n in self.st.get('pending', []))
         if not wait:
             return []
-        return [('SeasonPassRewardUnclaimedInfoCommand', dict(captainLimit=NV.D['azami_kadro'], captainPending=wait,
+        return [('SeasonPassRewardUnclaimedInfoCommand', dict(captainLimit=NV.D['max_roster'], captainPending=wait,
                                                               captainOwned=self.roster(), captainWarning=self.roster_full('captain_', wait),
                                                               spcId=0, marketingImage=self.image(), seasonName=S['ad']))]
 
@@ -460,14 +460,14 @@ class Season:
             if q in st['tamam']:
                 continue
             vals = st['deger'].setdefault(str(q), {})
-            m, fin = GT.advance(self.p, MISSIONS[q]['tanim']['rootCase'], vals, kind, kw, self.map_id)
+            m, fin = GT.advance(self.p, MISSIONS[q]['definition']['rootCase'], vals, kind, kw, self.map_id)
             msgs += m
             if fin:
                 done.append(q)
         for q in done:
             msgs += self.complete(q)
         for q in done:                                              # sezon görevleri: N günlük/haftalık bitir
-            msgs += self._event('sp_quest', dict(kategori=GT.SP_CATEGORY[MISSIONS[q]['tur']]))
+            msgs += self._event('sp_quest', dict(category=GT.SP_CATEGORY[MISSIONS[q]['tur']]))
         return msgs
 
     def complete(self, qid):
@@ -484,7 +484,7 @@ class Season:
             msgs += self.add_points(int(round(points_of(qid) * (1 + bonus) * SET.multiplier('sezon_puani'))))      # panel
         if qt == DAILY and self.m:                                          # günlük görev: Armory Token (Aşama 9; armory.py)
             import armory as AU
-            msgs += self.m.reward(AU.TOKEN, AU.D['gunluk_gorev_jetonu'])
+            msgs += self.m.reward(AU.TOKEN, AU.D['daily_quest_token'])
         self.p.ach('quest', id=qid)                                  # kayıt: Season Pass görevi başarımlarda sayılır
         self.log('   Season Pass görevi bitti: %d (%s, %d puan%s)' % (qid, {DAILY: 'günlük', WEEKLY: 'haftalık', SEASON: 'sezon'}[qt],
                                                                      points_of(qid), ', Gold Pass bekliyor' if locked else ''))
@@ -526,12 +526,12 @@ class Season:
         """Claim All ya da sezon sonu penceresinin düğmesi (spcId): önce önceki sezondan bekleyen N.O.V.A.'lar."""
         self.ensure()
         msgs, n, full = [], 0, False
-        for row in list(self.st.get('bekleyen', [])):
+        for row in list(self.st.get('pending', [])):
             if self.roster_full(*row):
                 full = True
                 continue
             with self.p.lock:
-                self.st['bekleyen'].remove(row)
+                self.st['pending'].remove(row)
                 self.p.dirty = True
             msgs += self.m.reward(*row) if self.m else []
             n += 1

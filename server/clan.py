@@ -110,7 +110,7 @@ def configure(path):
             if isinstance(k, dict) and 'uyeler' in k:
                 CLANS.setdefault(int(k['id']), k)
         DELETED.update({int(i): a for i, a in (d.get('silinen') or {}).items()})
-        BOT_NAME_N = max(BOT_NAME_N, int(d.get('bot_ad_kaydi') or 0))
+        BOT_NAME_N = max(BOT_NAME_N, int(d.get('bot_name_log') or 0))
     import name_log as NL
     NL.apply_clans(sys.modules[__name__])        # panelde değişen ya da silinen bot adları (oyun kapalıyken)
 
@@ -120,7 +120,7 @@ def save():
         return
     with LOCK:
         text = json.dumps({'klanlar': {str(i): k for i, k in CLANS.items()}, 'silinen': {str(i): a for i, a in DELETED.items()},
-                           'bot_ad_kaydi': BOT_NAME_N}, ensure_ascii=False)
+                           'bot_name_log': BOT_NAME_N}, ensure_ascii=False)
         tmp = FILE + '.tmp'
         try:
             with open(tmp, 'w', encoding='utf8') as fh:
@@ -152,7 +152,7 @@ def _move(k, p):
         k.setdefault(f, v)
     k['uyeler'] = {me: {'ad': p.d['pilot'].get('userName', ''), 'uid': p.user_id, 'rutbe': k.pop('my_rank', 0),
                         'katilma': k['kurulus']}}
-    k.update(lider=me, anahtar=secrets.token_hex(8), surum=1, basvurular=[], retler=[], diplomasi=[], diplo_istek=[], gelir=0)
+    k.update(lider=me, anahtar=secrets.token_hex(8), surum=1, applications=[], rejected=[], diplomasi=[], diplomacy_requests=[], income=0)
 
 
 def profiles():
@@ -211,7 +211,7 @@ def bind(p, log=print):
         if m is not None:
             u = m['uyeler'][me]
             u.update(live(p))
-            pay = int(u.pop('bekleyen', 0) or 0)
+            pay = int(u.pop('pending', 0) or 0)
         _copy(m, p)
         if m is not None:
             if pay:
@@ -280,13 +280,13 @@ def tax(p, credits):
         tax = credits * int(k['vergi']) // 100
         if tax:
             k['kasa'] += tax
-            k['gelir'] = int(k.get('gelir', 0)) + tax
+            k['income'] = int(k.get('income', 0)) + tax
             for x in profiles().values():               # kopyaların kasası (tek oyunculuda tek kayıt profil)
                 s = x.d.get('klan')
                 if s and s.get('id') == k['id']:
-                    s.update(kasa=k['kasa'], gelir=k['gelir'])
+                    s.update(kasa=k['kasa'], income=k['income'])
             if p.d.get('klan') and p.d['klan'].get('id') == k['id']:
-                p.d['klan'].update(kasa=k['kasa'], gelir=k['gelir'])
+                p.d['klan'].update(kasa=k['kasa'], income=k['income'])
         return tax
 
 
@@ -314,10 +314,10 @@ def name_changed(old, new_):
                 k['uyeler'][new_lower] = dict(u, ad=new_)
                 if k['lider'] == old:
                     k['lider'] = new_lower
-            for b in k['basvurular']:
+            for b in k['applications']:
                 if b['ad'] == old:
                     b.update(ad=new_lower, isim=new_)
-            k['retler'] = [new_lower if r == old else r for r in k['retler']]
+            k['rejected'] = [new_lower if r == old else r for r in k['rejected']]
             if new_lower in k['uyeler']:
                 changed(k)                      # başvurular ve retler de güncellendikten sonra (üyelerin kopyası eski kalıyordu)
         save()
@@ -333,10 +333,10 @@ def is_member_name(name, own=''):
 def live(p):
     """Üyenin listedeki sayıları (çevrimiçiyken güncellenir)."""
     import ranks as RT
-    pl, c = p.d['pilot'], p.d.get('sayaclar') or {}
+    pl, c = p.d['pilot'], p.d.get('counters') or {}
     return {'ad': pl.get('userName', ''), 'uid': p.user_id, 'firma': int(pl.get('factionId', 0)), 'ep': int(pl.get('ep', 0)),
-            'onur': int(pl.get('honourPoints', 0)), 'seviye': int(pl.get('level', 1)), 'rutbe_no': int(pl.get('dailyRank', 1) or 1),
-            'puan': RT.user_score(p), 'harita': int(p.d['konum'].get('mapId', 1)),
+            'onur': int(pl.get('honourPoints', 0)), 'seviye': int(pl.get('level', 1)), 'rank_no': int(pl.get('dailyRank', 1) or 1),
+            'puan': RT.user_score(p), 'harita': int(p.d['position'].get('mapId', 1)),
             'gemi': sum((c.get('oyuncu') or {}).values()), 'uzayli': sum((c.get('npc') or {}).values())}
 
 
@@ -373,7 +373,7 @@ def payout_limit(u, now=None):
     except (ValueError, OverflowError):
         start = now
     weeks = max(0, int((now - start) // (7 * 86400)))
-    paid = int((u.get('odeme_hafta') or {}).get(time.strftime('%G-%V', time.localtime(now)), 0))
+    paid = int((u.get('payment_week') or {}).get(time.strftime('%G-%V', time.localtime(now)), 0))
     return max(0, min(PAYOUT_CAP, PAYOUT_FIRST + PAYOUT_INCREASE * weeks) - paid)
 
 
@@ -396,11 +396,11 @@ def clear_wars(now=None):
 def refund_fee(p):
     """Başvuru ücreti: yanıt bekleyenler dururken; kabul edilen klanınki geri verilmez, reddedilen, geri alınan ya da klanı silinen
     başvurununki iade (çevrimdışıyken reddedilen sonraki girişte) -> iade edilen kredi."""
-    fees, me, back = p.d.get('klan_basvuru') or {}, name(p), 0
+    fees, me, back = p.d.get('clan_application_fees') or {}, name(p), 0
     with LOCK:
         for cid, n in list(fees.items()):
             c = CLANS.get(int(cid))
-            if c is not None and any(b['ad'] == me for b in c['basvurular']):
+            if c is not None and any(b['ad'] == me for b in c['applications']):
                 continue
             del fees[cid]
             p.dirty = True
@@ -431,12 +431,12 @@ def company_points(k, p, now=None):
     """Şirket hiyerarşisi puanı: son güncellemeden beri geçen her tam saat için kurulu KSİ varsa +10, yoksa -1 (en az 0)."""
     now = now or time.time()
     with LOCK:
-        last = k.setdefault('sirket_zaman', now)
+        last = k.setdefault('company_time', now)
         hours = int((now - last) // 3600)
         if hours > 0:
-            k['sirket_puani'] = max(0, int(k.get('sirket_puani', 0)) + hours * (COMPANY_CBS if stations(k, p) else COMPANY_NO_CBS))
-            k['sirket_zaman'] = last + hours * 3600
-        return int(k.get('sirket_puani', 0))
+            k['company_points'] = max(0, int(k.get('company_points', 0)) + hours * (COMPANY_CBS if stations(k, p) else COMPANY_NO_CBS))
+            k['company_time'] = last + hours * 3600
+        return int(k.get('company_points', 0))
 
 
 def ranking(who=None):
@@ -497,7 +497,7 @@ class Clan:
 
     def blocked(self):
         """Klandan ayrıldıktan sonra BEKLEME_SN dolmadan yeni klan kurulamaz, klana katılınamaz."""
-        return SET.get('klan_bekleme') and time.time() < self.p.d.get('klan_ayrilis', 0) + COOLDOWN_SEC
+        return SET.get('klan_bekleme') and time.time() < self.p.d.get('clan_left_at', 0) + COOLDOWN_SEC
 
     def member_name(self, k, uid):
         """Üyenin adı (istemci kimlikle sorar) ya da None."""
@@ -550,7 +550,7 @@ class Clan:
         from map_links import name as map_name
         return mod('ClanMemberInfoCommand', faction=int(u.get('firma', 0)), mapName=map_name(int(u.get('harita', 1))),
                    name=u.get('ad', ''), maxPayout=payout_limit(u), insertDate=u.get('katilma', ''), ep=int(u.get('ep', 0)),
-                   userId=int(u.get('uid', 0)), ranksId=int(u.get('rutbe', 0)), rank=int(u.get('rutbe_no', 1)))
+                   userId=int(u.get('uid', 0)), ranksId=int(u.get('rutbe', 0)), rank=int(u.get('rank_no', 1)))
 
     def members(self, k=None):
         k = k or self.k
@@ -576,7 +576,7 @@ class Clan:
         k = self.k
         kind, text = ('user', n['metin']) if n['tur'] in ('news', 'user') else (n['tur'], NEWS_KEYS.get(n['tur'], n['metin']))
         return mod('ClanNewsInfoCommand', type=kind, clanNewsId=n['id'], userName=n['ad'], clanId=k['id'], context=text,
-                   userId=n['kim'], clanName=n.get('klan_adi') or k['ad'], insertDate=n['tarih'])
+                   userId=n['kim'], clanName=n.get('clan_name') or k['ad'], insertDate=n['tarih'])
 
     def mail_cmd(self, m):
         return mod('ClanMessageInfoCommand', insertDate=m['tarih'], subject=m['konu'], mailText=m['metin'], type=m.get('tur', 0),
@@ -587,10 +587,10 @@ class Clan:
         """Oyuncunun gördüğü klan postası: herkese gidenler ve ona gelenler (sildikleri hariç)."""
         k = k or self.k
         me = self.me
-        return [m for m in k['mesajlar'] if m.get('alici') in (None, me) and me not in m.get('silen', ())]
+        return [m for m in k['mesajlar'] if m.get('recipient') in (None, me) and me not in m.get('deleted_by', ())]
 
     def tax_cmd(self):
-        return mod('ClanTaxInfoCommand', income=int(self.k.get('gelir', 0)),
+        return mod('ClanTaxInfoCommand', income=int(self.k.get('income', 0)),
                    logList=[mod('ClanTaxLogCommand', **x) for x in self.k['kasa_kaydi'][:50]])
 
     def apply_cmd(self, b):
@@ -599,10 +599,10 @@ class Clan:
                    clanApplyId=b['id'], insertDate=b['tarih'], company=int(u.get('firma', 0)))
 
     def diplo_req_cmd(self, r, k):
-        other = r['kime'] if r['kimden'] == k['id'] else r['kimden']
+        other = r['to'] if r['kimden'] == k['id'] else r['kimden']
         o = CLANS.get(other) or {}
         return mod('ClanDiploReqInfoCommand', desc=r['metin'], fromClanId=r['kimden'], insertDate=r['tarih'], cdrId=r['id'],
-                   clanName=o.get('ad', r.get('ad', '')), toClanId=r['kime'], diploType=r['tur'])
+                   clanName=o.get('ad', r.get('ad', '')), toClanId=r['to'], diploType=r['tur'])
 
     def diplo_cmd(self, d):
         o = CLANS.get(d['klan']) or {}
@@ -613,9 +613,9 @@ class Clan:
     def all_info(self):
         k = self.k
         with LOCK:
-            incoming = [self.diplo_req_cmd(r, k) for r in k['diplo_istek'] if r['kime'] == k['id']]
-            outgoing = [self.diplo_req_cmd(r, k) for r in k['diplo_istek'] if r['kimden'] == k['id']]
-            apps = [self.apply_cmd(b) for b in k['basvurular']] if self.right('hiremember', k) else []
+            incoming = [self.diplo_req_cmd(r, k) for r in k['diplomacy_requests'] if r['to'] == k['id']]
+            outgoing = [self.diplo_req_cmd(r, k) for r in k['diplomacy_requests'] if r['kimden'] == k['id']]
+            apps = [self.apply_cmd(b) for b in k['applications']] if self.right('hiremember', k) else []
             return mod('ClanAllInfoCommand', clanMemberInfoCommandList=self.members(k), clanTaxInfoCommand=self.tax_cmd(),
                        clanDiploReqInfoCommands=incoming, myClanDiploReqInfoCommands=outgoing,
                        clanApplyInfoListCommand=mod('ClanApplyInfoListCommand', applyClanInfoCommandList=apps),
@@ -633,8 +633,8 @@ class Clan:
         me = self.me
         with LOCK:
             order = ranking()
-            applied = [self.info(c, order) for c in CLANS.values() if any(b['ad'] == me for b in c['basvurular'])]
-            rejected = [c['id'] for c in CLANS.values() if me in c['retler']]
+            applied = [self.info(c, order) for c in CLANS.values() if any(b['ad'] == me for b in c['applications'])]
+            rejected = [c['id'] for c in CLANS.values() if me in c['rejected']]
         return ('LoginInitMyApplyCommand', {'applyClanList': applied, 'foundCost': FOUNDING_COST, 'companyDateInfoCommand': self.company(),
                                             'rejectApplyClanList': rejected})
 
@@ -656,7 +656,7 @@ class Clan:
             n = {'id': self.next_id(k), 'tur': kind, 'ad': pl.get('userName', ''), 'kim': (who or self.p).user_id, 'metin': text[:500],
                  'tarih': stamp()}
             if other:
-                n['klan_adi'] = other                         # %clanname%: diplomasideki öteki klan
+                n['clan_name'] = other                         # %clanname%: diplomasideki öteki klan
             k['haberler'].insert(0, n)
             del k['haberler'][50:]
         return n
@@ -755,7 +755,7 @@ class Clan:
             return self.apply(name, f)
         if name == 'ClanApplyInfoListRequest':
             with LOCK:
-                apps = [self.apply_cmd(b) for b in k['basvurular']] if k and self.right('hiremember', k) else []
+                apps = [self.apply_cmd(b) for b in k['applications']] if k and self.right('hiremember', k) else []
             return [('ClanApplyInfoListCommand', {'applyClanInfoCommandList': apps})]
         if name == 'ClanBattleStationInfoRequest' and self.cbs:
             return [self.cbs.clan_info()]
@@ -827,10 +827,10 @@ class Clan:
                                 'alim_bilgi': 0, 'vergi': 0, 'kasa': 0, 'kasa_kaydi': [], 'ts': '',
                                 'firma': int(self.p.d['pilot'].get('factionId', 0)), 'haberler': [], 'mesajlar': [],
                                 'rutbeler': [], 'sira': 1, 'lider': me, 'anahtar': secrets.token_hex(8), 'surum': 0,
-                                'uyeler': {me: dict(live(self.p), rutbe=0, katilma=stamp())}, 'basvurular': [], 'retler': [],
-                                'diplomasi': [], 'diplo_istek': [], 'gelir': 0}
+                                'uyeler': {me: dict(live(self.p), rutbe=0, katilma=stamp())}, 'applications': [], 'rejected': [],
+                                'diplomasi': [], 'diplomacy_requests': [], 'income': 0}
             for c in CLANS.values():                      # başka klanlara başvuruları düşer
-                c['basvurular'] = [b for b in c['basvurular'] if b['ad'] != me]
+                c['applications'] = [b for b in c['applications'] if b['ad'] != me]
             self.add_news('found', cname, k)
         self.changed(k, push=False)
         self.log('   klan kuruldu: [%s] %s (%d)' % (tag, cname, cid))
@@ -843,9 +843,9 @@ class Clan:
         if name == 'DeleteClanApplyRequest':
             aid = int(f.get('applyId') or 0)
             with LOCK:
-                hit = [(c, b) for c in CLANS.values() for b in c['basvurular'] if b['ad'] == me and b['id'] == aid]
+                hit = [(c, b) for c in CLANS.values() for b in c['applications'] if b['ad'] == me and b['id'] == aid]
                 for c, b in hit:
-                    c['basvurular'].remove(b)
+                    c['applications'].remove(b)
             for c, _ in hit:
                 self.changed(c, extra=())
             refund_fee(self.p)
@@ -861,7 +861,7 @@ class Clan:
             c = CLANS.get(cid)
             if c is None:
                 return reply(False, 'err_select_clan')
-            if any(b['ad'] == me for b in c['basvurular']):
+            if any(b['ad'] == me for b in c['applications']):
                 return reply(False, 'err_clan_apply')
             if c['firma'] and int(c['firma']) != int(self.p.d['pilot'].get('factionId', 0)):     # firmaya bağlı klan
                 return reply(False, 'err_clan_other_fractionID')
@@ -871,13 +871,13 @@ class Clan:
         if INV.spend(self.p, {'currency_credits': APPLICATION_FEE}, 'clan_hl_clan_bewerbung') is None:
             return reply(False, 'clan_errmsg_user_not_enough_money')
         with LOCK:
-            self.p.d.setdefault('klan_basvuru', {})[str(cid)] = APPLICATION_FEE
+            self.p.d.setdefault('clan_application_fees', {})[str(cid)] = APPLICATION_FEE
             self.p.dirty = True
             b = {'id': _no(), 'ad': me, 'isim': self.p.d['pilot'].get('userName', ''), 'metin': str(f.get('message', ''))[:1000],
                  'tarih': stamp()}
-            c['basvurular'].append(b)
-            if me in c['retler']:
-                c['retler'].remove(me)
+            c['applications'].append(b)
+            if me in c['rejected']:
+                c['rejected'].remove(me)
         self.changed(c)
         self.log('   klan başvurusu: %s -> [%s] %s' % (b['isim'], c['etiket'], c['ad']))
         return reply(True, 'err_clan_apply_send', b['id']) + (self.m.money_msgs() if self.m else [])
@@ -898,7 +898,7 @@ class Clan:
                                                 'errorMsg': err(key)})]
         if firm not in X1 or firm == old:
             return reply(False, 'firmChange_notavailable'), None
-        if int(self.p.d['konum'].get('mapId', 0)) not in X1.values():
+        if int(self.p.d['position'].get('mapId', 0)) not in X1.values():
             return reply(False, 'err_changing_company_tips'), None
         if (self.p.d.get('gorevler') or {}).get('aktif'):
             return reply(False, 'err_clan_firmchange_closeQuest'), None
@@ -1002,14 +1002,14 @@ class Clan:
         renamed = (tag, cname) != (k['etiket'], k['ad'])
         if renamed and (is_banned(cname) or is_banned(tag)):
             return reply(False, 'clan_name_not_allowed')
-        if renamed and SET.get('klan_bekleme') and time.time() < k.get('ad_zamani', 0) + COOLDOWN_SEC:
+        if renamed and SET.get('klan_bekleme') and time.time() < k.get('name_changed_at', 0) + COOLDOWN_SEC:
             return reply(False, 'err_clannameChange2Days')
         busy = self.taken(cname, tag, skip=k)
         if busy:
             return [('EditClanInfoCommand', {'success': False, 'clanId': k['id'], 'clanInfoCommand': self.info(), 'errorMsg': text(busy)})]
         with LOCK:
             if renamed:
-                k['ad_zamani'] = time.time()
+                k['name_changed_at'] = time.time()
             k.update(etiket=tag, ad=cname, ts=str(f.get('clanTS', k['ts']))[:100], alim=int(f.get('recruitingStatus') or 0),
                      alim_bilgi=int(f.get('recuritingInfo') or 0), firma=firma if firma in (0,) + tuple(X1) else k['firma'])
         self.changed(k)
@@ -1030,25 +1030,25 @@ class Clan:
         if not self.right('hiremember', k):
             return reply(False, err('err_clan_noRights'))
         with LOCK:
-            b = next((x for x in k['basvurular'] if x['id'] == aid), None)
+            b = next((x for x in k['applications'] if x['id'] == aid), None)
             if b is None:
                 return reply(False, err('err_select_clan'))
-            k['basvurular'].remove(b)
+            k['applications'].remove(b)
             other = next((c for c in CLANS.values() if b['ad'] in c['uyeler']), None)
             if accept and other is not None:
                 return reply(False, err('clan_user_in_clan'))
             if accept and len(k['uyeler']) >= MAX_MEMBERS:
-                k['basvurular'].append(b)
+                k['applications'].append(b)
                 return reply(False, err('err_clan_full'))
             if accept:
                 u = players().get(b['ad']) or {'ad': b['isim']}
                 k['uyeler'][b['ad']] = dict(u, rutbe=0, katilma=stamp())
                 for c in CLANS.values():
-                    c['basvurular'] = [x for x in c['basvurular'] if x['ad'] != b['ad']]
-                    if b['ad'] in c['retler'] and c is k:
-                        c['retler'].remove(b['ad'])
-            elif b['ad'] not in k['retler']:
-                k['retler'].append(b['ad'])
+                    c['applications'] = [x for x in c['applications'] if x['ad'] != b['ad']]
+                    if b['ad'] in c['rejected'] and c is k:
+                        c['rejected'].remove(b['ad'])
+            elif b['ad'] not in k['rejected']:
+                k['rejected'].append(b['ad'])
         s = people().get(b['ad'])
         self.changed(k, extra=(s.profile,) if s is not None and accept else ())
         self.log('   klan başvurusu %s: %s -> [%s]' % ('kabul' if accept else 'ret', b['isim'], k['etiket']))
@@ -1106,7 +1106,7 @@ class Clan:
             k['uyeler'].pop(self.me, None)
             self.add_news('left', '', k)
         extra = self.cbs.member_left(k, self.me) if self.cbs else []
-        self.p.d['klan_ayrilis'] = time.time()            # 48 saat yeni klan kurma/katılma yok (blocked)
+        self.p.d['clan_left_at'] = time.time()            # 48 saat yeni klan kurma/katılma yok (blocked)
         self.p.dirty = True
         self.changed(k)                                   # kendi kopyası düşer (üye değil)
         self.log('   klandan ayrıldı: [%s]' % k['etiket'])
@@ -1194,7 +1194,7 @@ class Clan:
                 return fail(err('err_clan_noRights'))
             with LOCK:
                 m = {'id': self.next_id(k), 'konu': subject[:50], 'metin': text[:5000], 'kim': self.p.user_id,
-                     'ad': pl.get('userName', ''), 'tarih': stamp(), 'tur': 0 if to else 1, 'alici': to, 'silen': []}
+                     'ad': pl.get('userName', ''), 'tarih': stamp(), 'tur': 0 if to else 1, 'recipient': to, 'deleted_by': []}
                 k['mesajlar'].insert(0, m)
                 del k['mesajlar'][200:]
             self.changed(k)
@@ -1204,9 +1204,9 @@ class Clan:
             with LOCK:
                 mine = [m for m in self.mails(k) if name == 'ClanDeleteAllMessageRequest' or m['id'] == mid]
                 for m in mine:
-                    m.setdefault('silen', []).append(self.me)
-                k['mesajlar'] = [m for m in k['mesajlar'] if not ((m.get('alici') and m['alici'] in m['silen'])
-                                                                   or set(k['uyeler']) <= set(m.get('silen', ())))]
+                    m.setdefault('deleted_by', []).append(self.me)
+                k['mesajlar'] = [m for m in k['mesajlar'] if not ((m.get('recipient') and m['recipient'] in m['deleted_by'])
+                                                                   or set(k['uyeler']) <= set(m.get('deleted_by', ())))]
             self.changed(k, push=False)
             if name == 'ClanDeleteAllMessageRequest':
                 return [('ClanDeleteAllMessageCommand', {'errorMsg': err('clan_msg_all_delete'), 'success': True})]
@@ -1240,7 +1240,7 @@ class Clan:
             if amount > k['kasa'] or amount > payout_limit(u):   # iki yetkili aynı anda öderse kasa eksiye düşmesin
                 return fail('err_clan_no_money')
             k['kasa'] -= amount
-            wk = u.setdefault('odeme_hafta', {})
+            wk = u.setdefault('payment_week', {})
             week = time.strftime('%G-%V')
             for old in [x for x in wk if x != week]:
                 del wk[old]
@@ -1248,7 +1248,7 @@ class Clan:
             k['kasa_kaydi'].insert(0, log)
             del k['kasa_kaydi'][200:]
             if a != self.me and s is None:
-                u['bekleyen'] = int(u.get('bekleyen', 0)) + net
+                u['pending'] = int(u.get('pending', 0)) + net
         if a == self.me:
             self.p.gain(kredi=net, neden='clan_hl_auszahlungen', detay=k['ad'])
         elif s is not None:
@@ -1273,8 +1273,8 @@ class Clan:
             others = [a for a in k['uyeler'] if a != self.me]
             for c in CLANS.values():                   # diplomasisi ve istekleri
                 c['diplomasi'] = [d for d in c['diplomasi'] if d['klan'] != k['id']]
-                c['diplo_istek'] = [r for r in c['diplo_istek'] if k['id'] not in (r['kimden'], r['kime'])]
-            peers = {d['klan'] for d in k['diplomasi']} | {r['kimden'] for r in k['diplo_istek']} | {r['kime'] for r in k['diplo_istek']}
+                c['diplomacy_requests'] = [r for r in c['diplomacy_requests'] if k['id'] not in (r['kimden'], r['to'])]
+            peers = {d['klan'] for d in k['diplomasi']} | {r['kimden'] for r in k['diplomacy_requests']} | {r['to'] for r in k['diplomacy_requests']}
             _copy(None, self.p)
             save()
         if self.on_change:
@@ -1299,13 +1299,13 @@ class Clan:
             return self.diplo_answer(k, did, str(f.get('status', '')))
         if name == 'ClanDeleteOpenDiploRequest':
             with LOCK:
-                r = next((x for x in k['diplo_istek'] if x['id'] == did and x['kimden'] == k['id']), None)
+                r = next((x for x in k['diplomacy_requests'] if x['id'] == did and x['kimden'] == k['id']), None)
                 ok = r is not None and self.right(DIPLO_RIGHTS.get(r['tur'], 'diplo_start'), k)
                 if ok:
                     self._diplo_drop(r)
             if ok:
                 self.changed(k)
-                self.diplo_sync(r['kime'])
+                self.diplo_sync(r['to'])
             return [('ClanDeleteOpenDiploCommand', {'diploId': did, 'success': ok,
                                                     'errorMsg': err('diplo_request_delete' if ok else 'err_diplo_default')})]
         with LOCK:                                       # ClanDeleteDiploRequest: ittifak/saldırmazlık biter (savaş isteğle)
@@ -1326,10 +1326,10 @@ class Clan:
         return [('ClanDeleteDiploCommand', {'diploId': did, 'baseStackCommand': err('diplo_end_success'), 'success': True})]
 
     def _diplo_drop(self, r):
-        for cid in (r['kimden'], r['kime']):
+        for cid in (r['kimden'], r['to']):
             c = CLANS.get(cid)
             if c:
-                c['diplo_istek'] = [x for x in c['diplo_istek'] if x['id'] != r['id']]
+                c['diplomacy_requests'] = [x for x in c['diplomacy_requests'] if x['id'] != r['id']]
 
     def _diplo_set(self, a, b, kind, did, desc, frm):
         """İki klan arasında diplomasi (tur 0: kalkar)."""
@@ -1370,9 +1370,9 @@ class Clan:
                 return fail('err_diplo_isRunning', XXX=_res('diplo_status%d' % cur['tur']))
             if form == 0 and (cur is None or cur['tur'] != 3):
                 return fail('err_diplo_default')
-            if any(r['kimden'] == k['id'] and r['kime'] == tid for r in k['diplo_istek']):
+            if any(r['kimden'] == k['id'] and r['to'] == tid for r in k['diplomacy_requests']):
                 return fail('err_diplo_applyIsRunning')
-            if any(r['kimden'] == tid and r['kime'] == k['id'] for r in k['diplo_istek']):
+            if any(r['kimden'] == tid and r['to'] == k['id'] for r in k['diplomacy_requests']):
                 return fail('err_clan_diploRequest_exist')
             if form == 3 and sum(d['tur'] == 3 and d['kimden'] == k['id'] for d in k['diplomasi']) >= MAX_WARS:
                 return fail('err_diplo_default')
@@ -1391,11 +1391,11 @@ class Clan:
                     c['diplomasi'][-1]['bitis'] = time.time() + WAR_DAYS * 86400
                 self.add_news('war2', '', k, other=t['ad'])
                 self.add_news('war', '', t, other=k['ad'])
-                r = {'id': did, 'kimden': k['id'], 'kime': tid, 'tur': 3, 'tarih': stamp(), 'metin': desc}
+                r = {'id': did, 'kimden': k['id'], 'to': tid, 'tur': 3, 'tarih': stamp(), 'metin': desc}
             else:
-                r = {'id': did, 'kimden': k['id'], 'kime': tid, 'tur': form, 'tarih': stamp(), 'metin': desc}
-                k['diplo_istek'].append(r)
-                t['diplo_istek'].append(dict(r))
+                r = {'id': did, 'kimden': k['id'], 'to': tid, 'tur': form, 'tarih': stamp(), 'metin': desc}
+                k['diplomacy_requests'].append(r)
+                t['diplomacy_requests'].append(dict(r))
             cmd = self.diplo_req_cmd(r, k)
         self.changed(k, push=form == 3)
         self.diplo_sync(tid)
@@ -1412,7 +1412,7 @@ class Clan:
         fail = lambda key: [('ClanEditDiploOfferCommand', {'status': status, 'success': False, 'clanDiploInfoCommand': None,
                                                            'stack': err(key), 'clanDiploReqInfoCommand': None})]
         with LOCK:
-            r = next((x for x in k['diplo_istek'] if x['id'] == did and x['kime'] == k['id']), None)
+            r = next((x for x in k['diplomacy_requests'] if x['id'] == did and x['to'] == k['id']), None)
             if r is None:
                 return fail('err_diplo_default')
             if not self.right(DIPLO_RIGHTS.get(r['tur'], 'diplo_start'), k):

@@ -76,7 +76,7 @@ class LlmSetup:
 
     def save(self):
         try:
-            with open(os.path.join(self.folder(), 'kurulum.json'), encoding='utf8') as fh:
+            with open(os.path.join(self.folder(), 'install.json'), encoding='utf8') as fh:
                 d = json.load(fh)
         except (OSError, ValueError):
             return None
@@ -97,8 +97,8 @@ class LlmSetup:
             d['partial'] = os.path.getsize(p) if os.path.isfile(p) else 0
         pk = platform_key()
         d.update(test=t, boyut=MODEL['boyut'] + (SERVERS[pk]['boyut'] if pk else 0), platform=pk, destekli=bool(pk),
-                 bellek_gb=memory_gb(), en_az_bellek_gb=MIN_MEMORY_GB, cekirdek=os.cpu_count(), model=MODEL['ad'], surum=VERSION,
-                 son_test=k.get('test') if k else None)
+                 memory_gb=memory_gb(), min_memory_gb=MIN_MEMORY_GB, cores=os.cpu_count(), model=MODEL['ad'], surum=VERSION,
+                 last_test=k.get('test') if k else None)
         return d
 
     def running(self):
@@ -228,9 +228,9 @@ class LlmSetup:
             if sys.platform != 'win32':
                 os.chmod(server, 0o755)
             os.remove(archive)
-            with open(os.path.join(k, 'kurulum.json'), 'w', encoding='utf8') as fh:
+            with open(os.path.join(k, 'install.json'), 'w', encoding='utf8') as fh:
                 json.dump({'surum': VERSION, 'sunucu': server, 'model': MODEL['sha256'], 'test_ok': False,
-                           'zaman': time.strftime('%Y-%m-%d %H:%M:%S')}, fh, indent=1)
+                           'time': time.strftime('%Y-%m-%d %H:%M:%S')}, fh, indent=1)
             with self.lock:
                 self.d.update(durum='kurulu', alinan=self.d['toplam'], time_left_sec=0)
             self.log('dil modeli kuruldu: %s' % server)
@@ -271,7 +271,7 @@ class LlmSetup:
         with self.lock:
             if self.t.get('durum') == 'calisiyor':
                 return self.state()
-            self.t = {'durum': 'calisiyor', 'bas': time.time(), 'saglayici': c['kimlik']}
+            self.t = {'durum': 'calisiyor', 'bas': time.time(), 'provider': c['kimlik']}
         threading.Thread(target=self._test_remote, args=(c['kimlik'],), daemon=True).start()
         return self.state()
 
@@ -280,12 +280,12 @@ class LlmSetup:
         try:
             r = PRV.test(self.log)
             with self.lock:
-                self.t = dict(r, durum='ok' if r['ok'] else 'hata', saglayici=uid,
+                self.t = dict(r, durum='ok' if r['ok'] else 'hata', provider=uid,
                               hata=None if r['ok'] else _('Model beklenen yanıtı vermedi.'))
             self.log('dil modeli sağlayıcı testi: %s' % r)
         except Exception as e:
             with self.lock:
-                self.t = {'durum': 'hata', 'hata': str(e), 'saglayici': uid}
+                self.t = {'durum': 'hata', 'hata': str(e), 'provider': uid}
             self.log('dil modeli sağlayıcı testi başarısız: %r' % e)
 
     def _test(self):
@@ -293,8 +293,8 @@ class LlmSetup:
         try:
             r = LS.test(self.log)
             k = self.save() or {}
-            k.update(test_ok=bool(r['ok']), test=dict(r, zaman=time.strftime('%Y-%m-%d %H:%M:%S')))
-            with open(os.path.join(self.folder(), 'kurulum.json'), 'w', encoding='utf8') as fh:
+            k.update(test_ok=bool(r['ok']), test=dict(r, time=time.strftime('%Y-%m-%d %H:%M:%S')))
+            with open(os.path.join(self.folder(), 'install.json'), 'w', encoding='utf8') as fh:
                 json.dump(k, fh, indent=1, ensure_ascii=False)
             with self.lock:
                 self.t = dict(r, durum='ok' if r['ok'] else 'hata', hata=None if r['ok'] else _('Model beklenen yanıtı vermedi.'))

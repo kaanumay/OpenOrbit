@@ -74,7 +74,7 @@ def chat_trace(direction, kind, body):
             d = _j.loads(bytes(body).decode('utf8'))
             TRACE.add(direction, 'Sohbet:t%s' % d.get('t'), d)
         except (ValueError, UnicodeDecodeError, AttributeError):
-            TRACE.add(direction, 'Sohbet:0x%02x' % kind, {'bayt': bytes(body[:200]).hex(), 'uzunluk': len(body)})
+            TRACE.add(direction, 'Sohbet:0x%02x' % kind, {'byte': bytes(body[:200]).hex(), 'length': len(body)})
 
 
 def _json(v):
@@ -86,7 +86,7 @@ def _row(e, long):
     s = json.dumps(_json(f), ensure_ascii=False)
     if long and len(s) > long:
         s = s[:long] + '…'
-    return {'sira': seq, 'zaman': time.strftime('%H:%M:%S', time.localtime(t)) + ('%.3f' % (t % 1))[1:], 'yon': direction, 'ad': field_name,
+    return {'sira': seq, 'time': time.strftime('%H:%M:%S', time.localtime(t)) + ('%.3f' % (t % 1))[1:], 'yon': direction, 'ad': field_name,
             'alanlar': s}
 
 
@@ -115,15 +115,15 @@ class Control:
         p = G.PROFILE.d
         s = G.CURRENT
         w = s.world if s else None
-        out = {'bagli': s is not None, 'sira': TRACE.seq, 'harita': p['konum'].get('mapId'),
-               'harita_adi': G.H.name(p['konum'].get('mapId')), 'konum': [p['konum'].get('x'), p['konum'].get('y')],
+        out = {'bagli': s is not None, 'sira': TRACE.seq, 'harita': p['position'].get('mapId'),
+               'harita_adi': G.H.name(p['position'].get('mapId')), 'position': [p['position'].get('x'), p['position'].get('y')],
                'gemi': {k: p['gemi'].get(k) for k in ('typeId', 'hitPoints', 'hitMax', 'shield', 'shieldMax', 'cargoSpace')},
                'pilot': {k: p['pilot'].get(k) for k in ('userName', 'level', 'credits', 'uridium', 'ep', 'honourPoints',
                                                         'factionId', 'clanTag')}}
         if w:
             with w.lock:
                 hx, hy = w.hero_pos()
-                out['dunya'] = {'konum': [int(hx), int(hy)], 'uzayli': len(w.npcs), 'kutu': len(w.boxes),
+                out['dunya'] = {'position': [int(hx), int(hy)], 'uzayli': len(w.npcs), 'kutu': len(w.boxes),
                                 'istasyonda': bool(w.in_station()), 'secili': getattr(w, 'target', None)}
         return out
 
@@ -150,9 +150,9 @@ class Control:
         def phase_out(game_map=None, x=None, y=None):
             """Haritaya ya da aynı haritada bir noktaya (harita yeniden yüklenir)."""
             s = K.session()
-            dest = int(game_map or G.PROFILE.d['konum']['mapId'])
+            dest = int(game_map or G.PROFILE.d['position']['mapId'])
             s.change_map(dest, None, pos=(int(x), int(y)) if x is not None else None)
-            return {'harita': dest, 'konum': [x, y]}
+            return {'harita': dest, 'position': [x, y]}
 
         def alien(tip, count=1, far=400, angle=0.0, stop=True):
             """Geminin çevresinde NPC doğurur -> kimlikler. dur: saldırıya uğrayana dek yerinde durur (ekrandan tıklamak için)."""
@@ -212,7 +212,7 @@ class Control:
                     w.send([w.hp_msg()])
             return [g.get('hitPoints'), g.get('shield')]
 
-        return dict(para=currency, ver=give, isinla=phase_out, uzayli=alien, yakin=nearby, temizle=clean_up, tamir=repair)
+        return dict(currency=currency, ver=give, phase_out=phase_out, uzayli=alien, yakin=nearby, temizle=clean_up, tamir=repair)
 
     def run_py(self, code):
         s = self.G.CURRENT
@@ -232,8 +232,8 @@ class Control:
 
     # ------------------------------------------------------------------ komutlar
     def handle(self, r):
-        k = r.get('komut')
-        long = r.get('uzun', 600)
+        k = r.get('command')
+        long = r.get('long', 600)
         if k == 'durum':
             return self.state()
         if k == 'son':
@@ -243,7 +243,7 @@ class Control:
             return {'sira': TRACE.seq, 'mesajlar': [_row(e, long) for e in rows]}
         if k == 'bekle':
             e = TRACE.wait(TRACE.seq if r.get('sonra') is None else r['sonra'], r['ad'], r.get('yon'), r.get('sure', 10))
-            return {'bulundu': e is not None, 'mesaj': _row(e, long) if e else None, 'sira': TRACE.seq}
+            return {'found': e is not None, 'message': _row(e, long) if e else None, 'sira': TRACE.seq}
         if k == 'istek':
             s = self.session()
             f = self.full_fields(r['ad'], r.get('alanlar', {}))
@@ -263,7 +263,7 @@ class Control:
             s.send(msgs, 'kontrol: %d mesaj' % len(msgs))
             return {'gonderilen': len(msgs)}
         if k == 'py':
-            return self.run_py(r['kod'])
+            return self.run_py(r['code'])
         if k == 'alanlar':
             sp = self.G.P.spec().by_class.get(r['ad'])
             return {'ad': r['ad'], 'adimlar': sp['steps'] if sp else None}
@@ -287,7 +287,7 @@ class Control:
                 if not line.strip():
                     continue
                 try:
-                    out = {'tamam': True, 'sonuc': self.handle(json.loads(line))}
+                    out = {'tamam': True, 'result': self.handle(json.loads(line))}
                 except Exception as e:
                     out = {'tamam': False, 'hata': '%s: %s' % (type(e).__name__, e), 'iz': traceback.format_exc()[-1500:]}
                 f.write((json.dumps(out, ensure_ascii=False) + '\n').encode('utf8'))

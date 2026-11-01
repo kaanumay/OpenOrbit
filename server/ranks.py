@@ -58,7 +58,7 @@ def today(t=None):
 
 # ------------------------------------------------------------ sayaçlar
 def counters(p):
-    c = p.d.setdefault('sayaclar', {})
+    c = p.d.setdefault('counters', {})
     done = len((p.d.get('gorevler') or {}).get('tamam', []))          # sayaçlardan önce bitirilen görevler de sayılır
     for k, v in (('npc', {}), ('oyuncu', {}), ('olum_dusman', 0), ('olum_radyasyon', 0), ('olum_diger', 0), ('gorev', done),
                  ('dost', 0), ('phoenix', 0)):
@@ -87,14 +87,14 @@ def event(p, kind, **kw):
 # ------------------------------------------------------------ rütbe puanı
 def days_registered(p, now=None):
     try:
-        t0 = time.mktime(time.strptime(p.d.get('olusturma', ''), '%Y-%m-%d %H:%M:%S'))
+        t0 = time.mktime(time.strptime(p.d.get('created', ''), '%Y-%m-%d %H:%M:%S'))
     except ValueError:
         return 0
     return max(0, int(((now or time.time()) - t0) // 86400))
 
 
 def ship_type(p):
-    return R['gemi_turu'].get(p.ship()['lootId'], 0)        # tabloda olmayan (klasik olmayan) gemi 0 (gerçek kayıt: Sentinel 0)
+    return R['ship_type'].get(p.ship()['lootId'], 0)        # tabloda olmayan (klasik olmayan) gemi 0 (gerçek kayıt: Sentinel 0)
 
 
 def user_score(p):
@@ -112,7 +112,7 @@ def npc_points(p):
 
 
 def player_points(p):
-    return sum(R['gemi_puan'].get(k, {}).get('puan', 0) * n for k, n in counters(p)['oyuncu'].items())
+    return sum(R['ship_points'].get(k, {}).get('puan', 0) * n for k, n in counters(p)['oyuncu'].items())
 
 
 def breakdown(p, now=None):
@@ -269,7 +269,7 @@ def grant_title(p, key):
 
 def rank_icon(p, rank):
     """Gemideki rütbe simgesi: rütbe, onur -500 ve altındaysa kanun dışı simgesi."""
-    return R['kanun_disi']['simge'] if p.d['pilot'].get('honourPoints', 0) <= R['kanun_disi']['onur'] else rank
+    return R['outlaw']['simge'] if p.d['pilot'].get('honourPoints', 0) <= R['outlaw']['onur'] else rank
 
 
 def live_rank(p, now=None):
@@ -337,7 +337,7 @@ def ranking_points(p, now=None):
     out = _zero_points()
     out.update(b, yourRanking=rank, aboveRanking=min(rank + 1, 21), abovePoints=max(0, nxt - b['rankPoints']),
                belowRanking=max(rank - 1, 1), belowPoints=R['esikler'][rank - 2] if rank > 1 else 0,
-               shipsCategoryName=R['gemi_puan'].get(loot, {}).get('ad', loot.replace('ship_', '').title()))
+               shipsCategoryName=R['ship_points'].get(loot, {}).get('ad', loot.replace('ship_', '').title()))
     return out
 
 
@@ -385,7 +385,7 @@ def hof_top(p, f, now=None):
                 'value': c['npc'].get(k, 0), 'userName': v['ad']} for k, v in sorted(R['npc_puan'].items(), key=lambda kv: int(kv[0]))]
         pages = [npc[i:i + NPC_PAGE] for i in range(0, len(npc), NPC_PAGE)]
         ships = [{'_': 'HallOfFameDataCommand', 'userId': 0, 'rank': 0, 'time': '', 'points': v['puan'], 'value': c['oyuncu'].get(k, 0),
-                  'userName': v['ad']} for k, v in R['gemi_puan'].items()]
+                  'userName': v['ad']} for k, v in R['ship_points'].items()]
         out.update(myRankingPoints=ranking_points(p, now),
                    pages=[_page('npcPointsDetails', pg, len(pages), i + 1) for i, pg in enumerate(pages)] + [_page('playerPointsDetails', ships)])
     elif t == 18:                                                    # ana sayfa: puan, ad, sıra; value firma simgesi
@@ -442,8 +442,8 @@ def _runs(p, n):
     return sum(sorted((p.d.get('mimesis') or {}).get('seferler', []), reverse=True)[:n])
 
 
-HOF_EVENTS = {2: lambda p: (p.d.get('labirent') or {}).get('avlar', 0),                   # FrozenLabyrinth: Synk avları
-              3: lambda p: ((p.d.get('pve') or {}).get('ebl') or {}).get('en_iyi', 0),     # EternalGate: Eternal Black Light dalgası
+HOF_EVENTS = {2: lambda p: (p.d.get('labirent') or {}).get('hunts', 0),                   # FrozenLabyrinth: Synk avları
+              3: lambda p: ((p.d.get('pve') or {}).get('ebl') or {}).get('best', 0),     # EternalGate: Eternal Black Light dalgası
               4: lambda p: _runs(p, 10),                                                   # MimesisMutiny: en iyi 10 sefer (mimesis.total)
               5: lambda p: _runs(p, 1),                                                    # PayloadEscort: en iyi sefer
               6: lambda p: min(((p.d.get('dunya_patronu') or {}).get('etkinlik') or {}).get('hasar', 0), 2 ** 31 - 1)}  # PublicWorldBoss: hasar
@@ -477,7 +477,7 @@ def hof_events(p, f):
 def note(p, info_text, info='', count=0, args='{}', quest=0, done=0, t=None):
     """Seyir defterine kayıt (yeni en üstte)."""
     with p.lock:
-        lst = p.d.setdefault('seyir_defteri', [])
+        lst = p.d.setdefault('logbook', [])
         lst.insert(0, dict(quest=quest, info=info, args=args, count=int(count), insertDate=stamp(t), questDone=done, infoText=info_text))
         del lst[LOG_LIMIT:]
         p.dirty = True
@@ -494,7 +494,7 @@ def note_kill(p, npc_id, ep, honor):
 
 def logbook(p, f):
     """LogbookDataListRequest {startIndex: sayfa (0'dan)} -> LogbookDataListCommand (12'şer)."""
-    lst = p.d.get('seyir_defteri', [])
+    lst = p.d.get('logbook', [])
     page = max(0, int(f.get('startIndex') or 0))
     rows = [dict(e, _='LogbookDataCommand') for e in lst[page * LOGBOOK_PAGE:(page + 1) * LOGBOOK_PAGE]]
     return [('LogbookDataListCommand', dict(startIndex=page, total=len(lst), list=rows))]
@@ -510,7 +510,7 @@ def money(p, cur, amount, description, internal='', qty=0, t=None):
     if not amount or cur not in CUR:
         return
     with p.lock:
-        lst = p.d.setdefault('hesap_gecmisi', [])
+        lst = p.d.setdefault('account_history', [])
         lst.insert(0, dict(internalInfo=internal, insertDate=stamp(t), amountType='%s_%s' % (CUR[cur], 'PLUS' if amount > 0 else 'MINUS'),
                            amount=abs(amount), infoText=int(qty), description=description, userId=p.d['pilot'].get('userId', 0)))
         del lst[LOG_LIMIT:]
@@ -534,7 +534,7 @@ DESC_FIX = {'buy_BATTERY_id': 'buy_BATTERY', 'buy_MINES_id': 'buy_MINES', 'buy_E
 
 def balance(p, f):
     """BalanceInfoListRequest {page: 1'den} -> BalanceInfoListCommand."""
-    lst = p.d.get('hesap_gecmisi', [])
+    lst = p.d.get('account_history', [])
     pages = max(1, math.ceil(len(lst) / ACCOUNT_PAGE))
     page = min(max(1, int(f.get('page') or 1)), pages)
     rows = [dict(e, _='BalanceInfoCommand', description=DESC_FIX.get(e.get('description'), e.get('description')))

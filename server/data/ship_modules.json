@@ -1,9 +1,9 @@
 {
- "_aciklama": "Gemi modülleri (equipment_shipupgrade_*) -> server/data/gemi_modulleri.json (yol haritası Aşama 6).\n\n145 modülün türü (DAMAGE, HP, SHIELD, SPECIAL) istemcinin eşya verisinden (data/istemci_esyalari.json); etkileri ve takılabildiği\ngemiler istemcinin kendi açıklamasından: \"5% increased laser damage and 15% increased rocket damage if equipped on your ship. This\nship upgrade module can be used on the following ships: Cyborg, Hecate, Hecate Plus, Tempest.\" Etki adları sunucunun bonus\nanahtarlarına çevrilir (lazer, roket, npc, kalkan, can, hiz, kacinma, isabet (lazer ve roket), lazer_isabet, roket_isabet, kalkan_delme, ep, pvp).\nKararsız modüller (X1/X2/X3, XA01, XV03 … \"series unstable module\"): istemcinin açıklamasındaki en az artış (\"at least a 5%\nboost\") ve öncelikli gemiler (\"higher chance of affecting the …\"); değerleri Restabilize ile rastgele belirlenir (gemi_modul.py).\nHer kararsız modüle serisinin Restabilize değerleri (geri dönüşüm, yeniden çekme bedeli ve hakkı: wiki assembly-restabilize ve gerçek\nkayıttaki UnstableModulesListCommand) ile değer aralıkları (wiki modules-damage/-hitpoints/-shield/-special: iki kademe, büyük ve\nküçük şans) yazılır. Kararlı modüllerde taban gemi listedeyse Plus sürümü de eklenir (wiki: \"Non-unstable modules usable by non-plus\nvariants can be equipped by plus variants\", 16.11.2021).\nGemi adları istemcinin gemi adlarıyla (items_ship_*_fullname) ve kısaltmalarla eşlenir.\nÜreten: tools/gemi_modulleri.py.",
+ "_description": "Gemi modülleri (equipment_shipupgrade_*) -> server/data/gemi_modulleri.json (yol haritası Aşama 6).\n\n145 modülün türü (DAMAGE, HP, SHIELD, SPECIAL) istemcinin eşya verisinden (data/istemci_esyalari.json); etkileri ve takılabildiği\ngemiler istemcinin kendi açıklamasından: \"5% increased laser damage and 15% increased rocket damage if equipped on your ship. This\nship upgrade module can be used on the following ships: Cyborg, Hecate, Hecate Plus, Tempest.\" Etki adları sunucunun bonus\nanahtarlarına çevrilir (lazer, roket, npc, kalkan, can, hiz, kacinma, isabet (lazer ve roket), lazer_isabet, roket_isabet, kalkan_delme, ep, pvp).\nKararsız modüller (X1/X2/X3, XA01, XV03 … \"series unstable module\"): istemcinin açıklamasındaki en az artış (\"at least a 5%\nboost\") ve öncelikli gemiler (\"higher chance of affecting the …\"); değerleri Restabilize ile rastgele belirlenir (gemi_modul.py).\nHer kararsız modüle serisinin Restabilize değerleri (geri dönüşüm, yeniden çekme bedeli ve hakkı: wiki assembly-restabilize ve gerçek\nkayıttaki UnstableModulesListCommand) ile değer aralıkları (wiki modules-damage/-hitpoints/-shield/-special: iki kademe, büyük ve\nküçük şans) yazılır. Kararlı modüllerde taban gemi listedeyse Plus sürümü de eklenir (wiki: \"Non-unstable modules usable by non-plus\nvariants can be equipped by plus variants\", 16.11.2021).\nGemi adları istemcinin gemi adlarıyla (items_ship_*_fullname) ve kısaltmalarla eşlenir.\nÜreten: tools/gemi_modulleri.py.",
  "moduller": {
   "equipment_shipupgrade_dmg-a01": {
    "tur": "DAMAGE",
-   "etkiler": {
+   "effects": {
     "npc": 0.1
    },
    "gemiler": [
@@ -14,7 +14,7 @@
   },
   "equipment_shipupgrade_dmg-cht01": {
    "tur": "DAMAGE",
-   "etkiler": {
+   "effects": {
     "lazer": 0.05,
     "roket": 0.15
    },
@@ -27,7 +27,7 @@
   },
   "equipment_shipupgrade_dmg-gp01": {
    "tur": "DAMAGE",
-   "etkiler": {
+   "effects": {
     "pvp": 0.1
    },
    "gemiler": [
@@ -42,7 +42,7 @@
   },
   "equipment_shipupgrade_dmg-holo": {
    "tur": "DAMAGE",
-   "etkiler": {
+   "effects": {
     "roket": 0.04
    },
    "gemiler": [
@@ -52,7 +52,7 @@
   },
   "equipment_shipupgrade_dmg-kd01": {
    "tur": "DAMAGE",
-   "etkiler": {
+   "effects": {
     "pvp": 0.15,
     "kalkan": -0.05,
     "hiz": -0.1
@@ -64,7 +64,7 @@
   },
   "equipment_shipupgrade_dmg-leo01": {
    "tur": "DAMAGE",
-   "etkiler": {
+   "effects": {
     "lazer_isabet": 0.2,
     "roket": 0.3
    },
@@ -74,7 +74,7 @@
   },
   "equipment_shipupgrade_dmg-ms01": {
    "tur": "DAMAGE",
-   "etkiler": {
+   "effects": {
     "lazer": 0.1,
     "roket": 0.1,
     "kacinma": 0.05,
@@ -86,7 +86,7 @@
   },
   "equipment_shipupgrade_dmg-ms02": {
    "tur": "DAMAGE",
-   "etkiler": {
+   "effects": {
     "lazer": 0.12,
     "roket": 0.12,
     "kacinma": 0.05,
@@ -98,7 +98,7 @@
   },
   "equipment_shipupgrade_dmg-mtch01": {
    "tur": "DAMAGE",
-   "etkiler": {
+   "effects": {
     "lazer": 0.07,
     "roket": 0.07
    },
@@ -116,7 +116,7 @@
   },
   "equipment_shipupgrade_dmg-nos01": {
    "tur": "DAMAGE",
-   "etkiler": {
+   "effects": {
     "roket_isabet": 0.1,
     "lazer": 0.15
    },
@@ -129,7 +129,7 @@
   },
   "equipment_shipupgrade_dmg-npc01": {
    "tur": "DAMAGE",
-   "etkiler": {
+   "effects": {
     "npc": 0.15
    },
    "gemiler": [
@@ -142,7 +142,7 @@
   },
   "equipment_shipupgrade_dmg-ret01": {
    "tur": "DAMAGE",
-   "etkiler": {
+   "effects": {
     "lazer": 0.1,
     "kacinma": -0.05,
     "kalkan": -0.05
@@ -154,7 +154,7 @@
   },
   "equipment_shipupgrade_dmg-sdz01": {
    "tur": "DAMAGE",
-   "etkiler": {
+   "effects": {
     "lazer": 0.04,
     "roket": 0.04
    },
@@ -167,7 +167,7 @@
   },
   "equipment_shipupgrade_dmg-sg01": {
    "tur": "DAMAGE",
-   "etkiler": {
+   "effects": {
     "lazer": 0.05,
     "roket": 0.05
    },
@@ -186,7 +186,7 @@
   },
   "equipment_shipupgrade_dmg-sh01": {
    "tur": "DAMAGE",
-   "etkiler": {
+   "effects": {
     "lazer": 0.15,
     "roket": 0.15,
     "hiz": -0.05
@@ -200,7 +200,7 @@
   },
   "equipment_shipupgrade_dmg-st01": {
    "tur": "DAMAGE",
-   "etkiler": {
+   "effects": {
     "lazer": 0.08,
     "roket": 0.08
    },
@@ -213,7 +213,7 @@
   },
   "equipment_shipupgrade_dmg-t01": {
    "tur": "DAMAGE",
-   "etkiler": {
+   "effects": {
     "lazer": 0.1,
     "roket": 0.1,
     "can": -0.08
@@ -225,7 +225,7 @@
   },
   "equipment_shipupgrade_dmg-t02": {
    "tur": "DAMAGE",
-   "etkiler": {
+   "effects": {
     "lazer": 0.12,
     "roket": 0.12,
     "kalkan": -0.12
@@ -237,7 +237,7 @@
   },
   "equipment_shipupgrade_dmg-ven01": {
    "tur": "DAMAGE",
-   "etkiler": {
+   "effects": {
     "lazer": 0.12,
     "roket": 0.12
    },
@@ -247,7 +247,7 @@
   },
   "equipment_shipupgrade_dmg-vp01": {
    "tur": "DAMAGE",
-   "etkiler": {
+   "effects": {
     "lazer": 0.1,
     "roket": 0.1
    },
@@ -266,7 +266,7 @@
    "tur": "DAMAGE",
    "kararsiz": {
     "en_az": null,
-    "tercih": [],
+    "preference": [],
     "restabilize": {
      "geri": 2,
      "bedel": 10,
@@ -285,7 +285,7 @@
    "tur": "DAMAGE",
    "kararsiz": {
     "en_az": null,
-    "tercih": [],
+    "preference": [],
     "restabilize": {
      "geri": 4,
      "bedel": 20,
@@ -304,7 +304,7 @@
    "tur": "DAMAGE",
    "kararsiz": {
     "en_az": null,
-    "tercih": [],
+    "preference": [],
     "restabilize": {
      "geri": 4,
      "bedel": 20,
@@ -323,7 +323,7 @@
    "tur": "DAMAGE",
    "kararsiz": {
     "en_az": 0.04,
-    "tercih": [
+    "preference": [
      "ship_pusat-plus",
      "ship_sentinel",
      "ship_diminisher",
@@ -348,7 +348,7 @@
    "tur": "DAMAGE",
    "kararsiz": {
     "en_az": 0.04,
-    "tercih": [
+    "preference": [
      "ship_berserker",
      "ship_sentinel"
     ],
@@ -370,7 +370,7 @@
    "tur": "DAMAGE",
    "kararsiz": {
     "en_az": null,
-    "tercih": [
+    "preference": [
      "ship_citadel",
      "ship_citadel-plus",
      "ship_c-veteran",
@@ -393,7 +393,7 @@
       21
      ]
     },
-    "haric": [
+    "exclude": [
      "ship_phoenix",
      "ship_yamato",
      "ship_leonov",
@@ -406,7 +406,7 @@
    "tur": "DAMAGE",
    "kararsiz": {
     "en_az": 0.04,
-    "tercih": [],
+    "preference": [],
     "restabilize": {
      "geri": 4,
      "bedel": 20,
@@ -422,7 +422,7 @@
       21
      ]
     },
-    "haric": [
+    "exclude": [
      "ship_phoenix",
      "ship_yamato",
      "ship_leonov"
@@ -433,7 +433,7 @@
    "tur": "DAMAGE",
    "kararsiz": {
     "en_az": 0.05,
-    "tercih": [],
+    "preference": [],
     "restabilize": {
      "geri": 4,
      "bedel": 20,
@@ -455,7 +455,7 @@
    "tur": "DAMAGE",
    "kararsiz": {
     "en_az": 0.09,
-    "tercih": [],
+    "preference": [],
     "restabilize": {
      "geri": 20,
      "bedel": 100,
@@ -477,7 +477,7 @@
    "tur": "DAMAGE",
    "kararsiz": {
     "en_az": 0.1,
-    "tercih": [
+    "preference": [
      "ship_orcus",
      "ship_centurion"
     ],
@@ -499,7 +499,7 @@
    "tur": "DAMAGE",
    "kararsiz": {
     "en_az": 0.05,
-    "tercih": [
+    "preference": [
      "ship_citadel-plus",
      "ship_goliath-plus",
      "ship_liberator-plus"
@@ -525,7 +525,7 @@
    "tur": "DAMAGE",
    "kararsiz": {
     "en_az": 0.05,
-    "tercih": [
+    "preference": [
      "ship_solaris-plus",
      "ship_solace-plus",
      "ship_pusat-plus",
@@ -557,7 +557,7 @@
    "tur": "DAMAGE",
    "kararsiz": {
     "en_az": 0.05,
-    "tercih": [
+    "preference": [
      "ship_solaris-plus",
      "ship_solace-plus",
      "ship_spectrum-plus",
@@ -590,7 +590,7 @@
    "tur": "DAMAGE",
    "kararsiz": {
     "en_az": null,
-    "tercih": [
+    "preference": [
      "ship_berserker",
      "ship_solaris"
     ],
@@ -615,7 +615,7 @@
    "tur": "DAMAGE",
    "kararsiz": {
     "en_az": 0.05,
-    "tercih": [
+    "preference": [
      "ship_solaris",
      "ship_berserker",
      "ship_goliath-plus",
@@ -639,7 +639,7 @@
    "tur": "DAMAGE",
    "kararsiz": {
     "en_az": 0.05,
-    "tercih": [
+    "preference": [
      "ship_solaris",
      "ship_berserker",
      "ship_hecate-plus",
@@ -664,7 +664,7 @@
    "tur": "DAMAGE",
    "kararsiz": {
     "en_az": null,
-    "tercih": [],
+    "preference": [],
     "restabilize": {
      "geri": 2,
      "bedel": 10,
@@ -681,7 +681,7 @@
   },
   "equipment_shipupgrade_dmg-zep01": {
    "tur": "DAMAGE",
-   "etkiler": {
+   "effects": {
     "lazer": 0.08,
     "roket": 0.08
    },
@@ -693,7 +693,7 @@
    "tur": "DAMAGE",
    "kararsiz": {
     "en_az": null,
-    "tercih": [
+    "preference": [
      "ship_spectrum",
      "ship_mimesis"
     ],
@@ -718,7 +718,7 @@
    "tur": "DAMAGE",
    "kararsiz": {
     "en_az": null,
-    "tercih": [
+    "preference": [
      "ship_diminisher",
      "ship_tartarus"
     ],
@@ -743,7 +743,7 @@
    "tur": "DAMAGE",
    "kararsiz": {
     "en_az": 0.05,
-    "tercih": [
+    "preference": [
      "ship_spearhead-plus",
      "ship_tempest",
      "ship_cyborg"
@@ -767,7 +767,7 @@
   },
   "equipment_shipupgrade_hp-a01": {
    "tur": "HP",
-   "etkiler": {
+   "effects": {
     "can": 0.05
    },
    "gemiler": [
@@ -778,7 +778,7 @@
   },
   "equipment_shipupgrade_hp-bes01": {
    "tur": "HP",
-   "etkiler": {
+   "effects": {
     "can": 0.2
    },
    "gemiler": [
@@ -789,7 +789,7 @@
   },
   "equipment_shipupgrade_hp-c01": {
    "tur": "HP",
-   "etkiler": {
+   "effects": {
     "can": 0.1
    },
    "gemiler": [
@@ -801,7 +801,7 @@
   },
   "equipment_shipupgrade_hp-cht01": {
    "tur": "HP",
-   "etkiler": {
+   "effects": {
     "can": 0.12
    },
    "gemiler": [
@@ -813,7 +813,7 @@
   },
   "equipment_shipupgrade_hp-d01": {
    "tur": "HP",
-   "etkiler": {
+   "effects": {
     "can": 0.2
    },
    "gemiler": [
@@ -822,7 +822,7 @@
   },
   "equipment_shipupgrade_hp-dim01": {
    "tur": "HP",
-   "etkiler": {
+   "effects": {
     "can": 0.1
    },
    "gemiler": [
@@ -831,7 +831,7 @@
   },
   "equipment_shipupgrade_hp-ham01": {
    "tur": "HP",
-   "etkiler": {
+   "effects": {
     "can": 0.15
    },
    "gemiler": [
@@ -842,7 +842,7 @@
   },
   "equipment_shipupgrade_hp-holo": {
    "tur": "HP",
-   "etkiler": {
+   "effects": {
     "lazer": 0.05,
     "roket": 0.05,
     "kalkan": -0.02
@@ -853,7 +853,7 @@
   },
   "equipment_shipupgrade_hp-mtch01": {
    "tur": "HP",
-   "etkiler": {
+   "effects": {
     "can": 0.08
    },
    "gemiler": [
@@ -870,7 +870,7 @@
   },
   "equipment_shipupgrade_hp-npc01": {
    "tur": "HP",
-   "etkiler": {
+   "effects": {
     "can": 0.13
    },
    "gemiler": [
@@ -883,7 +883,7 @@
   },
   "equipment_shipupgrade_hp-s01": {
    "tur": "HP",
-   "etkiler": {
+   "effects": {
     "can": 0.15
    },
    "gemiler": [
@@ -895,7 +895,7 @@
   },
   "equipment_shipupgrade_hp-sol01": {
    "tur": "HP",
-   "etkiler": {
+   "effects": {
     "can": 0.15
    },
    "gemiler": [
@@ -905,7 +905,7 @@
   },
   "equipment_shipupgrade_hp-t01": {
    "tur": "HP",
-   "etkiler": {
+   "effects": {
     "can": 0.25
    },
    "gemiler": [
@@ -915,7 +915,7 @@
   },
   "equipment_shipupgrade_hp-vp01": {
    "tur": "HP",
-   "etkiler": {
+   "effects": {
     "can": 0.15
    },
    "gemiler": [
@@ -933,7 +933,7 @@
    "tur": "HP",
    "kararsiz": {
     "en_az": null,
-    "tercih": [],
+    "preference": [],
     "restabilize": {
      "geri": 2,
      "bedel": 10,
@@ -952,7 +952,7 @@
    "tur": "HP",
    "kararsiz": {
     "en_az": null,
-    "tercih": [],
+    "preference": [],
     "restabilize": {
      "geri": 16,
      "bedel": 80,
@@ -971,7 +971,7 @@
    "tur": "HP",
    "kararsiz": {
     "en_az": null,
-    "tercih": [],
+    "preference": [],
     "restabilize": {
      "geri": 4,
      "bedel": 20,
@@ -993,7 +993,7 @@
    "tur": "HP",
    "kararsiz": {
     "en_az": 0.05,
-    "tercih": [
+    "preference": [
      "ship_pusat-plus",
      "ship_sentinel",
      "ship_diminisher",
@@ -1018,7 +1018,7 @@
    "tur": "HP",
    "kararsiz": {
     "en_az": 0.04,
-    "tercih": [
+    "preference": [
      "ship_berserker",
      "ship_sentinel"
     ],
@@ -1040,7 +1040,7 @@
    "tur": "HP",
    "kararsiz": {
     "en_az": null,
-    "tercih": [
+    "preference": [
      "ship_citadel",
      "ship_citadel-plus",
      "ship_c-veteran",
@@ -1063,7 +1063,7 @@
       32
      ]
     },
-    "haric": [
+    "exclude": [
      "ship_phoenix",
      "ship_yamato",
      "ship_leonov"
@@ -1074,7 +1074,7 @@
    "tur": "HP",
    "kararsiz": {
     "en_az": 0.04,
-    "tercih": [],
+    "preference": [],
     "restabilize": {
      "geri": 4,
      "bedel": 20,
@@ -1090,7 +1090,7 @@
       32
      ]
     },
-    "haric": [
+    "exclude": [
      "ship_phoenix",
      "ship_yamato",
      "ship_leonov"
@@ -1101,7 +1101,7 @@
    "tur": "HP",
    "kararsiz": {
     "en_az": 0.05,
-    "tercih": [],
+    "preference": [],
     "restabilize": {
      "geri": 4,
      "bedel": 20,
@@ -1123,7 +1123,7 @@
    "tur": "HP",
    "kararsiz": {
     "en_az": 0.09,
-    "tercih": [],
+    "preference": [],
     "restabilize": {
      "geri": 20,
      "bedel": 100,
@@ -1145,7 +1145,7 @@
    "tur": "HP",
    "kararsiz": {
     "en_az": 0.1,
-    "tercih": [
+    "preference": [
      "ship_orcus",
      "ship_centurion"
     ],
@@ -1167,7 +1167,7 @@
    "tur": "HP",
    "kararsiz": {
     "en_az": 0.05,
-    "tercih": [
+    "preference": [
      "ship_citadel-plus",
      "ship_goliath-plus",
      "ship_liberator-plus"
@@ -1193,7 +1193,7 @@
    "tur": "HP",
    "kararsiz": {
     "en_az": 0.05,
-    "tercih": [
+    "preference": [
      "ship_solaris-plus",
      "ship_solace-plus",
      "ship_pusat-plus",
@@ -1225,7 +1225,7 @@
    "tur": "HP",
    "kararsiz": {
     "en_az": 0.05,
-    "tercih": [
+    "preference": [
      "ship_solaris-plus",
      "ship_solace-plus",
      "ship_spectrum-plus",
@@ -1258,7 +1258,7 @@
    "tur": "HP",
    "kararsiz": {
     "en_az": null,
-    "tercih": [
+    "preference": [
      "ship_berserker",
      "ship_solaris"
     ],
@@ -1283,7 +1283,7 @@
    "tur": "HP",
    "kararsiz": {
     "en_az": 0.05,
-    "tercih": [
+    "preference": [
      "ship_solaris",
      "ship_berserker",
      "ship_goliath-plus",
@@ -1307,7 +1307,7 @@
    "tur": "HP",
    "kararsiz": {
     "en_az": 0.1,
-    "tercih": [
+    "preference": [
      "ship_solaris",
      "ship_berserker",
      "ship_hecate-plus",
@@ -1332,7 +1332,7 @@
    "tur": "HP",
    "kararsiz": {
     "en_az": null,
-    "tercih": [],
+    "preference": [],
     "restabilize": {
      "geri": 2,
      "bedel": 10,
@@ -1351,7 +1351,7 @@
    "tur": "HP",
    "kararsiz": {
     "en_az": null,
-    "tercih": [
+    "preference": [
      "ship_spectrum",
      "ship_mimesis"
     ],
@@ -1376,7 +1376,7 @@
    "tur": "HP",
    "kararsiz": {
     "en_az": null,
-    "tercih": [
+    "preference": [
      "ship_diminisher",
      "ship_tartarus"
     ],
@@ -1401,7 +1401,7 @@
    "tur": "HP",
    "kararsiz": {
     "en_az": 0.05,
-    "tercih": [
+    "preference": [
      "ship_spearhead-plus",
      "ship_tempest",
      "ship_cyborg"
@@ -1425,7 +1425,7 @@
   },
   "equipment_shipupgrade_shd-bach01": {
    "tur": "SHIELD",
-   "etkiler": {
+   "effects": {
     "kalkan": 0.15
    },
    "gemiler": [
@@ -1440,7 +1440,7 @@
   },
   "equipment_shipupgrade_shd-c01": {
    "tur": "SHIELD",
-   "etkiler": {
+   "effects": {
     "kalkan": 0.15,
     "lazer": 0.05,
     "roket": 0.05,
@@ -1455,7 +1455,7 @@
   },
   "equipment_shipupgrade_shd-cht01": {
    "tur": "SHIELD",
-   "etkiler": {
+   "effects": {
     "can": -0.05,
     "lazer": 0.05,
     "roket": 0.05,
@@ -1470,7 +1470,7 @@
   },
   "equipment_shipupgrade_shd-dim01": {
    "tur": "SHIELD",
-   "etkiler": {
+   "effects": {
     "kalkan": 0.25
    },
    "gemiler": [
@@ -1479,7 +1479,7 @@
   },
   "equipment_shipupgrade_shd-gol01": {
    "tur": "SHIELD",
-   "etkiler": {
+   "effects": {
     "kalkan": 0.05,
     "kacinma": 0.05
    },
@@ -1492,7 +1492,7 @@
   },
   "equipment_shipupgrade_shd-holo": {
    "tur": "SHIELD",
-   "etkiler": {
+   "effects": {
     "kalkan": 0.08
    },
    "gemiler": [
@@ -1501,7 +1501,7 @@
   },
   "equipment_shipupgrade_shd-ms01": {
    "tur": "SHIELD",
-   "etkiler": {
+   "effects": {
     "kalkan": 0.08,
     "kacinma": 0.05,
     "can": -0.05
@@ -1512,7 +1512,7 @@
   },
   "equipment_shipupgrade_shd-sen01": {
    "tur": "SHIELD",
-   "etkiler": {
+   "effects": {
     "kalkan": 0.15,
     "kalkan_delme": 0.05,
     "can": -0.05
@@ -1523,7 +1523,7 @@
   },
   "equipment_shipupgrade_shd-sh01": {
    "tur": "SHIELD",
-   "etkiler": {
+   "effects": {
     "kalkan": 0.1,
     "lazer": 0.05,
     "roket": 0.05,
@@ -1538,7 +1538,7 @@
   },
   "equipment_shipupgrade_shd-sh02": {
    "tur": "SHIELD",
-   "etkiler": {
+   "effects": {
     "kalkan": 0.15,
     "hiz": -0.05
    },
@@ -1551,7 +1551,7 @@
   },
   "equipment_shipupgrade_shd-sk01": {
    "tur": "SHIELD",
-   "etkiler": {
+   "effects": {
     "kalkan": 0.12,
     "lazer": -0.05,
     "roket": -0.05
@@ -1566,7 +1566,7 @@
   },
   "equipment_shipupgrade_shd-sl01": {
    "tur": "SHIELD",
-   "etkiler": {
+   "effects": {
     "kalkan": 0.1,
     "can": -0.05
    },
@@ -1578,7 +1578,7 @@
   },
   "equipment_shipupgrade_shd-t01": {
    "tur": "SHIELD",
-   "etkiler": {
+   "effects": {
     "kalkan": 0.15,
     "kacinma": 0.1,
     "can": -0.1
@@ -1592,7 +1592,7 @@
    "tur": "SHIELD",
    "kararsiz": {
     "en_az": null,
-    "tercih": [],
+    "preference": [],
     "restabilize": {
      "geri": 2,
      "bedel": 10,
@@ -1611,7 +1611,7 @@
    "tur": "SHIELD",
    "kararsiz": {
     "en_az": null,
-    "tercih": [],
+    "preference": [],
     "restabilize": {
      "geri": 4,
      "bedel": 20,
@@ -1630,7 +1630,7 @@
    "tur": "SHIELD",
    "kararsiz": {
     "en_az": null,
-    "tercih": [],
+    "preference": [],
     "restabilize": {
      "geri": 4,
      "bedel": 20,
@@ -1649,7 +1649,7 @@
    "tur": "SHIELD",
    "kararsiz": {
     "en_az": 0.04,
-    "tercih": [
+    "preference": [
      "ship_pusat-plus",
      "ship_sentinel",
      "ship_diminisher",
@@ -1674,7 +1674,7 @@
    "tur": "SHIELD",
    "kararsiz": {
     "en_az": 0.04,
-    "tercih": [
+    "preference": [
      "ship_berserker",
      "ship_sentinel"
     ],
@@ -1696,7 +1696,7 @@
    "tur": "SHIELD",
    "kararsiz": {
     "en_az": null,
-    "tercih": [
+    "preference": [
      "ship_citadel",
      "ship_citadel-plus",
      "ship_c-veteran",
@@ -1719,7 +1719,7 @@
       20
      ]
     },
-    "haric": [
+    "exclude": [
      "ship_phoenix",
      "ship_yamato",
      "ship_leonov",
@@ -1732,7 +1732,7 @@
    "tur": "SHIELD",
    "kararsiz": {
     "en_az": 0.04,
-    "tercih": [],
+    "preference": [],
     "restabilize": {
      "geri": 4,
      "bedel": 20,
@@ -1748,7 +1748,7 @@
       20
      ]
     },
-    "haric": [
+    "exclude": [
      "ship_phoenix",
      "ship_yamato",
      "ship_leonov"
@@ -1759,7 +1759,7 @@
    "tur": "SHIELD",
    "kararsiz": {
     "en_az": 0.05,
-    "tercih": [],
+    "preference": [],
     "restabilize": {
      "geri": 4,
      "bedel": 20,
@@ -1781,7 +1781,7 @@
    "tur": "SHIELD",
    "kararsiz": {
     "en_az": 0.09,
-    "tercih": [],
+    "preference": [],
     "restabilize": {
      "geri": 20,
      "bedel": 100,
@@ -1803,7 +1803,7 @@
    "tur": "SHIELD",
    "kararsiz": {
     "en_az": 0.1,
-    "tercih": [
+    "preference": [
      "ship_orcus",
      "ship_centurion"
     ],
@@ -1825,7 +1825,7 @@
    "tur": "SHIELD",
    "kararsiz": {
     "en_az": 0.05,
-    "tercih": [
+    "preference": [
      "ship_citadel-plus",
      "ship_goliath-plus",
      "ship_liberator-plus"
@@ -1851,7 +1851,7 @@
    "tur": "SHIELD",
    "kararsiz": {
     "en_az": 0.05,
-    "tercih": [
+    "preference": [
      "ship_solaris-plus",
      "ship_solace-plus",
      "ship_pusat-plus",
@@ -1883,7 +1883,7 @@
    "tur": "SHIELD",
    "kararsiz": {
     "en_az": 0.05,
-    "tercih": [
+    "preference": [
      "ship_solaris-plus",
      "ship_solace-plus",
      "ship_spectrum-plus",
@@ -1916,7 +1916,7 @@
    "tur": "SHIELD",
    "kararsiz": {
     "en_az": null,
-    "tercih": [
+    "preference": [
      "ship_berserker",
      "ship_solaris"
     ],
@@ -1941,7 +1941,7 @@
    "tur": "SHIELD",
    "kararsiz": {
     "en_az": 0.05,
-    "tercih": [
+    "preference": [
      "ship_solaris",
      "ship_berserker",
      "ship_goliath-plus",
@@ -1965,7 +1965,7 @@
    "tur": "SHIELD",
    "kararsiz": {
     "en_az": 0.1,
-    "tercih": [
+    "preference": [
      "ship_solaris",
      "ship_berserker",
      "ship_hecate-plus",
@@ -1990,7 +1990,7 @@
    "tur": "SHIELD",
    "kararsiz": {
     "en_az": null,
-    "tercih": [],
+    "preference": [],
     "restabilize": {
      "geri": 2,
      "bedel": 10,
@@ -2009,7 +2009,7 @@
    "tur": "SHIELD",
    "kararsiz": {
     "en_az": null,
-    "tercih": [
+    "preference": [
      "ship_spectrum",
      "ship_mimesis"
     ],
@@ -2034,7 +2034,7 @@
    "tur": "SHIELD",
    "kararsiz": {
     "en_az": null,
-    "tercih": [
+    "preference": [
      "ship_diminisher",
      "ship_tartarus"
     ],
@@ -2059,7 +2059,7 @@
    "tur": "SHIELD",
    "kararsiz": {
     "en_az": 0.05,
-    "tercih": [
+    "preference": [
      "ship_spearhead-plus",
      "ship_tempest",
      "ship_cyborg"
@@ -2083,7 +2083,7 @@
   },
   "equipment_shipupgrade_spc-c01": {
    "tur": "SPECIAL",
-   "etkiler": {
+   "effects": {
     "isabet": 0.05
    },
    "gemiler": [
@@ -2095,7 +2095,7 @@
   },
   "equipment_shipupgrade_spc-c02": {
    "tur": "SPECIAL",
-   "etkiler": {
+   "effects": {
     "isabet": 0.1,
     "can": -0.05
    },
@@ -2108,7 +2108,7 @@
   },
   "equipment_shipupgrade_spc-cht01": {
    "tur": "SPECIAL",
-   "etkiler": {
+   "effects": {
     "kacinma": 0.1,
     "hiz": 0.03
    },
@@ -2121,7 +2121,7 @@
   },
   "equipment_shipupgrade_spc-dim01": {
    "tur": "SPECIAL",
-   "etkiler": {
+   "effects": {
     "kalkan_delme": 0.1,
     "kacinma": 0.05,
     "lazer": 0.05
@@ -2132,7 +2132,7 @@
   },
   "equipment_shipupgrade_spc-eva01": {
    "tur": "SPECIAL",
-   "etkiler": {
+   "effects": {
     "kacinma": 0.1
    },
    "gemiler": [
@@ -2144,7 +2144,7 @@
   },
   "equipment_shipupgrade_spc-holo": {
    "tur": "SPECIAL",
-   "etkiler": {
+   "effects": {
     "kacinma": 0.19
    },
    "gemiler": [
@@ -2153,7 +2153,7 @@
   },
   "equipment_shipupgrade_spc-mtch01": {
    "tur": "SPECIAL",
-   "etkiler": {
+   "effects": {
     "hiz": 0.08,
     "kacinma": 0.05
    },
@@ -2171,7 +2171,7 @@
   },
   "equipment_shipupgrade_spc-npc01": {
    "tur": "SPECIAL",
-   "etkiler": {
+   "effects": {
     "hiz": 0.07,
     "lazer_isabet": 0.07
    },
@@ -2185,7 +2185,7 @@
   },
   "equipment_shipupgrade_spc-roc01": {
    "tur": "SPECIAL",
-   "etkiler": {
+   "effects": {
     "roket": 0.04,
     "roket_isabet": 0.04
    },
@@ -2202,7 +2202,7 @@
   },
   "equipment_shipupgrade_spc-sl01": {
    "tur": "SPECIAL",
-   "etkiler": {
+   "effects": {
     "isabet": 0.05,
     "kalkan": -0.05
    },
@@ -2214,7 +2214,7 @@
   },
   "equipment_shipupgrade_spc-spd01": {
    "tur": "SPECIAL",
-   "etkiler": {
+   "effects": {
     "hiz": 0.05
    },
    "gemiler": [
@@ -2230,7 +2230,7 @@
   },
   "equipment_shipupgrade_spc-spd02": {
    "tur": "SPECIAL",
-   "etkiler": {
+   "effects": {
     "hiz": 0.03
    },
    "gemiler": [
@@ -2243,7 +2243,7 @@
   },
   "equipment_shipupgrade_spc-spe01": {
    "tur": "SPECIAL",
-   "etkiler": {
+   "effects": {
     "kalkan": 0.1,
     "roket": 0.2
    },
@@ -2254,7 +2254,7 @@
   },
   "equipment_shipupgrade_spc-tar01": {
    "tur": "SPECIAL",
-   "etkiler": {
+   "effects": {
     "hiz": 0.03,
     "lazer": -0.03,
     "roket": -0.03
@@ -2266,7 +2266,7 @@
   },
   "equipment_shipupgrade_spc-vp01": {
    "tur": "SPECIAL",
-   "etkiler": {
+   "effects": {
     "kacinma": 0.1,
     "hiz": 0.02,
     "kalkan": -0.1
@@ -2286,7 +2286,7 @@
    "tur": "SPECIAL",
    "kararsiz": {
     "en_az": null,
-    "tercih": [],
+    "preference": [],
     "restabilize": {
      "geri": 2,
      "bedel": 10,
@@ -2305,7 +2305,7 @@
    "tur": "SPECIAL",
    "kararsiz": {
     "en_az": null,
-    "tercih": [],
+    "preference": [],
     "restabilize": {
      "geri": 2,
      "bedel": 10,
@@ -2324,7 +2324,7 @@
    "tur": "SPECIAL",
    "kararsiz": {
     "en_az": null,
-    "tercih": [],
+    "preference": [],
     "restabilize": {
      "geri": 4,
      "bedel": 20,
@@ -2352,7 +2352,7 @@
    "tur": "SPECIAL",
    "kararsiz": {
     "en_az": 0.05,
-    "tercih": [
+    "preference": [
      "ship_pusat-plus",
      "ship_sentinel",
      "ship_diminisher",
@@ -2386,7 +2386,7 @@
    "tur": "SPECIAL",
    "kararsiz": {
     "en_az": 0.04,
-    "tercih": [
+    "preference": [
      "ship_berserker",
      "ship_sentinel"
     ],
@@ -2417,7 +2417,7 @@
    "tur": "SPECIAL",
    "kararsiz": {
     "en_az": null,
-    "tercih": [
+    "preference": [
      "ship_citadel",
      "ship_citadel-plus",
      "ship_c-veteran",
@@ -2440,7 +2440,7 @@
       20
      ]
     },
-    "haric": [
+    "exclude": [
      "ship_phoenix",
      "ship_yamato",
      "ship_leonov",
@@ -2453,7 +2453,7 @@
    "tur": "SPECIAL",
    "kararsiz": {
     "en_az": 0.04,
-    "tercih": [],
+    "preference": [],
     "restabilize": {
      "geri": 4,
      "bedel": 20,
@@ -2469,7 +2469,7 @@
       20
      ]
     },
-    "haric": [
+    "exclude": [
      "ship_phoenix",
      "ship_yamato",
      "ship_leonov"
@@ -2480,7 +2480,7 @@
    "tur": "SPECIAL",
    "kararsiz": {
     "en_az": 0.05,
-    "tercih": [],
+    "preference": [],
     "restabilize": {
      "geri": 4,
      "bedel": 20,
@@ -2509,7 +2509,7 @@
   },
   "equipment_shipupgrade_spc-xp01": {
    "tur": "SPECIAL",
-   "etkiler": {
+   "effects": {
     "ep": 0.2
    },
    "gemiler": [
@@ -2526,7 +2526,7 @@
   },
   "equipment_shipupgrade_spc-xp02": {
    "tur": "SPECIAL",
-   "etkiler": {
+   "effects": {
     "ep": 0.15
    },
    "gemiler": [
@@ -2554,7 +2554,7 @@
    "tur": "SPECIAL",
    "kararsiz": {
     "en_az": 0.09,
-    "tercih": [],
+    "preference": [],
     "restabilize": {
      "geri": 20,
      "bedel": 100,
@@ -2576,7 +2576,7 @@
    "tur": "SPECIAL",
    "kararsiz": {
     "en_az": 0.1,
-    "tercih": [
+    "preference": [
      "ship_orcus",
      "ship_centurion"
     ],
@@ -2598,7 +2598,7 @@
    "tur": "SPECIAL",
    "kararsiz": {
     "en_az": 0.05,
-    "tercih": [
+    "preference": [
      "ship_citadel-plus",
      "ship_goliath-plus",
      "ship_liberator-plus"
@@ -2624,7 +2624,7 @@
    "tur": "SPECIAL",
    "kararsiz": {
     "en_az": 0.05,
-    "tercih": [
+    "preference": [
      "ship_solaris-plus",
      "ship_solace-plus",
      "ship_pusat-plus",
@@ -2656,7 +2656,7 @@
    "tur": "SPECIAL",
    "kararsiz": {
     "en_az": 0.05,
-    "tercih": [
+    "preference": [
      "ship_solaris-plus",
      "ship_solace-plus",
      "ship_spectrum-plus",
@@ -2689,7 +2689,7 @@
    "tur": "SPECIAL",
    "kararsiz": {
     "en_az": null,
-    "tercih": [
+    "preference": [
      "ship_berserker",
      "ship_solaris"
     ],
@@ -2714,7 +2714,7 @@
    "tur": "SPECIAL",
    "kararsiz": {
     "en_az": 0.05,
-    "tercih": [
+    "preference": [
      "ship_solaris",
      "ship_berserker",
      "ship_goliath-plus",
@@ -2738,7 +2738,7 @@
    "tur": "SPECIAL",
    "kararsiz": {
     "en_az": 0.05,
-    "tercih": [
+    "preference": [
      "ship_solaris",
      "ship_berserker",
      "ship_hecate-plus",
@@ -2772,7 +2772,7 @@
    "tur": "SPECIAL",
    "kararsiz": {
     "en_az": null,
-    "tercih": [],
+    "preference": [],
     "restabilize": {
      "geri": 2,
      "bedel": 10,
@@ -2791,7 +2791,7 @@
    "tur": "SPECIAL",
    "kararsiz": {
     "en_az": null,
-    "tercih": [
+    "preference": [
      "ship_spectrum",
      "ship_mimesis"
     ],
@@ -2816,7 +2816,7 @@
    "tur": "SPECIAL",
    "kararsiz": {
     "en_az": null,
-    "tercih": [
+    "preference": [
      "ship_diminisher",
      "ship_tartarus"
     ],
@@ -2841,7 +2841,7 @@
    "tur": "SPECIAL",
    "kararsiz": {
     "en_az": 0.05,
-    "tercih": [
+    "preference": [
      "ship_spearhead-plus",
      "ship_tempest",
      "ship_cyborg"

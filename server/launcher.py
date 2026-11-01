@@ -25,12 +25,12 @@ LOG_COPIES = 3
 EARLY_EXIT_SEC = 15
 
 
-def backup_profile(save_dir=SAVE, keep=BACKUP_COUNT, now=None, prefix='profil'):
+def backup_profile(save_dir=SAVE, keep=BACKUP_COUNT, now=None, prefix='profile'):
     """Profilin zaman damgalı yedeği; eskiler silinir -> yedeğin yolu ya da None. Kayıt yuvasında prefix 'oto' (panelin adı)."""
-    src = os.path.join(save_dir, 'profil.json')
+    src = os.path.join(save_dir, 'profile.json')
     if not os.path.exists(src):
         return None
-    dst_dir = os.path.join(save_dir, 'yedek')
+    dst_dir = os.path.join(save_dir, 'backups')
     os.makedirs(dst_dir, exist_ok=True)
     dst = os.path.join(dst_dir, '%s_%s.json' % (prefix, time.strftime('%Y%m%d_%H%M%S', time.localtime(now))))
     shutil.copy2(src, dst)
@@ -91,7 +91,7 @@ def main():
     extra = [a for a in sys.argv[1:] if a.startswith('--')]
     prof = PTH.profile_path()
     slot = PTH.active_slot()
-    b = backup_profile(os.path.dirname(prof), prefix='oto' if slot else 'profil')
+    b = backup_profile(os.path.dirname(prof), prefix='auto' if slot else 'profile')
     print('kayıt: %s' % (slot or 'eski save/profil.json'))
     print('profil yedeği: %s' % (b or 'profil yok (ilk açılış)'))
     r = rotate_logs()

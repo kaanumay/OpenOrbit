@@ -21,7 +21,7 @@ class GateRun(Goal):
     def start(self, bot, b):
         k = GT.can_run(bot)
         success, duration = GT.run_result(bot, k, bot.r)
-        bot.plan.update(kapi=k, basari=success, bitis=b.now + duration, sure=duration)
+        bot.plan.update(kapi=k, success=success, bitis=b.now + duration, sure=duration)
         game_map = GT.KAPI[k].get('harita')
         if game_map:
             S.jump_to(bot, game_map, b.y)                    # kapı haritası: senin haritandan kalkar
@@ -37,7 +37,7 @@ class GateRun(Goal):
             st['parca'].pop(k, None)
         if k == 'kronos':
             st['kronos'] = 0
-        if bot.plan.get('basari'):
+        if bot.plan.get('success'):
             GT.grant_reward(bot, k, y.speed(bot))
             GT.record_duration(bot.k, k, bot.plan.get('sure') or 0)
         else:

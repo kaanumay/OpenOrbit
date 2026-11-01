@@ -29,7 +29,7 @@ POI_HQ = 'lowHqHealing'             # HQ iyileştirme bölgesi (POIType HEALING 
 
 
 def fresh():
-    return {'asama': 'dalga', 'dalga': 0, 'role': 0, 'olum': None}
+    return {'stage': 'dalga', 'dalga': 0, 'role': 0, 'olum': None}
 
 
 class Low:
@@ -42,18 +42,18 @@ class Low:
         self.told = set()           # anlatılan olaylar (low.json anlati): her biri girişten sonra bir kez
         now = time.time()
         st = self.p.d.get('low')
-        returning = bool(st and st.get('asama') != 'bitti' and st.get('olum') and now - st['olum'] <= L['donus_sn'])
+        returning = bool(st and st.get('stage') != 'bitti' and st.get('olum') and now - st['olum'] <= L['return_sec'])
         with self.p.lock:
             self.p.d['low'] = dict(st, olum=None) if returning else fresh()
             self.p.dirty = True
-        self.t = now + L['giris_sn']
+        self.t = now + L['entry_sec']
         world.asset_targets = self             # röle seçilir ve vurulur (dunya.asset_laser)
         self.show_relay()                      # sıradaki röle girişten görünür
         self.w.send(self.asset_msgs())         # Low hazır demetinden sonra kurulur (resend yalnız haritayı yeniden yükleyince taşır): canlıda ilk röle istemciye gitmiyordu
         self.say('devam' if returning else 'giris')
         if not returning:
             self.tell('giris')
-        self.w.log('   LoW: %s (%s)' % ('kaldığı yerden' if returning else 'baştan', self.st['asama']))
+        self.w.log('   LoW: %s (%s)' % ('kaldığı yerden' if returning else 'baştan', self.st['stage']))
 
     @property
     def st(self):
@@ -66,13 +66,13 @@ class Low:
 
     def say(self, key, **kw):
         """Akış metni: "key:" önekliyse istemcinin metni (Century Falcon, bitiş), değilse low.json'un cümlesi."""
-        vals = dict(roleler=L['role']['adet'], toplam=len(L['dalgalar']))
+        vals = dict(roleler=L['role']['adet'], toplam=len(L['waves']))
         vals.update(kw)
         self.w.send([screen(L['mesajlar'][key].format(**vals))])
 
     def tell(self, event):
         """HQ'nun telsiz anlatısı (istemcinin transmission_groupgate_* metinleri, low.json anlati): olay başına bir kez."""
-        keys = L['anlati'].get(event)
+        keys = L['narration'].get(event)
         if keys and event not in self.told:
             self.told.add(event)
             self.w.send([legacy('0|A|STM|' + k) for k in keys])
@@ -89,7 +89,7 @@ class Low:
             cx, cy = at
         else:
             hx, hy = near or w.hero_pos()
-            a, r = random.uniform(0, 2 * math.pi), random.uniform(*L['dogma_uzaklik'])
+            a, r = random.uniform(0, 2 * math.pi), random.uniform(*L['spawn_distance'])
             cx = min(max(hx + math.cos(a) * r, 800), w.map_w - 800)
             cy = min(max(hy + math.sin(a) * r, 800), w.map_h - 800)
         out = []
@@ -109,9 +109,9 @@ class Low:
     def step(self):
         """Rotadaki sıradaki adım (low.json rota): ('dalga', i), ('role', i), ('boss',); bitince None. Profildeki sayaçlardan türer."""
         st = self.st
-        if st['asama'] == 'bitti':
+        if st['stage'] == 'bitti':
             return None
-        for s in L['rota']:
+        for s in L['route']:
             if s[0] == 'boss' or (st['dalga'] if s[0] == 'dalga' else st['role']) <= s[1]:
                 return tuple(s)
         return ('boss',)
@@ -128,21 +128,21 @@ class Low:
             if self.alive():
                 return
             i = s[1]
-            tip, n = L['dalgalar'][i]
-            self.spawn(tip, n, at=L['dogma_noktalari'][i])
-            self.save(asama='dalga', dalga=i + 1)
-            self.t = now + L['dalga_arasi_sn']
+            tip, n = L['waves'][i]
+            self.spawn(tip, n, at=L['spawn_points'][i])
+            self.save(stage='dalga', dalga=i + 1)
+            self.t = now + L['wave_interval_sec']
             self.say('dalga', ad=w.alien.CFG['tipler'][tip]['ad'].strip('-=[] '), adet=n, dalga=i + 1)
             w.log('   LoW dalga %d: %s x%d' % (i + 1, tip, n))
         elif s[0] == 'role':
-            if not (self.relay and self.relay['savunan']):
+            if not (self.relay and self.relay['defender']):
                 if self.alive():                             # önceki dalga bitmeden rölenin savunanı gelmez
                     return
-                self.save(asama='role')
+                self.save(stage='role')
                 self.place_relay(now)
             self.relay_tick(now)
         elif not self.alive() and self.boss is None:
-            self.save(asama='boss')
+            self.save(stage='boss')
             self.spawn_boss()
         elif not self.alive():
             self.finish()
@@ -156,8 +156,8 @@ class Low:
         no = self.st['role'] + 1
         if no > L['role']['adet']:
             return None
-        x, y = L['role']['yerler'][no - 1]
-        self.relay = dict(kimlik=RELAY_BASE + no, x=x, y=y, ilerleme=0.0, son=time.time(), yuzde=-1, savunan=False)
+        x, y = L['role']['places'][no - 1]
+        self.relay = dict(kimlik=RELAY_BASE + no, x=x, y=y, ilerleme=0.0, son=time.time(), yuzde=-1, defender=False)
         return self.relay_msg()
 
     def place_relay(self, now):
@@ -166,7 +166,7 @@ class Low:
         if not self.relay:
             w.send([self.show_relay()])
         r = self.relay
-        r['son'], r['savunan'] = now, True
+        r['son'], r['defender'] = now, True
         tip, n = L['role']['savunma']
         self.spawn(tip, n, near=(r['x'], r['y']))
         no = self.st['role'] + 1
@@ -198,8 +198,8 @@ class Low:
         if r['ilerleme'] < cfg['sn']:
             return
         msgs = [ALN.asset_remove(r['kimlik'], RELAY_STATION), legacy('0|A|STM|msg_relaisstation_activated')]
-        if no >= 2 and cfg.get('korsanlar'):                        # forum 126411: 2-4. röle etkinleşince çevresinde korsanlar
-            self.spawn(cfg['korsanlar'][0], cfg['korsanlar'][1], at=(r['x'], r['y']))
+        if no >= 2 and cfg.get('pirates'):                        # forum 126411: 2-4. röle etkinleşince çevresinde korsanlar
+            self.spawn(cfg['pirates'][0], cfg['pirates'][1], at=(r['x'], r['y']))
         self.relay = None
         self.save(role=no)
         msgs += self.zone_msgs() if no == 1 else []                 # ilk röle HQ iyileştirme bölgesini açar
@@ -207,17 +207,17 @@ class Low:
         w.send(msgs + ([nxt] if nxt else []))
         self.say('role_tamam', no=no)
         self.tell('role_%d_tamam' % no)
-        self.t = now + L['dalga_arasi_sn']
+        self.t = now + L['wave_interval_sec']
         s = self.step()
-        self.save(asama=s[0])
+        self.save(stage=s[0])
         w.log('   LoW röle istasyonu %d etkin' % no)
 
     def docking_station(self, x, y):
         """Son röle etkinleşince HQ istasyonu hangar ve ticaret verir (forum 126411); öncesinde yanaşılmaz."""
         cx, cy = self.hq()
         cfg = L['role']
-        if self.st['role'] >= cfg['adet'] and math.hypot(x - cx, y - cy) <= cfg['merkez']['yaricap']:
-            return dict(posX=cx, posY=cy, peaceRadius=cfg['merkez']['yaricap'], pvpPeace=False)
+        if self.st['role'] >= cfg['adet'] and math.hypot(x - cx, y - cy) <= cfg['center']['yaricap']:
+            return dict(posX=cx, posY=cy, peaceRadius=cfg['center']['yaricap'], pvpPeace=False)
         return None
 
     # ------------------------------------------------------------ HQ iyileştirme bölgesi
@@ -228,7 +228,7 @@ class Low:
         cx, cy = self.hq()
         return [('MapAddPOICommand', dict(inverted=False, poiTypeSpecification='', poiType=mod('POITypeModule', typeValue=4), shape=0,
                                           active=True, design=mod('POIDesignModule', designValue=6), poiId=POI_HQ,
-                                          shapeCoordinates=[int(cx), int(cy), int(L['role']['merkez']['yaricap'])]))]
+                                          shapeCoordinates=[int(cx), int(cy), int(L['role']['center']['yaricap'])]))]
 
     def heal_tick(self, now):
         """HQ bölgesinde saniyede sabit can (iyilestirme_sn_can; etkin her ek röleyle role_artis kadar artar); onarım robotundan ve
@@ -238,7 +238,7 @@ class Low:
         if n < 1 or w.hero_dead or now < self.heal_next:
             return
         self.heal_next = now + 1.0
-        c = L['role']['merkez']
+        c = L['role']['center']
         cx, cy = self.hq()
         hx, hy = w.hero_pos(now)
         if math.hypot(hx - cx, hy - cy) > c['yaricap']:
@@ -248,7 +248,7 @@ class Low:
         hp0 = g.get('hitPoints', 0)
         if hp0 >= g.get('hitMax', 0):
             return
-        self.p.set_hull(hp=min(g['hitMax'], hp0 + c['iyilestirme_sn_can'] * (1 + c['role_artis'] * (n - 1))))
+        self.p.set_hull(hp=min(g['hitMax'], hp0 + c['heal_hp_per_sec'] * (1 + c['relay_increase'] * (n - 1))))
         w.send([('HitpointInfoCommand', dict(hitpoints=int(g['hitPoints']), hitpointsMax=g.get('hitMax', 0),
                                              nanoHull=g.get('nanoHull', 0), nanoHullMax=g.get('maxNanoHull', 0)))] + w.heal_msgs(hp0))
 
@@ -289,7 +289,7 @@ class Low:
         """Century Falcon HQ'da (haritanın ortası) doğar, eskortu çevresinde."""
         hq = self.hq()
         self.boss = self.spawn(L['boss'], 1, at=hq)[0].id
-        tip, n = L['eskort']
+        tip, n = L['escort']
         self.spawn(tip, n, at=hq)
         self.say('boss')
         self.tell('boss')
@@ -298,7 +298,7 @@ class Low:
 
     def finish(self):
         w = self.w
-        self.save(asama='bitti')
+        self.save(stage='bitti')
         dest = L['cikis'].get(str(self.p.d['pilot'].get('factionId')), 5)       # firmanın X-1'i (forum 126411: herkes X-1'e atılır)
         g = dict(gateId=EXIT_ID, x=w.map_w // 2, y=w.map_h // 2, hedef=dest, designId=1, varis='istasyon')
         w.add_gate(g)
@@ -312,9 +312,9 @@ class Low:
     def on_death(self):
         """Ölünce: dönüş süresi başlar; aşamanın uzaylıları gider (dönünce yeniden gelir)."""
         self.save(olum=time.time())
-        if self.st['asama'] == 'dalga' and self.alive():
+        if self.st['stage'] == 'dalga' and self.alive():
             self.save(dalga=max(0, self.st['dalga'] - 1))      # yarım kalan dalga dönünce baştan
-        elif self.st['asama'] == 'boss':
+        elif self.st['stage'] == 'boss':
             self.boss = None
 
     def asset_msgs(self):

@@ -13,7 +13,7 @@ import ranks as RT
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 Y = json.load(open(os.path.join(HERE, 'data', 'skills.json'), encoding='utf8'))
-SKILLS = Y['yetenekler']
+SKILLS = Y['skills']
 SEPROM = 7                       # cevher türü
 SKYLAB_SEPROM = '14'             # Skylab deposundaki kimliği (skylab.json cevherler)
 
@@ -24,7 +24,7 @@ def mod(name, **f):
 
 
 def state(p):
-    return p.d.setdefault('yetenekler', {'seviye': {}, 'puan': 0, 'donusturulen': 0, 'sifirlama': 0})
+    return p.d.setdefault('skills', {'seviye': {}, 'puan': 0, 'converted': 0, 'resets': 0})
 
 
 def level(p, sid):
@@ -33,7 +33,7 @@ def level(p, sid):
 
 def maxed(p, sid):
     """Yetenek son seviyesinde mi (istemcinin son seviye görselleri: kalın lazer, roket izi, kalkan; dunya.skilled_laser, rocket_look, skill_shield; roketin güdümü ilk puandan başlar)."""
-    return level(p, sid) >= len(SKILLS[sid]['degerler'])
+    return level(p, sid) >= len(SKILLS[sid]['values'])
 
 
 def shield_cmd(p):
@@ -52,14 +52,14 @@ def mods(p):
         s = SKILLS.get(sid)
         if not s or not lv or not s['etki'] or (sid.endswith('a') and level(p, sid[:-1] + 'b')):
             continue
-        v = s['degerler'][lv - 1]
-        out[s['etki']] = out.get(s['etki'], 0) + (v if s['birim'] == 'absolute' else v / 100.0)
+        v = s['values'][lv - 1]
+        out[s['etki']] = out.get(s['etki'], 0) + (v if s['unit'] == 'absolute' else v / 100.0)
     return out
 
 
 def requirements_met(p, sid):
     for r in SKILLS[sid]['on_kosul']:
-        pts = [level(p, x) for x in r['yetenekler']]
+        pts = [level(p, x) for x in r['skills']]
         if (sum(pts) if r['tur'] == 'toplam' else min(pts)) < r['puan']:
             return False
     return True
@@ -73,12 +73,12 @@ class Abilities:
         return self.k.d['log_disk']
 
     def required(self):
-        tbl = Y['log_diski']
-        n = state(self.p)['donusturulen']
+        tbl = Y['log_disk']
+        n = state(self.p)['converted']
         return tbl[n] if n < len(tbl) else -1
 
     def reset_price(self):
-        tbl, n = Y['sifirlama'], state(self.p)['sifirlama']
+        tbl, n = Y['resets'], state(self.p)['resets']
         return tbl[n] if n < len(tbl) else tbl[-1] * 2 ** (n - len(tbl) + 1)
 
     def info_list(self):
@@ -87,7 +87,7 @@ class Abilities:
     def list_cmd(self):
         st = state(self.p)
         return ('SkillTreeListCommand', dict(resetPrice=self.reset_price(), list=self.info_list(), researchPoints=st['puan'],
-                                             resetCount=st['sifirlama'], logFiles=self.logs(), required=self.required()))
+                                             resetCount=st['resets'], logFiles=self.logs(), required=self.required()))
 
     def convert(self):
         """ConvertResearchPointsRequest: yeterli log diski varsa bir pilot puanı."""
@@ -98,7 +98,7 @@ class Abilities:
             with self.p.lock:
                 self.k.d['log_disk'] -= need
                 st['puan'] += 1
-                st['donusturulen'] += 1
+                st['converted'] += 1
                 self.p.dirty = True
             self.log('   pilot puanı: %d log diski -> 1 puan (kalan puan %d)' % (need, st['puan']))
         return [('ConvertResearchPointsCommand', dict(required=self.required(), success=ok, researchPoints=st['puan'],
@@ -106,7 +106,7 @@ class Abilities:
 
     def skylab_seprom(self):
         """Skylab deposundaki Seprom (Skylab cevheri 14)."""
-        return int((self.p.d.get('skylab') or {}).get('depo', {}).get(SKYLAB_SEPROM, 0))
+        return int((self.p.d.get('skylab') or {}).get('storage', {}).get(SKYLAB_SEPROM, 0))
 
     def seprom(self):
         """Harcanabilir Seprom: kargodaki ve Skylab deposundaki (resmî forum: yetenek ağacı Skylab'dakini kullanır; kullanıcı isteği
@@ -121,7 +121,7 @@ class Abilities:
         st = state(self.p)
         s = SKILLS.get(sid)
         cur = level(self.p, sid)
-        cost = s['maliyet'][cur] if s and cur < len(s['degerler']) else None
+        cost = s['maliyet'][cur] if s and cur < len(s['values']) else None
         why = ('yetenek yok' if not s else 'en üst seviye' if cost is None else 'ön koşul' if not requirements_met(self.p, sid)
                else 'puan yetmiyor' if st['puan'] < cost['puan'] else 'kredi yetmiyor' if self.p.d['pilot'].get('credits', 0) < cost['kredi']
                else 'Seprom yetmiyor' if self.seprom() < cost['seprom'] else None)
@@ -144,7 +144,7 @@ class Abilities:
             msgs += [('AttributeOreCountUpdateCommand', {'oreCountList': totals}), self.m.ore_pack([SEPROM])]
         if cost['seprom'] > cargo:
             with self.p.lock:
-                storage = self.p.d['skylab']['depo']
+                storage = self.p.d['skylab']['storage']
                 storage[SKYLAB_SEPROM] = storage.get(SKYLAB_SEPROM, 0) - (cost['seprom'] - cargo)
                 self.p.dirty = True
             self.log('   yetenek: %d Seprom Skylab deposundan' % (cost['seprom'] - cargo))
@@ -163,11 +163,11 @@ class Abilities:
                 self.p.d['pilot']['uridium'] -= price
                 st['seviye'] = {}
                 st['puan'] += spent
-                st['sifirlama'] += 1
+                st['resets'] += 1
                 self.p.dirty = True
             RT.money(self.p, 'uridyum', -price, 'buy_SPECIAL')
             self.log('   yetenekler sıfırlandı: %d puan geri, -%d U' % (spent, price))
         msgs = [('ResetSkillTreeCommand', dict(resetPrice=self.reset_price(), stack=None if ok else self.m.stack('eqt_error_generic'),
                                                list=self.info_list(), logFiles=self.logs(), researchPoints=st['puan'],
-                                               resetCount=st['sifirlama'], success=ok))]
+                                               resetCount=st['resets'], success=ok))]
         return msgs + (self.m.money_msgs() + self.m.apply_stats() + [shield_cmd(self.p)] if ok else [])

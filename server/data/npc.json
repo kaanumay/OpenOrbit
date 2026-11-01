@@ -1,5 +1,5 @@
 {
- "_aciklama": "NPC türleri ve harita doğurma listeleri. tip = istemcideki gemi tipi (ShipCreateCommand.typeId, ShipSelectionCommand.shipType). Değerler darkorbitwiki.com'dan (belgeler/wiki/aliens.md); 'kayit' işaretliler gerçek sunucu kaydından (belgeler/istemci/kayit_analizi.md); 'uyarlama' işaretliler tahmindir. Black Light adları resmî sunucudaki gibi iki ters bölüyle başlar (\\\\ Impulse II //; kayıt 2026-10-25).",
+ "_description": "NPC türleri ve harita doğurma listeleri. tip = istemcideki gemi tipi (ShipCreateCommand.typeId, ShipSelectionCommand.shipType). Değerler darkorbitwiki.com'dan (belgeler/wiki/aliens.md); 'kayit' işaretliler gerçek sunucu kaydından (belgeler/istemci/kayit_analizi.md); 'uyarlama' işaretliler tahmindir. Black Light adları resmî sunucudaki gibi iki ters bölüyle başlar (\\\\ Impulse II //; kayıt 2026-10-25).",
  "tipler": {
   "84": {
    "ad": "-=[ Streuner ]=-",
@@ -117,7 +117,7 @@
     "resource_collectable_mucosum": 6,
     "resource_logfile": {
      "adet": 1,
-     "olasilik": 0.05
+     "probability": 0.05
     }
    }
   },
@@ -145,7 +145,7 @@
    "ek_odul": {
     "resource_logfile": {
      "adet": 1,
-     "olasilik": 0.05
+     "probability": 0.05
     }
    }
   },
@@ -261,7 +261,7 @@
     "resource_collectable_scrapium": 6,
     "resource_logfile": {
      "adet": 1,
-     "olasilik": 0.05
+     "probability": 0.05
     }
    }
   },
@@ -294,7 +294,7 @@
     "resource_collectable_scrapium": 6,
     "resource_logfile": {
      "adet": 1,
-     "olasilik": 0.05
+     "probability": 0.05
     }
    }
   },
@@ -327,7 +327,7 @@
     "resource_collectable_boltrum": 3,
     "resource_logfile": {
      "adet": 1,
-     "olasilik": 0.05
+     "probability": 0.05
     }
    }
   },
@@ -388,7 +388,7 @@
     "resource_collectable_boltrum": 3,
     "resource_logfile": {
      "adet": 1,
-     "olasilik": 0.05
+     "probability": 0.05
     }
    }
   },
@@ -477,7 +477,7 @@
     "resource_collectable_mucosum": 6,
     "resource_logfile": {
      "adet": 1,
-     "olasilik": 0.05
+     "probability": 0.05
     }
    }
   },
@@ -510,7 +510,7 @@
     "resource_collectable_mucosum": 6,
     "resource_logfile": {
      "adet": 1,
-     "olasilik": 0.05
+     "probability": 0.05
     }
    }
   },
@@ -631,7 +631,7 @@
     "resource_collectable_prismatium": 3,
     "resource_logfile": {
      "adet": 1,
-     "olasilik": 0.05
+     "probability": 0.05
     }
    }
   },
@@ -665,7 +665,7 @@
     "resource_collectable_prismatium": 3,
     "resource_logfile": {
      "adet": 1,
-     "olasilik": 0.05
+     "probability": 0.05
     }
    }
   },
@@ -740,7 +740,7 @@
    "ek_odul": {
     "resource_logfile": {
      "adet": 1,
-     "olasilik": 0.05
+     "probability": 0.05
     }
    }
   },
@@ -1115,7 +1115,7 @@
    "ek_odul": {
     "resource_collectable_bifenon": {
      "adet": 1,
-     "olasilik": 0.2
+     "probability": 0.2
     },
     "resource_collectable_aurus": 1
    }
@@ -1147,7 +1147,7 @@
    "ek_odul": {
     "resource_collectable_bifenon": {
      "adet": 1,
-     "olasilik": 0.25
+     "probability": 0.25
     },
     "resource_collectable_aurus": 1
    }
@@ -1179,7 +1179,7 @@
    "ek_odul": {
     "resource_collectable_bifenon": {
      "adet": 1,
-     "olasilik": 0.25
+     "probability": 0.25
     },
     "resource_collectable_aurus": 1
    }
@@ -1212,7 +1212,7 @@
    "ek_odul": {
     "resource_collectable_bifenon": {
      "adet": 1,
-     "olasilik": 0.25
+     "probability": 0.25
     },
     "resource_collectable_aurus": 2
    }
@@ -1299,15 +1299,15 @@
    "ek_odul": {
     "resource_collectable_bifenon": {
      "adet": 1,
-     "olasilik": 0.25
+     "probability": 0.25
     },
     "resource_collectable_darksilver-coin": {
      "adet": 1,
-     "olasilik": 0.25
+     "probability": 0.25
     },
     "resource_ore_palladium": {
      "adet": 2,
-     "olasilik": 0.25
+     "probability": 0.25
     },
     "resource_collectable_aurus": 5,
     "resource_collectable_tetrathrin": 1
@@ -1341,15 +1341,15 @@
    "ek_odul": {
     "resource_collectable_bifenon": {
      "adet": 1,
-     "olasilik": 0.25
+     "probability": 0.25
     },
     "resource_collectable_darksilver-coin": {
      "adet": 1,
-     "olasilik": 0.25
+     "probability": 0.25
     },
     "resource_ore_palladium": {
      "adet": 2,
-     "olasilik": 0.25
+     "probability": 0.25
     },
     "resource_collectable_aurus": 5,
     "resource_collectable_tetrathrin": 1
@@ -1382,15 +1382,15 @@
    "ek_odul": {
     "resource_collectable_bifenon": {
      "adet": 1,
-     "olasilik": 0.25
+     "probability": 0.25
     },
     "resource_collectable_darksilver-coin": {
      "adet": 1,
-     "olasilik": 0.25
+     "probability": 0.25
     },
     "resource_ore_palladium": {
      "adet": 3,
-     "olasilik": 0.25
+     "probability": 0.25
     },
     "resource_collectable_aurus": 5,
     "resource_collectable_tetrathrin": 1
@@ -1424,19 +1424,19 @@
     "resource_ore_palladium": 4,
     "resource_collectable_bifenon": {
      "adet": 1,
-     "olasilik": 0.25
+     "probability": 0.25
     },
     "resource_collectable_kyhalon": {
      "adet": 1,
-     "olasilik": 0.25
+     "probability": 0.25
     },
     "resource_collectable_tetrathrin": {
      "adet": 1,
-     "olasilik": 0.25
+     "probability": 0.25
     },
     "resource_collectable_darksilver-coin": {
      "adet": 1,
-     "olasilik": 0.25
+     "probability": 0.25
     },
     "resource_collectable_aurus": 10
    },
@@ -1541,12 +1541,12 @@
    },
    "_model_notu": "istemci: npcId 177 = Black Light 3 (221)",
    "_hiz_notu": "wiki: Invoke XVI hareketsiz (belgeler/wiki/aliens.md)",
-   "sandik": {
+   "chest": {
     "tur": "INVOKE_XVI_BOX_3",
     "adet": 5,
     "omur_sn": 600,
     "mod": "biri",
-    "icerik": [],
+    "contents": [],
     "kesin": [
      [
       "resource_collectable_rinusk",
@@ -1601,12 +1601,12 @@
     ]
    },
    "_model_notu": "istemci: npcId 178 = Black Light 4 (225)",
-   "sandik": {
+   "chest": {
     "tur": "MINDFIRE_BEHEMOTH_BOX_3",
     "adet": 8,
     "omur_sn": 600,
     "mod": "biri",
-    "icerik": [],
+    "contents": [],
     "kesin": [
      [
       "resource_collectable_rinusk",
@@ -1939,25 +1939,25 @@
       20,
       40
      ],
-     "olasilik": 0.45
+     "probability": 0.45
     },
     "resource_collectable_indoctrine-accelerator": {
      "adet": [
       15,
       30
      ],
-     "olasilik": 0.2
+     "probability": 0.2
     },
     "resource_collectable_indoctrineoil": {
      "adet": [
       10,
       15
      ],
-     "olasilik": 0.045
+     "probability": 0.045
     },
     "equipment_weapon_laser_caucasus": {
      "adet": 1,
-     "olasilik": 0.005
+     "probability": 0.005
     }
    },
    "isabet": 0.7,
@@ -1992,7 +1992,7 @@
     "resource_collectable_darksilver-coin": 5,
     "resource_booty-key-silver": {
      "adet": 1,
-     "olasilik": 0.25
+     "probability": 0.25
     }
    },
    "isabet": 0.85,
@@ -2026,7 +2026,7 @@
    "ek_odul": {
     "resource_collectable_darksilver-coin": {
      "adet": 3,
-     "olasilik": 0.25
+     "probability": 0.25
     }
    },
    "isabet": 0.7,
@@ -2060,7 +2060,7 @@
    "ek_odul": {
     "resource_collectable_darksilver-coin": {
      "adet": 2,
-     "olasilik": 0.25
+     "probability": 0.25
     }
    },
    "isabet": 0.7,
@@ -2093,7 +2093,7 @@
    "ek_odul": {
     "resource_collectable_darksilver-coin": {
      "adet": 1,
-     "olasilik": 0.25
+     "probability": 0.25
     }
    },
    "isabet": 0.7,
@@ -3943,10 +3943,10 @@
    "_kaynak": "wiki (belgeler/wiki/aliens.md: styxus_x2); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama",
    "kutu": {
     "tur": "STYXUS_BOX",
-    "olasilik": 1.0,
+    "probability": 1.0,
     "omur_sn": 300,
     "mod": "biri",
-    "icerik": [
+    "contents": [
      [
       "resource_collectable_styxus-shard",
       [
@@ -4051,10 +4051,10 @@
    "_kaynak": "wiki (belgeler/wiki/aliens.md: styxus_x3); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama",
    "kutu": {
     "tur": "STYXUS_BOX",
-    "olasilik": 1.0,
+    "probability": 1.0,
     "omur_sn": 300,
     "mod": "biri",
-    "icerik": [
+    "contents": [
      [
       "resource_collectable_styxus-shard",
       [
@@ -4159,10 +4159,10 @@
    "_kaynak": "wiki (belgeler/wiki/aliens.md: styxus_x4); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama",
    "kutu": {
     "tur": "STYXUS_BOX",
-    "olasilik": 1.0,
+    "probability": 1.0,
     "omur_sn": 300,
     "mod": "biri",
-    "icerik": [
+    "contents": [
      [
       "resource_collectable_styxus-shard",
       [
@@ -4267,10 +4267,10 @@
    "_kaynak": "wiki (belgeler/wiki/aliens.md: styxus_x5); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama",
    "kutu": {
     "tur": "STYXUS_BOX",
-    "olasilik": 1.0,
+    "probability": 1.0,
     "omur_sn": 300,
     "mod": "biri",
-    "icerik": [
+    "contents": [
      [
       "resource_collectable_styxus-shard",
       [
@@ -4375,10 +4375,10 @@
    "_kaynak": "wiki (belgeler/wiki/aliens.md: styxus_x6); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama",
    "kutu": {
     "tur": "STYXUS_BOX",
-    "olasilik": 1.0,
+    "probability": 1.0,
     "omur_sn": 300,
     "mod": "biri",
-    "icerik": [
+    "contents": [
      [
       "resource_collectable_styxus-shard",
       [
@@ -4483,10 +4483,10 @@
    "_kaynak": "wiki (belgeler/wiki/aliens.md: styxus_x7); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama",
    "kutu": {
     "tur": "STYXUS_BOX",
-    "olasilik": 1.0,
+    "probability": 1.0,
     "omur_sn": 300,
     "mod": "biri",
-    "icerik": [
+    "contents": [
      [
       "resource_collectable_styxus-shard",
       [
@@ -4591,10 +4591,10 @@
    "_kaynak": "wiki (belgeler/wiki/aliens.md: styxus_x8); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama",
    "kutu": {
     "tur": "STYXUS_BOX",
-    "olasilik": 1.0,
+    "probability": 1.0,
     "omur_sn": 300,
     "mod": "biri",
-    "icerik": [
+    "contents": [
      [
       "resource_collectable_styxus-shard",
       [
@@ -4699,10 +4699,10 @@
    "_kaynak": "wiki (belgeler/wiki/aliens.md: charopos_x2); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama",
    "kutu": {
     "tur": "CHAROPOS_BOX",
-    "olasilik": 1.0,
+    "probability": 1.0,
     "omur_sn": 300,
     "mod": "biri",
-    "icerik": [
+    "contents": [
      [
       "resource_collectable_charopos-shard",
       [
@@ -4807,10 +4807,10 @@
    "_kaynak": "wiki (belgeler/wiki/aliens.md: charopos_x3); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama",
    "kutu": {
     "tur": "CHAROPOS_BOX",
-    "olasilik": 1.0,
+    "probability": 1.0,
     "omur_sn": 300,
     "mod": "biri",
-    "icerik": [
+    "contents": [
      [
       "resource_collectable_charopos-shard",
       [
@@ -4915,10 +4915,10 @@
    "_kaynak": "wiki (belgeler/wiki/aliens.md: charopos_x4); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama",
    "kutu": {
     "tur": "CHAROPOS_BOX",
-    "olasilik": 1.0,
+    "probability": 1.0,
     "omur_sn": 300,
     "mod": "biri",
-    "icerik": [
+    "contents": [
      [
       "resource_collectable_charopos-shard",
       [
@@ -5023,10 +5023,10 @@
    "_kaynak": "wiki (belgeler/wiki/aliens.md: charopos_x5); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama",
    "kutu": {
     "tur": "CHAROPOS_BOX",
-    "olasilik": 1.0,
+    "probability": 1.0,
     "omur_sn": 300,
     "mod": "biri",
-    "icerik": [
+    "contents": [
      [
       "resource_collectable_charopos-shard",
       [
@@ -5131,10 +5131,10 @@
    "_kaynak": "wiki (belgeler/wiki/aliens.md: charopos_x6); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama",
    "kutu": {
     "tur": "CHAROPOS_BOX",
-    "olasilik": 1.0,
+    "probability": 1.0,
     "omur_sn": 300,
     "mod": "biri",
-    "icerik": [
+    "contents": [
      [
       "resource_collectable_charopos-shard",
       [
@@ -5239,10 +5239,10 @@
    "_kaynak": "wiki (belgeler/wiki/aliens.md: charopos_x7); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama",
    "kutu": {
     "tur": "CHAROPOS_BOX",
-    "olasilik": 1.0,
+    "probability": 1.0,
     "omur_sn": 300,
     "mod": "biri",
-    "icerik": [
+    "contents": [
      [
       "resource_collectable_charopos-shard",
       [
@@ -5347,10 +5347,10 @@
    "_kaynak": "wiki (belgeler/wiki/aliens.md: charopos_x8); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama",
    "kutu": {
     "tur": "CHAROPOS_BOX",
-    "olasilik": 1.0,
+    "probability": 1.0,
     "omur_sn": 300,
     "mod": "biri",
-    "icerik": [
+    "contents": [
      [
       "resource_collectable_charopos-shard",
       [
@@ -5677,14 +5677,14 @@
    },
    "kargo": {},
    "davranis": {
-    "cagrilar_yasarken_dokunulmaz": true,
-    "vurulunca_cagir": {
+    "invulnerable_while_summons_live": true,
+    "summon_on_hit": {
      "tur": "etk_hitac_minion",
      "adet": 6,
      "en_cok": 6,
      "bekleme_sn": 300,
-     "hepsi_olunce": true,
-     "koru": {"yaricap": [150, 350], "tasma": 1500},
+     "when_all_dead": true,
+     "koru": {"yaricap": [150, 350], "leash": 1500},
      "_bekleme": "Yedekler yardımcıların hepsi yok edilince, 300 sn sonra (uyarlama; fandom Hitac Event: \"There are replacement Minions inside the Mothership\"; oyuncu bildirimi 2026-10-30: 90 sn her çağrıdan sayılıyor, yardımcılar 1-2 dakikada yenileniyordu). koru: yardımcılar ana gemiye bağlı (fandom: \"six Hitac-Minions attached to it\"), ana gemiden 1.500 birim uzaklaşan oyuncuyu bırakır"
     }
    },
@@ -5753,19 +5753,19 @@
     ],
     "equipment_shipupgrade_dmg-x1": {
      "adet": 1,
-     "olasilik": 0.02
+     "probability": 0.02
     },
     "equipment_shipupgrade_hp-x1": {
      "adet": 1,
-     "olasilik": 0.02
+     "probability": 0.02
     },
     "equipment_shipupgrade_shd-x1": {
      "adet": 1,
-     "olasilik": 0.02
+     "probability": 0.02
     },
     "equipment_shipupgrade_spc-x1": {
      "adet": 1,
-     "olasilik": 0.02
+     "probability": 0.02
     }
    },
    "_kaynak": "taban -=[ Saimon ]=- x1.25 (uyarlama; wiki'de yok); görünüm istemcinin game.xml'i; Chaos Alien CPU'su doğurur; ödül paketi wiki protegit-pandemonium (common kademesi; miktar aralığı uyarlama)"
@@ -5831,27 +5831,27 @@
     ],
     "equipment_shipupgrade_dmg-x2": {
      "adet": 1,
-     "olasilik": 0.02
+     "probability": 0.02
     },
     "equipment_shipupgrade_hp-x2": {
      "adet": 1,
-     "olasilik": 0.02
+     "probability": 0.02
     },
     "equipment_shipupgrade_shd-x2": {
      "adet": 1,
-     "olasilik": 0.02
+     "probability": 0.02
     },
     "equipment_shipupgrade_spc-x2": {
      "adet": 1,
-     "olasilik": 0.02
+     "probability": 0.02
     },
     "equipment_shipupgrade_hp-xu02": {
      "adet": 1,
-     "olasilik": 0.02
+     "probability": 0.02
     },
     "equipment_shipupgrade_shd-xu02": {
      "adet": 1,
-     "olasilik": 0.02
+     "probability": 0.02
     }
    },
    "_kaynak": "taban ..::{ Boss Saimon }::.. x1.25 (uyarlama; wiki'de yok); görünüm istemcinin game.xml'i; Chaos Alien CPU'su doğurur; ödül paketi wiki protegit-pandemonium (rare kademesi; miktar aralığı uyarlama)"
@@ -5920,19 +5920,19 @@
     ],
     "equipment_shipupgrade_dmg-x1": {
      "adet": 1,
-     "olasilik": 0.02
+     "probability": 0.02
     },
     "equipment_shipupgrade_hp-x1": {
      "adet": 1,
-     "olasilik": 0.02
+     "probability": 0.02
     },
     "equipment_shipupgrade_shd-x1": {
      "adet": 1,
-     "olasilik": 0.02
+     "probability": 0.02
     },
     "equipment_shipupgrade_spc-x1": {
      "adet": 1,
-     "olasilik": 0.02
+     "probability": 0.02
     }
    },
    "_kaynak": "taban -=[ Mordon ]=- x1.25 (uyarlama; wiki'de yok); görünüm istemcinin game.xml'i; Chaos Alien CPU'su doğurur; ödül paketi wiki protegit-pandemonium (common kademesi; miktar aralığı uyarlama)"
@@ -5998,27 +5998,27 @@
     ],
     "equipment_shipupgrade_dmg-x2": {
      "adet": 1,
-     "olasilik": 0.02
+     "probability": 0.02
     },
     "equipment_shipupgrade_hp-x2": {
      "adet": 1,
-     "olasilik": 0.02
+     "probability": 0.02
     },
     "equipment_shipupgrade_shd-x2": {
      "adet": 1,
-     "olasilik": 0.02
+     "probability": 0.02
     },
     "equipment_shipupgrade_spc-x2": {
      "adet": 1,
-     "olasilik": 0.02
+     "probability": 0.02
     },
     "equipment_shipupgrade_hp-xu02": {
      "adet": 1,
-     "olasilik": 0.02
+     "probability": 0.02
     },
     "equipment_shipupgrade_shd-xu02": {
      "adet": 1,
-     "olasilik": 0.02
+     "probability": 0.02
     }
    },
    "_kaynak": "taban ..::{ Boss Mordon }::.. x1.25 (uyarlama; wiki'de yok); görünüm istemcinin game.xml'i; Chaos Alien CPU'su doğurur; ödül paketi wiki protegit-pandemonium (rare kademesi; miktar aralığı uyarlama)"
@@ -6087,19 +6087,19 @@
     ],
     "equipment_shipupgrade_dmg-x1": {
      "adet": 1,
-     "olasilik": 0.02
+     "probability": 0.02
     },
     "equipment_shipupgrade_hp-x1": {
      "adet": 1,
-     "olasilik": 0.02
+     "probability": 0.02
     },
     "equipment_shipupgrade_shd-x1": {
      "adet": 1,
-     "olasilik": 0.02
+     "probability": 0.02
     },
     "equipment_shipupgrade_spc-x1": {
      "adet": 1,
-     "olasilik": 0.02
+     "probability": 0.02
     }
    },
    "_kaynak": "taban -=[ Devolarium ]=- x1.25 (uyarlama; wiki'de yok); görünüm istemcinin game.xml'i; Chaos Alien CPU'su doğurur; ödül paketi wiki protegit-pandemonium (common kademesi; miktar aralığı uyarlama)"
@@ -6168,19 +6168,19 @@
     ],
     "equipment_shipupgrade_dmg-x1": {
      "adet": 1,
-     "olasilik": 0.02
+     "probability": 0.02
     },
     "equipment_shipupgrade_hp-x1": {
      "adet": 1,
-     "olasilik": 0.02
+     "probability": 0.02
     },
     "equipment_shipupgrade_shd-x1": {
      "adet": 1,
-     "olasilik": 0.02
+     "probability": 0.02
     },
     "equipment_shipupgrade_spc-x1": {
      "adet": 1,
-     "olasilik": 0.02
+     "probability": 0.02
     }
    },
    "_kaynak": "taban -=[ Kristallin ]=- x1.25 (uyarlama; wiki'de yok); görünüm istemcinin game.xml'i; Chaos Alien CPU'su doğurur; ödül paketi wiki protegit-pandemonium (common kademesi; miktar aralığı uyarlama)"
@@ -6246,27 +6246,27 @@
     ],
     "equipment_shipupgrade_dmg-x2": {
      "adet": 1,
-     "olasilik": 0.02
+     "probability": 0.02
     },
     "equipment_shipupgrade_hp-x2": {
      "adet": 1,
-     "olasilik": 0.02
+     "probability": 0.02
     },
     "equipment_shipupgrade_shd-x2": {
      "adet": 1,
-     "olasilik": 0.02
+     "probability": 0.02
     },
     "equipment_shipupgrade_spc-x2": {
      "adet": 1,
-     "olasilik": 0.02
+     "probability": 0.02
     },
     "equipment_shipupgrade_hp-xu02": {
      "adet": 1,
-     "olasilik": 0.02
+     "probability": 0.02
     },
     "equipment_shipupgrade_shd-xu02": {
      "adet": 1,
-     "olasilik": 0.02
+     "probability": 0.02
     }
    },
    "_kaynak": "taban ..::{ Boss Kristallin }::.. x1.25 (uyarlama; wiki'de yok); görünüm istemcinin game.xml'i; Chaos Alien CPU'su doğurur; ödül paketi wiki protegit-pandemonium (rare kademesi; miktar aralığı uyarlama)"
@@ -6335,19 +6335,19 @@
     ],
     "equipment_shipupgrade_dmg-x1": {
      "adet": 1,
-     "olasilik": 0.02
+     "probability": 0.02
     },
     "equipment_shipupgrade_hp-x1": {
      "adet": 1,
-     "olasilik": 0.02
+     "probability": 0.02
     },
     "equipment_shipupgrade_shd-x1": {
      "adet": 1,
-     "olasilik": 0.02
+     "probability": 0.02
     },
     "equipment_shipupgrade_spc-x1": {
      "adet": 1,
-     "olasilik": 0.02
+     "probability": 0.02
     }
    },
    "_kaynak": "taban -=[ Kristallon ]=- x1.25 (uyarlama; wiki'de yok); görünüm istemcinin game.xml'i; Chaos Alien CPU'su doğurur; ödül paketi wiki protegit-pandemonium (common kademesi; miktar aralığı uyarlama)"
@@ -6413,27 +6413,27 @@
     ],
     "equipment_shipupgrade_dmg-x2": {
      "adet": 1,
-     "olasilik": 0.02
+     "probability": 0.02
     },
     "equipment_shipupgrade_hp-x2": {
      "adet": 1,
-     "olasilik": 0.02
+     "probability": 0.02
     },
     "equipment_shipupgrade_shd-x2": {
      "adet": 1,
-     "olasilik": 0.02
+     "probability": 0.02
     },
     "equipment_shipupgrade_spc-x2": {
      "adet": 1,
-     "olasilik": 0.02
+     "probability": 0.02
     },
     "equipment_shipupgrade_hp-xu02": {
      "adet": 1,
-     "olasilik": 0.02
+     "probability": 0.02
     },
     "equipment_shipupgrade_shd-xu02": {
      "adet": 1,
-     "olasilik": 0.02
+     "probability": 0.02
     }
    },
    "_kaynak": "taban ..::{ Boss Kristallon }::.. x1.25 (uyarlama; wiki'de yok); görünüm istemcinin game.xml'i; Chaos Alien CPU'su doğurur; ödül paketi wiki protegit-pandemonium (rare kademesi; miktar aralığı uyarlama)"
@@ -6499,27 +6499,27 @@
     ],
     "equipment_shipupgrade_dmg-x2": {
      "adet": 1,
-     "olasilik": 0.02
+     "probability": 0.02
     },
     "equipment_shipupgrade_hp-x2": {
      "adet": 1,
-     "olasilik": 0.02
+     "probability": 0.02
     },
     "equipment_shipupgrade_shd-x2": {
      "adet": 1,
-     "olasilik": 0.02
+     "probability": 0.02
     },
     "equipment_shipupgrade_spc-x2": {
      "adet": 1,
-     "olasilik": 0.02
+     "probability": 0.02
     },
     "equipment_shipupgrade_hp-xu02": {
      "adet": 1,
-     "olasilik": 0.02
+     "probability": 0.02
     },
     "equipment_shipupgrade_shd-xu02": {
      "adet": 1,
-     "olasilik": 0.02
+     "probability": 0.02
     }
    },
    "_kaynak": "taban ( UberKristallon ) x1.25 (uyarlama; wiki'de yok); görünüm istemcinin game.xml'i; Chaos Alien CPU'su doğurur; ödül paketi wiki protegit-pandemonium (rare kademesi; miktar aralığı uyarlama)"
@@ -6589,35 +6589,35 @@
     "resource_collectable_permit": 2,
     "equipment_shipupgrade_dmg-zpve": {
      "adet": 1,
-     "olasilik": 0.02
+     "probability": 0.02
     },
     "equipment_shipupgrade_hp-zpve": {
      "adet": 1,
-     "olasilik": 0.02
+     "probability": 0.02
     },
     "equipment_shipupgrade_shd-zpve": {
      "adet": 1,
-     "olasilik": 0.02
+     "probability": 0.02
     },
     "equipment_shipupgrade_spc-zpve": {
      "adet": 1,
-     "olasilik": 0.02
+     "probability": 0.02
     },
     "equipment_shipupgrade_dmg-xu02": {
      "adet": 1,
-     "olasilik": 0.02
+     "probability": 0.02
     },
     "equipment_shipupgrade_hp-xu02": {
      "adet": 1,
-     "olasilik": 0.02
+     "probability": 0.02
     },
     "equipment_shipupgrade_shd-xu02": {
      "adet": 1,
-     "olasilik": 0.02
+     "probability": 0.02
     },
     "equipment_shipupgrade_spc-xu02": {
      "adet": 1,
-     "olasilik": 0.02
+     "probability": 0.02
     }
    },
    "_kaynak": "taban -=[ Lordakium ]=- x1.25 (uyarlama; wiki'de yok); görünüm istemcinin game.xml'i; Chaos Alien CPU'su doğurur; ödül paketi wiki protegit-pandemonium (legend kademesi; miktar aralığı uyarlama)"
@@ -6688,35 +6688,35 @@
     "resource_collectable_permit": 2,
     "equipment_shipupgrade_dmg-zpve": {
      "adet": 1,
-     "olasilik": 0.02
+     "probability": 0.02
     },
     "equipment_shipupgrade_hp-zpve": {
      "adet": 1,
-     "olasilik": 0.02
+     "probability": 0.02
     },
     "equipment_shipupgrade_shd-zpve": {
      "adet": 1,
-     "olasilik": 0.02
+     "probability": 0.02
     },
     "equipment_shipupgrade_spc-zpve": {
      "adet": 1,
-     "olasilik": 0.02
+     "probability": 0.02
     },
     "equipment_shipupgrade_dmg-xu02": {
      "adet": 1,
-     "olasilik": 0.02
+     "probability": 0.02
     },
     "equipment_shipupgrade_hp-xu02": {
      "adet": 1,
-     "olasilik": 0.02
+     "probability": 0.02
     },
     "equipment_shipupgrade_shd-xu02": {
      "adet": 1,
-     "olasilik": 0.02
+     "probability": 0.02
     },
     "equipment_shipupgrade_spc-xu02": {
      "adet": 1,
-     "olasilik": 0.02
+     "probability": 0.02
     }
    },
    "_kaynak": "taban ..::{ Boss Lordakium }::... x1.25 (uyarlama; wiki'de yok); görünüm istemcinin game.xml'i; Chaos Alien CPU'su doğurur; ödül paketi wiki protegit-pandemonium (legend kademesi; miktar aralığı uyarlama)"
@@ -6787,35 +6787,35 @@
     "resource_collectable_permit": 2,
     "equipment_shipupgrade_dmg-zpve": {
      "adet": 1,
-     "olasilik": 0.02
+     "probability": 0.02
     },
     "equipment_shipupgrade_hp-zpve": {
      "adet": 1,
-     "olasilik": 0.02
+     "probability": 0.02
     },
     "equipment_shipupgrade_shd-zpve": {
      "adet": 1,
-     "olasilik": 0.02
+     "probability": 0.02
     },
     "equipment_shipupgrade_spc-zpve": {
      "adet": 1,
-     "olasilik": 0.02
+     "probability": 0.02
     },
     "equipment_shipupgrade_dmg-xu02": {
      "adet": 1,
-     "olasilik": 0.02
+     "probability": 0.02
     },
     "equipment_shipupgrade_hp-xu02": {
      "adet": 1,
-     "olasilik": 0.02
+     "probability": 0.02
     },
     "equipment_shipupgrade_shd-xu02": {
      "adet": 1,
-     "olasilik": 0.02
+     "probability": 0.02
     },
     "equipment_shipupgrade_spc-xu02": {
      "adet": 1,
-     "olasilik": 0.02
+     "probability": 0.02
     }
    },
    "_kaynak": "taban ( UberLordakium ) x1.25 (uyarlama; wiki'de yok); görünüm istemcinin game.xml'i; Chaos Alien CPU'su doğurur; ödül paketi wiki protegit-pandemonium (legend kademesi; miktar aralığı uyarlama)"
@@ -6885,27 +6885,27 @@
     "resource_collectable_permit": 2,
     "equipment_shipupgrade_dmg-x2": {
      "adet": 1,
-     "olasilik": 0.08
+     "probability": 0.08
     },
     "equipment_shipupgrade_hp-x2": {
      "adet": 1,
-     "olasilik": 0.08
+     "probability": 0.08
     },
     "equipment_shipupgrade_shd-x2": {
      "adet": 1,
-     "olasilik": 0.08
+     "probability": 0.08
     },
     "equipment_shipupgrade_spc-x2": {
      "adet": 1,
-     "olasilik": 0.08
+     "probability": 0.08
     },
     "equipment_shipupgrade_hp-xu02": {
      "adet": 1,
-     "olasilik": 0.08
+     "probability": 0.08
     },
     "equipment_shipupgrade_shd-xu02": {
      "adet": 1,
-     "olasilik": 0.08
+     "probability": 0.08
     }
    },
    "_kaynak": "taban -=[ Interceptor ]=- x1.25 (uyarlama; wiki'de yok); görünüm istemcinin game.xml'i; Chaos Alien CPU'su doğurur; ödül paketi wiki protegit-pandemonium (legend kademesi; miktar aralığı uyarlama)"
@@ -6976,35 +6976,35 @@
     "resource_collectable_permit": 2,
     "equipment_shipupgrade_dmg-zpve": {
      "adet": 1,
-     "olasilik": 0.08
+     "probability": 0.08
     },
     "equipment_shipupgrade_hp-zpve": {
      "adet": 1,
-     "olasilik": 0.08
+     "probability": 0.08
     },
     "equipment_shipupgrade_shd-zpve": {
      "adet": 1,
-     "olasilik": 0.08
+     "probability": 0.08
     },
     "equipment_shipupgrade_spc-zpve": {
      "adet": 1,
-     "olasilik": 0.08
+     "probability": 0.08
     },
     "equipment_shipupgrade_dmg-xu02": {
      "adet": 1,
-     "olasilik": 0.08
+     "probability": 0.08
     },
     "equipment_shipupgrade_hp-xu02": {
      "adet": 1,
-     "olasilik": 0.08
+     "probability": 0.08
     },
     "equipment_shipupgrade_shd-xu02": {
      "adet": 1,
-     "olasilik": 0.08
+     "probability": 0.08
     },
     "equipment_shipupgrade_spc-xu02": {
      "adet": 1,
-     "olasilik": 0.08
+     "probability": 0.08
     }
    },
    "_kaynak": "taban -=[ Annihilator ]=- x1.25 (uyarlama; wiki'de yok); görünüm istemcinin game.xml'i; Chaos Alien CPU'su doğurur; ödül paketi wiki protegit-pandemonium (legend kademesi; miktar aralığı uyarlama)"
@@ -7074,27 +7074,27 @@
     "resource_collectable_permit": 2,
     "equipment_shipupgrade_dmg-x1": {
      "adet": 1,
-     "olasilik": 0.08
+     "probability": 0.08
     },
     "equipment_shipupgrade_hp-x1": {
      "adet": 1,
-     "olasilik": 0.08
+     "probability": 0.08
     },
     "equipment_shipupgrade_shd-x1": {
      "adet": 1,
-     "olasilik": 0.08
+     "probability": 0.08
     },
     "equipment_shipupgrade_spc-x1": {
      "adet": 1,
-     "olasilik": 0.08
+     "probability": 0.08
     },
     "equipment_shipupgrade_hp-x2": {
      "adet": 1,
-     "olasilik": 0.08
+     "probability": 0.08
     },
     "equipment_shipupgrade_shd-x2": {
      "adet": 1,
-     "olasilik": 0.08
+     "probability": 0.08
     }
    },
    "_kaynak": "taban -=[ Protegit ]=- x1.25 (uyarlama; wiki'de yok); görünüm istemcinin game.xml'i; Chaos Alien CPU'su doğurur; ödül paketi wiki protegit-pandemonium (legend kademesi; miktar aralığı uyarlama)"
@@ -7396,14 +7396,14 @@
    },
    "kargo": {},
    "davranis": {
-    "cagrilar_yasarken_dokunulmaz": true,
-    "vurulunca_cagir": {
+    "invulnerable_while_summons_live": true,
+    "summon_on_hit": {
      "tur": "etk_hitac2_minion",
      "adet": 6,
      "en_cok": 6,
      "bekleme_sn": 300,
-     "hepsi_olunce": true,
-     "koru": {"yaricap": [150, 350], "tasma": 1500},
+     "when_all_dead": true,
+     "koru": {"yaricap": [150, 350], "leash": 1500},
      "_bekleme": "Yedekler yardımcıların hepsi yok edilince, 300 sn sonra (uyarlama; fandom Hitac Event: \"There are replacement Minions inside the Mothership\"; oyuncu bildirimi 2026-10-30: 90 sn her çağrıdan sayılıyor, yardımcılar 1-2 dakikada yenileniyordu). koru: yardımcılar ana gemiye bağlı (fandom: \"six Hitac-Minions attached to it\"), ana gemiden 1.500 birim uzaklaşan oyuncuyu bırakır"
     }
    },
@@ -7482,35 +7482,35 @@
     "ammunition_rocketlauncher_ubr-100": 7293,
     "equipment_shipupgrade_dmg-zpve": {
      "adet": 1,
-     "olasilik": 0.02
+     "probability": 0.02
     },
     "equipment_shipupgrade_hp-zpve": {
      "adet": 1,
-     "olasilik": 0.02
+     "probability": 0.02
     },
     "equipment_shipupgrade_shd-zpve": {
      "adet": 1,
-     "olasilik": 0.02
+     "probability": 0.02
     },
     "equipment_shipupgrade_spc-zpve": {
      "adet": 1,
-     "olasilik": 0.02
+     "probability": 0.02
     },
     "equipment_shipupgrade_dmg-xu02": {
      "adet": 1,
-     "olasilik": 0.02
+     "probability": 0.02
     },
     "equipment_shipupgrade_hp-xu02": {
      "adet": 1,
-     "olasilik": 0.02
+     "probability": 0.02
     },
     "equipment_shipupgrade_shd-xu02": {
      "adet": 1,
-     "olasilik": 0.02
+     "probability": 0.02
     },
     "equipment_shipupgrade_spc-xu02": {
      "adet": 1,
-     "olasilik": 0.02
+     "probability": 0.02
     }
    },
    "_kaynak": "taban Cubikon x1.25 (uyarlama; wiki'de yok); ödül paketi wiki protegit-pandemonium (Chaos Cubikon; miktarı \"?\" olanlar yazılmadı)"
@@ -7790,7 +7790,7 @@
    "ek_odul": {
     "ammunition_specialammo_wiz-x": {
      "adet": 1,
-     "olasilik": 0.25
+     "probability": 0.25
     }
    },
    "_kaynak": "Resmî Türk forumu 1885 (NPC'ler ve Verdikleri Ödüller): Sunburst Lordakium, özel günlerde X-2..X-8 ve 4-X; DP 400.000, kalkan 600.000, hasar 3.500-4.500 + WIZ-X roketi; 51.200 TP, 156 şeref, 409.600 kredi, 128 U; kargo P/E/T 300, Pd/Du 128, Pr 16, Xe 4. İstemci npc_name_76",
@@ -7806,7 +7806,7 @@
    "hiz": 150,
    "saldirgan": true,
    "etkinlik": true,
-   "sadece_cephane": [
+   "ammo_only": [
     "ammunition_laser_cbo-100",
     "ammunition_rocketlauncher_cbr"
    ],
@@ -7829,7 +7829,7 @@
    "hiz": 150,
    "saldirgan": true,
    "etkinlik": true,
-   "sadece_cephane": [
+   "ammo_only": [
     "ammunition_laser_cbo-100",
     "ammunition_rocketlauncher_cbr"
    ],
@@ -7852,7 +7852,7 @@
    "hiz": 150,
    "saldirgan": true,
    "etkinlik": true,
-   "sadece_cephane": [
+   "ammo_only": [
     "ammunition_laser_cbo-100",
     "ammunition_rocketlauncher_cbr"
    ],
@@ -7875,7 +7875,7 @@
    "hiz": 150,
    "saldirgan": true,
    "etkinlik": true,
-   "sadece_cephane": [
+   "ammo_only": [
     "ammunition_laser_cbo-100",
     "ammunition_rocketlauncher_cbr"
    ],
@@ -7898,7 +7898,7 @@
    "hiz": 150,
    "saldirgan": true,
    "etkinlik": true,
-   "sadece_cephane": [
+   "ammo_only": [
     "ammunition_laser_cbo-100",
     "ammunition_rocketlauncher_cbr"
    ],
@@ -7921,7 +7921,7 @@
    "hiz": 150,
    "saldirgan": true,
    "etkinlik": true,
-   "sadece_cephane": [
+   "ammo_only": [
     "ammunition_laser_cbo-100",
     "ammunition_rocketlauncher_cbr"
    ],
@@ -7944,7 +7944,7 @@
    "hiz": 150,
    "saldirgan": true,
    "etkinlik": true,
-   "sadece_cephane": [
+   "ammo_only": [
     "ammunition_laser_cbo-100",
     "ammunition_rocketlauncher_cbr"
    ],
@@ -7967,7 +7967,7 @@
    "hiz": 150,
    "saldirgan": true,
    "etkinlik": true,
-   "sadece_cephane": [
+   "ammo_only": [
     "ammunition_laser_cbo-100",
     "ammunition_rocketlauncher_cbr"
    ],
@@ -8347,7 +8347,7 @@
    },
    "kargo": {},
    "davranis": {
-    "olunce_dogur": [
+    "spawn_on_death": [
      {
       "tur": "pm_blighted_gygerthrall",
       "adet": 2
@@ -8374,10 +8374,10 @@
    "kargo": {},
    "kutu": {
     "tur": "HYBRID_ALLOY_BOX",
-    "olasilik": 0.5,
+    "probability": 0.5,
     "omur_sn": 300,
     "mod": "hepsi",
-    "icerik": [
+    "contents": [
      [
       "resource_collectable_hybrid-alloy",
       1,
@@ -8399,7 +8399,7 @@
  },
  "haritalar": {
   "5": {
-   "_ad": "2-1",
+   "_name": "2-1",
    "npc": [
     {
      "tip": "84",
@@ -8417,7 +8417,7 @@
    "bonus_kutu": 20
   },
   "6": {
-   "_ad": "2-2",
+   "_name": "2-2",
    "npc": [
     {
      "tip": "84",
@@ -8448,7 +8448,7 @@
    "_kaynak": "tür listesi istemcinin spacemap-config.xml'inden (1-2/2-2/3-2: Streuner, Lordakia, Boss Streuner, Boss Lordakia, Recruit, Aider); adetler uyarlama"
   },
   "1": {
-   "_ad": "1-1",
+   "_name": "1-1",
    "npc": [
     {
      "tip": "84",
@@ -8467,7 +8467,7 @@
    "_kaynak": "türler spacemap-config.xml; adetler uyarlama (X-1)"
   },
   "2": {
-   "_ad": "1-2",
+   "_name": "1-2",
    "npc": [
     {
      "tip": "84",
@@ -8498,7 +8498,7 @@
    "_kaynak": "türler spacemap-config.xml; adetler uyarlama (X-2)"
   },
   "3": {
-   "_ad": "1-3",
+   "_name": "1-3",
    "npc": [
     {
      "tip": "71",
@@ -8533,7 +8533,7 @@
    "_kaynak": "türler spacemap-config.xml; adetler uyarlama (X-3)"
   },
   "4": {
-   "_ad": "1-4",
+   "_name": "1-4",
    "npc": [
     {
      "tip": "71",
@@ -8568,7 +8568,7 @@
    "_kaynak": "türler spacemap-config.xml; adetler uyarlama (X-4)"
   },
   "7": {
-   "_ad": "2-3",
+   "_name": "2-3",
    "npc": [
     {
      "tip": "71",
@@ -8603,7 +8603,7 @@
    "_kaynak": "türler spacemap-config.xml; adetler uyarlama (X-3)"
   },
   "8": {
-   "_ad": "2-4",
+   "_name": "2-4",
    "npc": [
     {
      "tip": "71",
@@ -8634,7 +8634,7 @@
    "_kaynak": "türler spacemap-config.xml; adetler uyarlama (X-4)"
   },
   "9": {
-   "_ad": "3-1",
+   "_name": "3-1",
    "npc": [
     {
      "tip": "84",
@@ -8653,7 +8653,7 @@
    "_kaynak": "türler spacemap-config.xml; adetler uyarlama (X-1)"
   },
   "10": {
-   "_ad": "3-2",
+   "_name": "3-2",
    "npc": [
     {
      "tip": "84",
@@ -8684,7 +8684,7 @@
    "_kaynak": "türler spacemap-config.xml; adetler uyarlama (X-2)"
   },
   "11": {
-   "_ad": "3-3",
+   "_name": "3-3",
    "npc": [
     {
      "tip": "71",
@@ -8719,7 +8719,7 @@
    "_kaynak": "türler spacemap-config.xml; adetler uyarlama (X-3)"
   },
   "12": {
-   "_ad": "3-4",
+   "_name": "3-4",
    "npc": [
     {
      "tip": "71",
@@ -8750,7 +8750,7 @@
    "_kaynak": "türler spacemap-config.xml; adetler uyarlama (X-4)"
   },
   "13": {
-   "_ad": "4-1",
+   "_name": "4-1",
    "npc": [
     {
      "tip": "npc121",
@@ -8765,7 +8765,7 @@
    "_kaynak": "türler spacemap-config.xml; adetler uyarlama (4-X)"
   },
   "14": {
-   "_ad": "4-2",
+   "_name": "4-2",
    "npc": [
     {
      "tip": "npc121",
@@ -8776,7 +8776,7 @@
    "_kaynak": "türler spacemap-config.xml; adetler uyarlama (4-X)"
   },
   "15": {
-   "_ad": "4-3",
+   "_name": "4-3",
    "npc": [
     {
      "tip": "npc121",
@@ -8791,7 +8791,7 @@
    "_kaynak": "türler spacemap-config.xml; adetler uyarlama (4-X)"
   },
   "16": {
-   "_ad": "4-4",
+   "_name": "4-4",
    "npc": [
     {
      "tip": "npc121",
@@ -8806,7 +8806,7 @@
    ]
   },
   "17": {
-   "_ad": "1-5",
+   "_name": "1-5",
    "npc": [
     {
      "tip": "71",
@@ -8833,7 +8833,7 @@
    "_kaynak": "türler spacemap-config.xml; adetler uyarlama (X-5)"
   },
   "18": {
-   "_ad": "1-6",
+   "_name": "1-6",
    "npc": [
     {
      "tip": "78",
@@ -8898,7 +8898,7 @@
    ]
   },
   "19": {
-   "_ad": "1-7",
+   "_name": "1-7",
    "npc": [
     {
      "tip": "78",
@@ -8947,7 +8947,7 @@
    ]
   },
   "20": {
-   "_ad": "1-8",
+   "_name": "1-8",
    "npc": [
     {
      "tip": "85",
@@ -8988,7 +8988,7 @@
    ]
   },
   "21": {
-   "_ad": "2-5",
+   "_name": "2-5",
    "npc": [
     {
      "tip": "71",
@@ -9023,7 +9023,7 @@
    "_kaynak": "türler spacemap-config.xml; adetler uyarlama (X-5)"
   },
   "22": {
-   "_ad": "2-6",
+   "_name": "2-6",
    "npc": [
     {
      "tip": "78",
@@ -9088,7 +9088,7 @@
    ]
   },
   "23": {
-   "_ad": "2-7",
+   "_name": "2-7",
    "npc": [
     {
      "tip": "78",
@@ -9141,7 +9141,7 @@
    ]
   },
   "24": {
-   "_ad": "2-8",
+   "_name": "2-8",
    "npc": [
     {
      "tip": "85",
@@ -9186,7 +9186,7 @@
    ]
   },
   "25": {
-   "_ad": "3-5",
+   "_name": "3-5",
    "npc": [
     {
      "tip": "71",
@@ -9221,7 +9221,7 @@
    "_kaynak": "türler spacemap-config.xml; adetler uyarlama (X-5)"
   },
   "26": {
-   "_ad": "3-6",
+   "_name": "3-6",
    "npc": [
     {
      "tip": "78",
@@ -9286,7 +9286,7 @@
    ]
   },
   "27": {
-   "_ad": "3-7",
+   "_name": "3-7",
    "npc": [
     {
      "tip": "78",
@@ -9331,7 +9331,7 @@
    ]
   },
   "28": {
-   "_ad": "3-8",
+   "_name": "3-8",
    "npc": [
     {
      "tip": "85",
@@ -9368,7 +9368,7 @@
    ]
   },
   "29": {
-   "_ad": "4-5",
+   "_name": "4-5",
    "npc": [
     {
      "tip": "23",
@@ -9495,17 +9495,17 @@
    ],
    "solucan_deligi": {
     "hedef": 42,
-    "konum": [
+    "position": [
      15600,
      14100
     ],
-    "mezarlik_sansi": 0.2,
+    "graveyard_chance": 0.2,
     "_kaynak": "fandom 4-5 ve Wormhole: haritanın ortasındaki beyaz delikte gizli portal; J ile ya Cubikon Mezarlığı'na ya rastgele bir haritaya (resmî Türk forumu 127347: solucan deliği de atlama CPU'ları gibi şansla mezarlığa). Konum istemcinin mini haritasındaki (minimap-29) beyaz deliğin merkezi; oyuncu bildirimi 2026-10-28",
     "_uyarlama": "mezarlık şansı %20 (tek oyunculu; atlama CPU'sununki %2); rastgele harita AJP-01 listesinden (seviyenin açtığı, 5-X/BL ve düşman X-1 dışı)"
    }
   },
   "91": {
-   "_ad": "5-1",
+   "_name": "5-1",
    "npc": [
     {
      "tip": "111",
@@ -9540,7 +9540,7 @@
    ]
   },
   "92": {
-   "_ad": "5-2",
+   "_name": "5-2",
    "npc": [
     {
      "tip": "111",
@@ -9597,7 +9597,7 @@
    ]
   },
   "93": {
-   "_ad": "5-3",
+   "_name": "5-3",
    "npc": [
     {
      "tip": "111",
@@ -9654,7 +9654,7 @@
    ]
   },
   "306": {
-   "_ad": "BL-1",
+   "_name": "BL-1",
    "npc": [
     {
      "tip": "213",
@@ -9689,7 +9689,7 @@
    "_kaynak": "türler spacemap-config.xml; adetler uyarlama (X-BL)"
   },
   "307": {
-   "_ad": "BL-2",
+   "_name": "BL-2",
    "npc": [
     {
      "tip": "213",
@@ -9732,7 +9732,7 @@
    "_kaynak": "türler spacemap-config.xml; adetler uyarlama (X-BL)"
   },
   "308": {
-   "_ad": "BL-3",
+   "_name": "BL-3",
    "npc": [
     {
      "tip": "213",
@@ -9767,7 +9767,7 @@
    "_kaynak": "türler spacemap-config.xml; adetler uyarlama (X-BL)"
   },
   "42": {
-   "_ad": "???",
+   "_name": "???",
    "npc": [
     {
      "tip": "80",
@@ -9780,10 +9780,10 @@
    ],
    "bonus_kutu": 200,
    "_kaynak": "türler wiki (belgeler/wiki/maps.md); adetler uyarlama (???): fandom \"vast numbers of Cubikon and Uber Protegit\", \"many Bonus Boxes covering the entire map\", forum 127347 \"bol miktarda bonus\", \"sürekli olarak Cubikon ve refakatçi gemileri Uber Protegitler gelmeye başlar\" (oyuncu bildirimi 2026-10-30: 4 Cubikon, 12 Uber Protegit, 40 kutu seyrek kalıyordu; harita 21.000x13.100'de ekran başına ~2 kutu)",
-   "gizlenme_yok": true,
-   "_kurallar": "Cubikon Mezarlığı (wiki, belgeler/arastirma/pve_icerik.md 2.38): girişte gizlenme kalkar ve kullanılamaz, yavaşlatan hava (oran uyarlama), her yerde bonus kutusu (ilki 1.000 UCB-100, değeri giderek LCB-10'a düşer); çıkış yalnız atlama CPU'su ya da ölüm. Giriş: atlama CPU'su (esyalar.json mezarlik_sansi) ya da 4-5'teki gizli, yer değiştiren solucan deliği. Onarımlar ücretsiz (fandom Cubikon's Graveyard: \"repairs are free\"): ölüm ekranındaki yerinde onarım da bedelsiz (onarim_ucretsiz; dunya.repair_offers).",
-   "onarim_ucretsiz": true,
-   "bonus_ucb_tavan": [
+   "no_stealth": true,
+   "_kurallar": "Cubikon Mezarlığı (wiki, belgeler/arastirma/pve_icerik.md 2.38): girişte gizlenme kalkar ve kullanılamaz, yavaşlatan hava (oran uyarlama), her yerde bonus kutusu (ilki 1.000 UCB-100, değeri giderek LCB-10'a düşer); çıkış yalnız atlama CPU'su ya da ölüm. Giriş: atlama CPU'su (esyalar.json graveyard_chance) ya da 4-5'teki gizli, yer değiştiren solucan deliği. Onarımlar ücretsiz (fandom Cubikon's Graveyard: \"repairs are free\"): ölüm ekranındaki yerinde onarım da bedelsiz (free_repair; dunya.repair_offers).",
+   "free_repair": true,
+   "bonus_ucb_cap": [
     [
      "ammunition_laser_ucb-100",
      1000
@@ -9797,7 +9797,7 @@
    "_bonus_ucb_tavan": "Resmî Türk forumu 127347 (Sürpriz ??? Harita): kutular 1.000'er UCB-100 verir, bu ziyarette toplanan UCB-100 100.000'e ulaşınca LCB-10 (adet uyarlama). Haritanın kalıcı yavaşlatması yok: Uber Protegit'ler yavaşlatan atış yapar"
   },
   "94": {
-   "_ad": "5-4",
+   "_name": "5-4",
    "npc": [
     {
      "tip": "330",
@@ -9829,47 +9829,47 @@
    "_kurallar": "5-4 (wiki): portalı 5-2'de, girişi bir Gümüş Booty Key (Assembly gelene dek anahtar yoksa 25 Darksilver Coin, uyarlama); sabit nüfus 1 The Stinger, 5 Pike, 12 Barb, 25 Lanternfish, 40 Spookfish. Gümüş sandıklar anahtarlı kutularla (yol haritası Aşama 5)."
   }
  },
- "harita_boyutu": [
+ "map_size": [
   21000,
   13100
  ],
  "savas": {
   "_kaynak": "kayıttan gözlenen: lazer aralığı ~1,1 sn; LF-1 + LCB-10 ile 50–64 hasar; NPC kalkanı hasarın %70'ini emer; R-310 roketi 850–1000 hasar, 4 sn bekleme, ~0,8 sn uçuş",
-  "lazer_aralik_sn": 1.1,
+  "laser_interval_sec": 1.1,
   "lazer_hasar": [
    48,
    66
   ],
   "lazer_isabet": 0.8,
-  "lazer_menzil": 700,
+  "laser_range": 700,
   "roket_hasar": [
    850,
    1000
   ],
   "roket_bekleme_ms": 4000,
-  "roket_ucus_sn": 0.8,
-  "roket_menzil": 900,
+  "rocket_flight_sec": 0.8,
+  "rocket_range": 900,
   "roket_isabet": 0.8,
   "_roket_isabet": "roketin kendi isabeti yoksa taban (esyalar.json roketler.<id>.isabet: R-310 %70, PLT-2026 %80, PLT-2021 %90, PLT-3030 %65, BDR-1211 %100; özel cephane bu taban, uyarlama); Heat-Seeking Missiles yeteneği (roket_isabet) ve DMG-H01 boosterı (isabet) artırır, PLD-8 gibi etkiler düşürür",
-  "npc_kalkan_emme": 0.7,
+  "npc_shield_absorb": 0.7,
   "_npc_kalkan_emme": "Varsayılan kalkan emme oranı; türün kalkan_emme değeri varsa o (fandom: Aider Streuner, Kristallon, Uber Kristallon %90, Cubikon %80, Uber Annihilator %85, Uber Interceptor %60)",
   "npc_isabet": 0.7,
   "npc_menzil": 450,
   "_npc_menzil": "Uzaylıların ateş menzili (türün menzil alanı yoksa): özel sunucu kodu (Ow, Attackable.AttackRange: uzaylı 450, oyuncu lazeri 700); DarkBot uzaylıları 550-610 birimden döner (çevirme). Önceden 600: dönerken çok uzaktan vuruluyordu (kullanıcı bildirimi 2026-10-25, Boss Sibelon). Kristallon ailesi 550 (fandom: \"en uzun menzil\")",
-  "npc_saldiri_aralik_sn": 1.1,
+  "npc_attack_interval_sec": 1.1,
   "yeniden_dogma_sn": [
    12,
    25
   ],
-  "kutu_gecikme_sn": 1.2,
-  "kutu_omur_sn": 120,
-  "toplama_mesafe": 250,
-  "npc_fark_mesafe": 1000,
-  "pasif_takip": {
+  "box_delay_sec": 1.2,
+  "box_life_sec": 120,
+  "harvest_distance": 250,
+  "npc_notice_distance": 1000,
+  "passive_follow": {
    "mesafe": 1500,
    "yakin": 300,
    "sapma": 1.0,
-   "haric": [
+   "exclude": [
     "84",
     "153",
     "saturn_"
@@ -9880,11 +9880,11 @@
   "gorus_mesafesi": 1800,
   "gorus_birakma": 1800,
   "_gorus_mesafesi": "Kayıt: gerçek sunucu NPC'leri kahramana ~1.800 birimde ShipCreateCommand ile gösteriyor (23 olay, 1.223-1.907, ortanca ~1.730), uzaklaşınca ShipRemoveCommand ile kaldırıyor (15 olay, 1.519-1.783); belirgin gecikme payı yok, bırakma da 1.800 (kahraman konumu MoveRequest'ten ±150).",
-  "radyasyon_yuzde": [
+  "radiation_percent": [
    0.01,
    0.05
   ],
-  "radyasyon_artis_sn": 3,
+  "radiation_increase_sec": 3,
   "_radyasyon": "darkorbit.fandom.com Radiation zone: harita sınırı dışında saniyede azami canın %1'i, %5'e kadar artar. Artış hızı (3 sn'de bir +%1) uyarlama; kalkanı değil gövdeyi vurur.",
   "x1_kargo": [
    [
@@ -9905,7 +9905,7 @@
    ]
   ],
   "_x1_kargo": "darkorbit.fandom.com Hall of Fame: X-1 haritalarında yüksek seviyede NPC kargosu azalır: seviye 7 %50, 8 %25, 9 %13, 10 ve üstü hiç (alçak seviyelilerin haritası).",
-  "x1_odul": [
+  "x1_reward": [
    [
     7,
     0.8
@@ -9931,9 +9931,9 @@
   "kutu_gorus": 1000,
   "kutu_birakma": 1150,
   "_kutu_gorus": "Kayıt: kutular ve cevherler kahramana ~1.000 birim kala AddBoxCommand/AddOreCommand ile geliyor, uzaklaşınca toplanmadan RemoveCollectableCommand (161 kez, 900-1.150 birim). Bırakma uzaklığı uyarlama.",
-  "npc_menzil_sabit": 1000,
+  "npc_fixed_range": 1000,
   "_npc_menzil_sabit": "hareketsiz uzaylıların (Mindfire Behemoth, Cubikon …) ateş menzili: oyuncunun lazer (700) ve roket (900) menzilinden uzun olmalı, yoksa karşılık vermeden kesilirler (wiki: Behemoth \"en uzun menzil\"; değer uyarlama)",
-  "yeniden_dogma_ozel": {
+  "respawn_special": {
    "boss": [
     90,
     180
@@ -9980,7 +9980,7 @@
    ]
   },
   "_yeniden_dogma_ozel": "Boss/Uber, Cubikon (80), Battleray (115), Deadly Battleray (npc121), Invoke XVI (221) ve Mindfire Behemoth (225) sıradan uzaylı gibi 12-25 sn'de dönmesin. Anahtar: tür ya da ada göre \"boss\" (..::{), \"uber\". Battleray 7-10 dk, Deadly Battleray 5-5,5 dk, Behemoth 15-16 dk fandom, Invoke XVI 15 dk (board-fr 127829 s. 69; en çok 3 Invoke); Strokelight Barrage (320) Behemoth gibi; Boss/Uber ve Cubikon uyarlama (Cubikon 2-3 dk; oyuncu bildirimi 2026-10-31: 5-10 dk çok uzundu); The Stinger (330) fandom (Stinger): yok edilince 2 saat sonra yeniden doğar (haritada en çok 1; 85 milyon canlı patron 12 sn'de dönmesin) Demaner Freighter 20 dk (resmî Türk forumu 132357: \"Her 20 dakikada bir\"), I-Hitac 15-20 dk (uyarlama).",
-  "zamanli_sure_sn": 3600,
+  "scheduled_duration_sec": 3600,
   "_zamanli": "Zaman çizelgeli Black Light başıboşları (haritalar.zamanli; wiki saatleri, yerel saat): saatinden sonra bu kadar saniye içinde haritaya gelinirse doğar (uyarlama); ölünce o saat bir daha doğmaz (profil zamanli)."
  },
  "bonus_kutu": [
@@ -10061,7 +10061,7 @@
    1
   ]
  ],
- "_harita_notu": "Kayıtta olmayan haritalar tools/npc_haritalari.py ile üretildi. \"model\": istemciye gönderilen gemi modeli (tür anahtarından farklıysa). \"boyut\": büyük haritalar (maps-config.xml scaleFactor 2).",
+ "_map_note": "Kayıtta olmayan haritalar tools/npc_haritalari.py ile üretildi. \"model\": istemciye gönderilen gemi modeli (tür anahtarından farklıysa). \"boyut\": büyük haritalar (maps-config.xml scaleFactor 2).",
  "bonus_kutu_4x": [
   [
    "ammunition_laser_lcb-10",
@@ -10141,10 +10141,10 @@
   ]
  ],
  "_bonus_kutu_4x": "belgeler/wiki/boxes.md normal_box_4x: 4-X haritalarındaki zengin bonus kutusu",
- "_davranis": "Tür başına isteğe bağlı alanlar (yoksa savas değerleri): fark_mesafe (saldırgan türün oyuncuyu fark ettiği uzaklık), atis_aralik_sn, isabet, menzil; davranis: olunce_dogur [{tur, adet}] (ölünce doğanlar, yeniden doğmaz), vurulunca_cagir {tur, adet, en_cok, bekleme_sn}, yenilenme {can_sn, kalkan_sn, bekleme_sn} (vurulmadan geçen süre), cagrilar_yasarken_dokunulmaz (bool). İçerik (Cubikon, Lordakium sporları, Battleray …) yol haritasının 4. aşamasında.",
+ "_davranis": "Tür başına isteğe bağlı alanlar (yoksa savas değerleri): fark_mesafe (saldırgan türün oyuncuyu fark ettiği uzaklık), shot_interval_sec, isabet, menzil; davranis: spawn_on_death [{tur, adet}] (ölünce doğanlar, yeniden doğmaz), summon_on_hit {tur, adet, en_cok, bekleme_sn}, yenilenme {can_sn, shield_per_sec, bekleme_sn} (vurulmadan geçen süre), invulnerable_while_summons_live (bool). İçerik (Cubikon, Lordakium sporları, Battleray …) yol haritasının 4. aşamasında.",
  "_ek_odul": "tipler.ek_odul: ölünce ek ödül {lootId: adet} (aliens.md \"Extra destroy rewards\"; Palladium kargoya, ötekiler kaynak deposuna). Olasılıklı ödüller (Stinger: 20-40 Isochronate, %45 …) henüz yok.",
- "_etkinlik_turleri": "etk_* türleri tools/etkinlik_uzaylilari.py ile (harita etkinlikleri, Aşama 7).",
- "_etkinlik_kutulari": "etk_santa_*, etk_hitac_* tools/etkinlik_kutulari.py ile.",
+ "_event_kinds": "etk_* türleri tools/etkinlik_uzaylilari.py ile (harita etkinlikleri, Aşama 7).",
+ "_event_boxes": "etk_santa_*, etk_hitac_* tools/etkinlik_kutulari.py ile.",
  "_forum_tr": "Resmî Türk forumu (2026-10-26): Darksilver hızları ve Stinger/Pike (160525), Impulse II/Attend IX hızları (141806), LF-4 geliştirme Bifenon tablosu (129125: Interceptor %20, Deadly Battleray 2, Uber Kristallon %30, Uber Kristallin %25), Boss'larda 1 ve Uber Kristallon'da 2 günlük dosyası (127585; oran %5 uyarlama), Protegit hızı 420 (127543)",
  "_forum_tr_plagued": "Plagued Kristallin kalıcı olarak yalnız X-6'da (istemcinin spacemap-config.xml'i, darkorbitwiki X-6); X-4 ve X-5'te yalnız Veba Mutasyonu etkinliğinde (resmî Türk forumu 154610: etkinlik süresince X-4, X-5, X-6'da doğma oranı artar): etkinlikler.json plague_mutation harita_ek, etk_plagued_kristallin 2'şer (adet uyarlama)"
 }

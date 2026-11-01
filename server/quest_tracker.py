@@ -125,7 +125,7 @@ def measure(c, kind, kw, map_id=None):
     if t == 89 and kind in ('spend', 'ammo'):       # cephane harcamak ('ammo' olayı; Pass görevleri onu 'spend'e çevirir: savas_bileti.measure)
         return int(kw.get('adet', 0)) if not m or kw.get('loot') in m else 0
     if t == 95 and kind == 'sp_quest':
-        return 1 if not m or str(kw.get('kategori')) == m[0] else 0
+        return 1 if not m or str(kw.get('category')) == m[0] else 0
     if t == 96 and kind == 'login':
         return 1
     if t == 100 and kind == 'recharge':

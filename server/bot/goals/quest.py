@@ -24,7 +24,7 @@ def quests():
             _id_type.setdefault(str(t.get('npc_kimlik', '')), []).append(tip)
         out = {}
         for qid, q in QU.QUESTS.items():
-            if q.get('turler') != [2] or q.get('sure_sn'):
+            if q.get('kinds') != [2] or q.get('sure_sn'):
                 continue
             conditions = []
             ok = True
@@ -37,12 +37,12 @@ def quests():
                 if any(s.get('type') not in (ON_MAP,) for s in c.get('subConditions', [])):
                     ok = False
                     break
-                conditions.append(dict(id=c['id'], tur=c['type'], hedef=int(c.get('targetValue', 1)), eslesme=list(c.get('matches', [])),
+                conditions.append(dict(id=c['id'], tur=c['type'], hedef=int(c.get('targetValue', 1)), matches=list(c.get('matches', [])),
                                 haritalar=maps))
             package = any(str(l).startswith('ship_') or (l == 'currency_uridium' and n >= 10000) for l, n in q.get('oduller', []))
             if ok and conditions and not package:            # hoş geldin paketi (gemi, binlerce uridyum): botlar herkes gibi sıfırdan
-                out[int(qid)] = dict(seviye=int(q.get('seviye', 0)), onceki=[int(x) for x in q.get('onceki', [])], kosullar=conditions,
-                                     oduller=q.get('oduller', []), ad=q.get('ad', ''), sirali=q['kok'].get('ordered', False))
+                out[int(qid)] = dict(seviye=int(q.get('seviye', 0)), onceki=[int(x) for x in q.get('onceki', [])], conditions=conditions,
+                                     oduller=q.get('oduller', []), ad=q.get('ad', ''), ordered=q['kok'].get('ordered', False))
         _quests = out
     return _quests
 
@@ -82,21 +82,21 @@ def next_up(bot):
     if not q:
         bot.k['gorev'] = None
         return None
-    for c in q['kosullar']:
-        if g['kosullar'].get(str(c['id']), 0) < c['hedef']:
+    for c in q['conditions']:
+        if g['conditions'].get(str(c['id']), 0) < c['hedef']:
             maps = [m for h in c['haritalar'] for m in map_list(h, bot.firma)]
             if c['tur'] == VISIT_MAP:
-                maps = [m for h in c['eslesme'] for m in map_list(h, bot.firma)]
+                maps = [m for h in c['matches'] for m in map_list(h, bot.firma)]
             elif c['tur'] == HOME:
                 maps = [K.ev(bot.firma)]
             elif c['tur'] == KILL_NPC and not maps:
                 # haritası verilmemiş: o uzaylının çıktığı, girebildiği en yakın harita
-                types = {t for k in c['eslesme'] for t in npc_types(k)}
+                types = {t for k in c['matches'] for t in npc_types(k)}
                 maps = [m for m in K.MAPS if K.can_enter(m, bot.firma, bot.level)
                         and any(v['tip'] in types for v, _ in K.map_npcs(m))]
             maps = [m for m in maps if K.can_enter(m, bot.firma, bot.level)]
             return c, maps
-        if q['sirali']:
+        if q['ordered']:
             continue
     return None
 
@@ -109,27 +109,27 @@ def advance(bot, kind, n=1, npc_id=None, game_map=None, y=None):
     q = quests().get(g['id'])
     if not q:
         return False
-    for c in q['kosullar']:
+    for c in q['conditions']:
         key = str(c['id'])
-        if g['kosullar'].get(key, 0) >= c['hedef']:
+        if g['conditions'].get(key, 0) >= c['hedef']:
             continue
         if c['tur'] != kind:
-            if q['sirali']:
+            if q['ordered']:
                 break
             continue
-        if kind == KILL_NPC and npc_id is not None and str(npc_id) not in c['eslesme']:
+        if kind == KILL_NPC and npc_id is not None and str(npc_id) not in c['matches']:
             continue
         maps = [m for h in c['haritalar'] for m in map_list(h, bot.firma)]
         if kind == VISIT_MAP:
-            maps = [m for h in c['eslesme'] for m in map_list(h, bot.firma)]
+            maps = [m for h in c['matches'] for m in map_list(h, bot.firma)]
         elif kind == HOME:
             maps = [K.ev(bot.firma)]
         if maps and game_map not in maps:
             continue
-        g['kosullar'][key] = min(c['hedef'], g['kosullar'].get(key, 0) + n)
-        if q['sirali']:
+        g['conditions'][key] = min(c['hedef'], g['conditions'].get(key, 0) + n)
+        if q['ordered']:
             break
-    if all(g['kosullar'].get(str(c['id']), 0) >= c['hedef'] for c in q['kosullar']):
+    if all(g['conditions'].get(str(c['id']), 0) >= c['hedef'] for c in q['conditions']):
         finish(bot, q, y)
         return True
     return False
@@ -187,7 +187,7 @@ class Quest(Goal):
     def start(self, bot, b):
         if not bot.k.get('gorev'):
             for qid, q in eligible(bot)[:6]:
-                bot.k['gorev'] = dict(id=qid, kosullar={})
+                bot.k['gorev'] = dict(id=qid, conditions={})
                 s = next_up(bot)
                 if s and s[1]:
                     break
@@ -204,7 +204,7 @@ class Quest(Goal):
             bot.plan['bitti'] = True
             return
         c, maps = s
-        types = [t for k in c['eslesme'] for t in npc_types(k)] if c['tur'] == KILL_NPC else []
+        types = [t for k in c['matches'] for t in npc_types(k)] if c['tur'] == KILL_NPC else []
         if types:
             # gücünün yettiği (öldürmeye cesaret ettiği) haritalar; hiçbiri yoksa görev güçlenene dek bekler
             d = bot.value()
@@ -213,7 +213,7 @@ class Quest(Goal):
                 deferred(bot)
                 return
         target_map = min(maps, key=lambda m: len(K.route(bot.game_map, m, bot.firma, bot.level) or range(99)))
-        bot.plan['kosul'] = c['id']
+        bot.plan['condition'] = c['id']
         bot.plan['harita'] = target_map
         bot.plan['tip'] = next((v['tip'] for v, _ in K.map_npcs(target_map) if v['tip'] in types), None)
         S.go(bot, target_map, y, now)
@@ -226,12 +226,12 @@ class Quest(Goal):
             bot.plan['bitti'] = True
             return
         c, maps = s
-        if c['id'] != bot.plan.get('kosul') or bot.game_map not in maps:
+        if c['id'] != bot.plan.get('condition') or bot.game_map not in maps:
             self._head_to(bot, y)
             return
         if c['tur'] in (VISIT_MAP, HOME):
-            if bot.plan.get('ziyaret') != (c['id'], bot.game_map):        # varışta bir kez (her soyut adımda sayılıyordu)
-                bot.plan['ziyaret'] = (c['id'], bot.game_map)
+            if bot.plan.get('visit') != (c['id'], bot.game_map):        # varışta bir kez (her soyut adımda sayılıyordu)
+                bot.plan['visit'] = (c['id'], bot.game_map)
                 advance(bot, c['tur'], game_map=bot.game_map, y=y)
         elif c['tur'] == KILL_PLAYERS:
             S.farm(bot, dt, y)             # PvP koşulu: haritada dolaşırken karşılaşmalar (yonetici.pvp_tick) sayar
@@ -239,4 +239,4 @@ class Quest(Goal):
             S.farm(bot, dt, y, target_kind=bot.plan.get('tip'))
 
     def finished(self, bot, b):
-        return bot.plan.get('bitti', False) or (not bot.k.get('gorev') and 'kosul' in bot.plan)
+        return bot.plan.get('bitti', False) or (not bot.k.get('gorev') and 'condition' in bot.plan)

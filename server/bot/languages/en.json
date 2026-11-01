@@ -1,7 +1,7 @@
 {
- "kod": "en",
+ "code": "en",
  "ad": "English",
- "agirlik": 30,
+ "weight": 30,
  "adlar": {
   "parcalar": {
    "on": [
@@ -174,7 +174,7 @@
     "21"
    ]
   },
-  "desenler": [
+  "patterns": [
    [
     30,
     "{on}{arka}"
@@ -613,7 +613,7 @@
   "klan_posta_ksi_konu": ["Station under attack: {istasyon}"],
   "klan_posta_ksi": ["our station {istasyon} on {harita} is under attack. everyone online come now"]
  },
- "diyaloglar": [
+ "dialogues": [
   [
    ["shields or lasers first?", "what should i upgrade first, shields or lasers?"],
    ["lasers, then shields", "lasers imo", "shields first, dying a lot is expensive"],
@@ -659,7 +659,7 @@
    ["gg", "gg, see you around"]
   ]
  ],
- "kisaltma": [
+ "abbreviation": [
   [
    "you",
    "u"
@@ -694,8 +694,8 @@
   ]
  ],
  "ascii": {},
- "ascii_oran": 0.0,
- "niyet": {},
- "tepki": {},
+ "ascii_ratio": 0.0,
+ "intent": {},
+ "reaction": {},
  "zararli": []
 }

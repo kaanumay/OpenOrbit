@@ -1,6 +1,6 @@
 {
- "_aciklama": "Uridium Bank (tek oyunculu uyarlama): oyunda kazanılan her uridyumun aynısı bankaya birikir (en çok azami; kayıttaki UridiumBankInfoCommand.maxValue 34.500). Gerçek oyunda banka parayla açılır; burada birikenin her uridyumu kredi_fiyati kredi karşılığında alınır.",
+ "_description": "Uridium Bank (tek oyunculu uyarlama): oyunda kazanılan her uridyumun aynısı bankaya birikir (en çok azami; kayıttaki UridiumBankInfoCommand.maxValue 34.500). Gerçek oyunda banka parayla açılır; burada birikenin her uridyumu credit_price kredi karşılığında alınır.",
  "azami": 34500,
- "kredi_fiyati": 100,
+ "credit_price": 100,
  "en_az": 1000
 }

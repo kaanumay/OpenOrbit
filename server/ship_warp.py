@@ -46,7 +46,7 @@ class Warp:
         sids = self.ships()
         if not sids:
             return [legacy('0|A|STM|msg_swnoactiveships'), ('ShipWarpNotAllowedCommand', {})]
-        home = self.p.d['konum'].get('mapId', 1)
+        home = self.p.d['position'].get('mapId', 1)
         near = bool(w and w.in_station())
         pay = 0 if near else self.price()
         ships = []
@@ -54,14 +54,14 @@ class Warp:
             s = self.p.ship(sid)
             ships.append(mod('ShipWarpModule', shipId=int(sid), typeId=s['lootId'], shipDesignName=s.get('tasarim') or '',
                              uridiumPrice=pay, voucherPrice=0 if near else 1, hangarId=int(sid), hangarName='',
-                             mapId=(s.get('konum') or {}).get('mapId', home)))      # geminin bırakıldığı harita (magaza.activate)
+                             mapId=(s.get('position') or {}).get('mapId', home)))      # geminin bırakıldığı harita (magaza.activate)
         return [('ShipWarpWindowCommand', {'jumpVoucherCount': self.p.resource(VOUCHER), 'uridium': int(self.p.d['pilot'].get('uridium', 0)),
                                            'isNearSpacestation': near, 'ships': ships})]
 
     def price(self):
         """Uridyum bedeli: panelin hizmet fiyatı, Premium'a indirim (forum 127436: "VIP kullanıcılar için küçük bir indirim")."""
         import shop as SHP
-        k = 1 - SHP.ITEMS['magaza_indirimi']['premium_oran'] if self.p.premium else 1
+        k = 1 - SHP.ITEMS['shop_discount']['premium_rate'] if self.p.premium else 1
         return int(round(SET.price('hizmet_fiyat', URIDIUM, 'isinlama') * k))
 
     def refuse(self, key):
@@ -75,10 +75,10 @@ class Warp:
             return self.refuse('msg_swnoactiveships')
         if self.busy:
             return []
-        if not w or not self.allowed_map(self.p.d['konum'].get('mapId', 0)):
+        if not w or not self.allowed_map(self.p.d['position'].get('mapId', 0)):
             return self.refuse('msg_swnotallowed_map')
         import shop as SHP
-        if now - w.last_combat < SHP.ITEMS['savas_disi_sn']:
+        if now - w.last_combat < SHP.ITEMS['out_of_combat_sec']:
             return self.refuse('msg_swnotallowed_fight')
         if w.in_station():
             pay = {}

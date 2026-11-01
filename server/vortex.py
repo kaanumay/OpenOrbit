@@ -33,7 +33,7 @@ PORTAL_ID = EKP.PORTAL_BASE + 92          # X-1'deki Vortex portalı (pencereli:
 ZONE_TYPE = 'vog_tahliye'                 # tahliye bölgesinin görünmez çapası (gemi)
 EXIT_AREA, SPOT_LIGHT = 142, 143          # VisualModifierCommand (istemci: EscapeZoneEffect 418, işaret 143)
 REPAIR_SAE = 13                           # KillScreenOptionTypeModule STRIKE_AND_EXIT
-COIN = D.get('para', 'resource_collectable_stellar-coin')
+COIN = D.get('currency', 'resource_collectable_stellar-coin')
 NPC_IDS = [D['uzaylilar'][k]['npc_kimlik'] for k in ('vog_interceptor', 'vog_barracuda', 'vog_saboteur')] if D else []
 SESSION_WINDOW = 15 * 60                  # "hep açık": her 15 dakikalık dilim
 
@@ -71,20 +71,20 @@ def session(now=None):
     now = time.time() if now is None else now
     if always_open():
         start = now - now % SESSION_WINDOW
-        return True, start, start + D['seans_sn'], False, start + SESSION_WINDOW
+        return True, start, start + D['session_sec'], False, start + SESSION_WINDOW
     t = datetime.datetime.fromtimestamp(now)
     starts = []
     for day in (-1, 0, 1):
         base = (t + datetime.timedelta(days=day)).replace(hour=0, minute=0, second=0, microsecond=0)
-        for s in D.get('seanslar', []):
+        for s in D.get('sessions', []):
             h, m = _hm(s)
             starts.append(base.replace(hour=h, minute=m))
     starts.sort()
     for s in starts:
         a = s.timestamp()
-        if a <= now < a + D['seans_sn']:
-            double = s.isoweekday() in D.get('cift_gunler', []) and s.strftime('%H:%M') == D.get('cift_saat')
-            return True, a, a + D['seans_sn'], double, next((x.timestamp() for x in starts if x.timestamp() > a), a + 86400)
+        if a <= now < a + D['session_sec']:
+            double = s.isoweekday() in D.get('double_days', []) and s.strftime('%H:%M') == D.get('double_hour')
+            return True, a, a + D['session_sec'], double, next((x.timestamp() for x in starts if x.timestamp() > a), a + 86400)
     nxt = next((s.timestamp() for s in starts if s.timestamp() > now), now + 86400)
     return False, None, None, False, nxt
 
@@ -128,22 +128,22 @@ class Vortex:
     def st(self):
         d = self.p.d.setdefault('vortex', {})
         if d.get('hafta') != week_key():
-            d.update(hafta=week_key(), kazanc=0)
-        d.setdefault('kazanc', 0)
+            d.update(hafta=week_key(), earnings=0)
+        d.setdefault('earnings', 0)
         d.setdefault('alinan', {})
         return d
 
     def vip(self):
-        return self.p.resource(D.get('vip_esya', 'resource_vog-vanguard')) > 0
+        return self.p.resource(D.get('vip_item', 'resource_vog-vanguard')) > 0
 
     def limit(self):
-        return D['vip_sinir'] if self.vip() else D['haftalik_sinir']
+        return D['vip_limit'] if self.vip() else D['weekly_limit']
 
     # ------------------------------------------------------------ pencere ve dükkân
     def info_cmd(self, now=None):
         open_, a, b, double, nxt = session(now)
         now = time.time() if now is None else now
-        return ('StrikeAndExitInfoCommand', dict(currentGetStellarCoin=int(self.st['kazanc']), vip=self.vip(),
+        return ('StrikeAndExitInfoCommand', dict(currentGetStellarCoin=int(self.st['earnings']), vip=self.vip(),
                                                  nextOpenSeconds=0 if open_ else max(0, int(nxt - now)), inDouble=bool(open_ and double),
                                                  StellarCoinLimit=int(self.limit()), inSession=bool(open_ and active(now))))
 
@@ -153,16 +153,16 @@ class Vortex:
         rows = []
         for it in sh['esyalar']:
             per, n = bought.get(str(it['eid']), [None, 0])
-            used = n if per == period_key(it['sinir_turu']) else 0
+            used = n if per == period_key(it['limit_type']) else 0
             rows.append(mod('ExchangesShopItem', isSpecial=False, costs=[mod('RewardModule', lootId=COIN, amount=it['fiyat'])],
-                            limitType=it['sinir_turu'], reward=mod('RewardModule', lootId=it['odul'], amount=it['adet']),
+                            limitType=it['limit_type'], reward=mod('RewardModule', lootId=it['odul'], amount=it['adet']),
                             maxLimit=it['sinir'], limit=used, eid=it['eid']))
         left = int(CAL.time_left(EVENT)) if active() else 0     # panelden zorlanan etkinliğin de (dönemi yoksa) kalanı
         asset = mod('InventoryItemModule', upgradeLevel=0, lootId=COIN, amount=int(self.p.resource(COIN)), itemId=0, star=0, isNew=False,
                     hangarId=0, extAttributes=[], inventoryItemAttributes=[])
         return ('ExchangeShopCommand', dict(items=rows, assets=[asset],
                                             isVIPShop=sh['vip'], vipEndSeconds=max(0, left) if self.vip() else 0, isVIP=self.vip(),
-                                            shopId=sh['dukkan_no'], eventName=event))
+                                            shopId=sh['store_id'], eventName=event))
 
     def buy(self, event, eid):
         sh = D['dukkan'].get(event)
@@ -171,7 +171,7 @@ class Vortex:
             return []
         if sh['vip'] and not self.vip():
             return [KAPI.screen('VoG Vanguard required.')]
-        per = period_key(it['sinir_turu'])
+        per = period_key(it['limit_type'])
         bought = self.st['alinan'].setdefault(event, {})
         p0, n = bought.get(str(eid), [per, 0])
         n = n if p0 == per else 0
@@ -203,7 +203,7 @@ class Vortex:
         sx, sy = station['posX'], station['posY']
         cx, cy = KAPI.MAP_W // 2, KAPI.MAP_H // 2
         x, y = int(sx + (cx - sx) * 0.45), int(sy + (cy - sy) * 0.45 - 900)
-        return [dict(gateId=PORTAL_ID, x=x, y=y, hedef=0, designId=D.get('portal_tasarim', 1), pencere='vortex',
+        return [dict(gateId=PORTAL_ID, x=x, y=y, hedef=0, designId=D.get('portal_design', 1), pencere='vortex',
                      ipucu=D.get('ipucu', 'ttip_jumpgate_sae'))]
 
     def portal_window(self, g, w, go):
@@ -229,7 +229,7 @@ class Vortex:
         if int(world.map_id) == MAP and active():
             open_, a, b, double, nxt = session()
             if open_ and always_open():                  # "hep açık": seans girişte başlar (dilimin sonunda girilse de 15 dk)
-                a, b = time.time(), time.time() + D['seans_sn']
+                a, b = time.time(), time.time() + D['session_sec']
             if open_:
                 self.run = VogRun(self, world, a, b, double)
                 world.gate = self.run
@@ -251,7 +251,7 @@ class Vortex:
 
     def tick(self, now):
         if not active(now):
-            vip = D.get('vip_esya', 'resource_vog-vanguard')
+            vip = D.get('vip_item', 'resource_vog-vanguard')
             if self.p.resource(vip) > 0:                  # Vanguard etkinlik dönemi içindir
                 self.p.add_resource(vip, -self.p.resource(vip))
                 self.log('   Vortex of Greed bitti: Vanguard düştü')
@@ -261,25 +261,25 @@ class Vortex:
         """Tahliye: paralar (çift, Vanguard) haftalık sınıra dek hesaba; hazine ödülü -> mesajlar."""
         msgs = []
         st = self.st
-        room = max(0, self.limit() - st['kazanc'])
+        room = max(0, self.limit() - st['earnings'])
         got = min(coins, room)
         if bounty:
-            extra = min(D['hazine']['sc'], max(0, room - got))
+            extra = min(D['treasure']['sc'], max(0, room - got))
             got += extra
-        if got < coins + (D['hazine']['sc'] if bounty else 0):
+        if got < coins + (D['treasure']['sc'] if bounty else 0):
             msgs.append(legacy('0|A|STM|strikeandexit_message_coin_limit'))
         if got:
             self.p.add_resource(COIN, got)
             with self.p.lock:
-                st['kazanc'] += got
+                st['earnings'] += got
                 self.p.dirty = True
             msgs += self.m.resource_msgs(COIN, self.p.resource(COIN), got)
         if bounty:
-            for loot, n in D['hazine']['esyalar']:
+            for loot, n in D['treasure']['esyalar']:
                 msgs += self.m.reward(loot, n)
-            if self.titles and D['hazine'].get('unvan'):
-                msgs += self.titles(D['hazine']['unvan'])
-        self.log('   Vortex tahliye: %d SC hesaba (bu hafta %d/%d)%s' % (got, st['kazanc'], self.limit(), ', hazine' if bounty else ''))
+            if self.titles and D['treasure'].get('unvan'):
+                msgs += self.titles(D['treasure']['unvan'])
+        self.log('   Vortex tahliye: %d SC hesaba (bu hafta %d/%d)%s' % (got, st['earnings'], self.limit(), ', hazine' if bounty else ''))
         return msgs + self.m.money_msgs()
 
     def home(self):
@@ -327,8 +327,8 @@ class VogRun:
         self.dirty = True
         self.left = False
         now = time.time()
-        k = int((now - start) // D['dalga_sn'])
-        self.next_wave = start + k * D['dalga_sn']            # geç girilse de dalga hemen
+        k = int((now - start) // D['wave_sec'])
+        self.next_wave = start + k * D['wave_sec']            # geç girilse de dalga hemen
 
     # dünya arayüzü
     def wave(self):
@@ -357,7 +357,7 @@ class VogRun:
             spotLightUserY=int(hy), nextSpawnBossSeconds=max(0, int(boss_at - now)) if not self.boss_id and not self.boss_done else 0,
             spotLightUserName=name, spotLightUserX=int(hx), npcRemainingQuantity=self.counts(), npcTypes=list(NPC_IDS),
             bossAlive=bool(self.boss_id and self.boss_id in self.w.npcs), boxRemainingQuantity=sum(1 for h in self.wave_boxes if h in self.w.boxes),
-            boxType=D['kutu_turu'], remainingTime=max(0, int(self.end - now)), bossType=D['patron']['npc_kimlik'],
+            boxType=D['box_type'], remainingTime=max(0, int(self.end - now)), bossType=D['patron']['npc_kimlik'],
             nextSpawnSeconds=max(0, int(self.next_wave - now)) if self.next_wave < self.end else 0,
             stellarCoinLimit=int(self.m.limit())))
 
@@ -370,10 +370,10 @@ class VogRun:
             return
         if now >= self.next_wave and self.next_wave < self.end:
             self.spawn_wave(now)
-            self.next_wave += D['dalga_sn']
+            self.next_wave += D['wave_sec']
         if not self.boss_id and not self.boss_done and now >= self.start + D['patron']['zaman_sn']:
             self.spawn_boss()
-        for t, c in D['tahliye']['zamanlar']:
+        for t, c in D['evacuation']['times']:
             if t not in self.zone_times and now >= self.start + t:
                 self.zone_times.add(t)
                 self.spawn_zones(c, now)
@@ -399,10 +399,10 @@ class VogRun:
                 del w.boxes[h]
                 msgs.append(('RemoveCollectableCommand', {'collected': False, 'hash': h}))
         self.wave_boxes.clear()
-        for _ in range(D['dalga_kutu']):
+        for _ in range(D['wave_box']):
             x, y = self.random_spot()
-            h = w.drop_box(D['kutu_turu'], x, y, None, max(1, int(self.end - now)))
-            self.coin_box(h, D['kutu_sc'])
+            h = w.drop_box(D['box_type'], x, y, None, max(1, int(self.end - now)))
+            self.coin_box(h, D['box_sc'])
             self.wave_boxes.add(h)
         alive = self.counts()
         for (tip, a), have in zip(sorted(D['uzaylilar'].items(), key=lambda kv: kv[1]['npc_kimlik']), alive):
@@ -414,7 +414,7 @@ class VogRun:
         if msgs:
             w.send(msgs)
         self.dirty = True
-        w.log('   Vortex: dalga (%d kutu, uzaylılar %s)' % (D['dalga_kutu'], self.counts()))
+        w.log('   Vortex: dalga (%d kutu, uzaylılar %s)' % (D['wave_box'], self.counts()))
 
     def coin_box(self, h, coins):
         b = self.w.boxes[h]
@@ -441,7 +441,7 @@ class VogRun:
         msgs = []
         hx, hy = w.hero_pos(now)
         for _ in range(count):
-            x, y = self.random_spot([(hx, hy)] + [(z[0], z[1]) for z in self.zones], D['tahliye']['uzaklik'])
+            x, y = self.random_spot([(hx, hy)] + [(z[0], z[1]) for z in self.zones], D['evacuation']['distance'])
             self.add_zone(x, y)
         msgs.append(legacy('0|A|STM|strikeandexit_message_escape_zone_spawn'))
         w.send(msgs)
@@ -456,13 +456,13 @@ class VogRun:
         n.gate = True
         n.next_think = time.time() + 10 ** 6
         self.zones.append([x, y, n.id])
-        vm = ('VisualModifierCommand', dict(userId=n.id, modifier=EXIT_AREA, attribute=D['tahliye']['yaricap'], additionalAttribute='',
+        vm = ('VisualModifierCommand', dict(userId=n.id, modifier=EXIT_AREA, attribute=D['evacuation']['yaricap'], additionalAttribute='',
                                             count=1, activated=True))
         n.images = {EXIT_AREA: vm}             # görüşe girince yeniden (dunya.show)
         w.send([vm])
 
     def zone_at(self, x, y):
-        r = D['tahliye']['yaricap']
+        r = D['evacuation']['yaricap']
         return next((z for z in self.zones if math.hypot(x - z[0], y - z[1]) <= r), None)
 
     def evac_tick(self, now):
@@ -479,7 +479,7 @@ class VogRun:
         if self.inside_since is None:
             self.inside_since = now
             self.counted = None
-        left = int(math.ceil(self.inside_since + D['tahliye']['bekleme_sn'] - now))
+        left = int(math.ceil(self.inside_since + D['evacuation']['bekleme_sn'] - now))
         if left <= 0:
             self.evacuate()
         elif left != getattr(self, 'counted', None):
@@ -492,7 +492,7 @@ class VogRun:
         if self.double:
             coins *= 2
         if self.m.vip():
-            coins = int(coins * D['vip_kazanc'])
+            coins = int(coins * D['vip_earnings'])
         msgs = self.m.credit(int(coins), self.holder)
         msgs += [KAPI.screen('Evacuation successful!', big=True)]
         self.score = 0
@@ -542,11 +542,11 @@ class VogRun:
     # ölüm ve ölüm ekranı (dunya.repair_offers / repair_options / kill_screen_repair kancaları)
     def on_death(self):
         w = self.w
-        keep = int(self.score * D['vip_olumde_kalan']) if self.m.vip() else 0
+        keep = int(self.score * D['vip_kept_on_death']) if self.m.vip() else 0
         drop = self.score - keep
         if drop > 0:                               # dunya.hero_death bunu ölüm konumunu yazmadan önce çağırır
             x, y = w.hero_pos()
-            h = w.drop_box(D['gemi_kutusu'], int(x), int(y), None, max(1, int(self.end - time.time())))
+            h = w.drop_box(D['ship_box'], int(x), int(y), None, max(1, int(self.end - time.time())))
             self.coin_box(h, drop)
         self.score = keep
         if self.holder:
@@ -558,7 +558,7 @@ class VogRun:
         def ready():                               # 10 sn sonra "Free repairs" seçeneği açılır (geri sayım metni kalkar)
             if w.hero_dead and w.gate is self:
                 w.send([('KillScreenUpdateCommand', {'options': w.repair_options()})])
-        w.later(D['dogma_bekleme_sn'] + 0.3, ready)
+        w.later(D['dogma_cooldown_sec'] + 0.3, ready)
         return None
 
     def revive(self):
@@ -568,12 +568,12 @@ class VogRun:
         return {world_module.REPAIR_BASE: 0, REPAIR_SAE: 0}
 
     def repair_texts(self, kind):
-        left = max(0, int(D['dogma_bekleme_sn'] - (time.time() - (self.w.death_time or 0))))
+        left = max(0, int(D['dogma_cooldown_sec'] - (time.time() - (self.w.death_time or 0))))
         return ('ttip_killscreen_repair_sae', 'ttip_killscreen_repair_sae', 'btn_killscreen_repair_for_free',
                 ('desc_killscreen_option_available_countdown_sae', {'COUNTDOWN': left}) if left else ('', {}))
 
     def repair(self, kind):
         """STRIKE_AND_EXIT: 10 sn sonra haritada rastgele noktada tam canla -> (x, y) ya da None (bekle)."""
-        if kind != REPAIR_SAE or time.time() - (self.w.death_time or 0) < D['dogma_bekleme_sn'] or self.left:
+        if kind != REPAIR_SAE or time.time() - (self.w.death_time or 0) < D['dogma_cooldown_sec'] or self.left:
             return None
         return self.random_spot()

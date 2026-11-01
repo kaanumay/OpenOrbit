@@ -47,7 +47,7 @@ QUESTS = {int(k): v for k, v in DATA['gorevler'].items()}
 MAX_QUESTS = DATA.get('en_cok_gorev', 5)      # oyunun sınırı (kayıttaki en büyük maxQuests); oyunda panel ayarı geçerli
 EX = GD.load('quest_extras.json')       # E6 (tools/gorev_ekleri.py)
 QUESTS.update({int(k): v for k, v in EX['gorevler'].items()})
-MAX_EVENT_QUESTS = EX['en_cok_etkinlik_gorevi']
+MAX_EVENT_QUESTS = EX['max_event_quests']
 POOLS = {}                                    # ('gunluk' | 'haftalik', zorluk) -> görevler
 LEVEL_POOLS = {}                              # seviye (3 | 10 | 15 | 17) -> günlük görevler (her gün birini sunar)
 for _q, _v in sorted(QUESTS.items()):
@@ -174,7 +174,7 @@ def offered(now=None):
     for kind in ('gunluk', 'haftalik'):
         d0 = datetime.date.fromisoformat(EX[kind]['tarih'])
         steps = (dz - d0).days if kind == 'gunluk' else ((dz - d0).days + d0.weekday() - dz.weekday()) // 7
-        for first in EX[kind]['secilen']:
+        for first in EX[kind]['selected']:
             pool = POOLS[(kind, QUESTS[first]['havuz']['zorluk'])]
             out.add(pool[(pool.index(first) + steps) % len(pool)])
     for level, pool in LEVEL_POOLS.items():
@@ -243,7 +243,7 @@ class Quests:
         if str(qid) not in self.st['aktif'] and ((q.get('etkinlik') and not event_open(q))
                                                   or (q.get('gizli') and not all(self.done(x) for x in q['onceki']))):
             return False                                    # etkinlik kapalı ya da elit görevin kilidi (Silent Sabotage) açılmadı
-        return q.get('firma_haric') != self.faction() and q.get('firma', self.faction()) == self.faction()
+        return q.get('company_excluded') != self.faction() and q.get('firma', self.faction()) == self.faction()
 
     def done(self, qid):
         """Görev bitti mi: bir kez alınanlar tamamlananlarda, günlük/haftalık/tekrarlanan özel görevler bu dönem için dönemde."""
@@ -262,7 +262,7 @@ class Quests:
 
     def portrait(self, q):
         """Görev vericinin portresi; seviye 3 günlükler oyuncunun firma lideri ("portre_firma")."""
-        return q.get('portre_firma', {}).get(str(self.faction()), q.get('portre', ''))
+        return q.get('portrait_company', {}).get(str(self.faction()), q.get('portrait', ''))
 
     def status(self, qid):
         """-> (durum, eksik koşullar)."""
@@ -285,14 +285,14 @@ class Quests:
     def slim(self, qid):
         q = QUESTS[qid]
         s, miss = self.status(qid)
-        return mod('QuestSlimInfoModule', questId=qid, rootCaseId=q['kok']['id'], minLevel=q['seviye'], priority=q['oncelik'],
-                   types=[mod('QuestTypeModule', type=t) for t in q['turler']], icon=mod('QuestIconModule', icon=q['simge']),
+        return mod('QuestSlimInfoModule', questId=qid, rootCaseId=q['kok']['id'], minLevel=q['seviye'], priority=q['priority'],
+                   types=[mod('QuestTypeModule', type=t) for t in q['kinds']], icon=mod('QuestIconModule', icon=q['simge']),
                    acceptabilityStatus=mod('QuestAcceptabilityStatusModule', type=s), missingAcceptRequirements=miss,
                    textKeyFoundation='', portraitId=self.portrait(q), star=0)
 
     def running(self, event=False):
         """Slot tutan görevler (oynanabilen etkin görevler); event: etkinlik görevlerinin ayrı yuvası."""
-        return sum(1 for q in self.st['aktif'] if int(q) in QUESTS and (EVENT_QUEST in QUESTS[int(q)]['turler']) == event)
+        return sum(1 for q in self.st['aktif'] if int(q) in QUESTS and (EVENT_QUEST in QUESTS[int(q)]['kinds']) == event)
 
     def free_slots(self, event=False):
         return max(0, (MAX_EVENT_QUESTS if event else SET.get('en_cok_gorev')) - self.running(event))
@@ -317,7 +317,7 @@ class Quests:
             c['matches'] = self.resolve(c['matches'])
             for s in c['subConditions']:
                 s['matches'] = self.resolve(s['matches'])
-        return mod('QuestDefinitionModule', id=qid, types=[mod('QuestTypeModule', type=t) for t in q['turler']], rootCase=root,
+        return mod('QuestDefinitionModule', id=qid, types=[mod('QuestTypeModule', type=t) for t in q['kinds']], rootCase=root,
                    rewards=[mod('LootModule', lootId=l, amount=n, modifier='') for l, n in q['oduller']],
                    icons=[mod('QuestIconModule', icon=q['simge'])], textKeyFoundation='', portraitId=self.portrait(q), star=0)
 
@@ -325,7 +325,7 @@ class Quests:
         """Görev bilgisi; meydan okumada oyuncunun en iyi süresi (sıralamasız: tek satır, birinci)."""
         if qid not in QUESTS:
             return []
-        best = self.st.get('skor', {}).get(str(qid))
+        best = self.st.get('score', {}).get(str(qid))
         me = {'_': 'QuestChallengeRatingModule', 'name': self.p.d['pilot'].get('userName', '') if best is not None else '',
               'epppLink': '', 'rank': 1 if best is not None else 0, 'rating': best or 0, 'diffToFirst': 0}
         return [('QuestInfoCommand', {'definition': self.definition(qid), 'ratings': [me] if best is not None else [],
@@ -367,7 +367,7 @@ class Quests:
     def accept(self, qid):
         q = QUESTS.get(qid)
         s = self.status(qid)[0] if q else None
-        event = bool(q) and EVENT_QUEST in q['turler']
+        event = bool(q) and EVENT_QUEST in q['kinds']
         if s != NOT_STARTED or not self.free_slots(event) or not self.visible(qid, offered()):
             self.log('   görev alınamadı: %s (durum %s, etkin %d/%d)' % (qid, s, self.running(event), SET.get('en_cok_gorev')))
             return [self.list_cmd()]
@@ -376,7 +376,7 @@ class Quests:
                 for a in self.st['aktif']):
             self.log('   görev alınamadı: %s (aynı anda tek %s cevher görevi)' % (qid, q['havuz']['tur']))    # forum 129125
             return [self.list_cmd()]
-        vals = {START: time.time()} if q.get('sure_sn') or q.get('meydan_okuma') else {}
+        vals = {START: time.time()} if q.get('sure_sn') or q.get('challenge') else {}
         if q.get('havuz'):
             vals[PERIOD] = period_key(qid)
             vals[ACCEPT] = time.time()
@@ -500,7 +500,7 @@ class Quests:
                            or (f['tur'] == 'oyuncu' and kind == 'kill_player' and kw.get('faction') == f['firma'])
                            or (f['tur'] == 'oldurme' and kind == 'kill' and kw.get('npc') in f['npc'])
                            or (f['tur'] == 'cephane' and kind == 'ammo' and kw.get('adet', 0) > 0
-                               and GT.ammo_kind(kw.get('loot', '')) in (('1', '2', '3') if f['cins'] == '0' else (f['cins'],))))
+                               and GT.ammo_kind(kw.get('loot', '')) in (('1', '2', '3') if f['ammo_class'] == '0' else (f['ammo_class'],))))
                 if hit:
                     msgs += self.fail(int(qs), 'kısıt: %s' % f['tur'])
                     break
@@ -552,8 +552,8 @@ class Quests:
                 self.st.setdefault('donem', {})[str(qid)] = vals.get(PERIOD) or period_key(qid)
             elif q.get('tekrar'):                    # özel görev: bu gün / bu etkinlik için bitti
                 self.st.setdefault('donem', {})[str(qid)] = vals.get(PERIOD) or repeat_key(qid)
-            elif q.get('meydan_okuma'):
-                best = self.st.setdefault('skor', {})
+            elif q.get('challenge'):
+                best = self.st.setdefault('score', {})
                 if q.get('puan'):                    # puan görevi ("mümkün olduğunca çok"): puan öldürülenlerin sayısı, en iyisi en çoğu
                     rating = sum(vals.get(str(i), 0) for i in q['puan'])
                     best[str(qid)] = max(best.get(str(qid), rating), rating)
@@ -571,7 +571,7 @@ class Quests:
             self.p.ach('tutorial')                   # başarım: başlangıç görevleri (20000-20003) bitti
         msgs = [('QuestCompletedCommand', {'id': qid, 'rating': rating})]
         msgs += [('RemoveMinimapMark', {'uid': 'quest_%d_%d' % (qid, n)}) for n in sorted(self.marks.pop(qid, set()))]
-        mult = 1 + BOOSTER.mods(self.p).get('gorev_odulu', 0)        # QR-01 / NQR-B01: görev ödülleri x2 (uridyum hariç; Ö6)
+        mult = 1 + BOOSTER.mods(self.p).get('quest_reward', 0)        # QR-01 / NQR-B01: görev ödülleri x2 (uridyum hariç; Ö6)
         for loot, n in QUESTS[qid]['oduller']:
             n = n if loot == 'currency_uridium' or loot.startswith('resource_premium-days') else int(n * mult)   # Titan SSS: Premium günü katlanmaz
             msgs += self.grant(loot, n) if self.grant else []

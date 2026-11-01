@@ -57,9 +57,9 @@ class Mail:
             for k, v in (('sira', 1), ('gelen', []), ('giden', []), ('notlar', []), ('kara_liste', [])):
                 d.setdefault(k, v)
             # eski kayıtlardaki Türkçe "Yerel sunucu" karşılaması (yabancı oyuncular ne olduğunu soruyordu) silinir
-            d['gelen'] = [r for r in d['gelen'] if not (r.get('gonderen') == 'DarkOrbit' and r.get('konu') == 'Yerel sunucu')]
-        if not self.d.get('karsilama'):
-            self.d['karsilama'] = True
+            d['gelen'] = [r for r in d['gelen'] if not (r.get('sender') == 'DarkOrbit' and r.get('konu') == 'Yerel sunucu')]
+        if not self.d.get('welcome'):
+            self.d['welcome'] = True
             self.add(INFO, 'messaging_systemMessage_1_subject', 'messaging_systemMessage_1_body')
 
     @property
@@ -76,14 +76,14 @@ class Mail:
             mid = self.d['sira']
             self.d['sira'] += 1
             rec = {'id': mid, 'tur': kind, 'durum': UNREAD if inbox else READ, 'tarih': stamp(), 'konu': subject,
-                   'metin': body, 'gonderen': sender, 'gonderen_id': sender_id, 'ekler': [list(a) for a in attachments],
-                   'ek_alindi': not attachments}
+                   'metin': body, 'sender': sender, 'sender_id': sender_id, 'attachments': [list(a) for a in attachments],
+                   'attachment_claimed': not attachments}
             if extra:
                 rec.update(extra)
             box = self.d['gelen' if inbox else 'giden']
             box.insert(0, rec)
             if len(box) > BOX_LIMIT:             # sistem iletileri birikir: en eskiler silinir, eki alınmamışlar kalır
-                box[BOX_LIMIT:] = [r for r in box[BOX_LIMIT:] if not r.get('ek_alindi', True)]
+                box[BOX_LIMIT:] = [r for r in box[BOX_LIMIT:] if not r.get('attachment_claimed', True)]
             self.p.dirty = True
         return rec
 
@@ -96,24 +96,24 @@ class Mail:
 
     def info(self, r, inbox):
         me = self.p.d['pilot']
-        base = dict(senderId=int(r.get('gonderen_id', 0)), replacements=r.get('degistirmeler', ''), insertDate=r['tarih'],
-                    boxId=r['id'], parent=False, isReceived=(2 if r.get('ek_alindi') else 1) if inbox and r.get('ekler') else 0,
+        base = dict(senderId=int(r.get('sender_id', 0)), replacements=r.get('replacements', ''), insertDate=r['tarih'],
+                    boxId=r['id'], parent=False, isReceived=(2 if r.get('attachment_claimed') else 1) if inbox and r.get('attachments') else 0,
                     messageId=r['id'], type=r['tur'], subject=r['konu'], body=r['metin'], status=r['durum'],
-                    attachments=[mod('LootModule', lootId=l, amount=n, modifier='') for l, n in r.get('ekler', [])])
+                    attachments=[mod('LootModule', lootId=l, amount=n, modifier='') for l, n in r.get('attachments', [])])
         if r['tur'] == AUCTION:
             return mod('UserMessageAuctionInfoCommand', **base, lootId=r.get('lootId', ''), auctionType=r.get('auctionType', ''),
                        amount=int(r.get('amount', 0)), msgType=int(r.get('msgType', 0)), auctionId=int(r.get('auctionId', 0)))
         if r['tur'] == CLAN:
             return mod('UserMessageClanInfoCommand', **base, clanTag=r.get('clanTag', ''), parentMessage=None,
-                       senderName=r.get('gonderen', ''))
+                       senderName=r.get('sender', ''))
         if r['tur'] == SYSTEM:
             return mod('UserMessageSystemInfoCommand', **base, strs=list(r.get('strs', [])))
         if r['tur'] == INFO:
             return mod('UserMessageInfoInfoCommand', **base)
-        names = r.get('alicilar') or ([me.get('userName', '')] if inbox else [])
-        return mod('UserMessageInfoCommand', **base, bodyParams='', recipientIds=list(r.get('alici_idler', [])), title='',
+        names = r.get('recipients') or ([me.get('userName', '')] if inbox else [])
+        return mod('UserMessageInfoCommand', **base, bodyParams='', recipientIds=list(r.get('recipient_ids', [])), title='',
                    bodyInc='', recipients=names, parentMessage=None, senderAvatar='', versionType=0, subjectInc='',
-                   subjectParams='', senderName=r.get('gonderen', ''))
+                   subjectParams='', senderName=r.get('sender', ''))
 
     # -------------------------------------------------------- istekler
     def init_cmd(self):
@@ -191,7 +191,7 @@ class Mail:
             blocked = (k.profile.d.get('rehber') or {}).get('engelli') or []
             if any(own.lower() == str(x.get('ad', x) if isinstance(x, dict) else x).lower() for x in blocked):
                 return reply(False, 'messaging_errorLayer_blocked')
-        extra = {'alicilar': [k.name if k else own for k in recipients], 'alici_idler': [k.uid if k else self.p.user_id for k in recipients]}
+        extra = {'recipients': [k.name if k else own for k in recipients], 'recipient_ids': [k.uid if k else self.p.user_id for k in recipients]}
         if clan:
             extra['clanTag'] = me.get('clanTag', '')
         sent = self.add(CLAN if clan else USER, subject[:50], body[:5000], sender=own, sender_id=self.p.user_id, extra=extra,
@@ -204,7 +204,7 @@ class Mail:
                 out.append(self.notify(got))
             else:
                 k.send([box.notify(got)], 'posta: %s' % own)        # bağlıysa mektup simgesi
-        self.log('   posta gönderildi: %s -> %s' % (subject[:50], extra['alicilar']))
+        self.log('   posta gönderildi: %s -> %s' % (subject[:50], extra['recipients']))
         return out
 
     def delete(self, inbox, ids):
@@ -233,15 +233,15 @@ class Mail:
     def loot(self, ids):
         msgs, done = [], []
         for r in self.find(True, ids):
-            if r.get('ek_alindi'):
+            if r.get('attachment_claimed'):
                 continue
             with self.p.lock:
-                r['ek_alindi'] = True
+                r['attachment_claimed'] = True
                 self.p.dirty = True
-            for loot, n in r.get('ekler', []):
+            for loot, n in r.get('attachments', []):
                 msgs += self.m.reward(loot, int(n)) if self.m else []
             done.append(r['id'])
-            self.log('   posta eki alındı: %s %s' % (r['konu'], r.get('ekler')))
+            self.log('   posta eki alındı: %s %s' % (r['konu'], r.get('attachments')))
         page = []
         if done:                                       # istemci Loot yanıtını işlemiyor: "Claimed" görünsün diye mesajın sayfası
             pos = next(i for i, r in enumerate(self.d['gelen']) if r['id'] == done[0])

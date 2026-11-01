@@ -24,7 +24,7 @@ _FLASHRES = []                    # data/flashres_anahtarlari.json (tools/stm_an
 def flashres():
     if _FLASHRES == []:
         p = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data', 'flashres_keys.json')
-        _FLASHRES[:] = [set(json.load(open(p, encoding='utf8'))['anahtarlar']) if os.path.exists(p) else None]
+        _FLASHRES[:] = [set(json.load(open(p, encoding='utf8'))['keys']) if os.path.exists(p) else None]
     return _FLASHRES[0]
 
 

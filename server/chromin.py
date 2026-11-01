@@ -26,8 +26,8 @@ D = (json.load(open(_PATH, encoding='utf8')) if os.path.exists(_PATH) else {}).g
 LOOT = 'resource_collectable_chromin'
 EVENT = 'chromin'
 CAP = D.get('azami', 160000)
-CREDITS_PER = D.get('kredi_orani', 1)          # sınırı aşan Chromin başına kredi
-HONOR_PER = D.get('onur_orani', 0.05)          # etkinlik sonunda kalan Chromin başına onur
+CREDITS_PER = D.get('credit_ratio', 1)          # sınırı aşan Chromin başına kredi
+HONOR_PER = D.get('honor_ratio', 0.05)          # etkinlik sonunda kalan Chromin başına onur
 
 
 def active(now=None):
@@ -40,9 +40,9 @@ def box_for(npc, gate):
     if not total:
         return None
     strength = npc.d.get('hp', 0) + npc.d.get('kalkan', 0)
-    n = max(1, int(round(D.get('kapi_basina', 2700) * strength / float(total) / max(0.01, D.get('olasilik', 1.0)))))
+    n = max(1, int(round(D.get('per_gate', 2700) * strength / float(total) / max(0.01, D.get('probability', 1.0)))))
     kind = 'CHROMIN_BOX_1'
-    for k, at in D.get('kutu_esikleri', []):
+    for k, at in D.get('box_thresholds', []):
         if n >= at:
             kind = k
     return kind, n
@@ -96,11 +96,11 @@ class Chromin:
         if not active() or int(w.map_id) not in KAPI.BY_MAP or npc.d.get('uncounted'):
             return []
         b = box_for(npc, KAPI.BY_MAP[int(w.map_id)])
-        if not b or random.random() >= SET.chance('dusme', D.get('olasilik', 1.0), 'etkinlik'):
+        if not b or random.random() >= SET.chance('dusme', D.get('probability', 1.0), 'etkinlik'):
             return []
         kind, n = b
         h = w.drop_box(kind, x, y, None, D.get('omur_sn', 300))
-        w.boxes[h]['etk'] = {'tur': kind, 'mod': 'hepsi', 'kesin': [[LOOT, n]]}
+        w.boxes[h]['event'] = {'tur': kind, 'mod': 'hepsi', 'kesin': [[LOOT, n]]}
         return []
 
     def tick(self, now):

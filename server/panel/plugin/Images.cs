@@ -57,7 +57,7 @@ public class ImageDump : MonoBehaviour
 
     static void Start()
     {
-        folder = Path.Combine(Paths.BepInExRootPath, "openorbit", "gorsel");
+        folder = Path.Combine(Paths.BepInExRootPath, "openorbit", "images");
         var fi = new FileInfo(Path.Combine(Application.streamingAssetsPath, "aa", "BuildTarget", "atlas_assets_all.bundle"));
         version = fi.Length + "-" + fi.LastWriteTimeUtc.Ticks + "-" + string.Join(",", ATLASES) + "-metin1";   // atlas listesi ya da döküm biçimi değişince de yeniden
         string d = Path.Combine(folder, "dizin.json");
@@ -192,7 +192,7 @@ public class ImageDump : MonoBehaviour
     static void Finish()
     {
         string d = Path.Combine(folder, "dizin.json");
-        File.WriteAllText(d + ".tmp", "{\"surum\": \"" + version + "\",\n\"sayfalar\": {\n" + sizes + "\n},\n\"sprite\": {\n" + index + "\n}}\n");
+        File.WriteAllText(d + ".tmp", "{\"surum\": \"" + version + "\",\n\"pages\": {\n" + sizes + "\n},\n\"sprite\": {\n" + index + "\n}}\n");
         File.Move(d + ".tmp", d, true);
         index.Clear();
         sizes.Clear();

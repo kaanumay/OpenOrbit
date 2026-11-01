@@ -1,5 +1,5 @@
 {
- "_aciklama": "Galaksi Kapıları (tools/kapilar.py ile belgeler/wiki/galaxy_gates.md wiki verisinden). Uzaylı türleri sunucunun NPC türleri ya da istemcinin gemi türleri (\"oyuncu\": oyuncunun kendi görünümü); kapıda hepsi saldırgan. \"gruplar\": alt dalgalar, her biri [uzaylı sırası, adet] listesi. \"kalici\": alt dalgalardan bağımsız, diğerleri ölmeden hasar almaz (Zeta Devourer; kapının kalkan_ara_sn'si varsa grup bitince kalkanı bu kadar iner, refakat grupları onun çevresinde kalkan_dogma uzaklıkta doğar). \"grup_sayac\": grubun pencerenin dalga sayacındaki payı (yoksa 1). \"_tahmin\": wiki vermediği için tahmin edilen değerler. Sabitler: kayıt (enerji fiyatı 100 U, çekiliş olasılıkları, çekiliş adetleri), wiki (can fiyatları, hafta sonu -%15, Kronos günü cumartesi iki parça), istemci metinleri (en çok 5 çarpan = x6) ve uyarlamalar (çekiliş miktarları, mola ve bekleme süreleri, kopya parçanın eksik parçaya dönme olasılığı, Zeta/Kuiper dalgalarının haritalara dağılımı).",
+ "_description": "Galaksi Kapıları (tools/kapilar.py ile belgeler/wiki/galaxy_gates.md wiki verisinden). Uzaylı türleri sunucunun NPC türleri ya da istemcinin gemi türleri (\"oyuncu\": oyuncunun kendi görünümü); kapıda hepsi saldırgan. \"gruplar\": alt dalgalar, her biri [uzaylı sırası, adet] listesi. \"kalici\": alt dalgalardan bağımsız, diğerleri ölmeden hasar almaz (Zeta Devourer; kapının kalkan_ara_sn'si varsa grup bitince kalkanı bu kadar iner, refakat grupları onun çevresinde shield_spawn uzaklıkta doğar). \"group_counter\": grubun pencerenin dalga sayacındaki payı (yoksa 1). \"_estimate\": wiki vermediği için tahmin edilen değerler. Sabitler: kayıt (enerji fiyatı 100 U, çekiliş olasılıkları, çekiliş adetleri), wiki (can fiyatları, hafta sonu -%15, Kronos günü cumartesi iki parça), istemci metinleri (en çok 5 çarpan = x6) ve uyarlamalar (çekiliş miktarları, mola ve bekleme süreleri, kopya parçanın eksik parçaya dönme olasılığı, Zeta/Kuiper dalgalarının haritalara dağılımı).",
  "kapilar": {
   "alpha": {
    "kimlik": 1,
@@ -8,12 +8,12 @@
    "haritalar": [
     51
    ],
-   "boyutlar": {},
+   "sizes": {},
    "portal": 2,
    "parca": 34,
    "can": 5,
    "kronos_parca": 4,
-   "dalgalar": [
+   "waves": [
     {
      "ad": "I",
      "harita": 51,
@@ -38,7 +38,7 @@
         "0": 10,
         "2": 10
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       }
      ],
      "gruplar": [
@@ -93,7 +93,7 @@
         "2": 40,
         "1": 40
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       }
      ],
      "gruplar": [
@@ -151,7 +151,7 @@
         "5": 8,
         "6": 1
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       }
      ],
      "gruplar": [
@@ -208,7 +208,7 @@
         "4": 2,
         "5": 2
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       }
      ],
      "gruplar": [
@@ -266,7 +266,7 @@
         "5": 16,
         "6": 2
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       }
      ],
      "gruplar": [
@@ -324,7 +324,7 @@
         "5": 16,
         "6": 1
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       }
      ],
      "gruplar": [
@@ -382,7 +382,7 @@
         "5": 32,
         "6": 4
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       }
      ],
      "gruplar": [
@@ -440,7 +440,7 @@
         "5": 8,
         "6": 1
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       }
      ],
      "gruplar": [
@@ -498,7 +498,7 @@
         "5": 128,
         "6": 16
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       }
      ],
      "gruplar": [
@@ -556,7 +556,7 @@
         "5": 16,
         "6": 2
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       }
      ],
      "gruplar": [
@@ -606,14 +606,14 @@
      {
       "esya": "ship_pusat_design_pusat-sandstorm",
       "adet": 1,
-      "olasilik": 0.1
+      "probability": 0.1
      },
      {
       "esya": "resource_collectable_diametrion",
       "adet": 70,
       "adet_en_cok": 80,
-      "olasilik": 0.01,
-      "birlikte": [
+      "probability": 0.01,
+      "together": [
        [
         "resource_collectable_kyhalon",
         [
@@ -666,7 +666,7 @@
        ]
       ],
       "adet": 1,
-      "olasilik": 0.05
+      "probability": 0.05
      }
     ]
    }
@@ -678,12 +678,12 @@
    "haritalar": [
     52
    ],
-   "boyutlar": {},
+   "sizes": {},
    "portal": 3,
    "parca": 48,
    "can": 5,
    "kronos_parca": 3,
-   "dalgalar": [
+   "waves": [
     {
      "ad": "I",
      "harita": 52,
@@ -708,7 +708,7 @@
         "0": 20,
         "2": 20
        },
-       "_odul_kaynagi": "düzeltme (tools/kapilar.py ODUL_DUZELTME)"
+       "_reward_source": "düzeltme (tools/kapilar.py ODUL_DUZELTME)"
       }
      ],
      "gruplar": [
@@ -763,7 +763,7 @@
         "2": 80,
         "1": 80
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       }
      ],
      "gruplar": [
@@ -821,7 +821,7 @@
         "5": 16,
         "6": 2
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       }
      ],
      "gruplar": [
@@ -878,7 +878,7 @@
         "4": 4,
         "5": 4
        },
-       "_odul_kaynagi": "düzeltme (tools/kapilar.py ODUL_DUZELTME)"
+       "_reward_source": "düzeltme (tools/kapilar.py ODUL_DUZELTME)"
       }
      ],
      "gruplar": [
@@ -936,7 +936,7 @@
         "5": 32,
         "6": 4
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       }
      ],
      "gruplar": [
@@ -994,7 +994,7 @@
         "5": 32,
         "6": 2
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       }
      ],
      "gruplar": [
@@ -1052,7 +1052,7 @@
         "5": 64,
         "6": 8
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       }
      ],
      "gruplar": [
@@ -1110,7 +1110,7 @@
         "5": 16,
         "6": 2
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       }
      ],
      "gruplar": [
@@ -1168,7 +1168,7 @@
         "5": 256,
         "6": 32
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       }
      ],
      "gruplar": [
@@ -1226,7 +1226,7 @@
         "5": 32,
         "6": 4
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       }
      ],
      "gruplar": [
@@ -1276,14 +1276,14 @@
      {
       "esya": "ship_pusat_design_pusat-sandstorm",
       "adet": 1,
-      "olasilik": 0.1
+      "probability": 0.1
      },
      {
       "esya": "resource_collectable_diametrion",
       "adet": 70,
       "adet_en_cok": 80,
-      "olasilik": 0.01,
-      "birlikte": [
+      "probability": 0.01,
+      "together": [
        [
         "resource_collectable_kyhalon",
         [
@@ -1336,7 +1336,7 @@
        ]
       ],
       "adet": 1,
-      "olasilik": 0.05
+      "probability": 0.05
      }
     ]
    }
@@ -1348,12 +1348,12 @@
    "haritalar": [
     53
    ],
-   "boyutlar": {},
+   "sizes": {},
    "portal": 4,
    "parca": 82,
    "can": 5,
    "kronos_parca": 1,
-   "dalgalar": [
+   "waves": [
     {
      "ad": "I",
      "harita": 53,
@@ -1378,7 +1378,7 @@
         "0": 30,
         "2": 30
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       }
      ],
      "gruplar": [
@@ -1433,7 +1433,7 @@
         "2": 120,
         "1": 120
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       }
      ],
      "gruplar": [
@@ -1491,7 +1491,7 @@
         "5": 24,
         "6": 3
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       }
      ],
      "gruplar": [
@@ -1548,7 +1548,7 @@
         "4": 6,
         "5": 6
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       }
      ],
      "gruplar": [
@@ -1606,7 +1606,7 @@
         "5": 48,
         "6": 6
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       }
      ],
      "gruplar": [
@@ -1664,7 +1664,7 @@
         "5": 48,
         "6": 3
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       }
      ],
      "gruplar": [
@@ -1722,7 +1722,7 @@
         "5": 96,
         "6": 12
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       }
      ],
      "gruplar": [
@@ -1780,7 +1780,7 @@
         "5": 24,
         "6": 3
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       }
      ],
      "gruplar": [
@@ -1838,7 +1838,7 @@
         "5": 384,
         "6": 48
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       }
      ],
      "gruplar": [
@@ -1896,7 +1896,7 @@
         "5": 48,
         "6": 6
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       }
      ],
      "gruplar": [
@@ -1946,14 +1946,14 @@
      {
       "esya": "ship_pusat_design_pusat-sandstorm",
       "adet": 1,
-      "olasilik": 0.1
+      "probability": 0.1
      },
      {
       "esya": "resource_collectable_diametrion",
       "adet": 70,
       "adet_en_cok": 80,
-      "olasilik": 0.01,
-      "birlikte": [
+      "probability": 0.01,
+      "together": [
        [
         "resource_collectable_kyhalon",
         [
@@ -2006,7 +2006,7 @@
        ]
       ],
       "adet": 1,
-      "olasilik": 0.1
+      "probability": 0.1
      }
     ]
    }
@@ -2018,12 +2018,12 @@
    "haritalar": [
     55
    ],
-   "boyutlar": {},
+   "sizes": {},
    "portal": 5,
    "parca": 128,
    "can": 5,
    "kronos_parca": 1,
-   "dalgalar": [
+   "waves": [
     {
      "ad": "I",
      "harita": 55,
@@ -2048,7 +2048,7 @@
         "0": 40,
         "2": 40
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       },
       {
        "tur": "73",
@@ -2074,7 +2074,7 @@
         "5": 16,
         "6": 2
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       },
       {
        "tur": "75",
@@ -2099,7 +2099,7 @@
         "4": 4,
         "5": 4
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       }
      ],
      "gruplar": [
@@ -2122,7 +2122,7 @@
        ]
       ]
      ],
-     "_dizilim_kaynagi": "resmî Türk forumu SSS ve fandom Galaxy Gates (tools/kapilar.py FORUM_DIZILIM)"
+     "_lineup_source": "resmî Türk forumu SSS ve fandom Galaxy Gates (tools/kapilar.py FORUM_DIZILIM)"
     },
     {
      "ad": "II",
@@ -2148,7 +2148,7 @@
         "0": 20,
         "2": 20
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       },
       {
        "tur": "85",
@@ -2174,7 +2174,7 @@
         "5": 60,
         "6": 4
        },
-       "_odul_kaynagi": "wiki kapı",
+       "_reward_source": "wiki kapı",
        "korunan": true
       }
      ],
@@ -2190,10 +2190,10 @@
        ]
       ]
      ],
-     "grup_sayac": [
+     "group_counter": [
       2
      ],
-     "_dizilim_kaynagi": "resmî Türk forumu SSS ve fandom Galaxy Gates (tools/kapilar.py FORUM_DIZILIM)"
+     "_lineup_source": "resmî Türk forumu SSS ve fandom Galaxy Gates (tools/kapilar.py FORUM_DIZILIM)"
     },
     {
      "ad": "III",
@@ -2223,7 +2223,7 @@
         "5": 16,
         "6": 2
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       },
       {
        "tur": "75",
@@ -2249,7 +2249,7 @@
         "5": 4,
         "6": 2
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       },
       {
        "tur": "78",
@@ -2275,7 +2275,7 @@
         "5": 32,
         "6": 2
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       }
      ],
      "gruplar": [
@@ -2298,7 +2298,7 @@
        ]
       ]
      ],
-     "_dizilim_kaynagi": "resmî Türk forumu SSS ve fandom Galaxy Gates (tools/kapilar.py FORUM_DIZILIM)"
+     "_lineup_source": "resmî Türk forumu SSS ve fandom Galaxy Gates (tools/kapilar.py FORUM_DIZILIM)"
     },
     {
      "ad": "IV",
@@ -2325,7 +2325,7 @@
         "2": 80,
         "1": 80
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       },
       {
        "tur": "77",
@@ -2351,7 +2351,7 @@
         "5": 128,
         "6": 16
        },
-       "_odul_kaynagi": "wiki kapı",
+       "_reward_source": "wiki kapı",
        "korunan": true
       }
      ],
@@ -2367,10 +2367,10 @@
        ]
       ]
      ],
-     "grup_sayac": [
+     "group_counter": [
       2
      ],
-     "_dizilim_kaynagi": "resmî Türk forumu SSS ve fandom Galaxy Gates (tools/kapilar.py FORUM_DIZILIM)"
+     "_lineup_source": "resmî Türk forumu SSS ve fandom Galaxy Gates (tools/kapilar.py FORUM_DIZILIM)"
     },
     {
      "ad": "V",
@@ -2397,7 +2397,7 @@
         "2": 80,
         "1": 80
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       },
       {
        "tur": "31",
@@ -2423,7 +2423,7 @@
         "5": 32,
         "6": 4
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       },
       {
        "tur": "25",
@@ -2448,7 +2448,7 @@
         "4": 8,
         "5": 8
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       }
      ],
      "gruplar": [
@@ -2471,7 +2471,7 @@
        ]
       ]
      ],
-     "_dizilim_kaynagi": "resmî Türk forumu SSS ve fandom Galaxy Gates (tools/kapilar.py FORUM_DIZILIM)"
+     "_lineup_source": "resmî Türk forumu SSS ve fandom Galaxy Gates (tools/kapilar.py FORUM_DIZILIM)"
     },
     {
      "ad": "VI",
@@ -2501,7 +2501,7 @@
         "5": 16,
         "6": 2
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       },
       {
        "tur": "74",
@@ -2527,7 +2527,7 @@
         "5": 96,
         "6": 12
        },
-       "_odul_kaynagi": "wiki kapı",
+       "_reward_source": "wiki kapı",
        "korunan": true
       }
      ],
@@ -2543,10 +2543,10 @@
        ]
       ]
      ],
-     "grup_sayac": [
+     "group_counter": [
       2
      ],
-     "_dizilim_kaynagi": "resmî Türk forumu SSS ve fandom Galaxy Gates (tools/kapilar.py FORUM_DIZILIM)"
+     "_lineup_source": "resmî Türk forumu SSS ve fandom Galaxy Gates (tools/kapilar.py FORUM_DIZILIM)"
     },
     {
      "ad": "VII",
@@ -2576,7 +2576,7 @@
         "5": 16,
         "6": 2
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       },
       {
        "tur": "78",
@@ -2602,7 +2602,7 @@
         "5": 48,
         "6": 3
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       },
       {
        "tur": "34",
@@ -2628,7 +2628,7 @@
         "5": 32,
         "6": 2
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       }
      ],
      "gruplar": [
@@ -2680,7 +2680,7 @@
         "5": 256,
         "6": 32
        },
-       "_odul_kaynagi": "wiki kapı",
+       "_reward_source": "wiki kapı",
        "korunan": true
       },
       {
@@ -2707,7 +2707,7 @@
         "5": 48,
         "6": 3
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       }
      ],
      "gruplar": [
@@ -2722,10 +2722,10 @@
        ]
       ]
      ],
-     "grup_sayac": [
+     "group_counter": [
       2
      ],
-     "_dizilim_kaynagi": "resmî Türk forumu SSS ve fandom Galaxy Gates (tools/kapilar.py FORUM_DIZILIM)"
+     "_lineup_source": "resmî Türk forumu SSS ve fandom Galaxy Gates (tools/kapilar.py FORUM_DIZILIM)"
     },
     {
      "ad": "IX",
@@ -2755,7 +2755,7 @@
         "5": 32,
         "6": 4
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       },
       {
        "tur": "28",
@@ -2781,7 +2781,7 @@
         "5": 256,
         "6": 32
        },
-       "_odul_kaynagi": "wiki kapı",
+       "_reward_source": "wiki kapı",
        "korunan": true
       }
      ],
@@ -2817,12 +2817,12 @@
        ]
       ]
      ],
-     "grup_sayac": [
+     "group_counter": [
       2,
       2,
       2
      ],
-     "_dizilim_kaynagi": "resmî Türk forumu SSS ve fandom Galaxy Gates (tools/kapilar.py FORUM_DIZILIM)"
+     "_lineup_source": "resmî Türk forumu SSS ve fandom Galaxy Gates (tools/kapilar.py FORUM_DIZILIM)"
     },
     {
      "ad": "X",
@@ -2853,7 +2853,7 @@
         "6": 44,
         "3": 22
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       }
      ],
      "gruplar": [
@@ -2876,7 +2876,7 @@
        ]
       ]
      ],
-     "_dizilim_kaynagi": "resmî Türk forumu SSS ve fandom Galaxy Gates (tools/kapilar.py FORUM_DIZILIM)"
+     "_lineup_source": "resmî Türk forumu SSS ve fandom Galaxy Gates (tools/kapilar.py FORUM_DIZILIM)"
     }
    ],
    "odul": {
@@ -2899,15 +2899,15 @@
      {
       "esya": "drone_designs_hermes",
       "adet": 1,
-      "olasilik": 0.1,
-      "cift_odulde_yok": true
+      "probability": 0.1,
+      "no_double_reward": true
      },
      {
       "esya": "resource_collectable_diametrion",
       "adet": 70,
       "adet_en_cok": 80,
-      "olasilik": 0.01,
-      "birlikte": [
+      "probability": 0.01,
+      "together": [
        [
         "resource_collectable_kyhalon",
         [
@@ -2960,7 +2960,7 @@
        ]
       ],
       "adet": 1,
-      "olasilik": 0.15
+      "probability": 0.15
      }
     ],
     "esyalar": [
@@ -2978,12 +2978,12 @@
    "haritalar": [
     70
    ],
-   "boyutlar": {},
+   "sizes": {},
    "portal": 53,
    "parca": 99,
    "can": 5,
    "kronos_parca": 4,
-   "dalgalar": [
+   "waves": [
     {
      "ad": "I",
      "harita": 70,
@@ -3012,7 +3012,7 @@
         "5": 4,
         "3": 1
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       }
      ],
      "gruplar": [
@@ -3064,7 +3064,7 @@
         "5": 4,
         "3": 1
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       },
       {
        "tur": "93",
@@ -3090,7 +3090,7 @@
         "5": 8,
         "3": 2
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       }
      ],
      "gruplar": [
@@ -3113,7 +3113,7 @@
        ]
       ]
      ],
-     "_dizilim_kaynagi": "resmî Türk forumu SSS ve fandom Galaxy Gates (tools/kapilar.py FORUM_DIZILIM)"
+     "_lineup_source": "resmî Türk forumu SSS ve fandom Galaxy Gates (tools/kapilar.py FORUM_DIZILIM)"
     },
     {
      "ad": "III",
@@ -3143,7 +3143,7 @@
         "5": 8,
         "3": 2
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       },
       {
        "tur": "92",
@@ -3171,7 +3171,7 @@
         "7": 1,
         "3": 4
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       }
      ],
      "gruplar": [
@@ -3223,7 +3223,7 @@
         "5": 8,
         "3": 2
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       },
       {
        "tur": "92",
@@ -3251,7 +3251,7 @@
         "7": 1,
         "3": 4
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       }
      ],
      "gruplar": [
@@ -3305,7 +3305,7 @@
         "7": 1,
         "3": 4
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       },
       {
        "tur": "91",
@@ -3333,7 +3333,7 @@
         "7": 2,
         "3": 8
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       }
      ],
      "gruplar": [
@@ -3387,7 +3387,7 @@
         "7": 2,
         "3": 8
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       },
       {
        "tur": "92",
@@ -3415,7 +3415,7 @@
         "7": 1,
         "3": 4
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       },
       {
        "tur": "96",
@@ -3443,7 +3443,7 @@
         "7": 4,
         "3": 12
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       }
      ],
      "gruplar": [
@@ -3497,7 +3497,7 @@
         "7": 2,
         "3": 8
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       },
       {
        "tur": "96",
@@ -3525,7 +3525,7 @@
         "7": 4,
         "3": 12
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       }
      ],
      "gruplar": [
@@ -3579,7 +3579,7 @@
         "7": 4,
         "3": 12
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       },
       {
        "tur": "97",
@@ -3607,7 +3607,7 @@
         "7": 8,
         "3": 16
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       }
      ],
      "gruplar": [
@@ -3661,7 +3661,7 @@
         "7": 4,
         "3": 12
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       },
       {
        "tur": "97",
@@ -3689,7 +3689,7 @@
         "7": 8,
         "3": 16
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       },
       {
        "tur": "95",
@@ -3717,7 +3717,7 @@
         "7": 16,
         "3": 24
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       }
      ],
      "gruplar": [
@@ -3771,7 +3771,7 @@
         "7": 16,
         "3": 24
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       }
      ],
      "gruplar": [
@@ -3813,7 +3813,7 @@
         "7": 8,
         "3": 16
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       },
       {
        "tur": "95",
@@ -3841,7 +3841,7 @@
         "7": 16,
         "3": 24
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       }
      ],
      "gruplar": [
@@ -3880,15 +3880,15 @@
      {
       "esya": "equipment_weapon_laser_lf-4",
       "adet": 1,
-      "olasilik": 0.25,
-      "ilk_kesin": true
+      "probability": 0.25,
+      "first_guaranteed": true
      },
      {
       "esya": "resource_collectable_diametrion",
       "adet": 70,
       "adet_en_cok": 80,
-      "olasilik": 0.01,
-      "birlikte": [
+      "probability": 0.01,
+      "together": [
        [
         "resource_collectable_kyhalon",
         [
@@ -3941,7 +3941,7 @@
        ]
       ],
       "adet": 1,
-      "olasilik": 0.1
+      "probability": 0.1
      }
     ]
    }
@@ -3955,14 +3955,14 @@
     72,
     73
    ],
-   "boyutlar": {},
+   "sizes": {},
    "portal": 54,
    "parca": 111,
    "can": 5,
    "kronos_parca": 1,
    "kalkan_ara_sn": 10,
-   "_kalkan_ara_sn": "Devourer (kalici): refakat grubu yaşarken Insta-Shield açık, hasar almaz; grup bitince kalkan bu kadar saniye iner, sonra yeniden açılır ve sonraki grup Devourer'ın çevresinde doğar; son gruptan sonra hep kapalı; Devourer ölünce dalga hemen biter (fandom Galaxy Gates: \"dropped for 10(?) seconds\"). Son dalgada bir grup türlerinin hepsi birlikte (normal, Boss, Uber), sayaçta tür başına bir alt dalga (grup_sayac)",
-   "dalgalar": [
+   "_kalkan_ara_sn": "Devourer (kalici): refakat grubu yaşarken Insta-Shield açık, hasar almaz; grup bitince kalkan bu kadar saniye iner, sonra yeniden açılır ve sonraki grup Devourer'ın çevresinde doğar; son gruptan sonra hep kapalı; Devourer ölünce dalga hemen biter (fandom Galaxy Gates: \"dropped for 10(?) seconds\"). Son dalgada bir grup türlerinin hepsi birlikte (normal, Boss, Uber), sayaçta tür başına bir alt dalga (group_counter)",
+   "waves": [
     {
      "ad": "I",
      "harita": 71,
@@ -3992,7 +3992,7 @@
         "6": 2,
         "7": 1
        },
-       "_odul_kaynagi": "aliens.md infernal"
+       "_reward_source": "aliens.md infernal"
       }
      ],
      "gruplar": [
@@ -4045,7 +4045,7 @@
         "6": 2,
         "7": 1
        },
-       "_odul_kaynagi": "aliens.md infernal"
+       "_reward_source": "aliens.md infernal"
       },
       {
        "tur": "99",
@@ -4072,7 +4072,7 @@
         "6": 4,
         "7": 2
        },
-       "_odul_kaynagi": "aliens.md scorcher"
+       "_reward_source": "aliens.md scorcher"
       }
      ],
      "gruplar": [
@@ -4125,7 +4125,7 @@
         "6": 2,
         "7": 1
        },
-       "_odul_kaynagi": "aliens.md infernal"
+       "_reward_source": "aliens.md infernal"
       },
       {
        "tur": "99",
@@ -4152,7 +4152,7 @@
         "6": 4,
         "7": 2
        },
-       "_odul_kaynagi": "aliens.md scorcher"
+       "_reward_source": "aliens.md scorcher"
       }
      ],
      "gruplar": [
@@ -4205,7 +4205,7 @@
         "6": 4,
         "7": 2
        },
-       "_odul_kaynagi": "aliens.md scorcher"
+       "_reward_source": "aliens.md scorcher"
       }
      ],
      "gruplar": [
@@ -4258,7 +4258,7 @@
         "6": 4,
         "7": 2
        },
-       "_odul_kaynagi": "aliens.md scorcher"
+       "_reward_source": "aliens.md scorcher"
       },
       {
        "tur": "102",
@@ -4285,7 +4285,7 @@
         "6": 16,
         "7": 8
        },
-       "_odul_kaynagi": "aliens.md melter"
+       "_reward_source": "aliens.md melter"
       }
      ],
      "gruplar": [
@@ -4338,7 +4338,7 @@
         "6": 4,
         "7": 2
        },
-       "_odul_kaynagi": "aliens.md scorcher"
+       "_reward_source": "aliens.md scorcher"
       },
       {
        "tur": "102",
@@ -4365,7 +4365,7 @@
         "6": 16,
         "7": 8
        },
-       "_odul_kaynagi": "aliens.md melter"
+       "_reward_source": "aliens.md melter"
       }
      ],
      "gruplar": [
@@ -4418,7 +4418,7 @@
         "6": 16,
         "7": 8
        },
-       "_odul_kaynagi": "aliens.md melter"
+       "_reward_source": "aliens.md melter"
       }
      ],
      "gruplar": [
@@ -4471,7 +4471,7 @@
         "6": 16,
         "7": 8
        },
-       "_odul_kaynagi": "aliens.md melter"
+       "_reward_source": "aliens.md melter"
       }
      ],
      "gruplar": [
@@ -4524,7 +4524,7 @@
         "6": 2,
         "7": 1
        },
-       "_odul_kaynagi": "aliens.md infernal"
+       "_reward_source": "aliens.md infernal"
       },
       {
        "tur": "105",
@@ -4552,8 +4552,8 @@
         "7": 16,
         "3": 64
        },
-       "_odul_kaynagi": "aliens.md devourer",
-       "kalici": true
+       "_reward_source": "aliens.md devourer",
+       "permanent": true
       }
      ],
      "gruplar": [
@@ -4599,8 +4599,8 @@
         "7": 16,
         "3": 64
        },
-       "_odul_kaynagi": "aliens.md devourer",
-       "kalici": true
+       "_reward_source": "aliens.md devourer",
+       "permanent": true
       },
       {
        "tur": "100",
@@ -4627,7 +4627,7 @@
         "6": 2,
         "7": 1
        },
-       "_odul_kaynagi": "aliens.md infernal"
+       "_reward_source": "aliens.md infernal"
       },
       {
        "tur": "99",
@@ -4654,7 +4654,7 @@
         "6": 4,
         "7": 2
        },
-       "_odul_kaynagi": "aliens.md scorcher"
+       "_reward_source": "aliens.md scorcher"
       },
       {
        "tur": "84",
@@ -4676,7 +4676,7 @@
         "0": 20,
         "2": 20
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       },
       {
        "tur": "85",
@@ -4702,7 +4702,7 @@
         "5": 8,
         "6": 8
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       },
       {
        "tur": "23",
@@ -4725,7 +4725,7 @@
         "2": 10,
         "1": 40
        },
-       "_odul_kaynagi": "aliens.md boss_streuner"
+       "_reward_source": "aliens.md boss_streuner"
       },
       {
        "tur": "36",
@@ -4750,7 +4750,7 @@
         "4": 2,
         "5": 2
        },
-       "_odul_kaynagi": "aliens.md uber_streuner"
+       "_reward_source": "aliens.md uber_streuner"
       },
       {
        "tur": "44",
@@ -4777,7 +4777,7 @@
         "6": 8,
         "3": 8
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       },
       {
        "tur": "71",
@@ -4800,7 +4800,7 @@
         "2": 20,
         "1": 20
        },
-       "_odul_kaynagi": "aliens.md lordakia"
+       "_reward_source": "aliens.md lordakia"
       },
       {
        "tur": "24",
@@ -4825,8 +4825,8 @@
         "4": 10,
         "3": 1
        },
-       "_odul_kaynagi": "aliens.md boss_lordakia",
-       "_adet_kaynagi": "fandom Galaxy Gates (Zeta) ve de.fandom Zeta Gate: 3 (darkorbitwiki 2)"
+       "_reward_source": "aliens.md boss_lordakia",
+       "_count_source": "fandom Galaxy Gates (Zeta) ve de.fandom Zeta Gate: 3 (darkorbitwiki 2)"
       },
       {
        "tur": "37",
@@ -4853,7 +4853,7 @@
         "6": 2,
         "3": 2
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       },
       {
        "tur": "75",
@@ -4878,7 +4878,7 @@
         "4": 2,
         "5": 2
        },
-       "_odul_kaynagi": "aliens.md saimon"
+       "_reward_source": "aliens.md saimon"
       },
       {
        "tur": "25",
@@ -4905,8 +4905,8 @@
         "6": 1,
         "3": 2
        },
-       "_odul_kaynagi": "aliens.md boss_saimon",
-       "_adet_kaynagi": "fandom Galaxy Gates (Zeta) ve de.fandom Zeta Gate: 3 (darkorbitwiki 2)"
+       "_reward_source": "aliens.md boss_saimon",
+       "_count_source": "fandom Galaxy Gates (Zeta) ve de.fandom Zeta Gate: 3 (darkorbitwiki 2)"
       },
       {
        "tur": "38",
@@ -4933,7 +4933,7 @@
         "6": 2,
         "3": 4
        },
-       "_odul_kaynagi": "aliens.md uber_saimon"
+       "_reward_source": "aliens.md uber_saimon"
       },
       {
        "tur": "76",
@@ -4959,7 +4959,7 @@
         "5": 8,
         "6": 1
        },
-       "_odul_kaynagi": "aliens.md sibelonit"
+       "_reward_source": "aliens.md sibelonit"
       },
       {
        "tur": "27",
@@ -4986,7 +4986,7 @@
         "6": 4,
         "3": 8
        },
-       "_odul_kaynagi": "aliens.md boss_sibelonit"
+       "_reward_source": "aliens.md boss_sibelonit"
       },
       {
        "tur": "40",
@@ -5013,7 +5013,7 @@
         "6": 8,
         "3": 16
        },
-       "_odul_kaynagi": "aliens.md uber_sibelonit"
+       "_reward_source": "aliens.md uber_sibelonit"
       },
       {
        "tur": "78",
@@ -5039,7 +5039,7 @@
         "5": 16,
         "6": 1
        },
-       "_odul_kaynagi": "aliens.md kristallin"
+       "_reward_source": "aliens.md kristallin"
       },
       {
        "tur": "29",
@@ -5066,7 +5066,7 @@
         "6": 4,
         "3": 6
        },
-       "_odul_kaynagi": "aliens.md boss_kristallin"
+       "_reward_source": "aliens.md boss_kristallin"
       },
       {
        "tur": "42",
@@ -5093,7 +5093,7 @@
         "6": 16,
         "3": 16
        },
-       "_odul_kaynagi": "aliens.md uber_kristallin"
+       "_reward_source": "aliens.md uber_kristallin"
       }
      ],
      "gruplar": [
@@ -5192,7 +5192,7 @@
        ]
       ]
      ],
-     "grup_sayac": [
+     "group_counter": [
       1,
       1,
       5,
@@ -5223,15 +5223,15 @@
      {
       "esya": "drone_designs_havoc",
       "adet": 1,
-      "olasilik": 0.45,
-      "ilk_kesin": true
+      "probability": 0.45,
+      "first_guaranteed": true
      },
      {
       "esya": "resource_collectable_diametrion",
       "adet": 70,
       "adet_en_cok": 80,
-      "olasilik": 0.01,
-      "birlikte": [
+      "probability": 0.01,
+      "together": [
        [
         "resource_collectable_kyhalon",
         [
@@ -5284,7 +5284,7 @@
        ]
       ],
       "adet": 1,
-      "olasilik": 0.1
+      "probability": 0.1
      }
     ]
    }
@@ -5296,12 +5296,12 @@
    "haritalar": [
     74
    ],
-   "boyutlar": {},
+   "sizes": {},
    "portal": 70,
    "parca": 120,
    "can": 5,
    "kronos_parca": 2,
-   "dalgalar": [
+   "waves": [
     {
      "ad": "I",
      "harita": 74,
@@ -5326,7 +5326,7 @@
         "0": 20,
         "2": 20
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       },
       {
        "tur": "94",
@@ -5352,7 +5352,7 @@
         "5": 4,
         "3": 1
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       },
       {
        "tur": "100",
@@ -5379,7 +5379,7 @@
         "6": 2,
         "7": 1
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       }
      ],
      "gruplar": [
@@ -5431,7 +5431,7 @@
         "5": 8,
         "3": 2
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       },
       {
        "tur": "99",
@@ -5458,7 +5458,7 @@
         "6": 4,
         "7": 2
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       },
       {
        "tur": "31",
@@ -5485,7 +5485,7 @@
         "6": 10,
         "3": 8
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       }
      ],
      "gruplar": [
@@ -5537,7 +5537,7 @@
         "5": 16,
         "3": 2
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       },
       {
        "tur": "72",
@@ -5563,7 +5563,7 @@
         "5": 16,
         "6": 2
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       },
       {
        "tur": "103",
@@ -5589,7 +5589,7 @@
         "5": 16,
         "6": 2
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       }
      ],
      "gruplar": [
@@ -5642,7 +5642,7 @@
         "6": 4,
         "3": 8
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       },
       {
        "tur": "91",
@@ -5670,7 +5670,7 @@
         "7": 2,
         "3": 8
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       },
       {
        "tur": "99",
@@ -5697,7 +5697,7 @@
         "6": 4,
         "7": 2
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       }
      ],
      "gruplar": [
@@ -5751,7 +5751,7 @@
         "7": 4,
         "3": 12
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       },
       {
        "tur": "78",
@@ -5777,7 +5777,7 @@
         "5": 16,
         "6": 1
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       },
       {
        "tur": "102",
@@ -5804,7 +5804,7 @@
         "6": 16,
         "7": 8
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       }
      ],
      "gruplar": [
@@ -5856,7 +5856,7 @@
         "5": 18,
         "6": 2
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       },
       {
        "tur": "112",
@@ -5882,7 +5882,7 @@
         "5": 24,
         "6": 4
        },
-       "_odul_kaynagi": "wiki kapı",
+       "_reward_source": "wiki kapı",
        "davranis": {
         "kamikaze_esik": null
        }
@@ -5912,7 +5912,7 @@
         "6": 12,
         "3": 12
        },
-       "_odul_kaynagi": "wiki kapı",
+       "_reward_source": "wiki kapı",
        "davranis": {
         "roket": null
        }
@@ -5968,7 +5968,7 @@
         "6": 32,
         "3": 32
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       },
       {
        "tur": "81",
@@ -5994,7 +5994,7 @@
         "5": 16,
         "6": 2
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       },
       {
        "tur": "46",
@@ -6021,7 +6021,7 @@
         "6": 16,
         "3": 32
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       }
      ],
      "gruplar": [
@@ -6074,7 +6074,7 @@
         "6": 32,
         "3": 64
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       },
       {
        "tur": "38",
@@ -6101,7 +6101,7 @@
         "6": 2,
         "3": 4
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       }
      ],
      "gruplar": [
@@ -6155,7 +6155,7 @@
         "7": 16,
         "3": 24
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       },
       {
        "tur": "29",
@@ -6182,7 +6182,7 @@
         "6": 4,
         "3": 6
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       },
       {
        "tur": "11",
@@ -6209,7 +6209,7 @@
         "6": 44,
         "3": 22
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       }
      ],
      "gruplar": [
@@ -6262,7 +6262,7 @@
         "6": 64,
         "3": 128
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       }
      ],
      "gruplar": [
@@ -6303,7 +6303,7 @@
         "6": 1,
         "3": 1
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       }
      ],
      "gruplar": [
@@ -6336,27 +6336,27 @@
      {
       "esya": "drone_designs_hercules",
       "adet": 1,
-      "olasilik": 0.375,
-      "tek_cekilis": true
+      "probability": 0.375,
+      "single_spin": true
      },
      {
       "esya": "equipment_weapon_laser_lf-4",
       "adet": 1,
-      "olasilik": 0.25,
-      "tek_cekilis": true
+      "probability": 0.25,
+      "single_spin": true
      },
      {
       "esya": "booster_kappa-b01",
       "adet": 5,
-      "olasilik": 0.25,
-      "tek_cekilis": true
+      "probability": 0.25,
+      "single_spin": true
      },
      {
       "esya": "resource_collectable_diametrion",
       "adet": 70,
       "adet_en_cok": 80,
-      "olasilik": 0.01,
-      "birlikte": [
+      "probability": 0.01,
+      "together": [
        [
         "resource_collectable_kyhalon",
         [
@@ -6409,7 +6409,7 @@
        ]
       ],
       "adet": 1,
-      "olasilik": 0.15
+      "probability": 0.15
      }
     ]
    },
@@ -6422,12 +6422,12 @@
    "haritalar": [
     75
    ],
-   "boyutlar": {},
+   "sizes": {},
    "portal": 71,
    "parca": 45,
    "can": 5,
    "kronos_parca": 5,
-   "dalgalar": [
+   "waves": [
     {
      "ad": "I",
      "harita": 75,
@@ -6453,7 +6453,7 @@
         "2": 10,
         "1": 40
        },
-       "_odul_kaynagi": "aliens.md boss_streuner"
+       "_reward_source": "aliens.md boss_streuner"
       },
       {
        "tur": "24",
@@ -6478,7 +6478,7 @@
         "4": 10,
         "3": 1
        },
-       "_odul_kaynagi": "aliens.md boss_lordakia"
+       "_reward_source": "aliens.md boss_lordakia"
       }
      ],
      "gruplar": [
@@ -6531,7 +6531,7 @@
         "6": 8,
         "3": 8
        },
-       "_odul_kaynagi": "aliens.md boss_mordon"
+       "_reward_source": "aliens.md boss_mordon"
       },
       {
        "tur": "25",
@@ -6558,7 +6558,7 @@
         "6": 1,
         "3": 2
        },
-       "_odul_kaynagi": "aliens.md boss_saimon"
+       "_reward_source": "aliens.md boss_saimon"
       }
      ],
      "gruplar": [
@@ -6611,7 +6611,7 @@
         "6": 8,
         "3": 8
        },
-       "_odul_kaynagi": "aliens.md boss_devolarium"
+       "_reward_source": "aliens.md boss_devolarium"
       },
       {
        "tur": "27",
@@ -6638,7 +6638,7 @@
         "6": 4,
         "3": 8
        },
-       "_odul_kaynagi": "aliens.md boss_sibelonit"
+       "_reward_source": "aliens.md boss_sibelonit"
       }
      ],
      "gruplar": [
@@ -6661,7 +6661,7 @@
        ]
       ]
      ],
-     "_dizilim_kaynagi": "resmî Türk forumu SSS ve fandom Galaxy Gates (tools/kapilar.py FORUM_DIZILIM)"
+     "_lineup_source": "resmî Türk forumu SSS ve fandom Galaxy Gates (tools/kapilar.py FORUM_DIZILIM)"
     },
     {
      "ad": "IV",
@@ -6692,7 +6692,7 @@
         "6": 4,
         "3": 8
        },
-       "_odul_kaynagi": "aliens.md boss_sibelonit"
+       "_reward_source": "aliens.md boss_sibelonit"
       },
       {
        "tur": "46",
@@ -6719,7 +6719,7 @@
         "6": 16,
         "3": 32
        },
-       "_odul_kaynagi": "aliens.md boss_sibelon"
+       "_reward_source": "aliens.md boss_sibelon"
       }
      ],
      "gruplar": [
@@ -6742,7 +6742,7 @@
        ]
       ]
      ],
-     "_dizilim_kaynagi": "resmî Türk forumu SSS ve fandom Galaxy Gates (tools/kapilar.py FORUM_DIZILIM)"
+     "_lineup_source": "resmî Türk forumu SSS ve fandom Galaxy Gates (tools/kapilar.py FORUM_DIZILIM)"
     },
     {
      "ad": "V",
@@ -6773,7 +6773,7 @@
         "6": 32,
         "3": 32
        },
-       "_odul_kaynagi": "aliens.md boss_lordakium"
+       "_reward_source": "aliens.md boss_lordakium"
       },
       {
        "tur": "24",
@@ -6798,7 +6798,7 @@
         "4": 10,
         "3": 1
        },
-       "_odul_kaynagi": "aliens.md boss_lordakia"
+       "_reward_source": "aliens.md boss_lordakia"
       }
      ],
      "gruplar": [
@@ -6821,7 +6821,7 @@
        ]
       ]
      ],
-     "_dizilim_kaynagi": "resmî Türk forumu SSS ve fandom Galaxy Gates (tools/kapilar.py FORUM_DIZILIM)"
+     "_lineup_source": "resmî Türk forumu SSS ve fandom Galaxy Gates (tools/kapilar.py FORUM_DIZILIM)"
     },
     {
      "ad": "VI",
@@ -6852,7 +6852,7 @@
         "6": 4,
         "3": 6
        },
-       "_odul_kaynagi": "aliens.md boss_kristallin"
+       "_reward_source": "aliens.md boss_kristallin"
       },
       {
        "tur": "35",
@@ -6879,7 +6879,7 @@
         "6": 64,
         "3": 64
        },
-       "_odul_kaynagi": "aliens.md boss_kristallon"
+       "_reward_source": "aliens.md boss_kristallon"
       }
      ],
      "gruplar": [
@@ -6932,7 +6932,7 @@
         "6": 64,
         "3": 64
        },
-       "_odul_kaynagi": "aliens.md boss_kristallon"
+       "_reward_source": "aliens.md boss_kristallon"
       },
       {
        "tur": "29",
@@ -6959,7 +6959,7 @@
         "6": 4,
         "3": 6
        },
-       "_odul_kaynagi": "aliens.md boss_kristallin"
+       "_reward_source": "aliens.md boss_kristallin"
       }
      ],
      "gruplar": [
@@ -7005,8 +7005,8 @@
       "esya": "resource_collectable_diametrion",
       "adet": 70,
       "adet_en_cok": 80,
-      "olasilik": 0.01,
-      "birlikte": [
+      "probability": 0.01,
+      "together": [
        [
         "resource_collectable_kyhalon",
         [
@@ -7059,7 +7059,7 @@
        ]
       ],
       "adet": 1,
-      "olasilik": 0.05
+      "probability": 0.05
      }
     ]
    },
@@ -7072,12 +7072,12 @@
    "haritalar": [
     76
    ],
-   "boyutlar": {},
+   "sizes": {},
    "portal": 72,
    "parca": 21,
    "can": 5,
    "kronos_parca": 0,
-   "dalgalar": [
+   "waves": [
     {
      "ad": "I",
      "harita": 76,
@@ -7105,7 +7105,7 @@
         "4": 20,
         "5": 20
        },
-       "_odul_kaynagi": "wiki kapı",
+       "_reward_source": "wiki kapı",
        "davranis": {
         "roket": {
          "hasar": 1000,
@@ -7136,7 +7136,7 @@
         "4": 20,
         "5": 20
        },
-       "_odul_kaynagi": "wiki kapı",
+       "_reward_source": "wiki kapı",
        "davranis": {
         "roket": {
          "hasar": 1500,
@@ -7193,7 +7193,7 @@
         "4": 50,
         "5": 50
        },
-       "_odul_kaynagi": "wiki kapı",
+       "_reward_source": "wiki kapı",
        "davranis": {
         "roket": {
          "hasar": 1500,
@@ -7224,7 +7224,7 @@
         "4": 50,
         "5": 50
        },
-       "_odul_kaynagi": "wiki kapı",
+       "_reward_source": "wiki kapı",
        "davranis": {
         "roket": {
          "hasar": 1500,
@@ -7287,7 +7287,7 @@
         "4": 50,
         "5": 50
        },
-       "_odul_kaynagi": "wiki kapı",
+       "_reward_source": "wiki kapı",
        "davranis": {
         "roket": {
          "hasar": 1500,
@@ -7318,7 +7318,7 @@
         "4": 50,
         "5": 50
        },
-       "_odul_kaynagi": "wiki kapı",
+       "_reward_source": "wiki kapı",
        "davranis": {
         "roket": {
          "hasar": 1500,
@@ -7353,7 +7353,7 @@
        ]
       ]
      ],
-     "_dizilim_kaynagi": "resmî Türk forumu SSS ve fandom Galaxy Gates (tools/kapilar.py FORUM_DIZILIM)"
+     "_lineup_source": "resmî Türk forumu SSS ve fandom Galaxy Gates (tools/kapilar.py FORUM_DIZILIM)"
     },
     {
      "ad": "IV",
@@ -7383,7 +7383,7 @@
         "5": 100,
         "6": 12
        },
-       "_odul_kaynagi": "wiki kapı",
+       "_reward_source": "wiki kapı",
        "davranis": {
         "roket": {
          "hasar": 1000,
@@ -7447,7 +7447,7 @@
         "5": 75,
         "6": 8
        },
-       "_odul_kaynagi": "wiki kapı",
+       "_reward_source": "wiki kapı",
        "davranis": {
         "roket": {
          "hasar": 1000,
@@ -7479,7 +7479,7 @@
         "5": 100,
         "6": 12
        },
-       "_odul_kaynagi": "wiki kapı",
+       "_reward_source": "wiki kapı",
        "davranis": {
         "roket": {
          "hasar": 1000,
@@ -7543,7 +7543,7 @@
         "5": 75,
         "6": 8
        },
-       "_odul_kaynagi": "wiki kapı",
+       "_reward_source": "wiki kapı",
        "davranis": {
         "roket": {
          "hasar": 1000,
@@ -7607,7 +7607,7 @@
         "5": 100,
         "6": 12
        },
-       "_odul_kaynagi": "wiki kapı",
+       "_reward_source": "wiki kapı",
        "davranis": {
         "roket": {
          "hasar": 1000,
@@ -7639,7 +7639,7 @@
         "5": 100,
         "6": 12
        },
-       "_odul_kaynagi": "wiki kapı",
+       "_reward_source": "wiki kapı",
        "davranis": {
         "roket": {
          "hasar": 1000,
@@ -7671,7 +7671,7 @@
         "5": 100,
         "6": 12
        },
-       "_odul_kaynagi": "wiki kapı",
+       "_reward_source": "wiki kapı",
        "davranis": {
         "roket": {
          "hasar": 1000,
@@ -7703,7 +7703,7 @@
         "5": 100,
         "6": 12
        },
-       "_odul_kaynagi": "wiki kapı",
+       "_reward_source": "wiki kapı",
        "davranis": {
         "roket": {
          "hasar": 1000,
@@ -7735,7 +7735,7 @@
         "5": 100,
         "6": 12
        },
-       "_odul_kaynagi": "wiki kapı",
+       "_reward_source": "wiki kapı",
        "davranis": {
         "roket": {
          "hasar": 1000,
@@ -7805,7 +7805,7 @@
         "5": 75,
         "6": 8
        },
-       "_odul_kaynagi": "wiki kapı",
+       "_reward_source": "wiki kapı",
        "davranis": {
         "roket": {
          "hasar": 1000,
@@ -7837,7 +7837,7 @@
         "5": 100,
         "6": 12
        },
-       "_odul_kaynagi": "wiki kapı",
+       "_reward_source": "wiki kapı",
        "davranis": {
         "roket": {
          "hasar": 1000,
@@ -7907,7 +7907,7 @@
         "5": 75,
         "6": 8
        },
-       "_odul_kaynagi": "wiki kapı",
+       "_reward_source": "wiki kapı",
        "davranis": {
         "roket": {
          "hasar": 1000,
@@ -7939,7 +7939,7 @@
         "5": 75,
         "6": 8
        },
-       "_odul_kaynagi": "wiki kapı",
+       "_reward_source": "wiki kapı",
        "davranis": {
         "roket": {
          "hasar": 1000,
@@ -7980,7 +7980,7 @@
        ]
       ]
      ],
-     "_dizilim_kaynagi": "resmî Türk forumu SSS ve fandom Galaxy Gates (tools/kapilar.py FORUM_DIZILIM)"
+     "_lineup_source": "resmî Türk forumu SSS ve fandom Galaxy Gates (tools/kapilar.py FORUM_DIZILIM)"
     },
     {
      "ad": "X",
@@ -8010,7 +8010,7 @@
         "5": 75,
         "6": 8
        },
-       "_odul_kaynagi": "wiki kapı",
+       "_reward_source": "wiki kapı",
        "davranis": {
         "roket": {
          "hasar": 1000,
@@ -8042,7 +8042,7 @@
         "5": 100,
         "6": 12
        },
-       "_odul_kaynagi": "wiki kapı",
+       "_reward_source": "wiki kapı",
        "davranis": {
         "roket": {
          "hasar": 1000,
@@ -8071,7 +8071,7 @@
        ]
       ]
      ],
-     "_dizilim_kaynagi": "resmî Türk forumu SSS ve fandom Galaxy Gates (tools/kapilar.py FORUM_DIZILIM)"
+     "_lineup_source": "resmî Türk forumu SSS ve fandom Galaxy Gates (tools/kapilar.py FORUM_DIZILIM)"
     },
     {
      "ad": "XI",
@@ -8101,7 +8101,7 @@
         "5": 75,
         "6": 8
        },
-       "_odul_kaynagi": "wiki kapı",
+       "_reward_source": "wiki kapı",
        "davranis": {
         "roket": {
          "hasar": 1000,
@@ -8133,7 +8133,7 @@
         "5": 200,
         "6": 20
        },
-       "_odul_kaynagi": "wiki kapı",
+       "_reward_source": "wiki kapı",
        "davranis": {
         "roket": {
          "hasar": 1000,
@@ -8165,7 +8165,7 @@
         "5": 100,
         "6": 12
        },
-       "_odul_kaynagi": "wiki kapı",
+       "_reward_source": "wiki kapı",
        "davranis": {
         "roket": {
          "hasar": 1000,
@@ -8197,7 +8197,7 @@
         "5": 100,
         "6": 12
        },
-       "_odul_kaynagi": "wiki kapı",
+       "_reward_source": "wiki kapı",
        "davranis": {
         "roket": {
          "hasar": 1000,
@@ -8261,7 +8261,7 @@
         "5": 100,
         "6": 12
        },
-       "_odul_kaynagi": "wiki kapı",
+       "_reward_source": "wiki kapı",
        "davranis": {
         "roket": {
          "hasar": 1000,
@@ -8293,7 +8293,7 @@
         "5": 100,
         "6": 12
        },
-       "_odul_kaynagi": "wiki kapı",
+       "_reward_source": "wiki kapı",
        "davranis": {
         "roket": {
          "hasar": 1000,
@@ -8325,7 +8325,7 @@
         "5": 100,
         "6": 12
        },
-       "_odul_kaynagi": "wiki kapı",
+       "_reward_source": "wiki kapı",
        "davranis": {
         "roket": {
          "hasar": 1000,
@@ -8383,7 +8383,7 @@
         "5": 200,
         "6": 25
        },
-       "_odul_kaynagi": "wiki kapı",
+       "_reward_source": "wiki kapı",
        "davranis": {
         "roket": {
          "hasar": 1000,
@@ -8415,7 +8415,7 @@
         "5": 16,
         "6": 2
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       }
      ],
      "gruplar": [
@@ -8457,20 +8457,20 @@
      {
       "esya": "drone_designs_spartan",
       "adet": 1,
-      "olasilik": 0.25,
-      "ilk_kesin": true
+      "probability": 0.25,
+      "first_guaranteed": true
      },
      {
       "esya": "ship_g-saturn",
       "adet": 1,
-      "olasilik": 0.25
+      "probability": 0.25
      },
      {
       "esya": "resource_collectable_diametrion",
       "adet": 70,
       "adet_en_cok": 80,
-      "olasilik": 0.01,
-      "birlikte": [
+      "probability": 0.01,
+      "together": [
        [
         "resource_collectable_kyhalon",
         [
@@ -8523,7 +8523,7 @@
        ]
       ],
       "adet": 1,
-      "olasilik": 0.15
+      "probability": 0.15
      }
     ]
    },
@@ -8537,7 +8537,7 @@
     "kappa": 2,
     "lambda": 5
    },
-   "uretilmez": true
+   "not_producible": true
   },
   "hades": {
    "kimlik": 13,
@@ -8546,7 +8546,7 @@
    "haritalar": [
     203
    ],
-   "boyutlar": {
+   "sizes": {
     "203": [
      10500,
      6550
@@ -8556,7 +8556,7 @@
    "parca": 45,
    "can": 5,
    "kronos_parca": 0,
-   "dalgalar": [
+   "waves": [
     {
      "ad": "I",
      "harita": 203,
@@ -8585,7 +8585,7 @@
         "5": 32,
         "6": 4
        },
-       "_odul_kaynagi": "aliens.md sibelon"
+       "_reward_source": "aliens.md sibelon"
       },
       {
        "tur": "46",
@@ -8612,7 +8612,7 @@
         "6": 16,
         "3": 32
        },
-       "_odul_kaynagi": "aliens.md boss_sibelon"
+       "_reward_source": "aliens.md boss_sibelon"
       },
       {
        "tur": "47",
@@ -8639,7 +8639,7 @@
         "6": 64,
         "3": 64
        },
-       "_odul_kaynagi": "aliens.md uber_sibelon"
+       "_reward_source": "aliens.md uber_sibelon"
       },
       {
        "tur": "124",
@@ -8666,7 +8666,7 @@
         "6": 32,
         "3": 32
        },
-       "_odul_kaynagi": "aliens.md emperor_sibelon"
+       "_reward_source": "aliens.md emperor_sibelon"
       }
      ],
      "gruplar": [
@@ -8724,7 +8724,7 @@
         "5": 64,
         "6": 8
        },
-       "_odul_kaynagi": "aliens.md lordakium"
+       "_reward_source": "aliens.md lordakium"
       },
       {
        "tur": "28",
@@ -8751,7 +8751,7 @@
         "6": 32,
         "3": 32
        },
-       "_odul_kaynagi": "aliens.md boss_lordakium"
+       "_reward_source": "aliens.md boss_lordakium"
       },
       {
        "tur": "41",
@@ -8778,7 +8778,7 @@
         "6": 64,
         "3": 128
        },
-       "_odul_kaynagi": "aliens.md uber_lordakium"
+       "_reward_source": "aliens.md uber_lordakium"
       },
       {
        "tur": "123",
@@ -8805,7 +8805,7 @@
         "6": 64,
         "3": 64
        },
-       "_odul_kaynagi": "aliens.md emperor_lordakium"
+       "_reward_source": "aliens.md emperor_lordakium"
       }
      ],
      "gruplar": [
@@ -8863,7 +8863,7 @@
         "5": 128,
         "6": 16
        },
-       "_odul_kaynagi": "aliens.md kristallon"
+       "_reward_source": "aliens.md kristallon"
       },
       {
        "tur": "35",
@@ -8890,7 +8890,7 @@
         "6": 64,
         "3": 64
        },
-       "_odul_kaynagi": "aliens.md boss_kristallon"
+       "_reward_source": "aliens.md boss_kristallon"
       },
       {
        "tur": "45",
@@ -8917,7 +8917,7 @@
         "6": 128,
         "3": 128
        },
-       "_odul_kaynagi": "aliens.md uber_kristallon"
+       "_reward_source": "aliens.md uber_kristallon"
       },
       {
        "tur": "122",
@@ -8944,7 +8944,7 @@
         "6": 128,
         "3": 128
        },
-       "_odul_kaynagi": "aliens.md emperor_kristallon"
+       "_reward_source": "aliens.md emperor_kristallon"
       }
      ],
      "gruplar": [
@@ -8995,7 +8995,7 @@
      {
       "esya": "equipment_weapon_laser_lf-4",
       "adet": 1,
-      "olasilik": 0.25
+      "probability": 0.25
      },
      {
       "esya": "cevher_paketi",
@@ -9026,7 +9026,7 @@
        ]
       ],
       "adet": 1,
-      "olasilik": 0.05
+      "probability": 0.05
      }
     ]
    },
@@ -9043,12 +9043,12 @@
     303,
     304
    ],
-   "boyutlar": {},
+   "sizes": {},
    "portal": 82,
    "parca": 100,
    "can": 5,
    "kronos_parca": 0,
-   "dalgalar": [
+   "waves": [
     {
      "ad": "I",
      "harita": 300,
@@ -9077,7 +9077,7 @@
         "5": 15,
         "6": 1
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       },
       {
        "tur": "158",
@@ -9096,8 +9096,8 @@
         "uridyum": 10
        },
        "kargo": {},
-       "_odul_kaynagi": "wiki kapı",
-       "_tahmin": [
+       "_reward_source": "wiki kapı",
+       "_estimate": [
         "can/kalkan/hasar"
        ]
       }
@@ -9152,7 +9152,7 @@
         "6": 8,
         "3": 16
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       },
       {
        "tur": "25",
@@ -9179,7 +9179,7 @@
         "6": 1,
         "3": 2
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       },
       {
        "tur": "158",
@@ -9198,8 +9198,8 @@
         "uridyum": 10
        },
        "kargo": {},
-       "_odul_kaynagi": "wiki kapı",
-       "_tahmin": [
+       "_reward_source": "wiki kapı",
+       "_estimate": [
         "can/kalkan/hasar"
        ]
       },
@@ -9228,8 +9228,8 @@
         "6": 1,
         "3": 4
        },
-       "_odul_kaynagi": "wiki kapı",
-       "_tahmin": [
+       "_reward_source": "wiki kapı",
+       "_estimate": [
         "can/kalkan/hasar"
        ]
       },
@@ -9256,7 +9256,7 @@
         "4": 4,
         "5": 4
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       }
      ],
      "gruplar": [
@@ -9297,7 +9297,7 @@
        ]
       ]
      ],
-     "_dizilim_kaynagi": "resmî Türk forumu SSS ve fandom Galaxy Gates (tools/kapilar.py FORUM_DIZILIM)"
+     "_lineup_source": "resmî Türk forumu SSS ve fandom Galaxy Gates (tools/kapilar.py FORUM_DIZILIM)"
     },
     {
      "ad": "III",
@@ -9328,8 +9328,8 @@
         "6": 1,
         "3": 4
        },
-       "_odul_kaynagi": "wiki kapı",
-       "_tahmin": [
+       "_reward_source": "wiki kapı",
+       "_estimate": [
         "can/kalkan/hasar"
        ]
       },
@@ -9350,7 +9350,7 @@
         "uridyum": 200
        },
        "kargo": {},
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       },
       {
        "tur": "150",
@@ -9377,8 +9377,8 @@
         "6": 1,
         "3": 4
        },
-       "_odul_kaynagi": "wiki kapı",
-       "_tahmin": [
+       "_reward_source": "wiki kapı",
+       "_estimate": [
         "can/kalkan/hasar"
        ]
       },
@@ -9399,8 +9399,8 @@
         "uridyum": 10
        },
        "kargo": {},
-       "_odul_kaynagi": "wiki kapı",
-       "_tahmin": [
+       "_reward_source": "wiki kapı",
+       "_estimate": [
         "can/kalkan/hasar"
        ]
       },
@@ -9429,7 +9429,7 @@
         "6": 16,
         "3": 32
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       },
       {
        "tur": "150",
@@ -9456,8 +9456,8 @@
         "6": 1,
         "3": 4
        },
-       "_odul_kaynagi": "wiki kapı",
-       "_tahmin": [
+       "_reward_source": "wiki kapı",
+       "_estimate": [
         "can/kalkan/hasar"
        ]
       },
@@ -9478,7 +9478,7 @@
         "uridyum": 200
        },
        "kargo": {},
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       },
       {
        "tur": "150",
@@ -9505,8 +9505,8 @@
         "6": 1,
         "3": 4
        },
-       "_odul_kaynagi": "wiki kapı",
-       "_tahmin": [
+       "_reward_source": "wiki kapı",
+       "_estimate": [
         "can/kalkan/hasar"
        ]
       },
@@ -9527,7 +9527,7 @@
         "uridyum": 200
        },
        "kargo": {},
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       },
       {
        "tur": "158",
@@ -9546,8 +9546,8 @@
         "uridyum": 10
        },
        "kargo": {},
-       "_odul_kaynagi": "wiki kapı",
-       "_tahmin": [
+       "_reward_source": "wiki kapı",
+       "_estimate": [
         "can/kalkan/hasar"
        ]
       }
@@ -9636,8 +9636,8 @@
         "uridyum": 100
        },
        "kargo": {},
-       "_odul_kaynagi": "wiki kapı",
-       "_tahmin": [
+       "_reward_source": "wiki kapı",
+       "_estimate": [
         "can/kalkan/hasar"
        ]
       },
@@ -9666,8 +9666,8 @@
         "6": 1,
         "3": 4
        },
-       "_odul_kaynagi": "wiki kapı",
-       "_tahmin": [
+       "_reward_source": "wiki kapı",
+       "_estimate": [
         "can/kalkan/hasar"
        ]
       },
@@ -9688,7 +9688,7 @@
         "uridyum": 200
        },
        "kargo": {},
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       },
       {
        "tur": "158",
@@ -9707,8 +9707,8 @@
         "uridyum": 10
        },
        "kargo": {},
-       "_odul_kaynagi": "wiki kapı",
-       "_tahmin": [
+       "_reward_source": "wiki kapı",
+       "_estimate": [
         "can/kalkan/hasar"
        ]
       },
@@ -9737,7 +9737,7 @@
         "6": 64,
         "3": 64
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       },
       {
        "tur": "25",
@@ -9764,7 +9764,7 @@
         "6": 1,
         "3": 2
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       }
      ],
      "gruplar": [
@@ -9889,7 +9889,7 @@
        ]
       ]
      ],
-     "_dizilim_kaynagi": "resmî Türk forumu SSS ve fandom Galaxy Gates (tools/kapilar.py FORUM_DIZILIM)"
+     "_lineup_source": "resmî Türk forumu SSS ve fandom Galaxy Gates (tools/kapilar.py FORUM_DIZILIM)"
     },
     {
      "ad": "V",
@@ -9912,8 +9912,8 @@
         "uridyum": 10
        },
        "kargo": {},
-       "_odul_kaynagi": "wiki kapı",
-       "_tahmin": [
+       "_reward_source": "wiki kapı",
+       "_estimate": [
         "can/kalkan/hasar"
        ]
       },
@@ -9934,8 +9934,8 @@
         "uridyum": 6000
        },
        "kargo": {},
-       "_odul_kaynagi": "wiki kapı",
-       "_tahmin": [
+       "_reward_source": "wiki kapı",
+       "_estimate": [
         "can/kalkan/hasar"
        ]
       },
@@ -9964,8 +9964,8 @@
         "6": 1,
         "3": 4
        },
-       "_odul_kaynagi": "wiki kapı",
-       "_tahmin": [
+       "_reward_source": "wiki kapı",
+       "_estimate": [
         "can/kalkan/hasar"
        ]
       },
@@ -9986,7 +9986,7 @@
         "uridyum": 200
        },
        "kargo": {},
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       },
       {
        "tur": "47",
@@ -10013,7 +10013,7 @@
         "6": 64,
         "3": 64
        },
-       "_odul_kaynagi": "wiki kapı"
+       "_reward_source": "wiki kapı"
       }
      ],
      "gruplar": [
@@ -10108,7 +10108,7 @@
        ]
       ]
      ],
-     "_dizilim_kaynagi": "resmî Türk forumu SSS ve fandom Galaxy Gates (tools/kapilar.py FORUM_DIZILIM)"
+     "_lineup_source": "resmî Türk forumu SSS ve fandom Galaxy Gates (tools/kapilar.py FORUM_DIZILIM)"
     }
    ],
    "odul": {
@@ -10129,7 +10129,7 @@
     "sans": [
      {
       "esya": "tasarim_secimi",
-      "secenekler": [
+      "options": [
        "ship_a-elite",
        "ship_c-elite",
        "ship_s-elite",
@@ -10137,15 +10137,15 @@
        "ship_pusat"
       ],
       "adet": 1,
-      "yoksa_uridyum": 10000,
-      "olasilik": 0.25
+      "fallback_uridium": 10000,
+      "probability": 0.25
      },
      {
       "esya": "resource_collectable_diametrion",
       "adet": 70,
       "adet_en_cok": 80,
-      "olasilik": 0.01,
-      "birlikte": [
+      "probability": 0.01,
+      "together": [
        [
         "resource_collectable_kyhalon",
         [
@@ -10198,24 +10198,24 @@
        ]
       ],
       "adet": 1,
-      "olasilik": 0.1
+      "probability": 0.1
      }
     ]
    }
   }
  },
- "enerji_fiyati": 100,
- "hafta_sonu_indirim": 0.15,
+ "energy_price": 100,
+ "weekend_discount": 0.15,
  "premium_indirim": 0.05,
- "_premium_indirim": "belgeler/wiki/galaxy_gates.md: Premium enerji -%5 (tek oyunculuda herkes premium)",
+ "_premium_discount": "belgeler/wiki/galaxy_gates.md: Premium enerji -%5 (tek oyunculuda herkes premium)",
  "kronos_gunu": 5,
- "cekilis_adetleri": [
+ "spin_amounts": [
   1,
   5,
   10,
   100
  ],
- "olasilik": [
+ "probability": [
   [
    1,
    67
@@ -10277,13 +10277,13 @@
   10,
   15
  ],
- "nano_govde": [
+ "nano_hull": [
   5000,
   15000
  ],
  "kopya_eksige": 0.5,
- "azami_carpan": 5,
- "can_fiyatlari": [
+ "max_multiplier": 5,
+ "life_prices": [
   5000,
   10000,
   20000,
@@ -10293,25 +10293,25 @@
  "dalga_molasi_sn": 30,
  "giris_bekleme_sn": 6,
  "halka_bekleme_sn": 3,
- "dogma_uzaklik": [
+ "spawn_distance": [
   1500,
   2000
  ],
- "dogma_araligi_sn": [
+ "spawn_interval_sec": [
   1,
   2
  ],
- "grup_yaricap": [
+ "group_radius": [
   200,
   70
  ],
- "grup_aralik": 140,
- "kalkan_dogma": [
+ "group_spacing": 140,
+ "shield_spawn": [
   300,
   450
  ],
- "portal_uzaklik": 2200,
- "bonus_kutusu_enerji": 1,
+ "portal_distance": 2200,
+ "bonus_box_energy": 1,
  "schism": {
   "alpha": [
    5,
@@ -10358,7 +10358,7 @@
    30
   ]
  },
- "x1_konum": {
+ "x1_position": {
   "1": {
    "alpha": [
     3800,
@@ -10494,7 +10494,7 @@
   2,
   1
  ],
- "_mesajlar": "Kapı haritasındaki ekran mesajları (istemcinin MessageCommand komutu: buyuk = büyük bildirim + günlük, kisa = üstte kısa mesaj). İstemci İngilizce olduğu için İngilizce; \"key:\" ile başlayanlar istemcinin kendi çeviri metni. {kapi} kapı adı, {dalga} dalga numarası, {toplam} dalga sayısı, {sn} saniye, {gruplar} alt dalga, {kalan} kalan uzaylı, {ad} uzaylı adı, {sk} Kronos parçası tekil/çoğul (s/p; adedi %COUNT%). Geri sayım ve dalga başı gerçek oyunun görüntüsünden (kullanıcı, 2026-10-28): \"-=- 1 -=-\", \"-=- 0 -=-\", kalan can (istemcinin lifes_left metni, kapi.py), \"Map Alpha - Wave 5\". \"dalga_kalan\" bütün uzaylılar doğduktan sonra 3 ve daha az kalınca; \"kalan\" kalkanlı patronun refakat grubunda.",
+ "_messages": "Kapı haritasındaki ekran mesajları (istemcinin MessageCommand komutu: buyuk = büyük bildirim + günlük, kisa = üstte kısa mesaj). İstemci İngilizce olduğu için İngilizce; \"key:\" ile başlayanlar istemcinin kendi çeviri metni. {kapi} kapı adı, {dalga} dalga numarası, {toplam} dalga sayısı, {sn} saniye, {gruplar} alt dalga, {kalan} kalan uzaylı, {ad} uzaylı adı, {sk} Kronos parçası tekil/çoğul (s/p; adedi %COUNT%). Geri sayım ve dalga başı gerçek oyunun görüntüsünden (kullanıcı, 2026-10-28): \"-=- 1 -=-\", \"-=- 0 -=-\", kalan can (istemcinin lifes_left metni, kapi.py), \"Map Alpha - Wave 5\". \"dalga_kalan\" bütün uzaylılar doğduktan sonra 3 ve daha az kalınca; \"kalan\" kalkanlı patronun refakat grubunda.",
  "mesajlar": {
   "giris": {
    "kisa": "Galaxy Gate {kapi}: {toplam} attack waves."
@@ -10547,7 +10547,7 @@
  },
  "bonus": {
   "_kaynak": "Kaydın GalaxyGateBuilderInfoCommand'ı: üç kapıda bonus (bonusGGRewardModules {claimed, countdown sn, lootId, amount}: Delta LF-4 HP, Epsilon 1.050.000 onur, Kappa P.E.T. G-Champion Lava; geri sayım 22.002 sn), istemci (GateVo.ParseBonusGReward: kapının ilk bonusu, geri sayımı kendisi işletir; metinler title_bonus_gg_reward, msg_bonus_gg_reward_info / _time_left / _collected) ve darkorbitwiki Galaxy Gates Events \"Bonus Rewards For The First Completing\" (ödül havuzu ve gemi şansı).",
-  "_uyarlama": "Kayıttaki bonuslar sabit kalıntıydı (süre hep 22.002 sn, ödül verilmiyordu); kayıt Pazar günü alındı ve bonus açıktı, bu yüzden wiki'nin 'her Salı' takvimi yerine her dönem. Sunucu her dönemde (panel: kapi_bonus_saat, varsayılan 24 saat, gece yarısına hizalı) kapılardan kapi_bonus_adet kadarını ve ödüllerini rastgele seçer (dönem içinde sabit; aralıklı ödüller de, dönemin tohumuyla); kapı dönem bitmeden tamamlanınca (Dispatch'in kapı gönderimi dahil) ödül bir kez verilir. Havuz wiki'nin listesi (kayıttaki üç ödül bunun içinde); miktarlı ödüller panelin kapi_bonus_carpan'ıyla (tek eşyalar bir tane). gemi_sansi: istemci metni 'There's also a chance to get a Cyborg, Hammerclaw, or Mimesis ship' ve wiki (sahip olunan gemi yerine 10.000 uridyum); olasılık wiki'de yok (uyarlama, VARSAYILAN_SANS).",
+  "_uyarlama": "Kayıttaki bonuslar sabit kalıntıydı (süre hep 22.002 sn, ödül verilmiyordu); kayıt Pazar günü alındı ve bonus açıktı, bu yüzden wiki'nin 'her Salı' takvimi yerine her dönem. Sunucu her dönemde (panel: kapi_bonus_saat, varsayılan 24 saat, gece yarısına hizalı) kapılardan kapi_bonus_adet kadarını ve ödüllerini rastgele seçer (dönem içinde sabit; aralıklı ödüller de, dönemin tohumuyla); kapı dönem bitmeden tamamlanınca (Dispatch'in kapı gönderimi dahil) ödül bir kez verilir. Havuz wiki'nin listesi (kayıttaki üç ödül bunun içinde); miktarlı ödüller panelin kapi_bonus_carpan'ıyla (tek eşyalar bir tane). ship_chance: istemci metni 'There's also a chance to get a Cyborg, Hammerclaw, or Mimesis ship' ve wiki (sahip olunan gemi yerine 10.000 uridyum); olasılık wiki'de yok (uyarlama, VARSAYILAN_SANS).",
   "kapilar": [
    "alpha",
    "beta",
@@ -10685,14 +10685,14 @@
     1
    ]
   ],
-  "gemi_sansi": {
-   "olasilik": 0.25,
+  "ship_chance": {
+   "probability": 0.25,
    "gemiler": [
     "ship_cyborg",
     "ship_hammerclaw",
     "ship_mimesis"
    ],
-   "yoksa_uridyum": 10000
+   "fallback_uridium": 10000
   }
  }
 }

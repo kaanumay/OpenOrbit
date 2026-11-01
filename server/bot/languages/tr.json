@@ -1,7 +1,7 @@
 {
- "kod": "tr",
+ "code": "tr",
  "ad": "Türkçe",
- "agirlik": 20,
+ "weight": 20,
  "adlar": {
   "parcalar": {
    "isim": [
@@ -146,7 +146,7 @@
     "21"
    ]
   },
-  "desenler": [
+  "patterns": [
    [
     25,
     "{isim}{sayi}"
@@ -582,7 +582,7 @@
   "klan_posta_ksi_konu": ["İstasyon saldırı altında: {istasyon}"],
   "klan_posta_ksi": ["{istasyon} istasyonumuz {harita} haritasında vuruluyor. çevrimiçi olan herkes hemen gelsin"]
  },
- "diyaloglar": [
+ "dialogues": [
   [
    ["önce kalkan mı lazer mi?", "neyi önce geliştireyim, kalkan mı lazer mi?"],
    ["önce lazer, sonra kalkan", "bence lazer", "önce kalkan, çok ölmek pahalı"],
@@ -628,7 +628,7 @@
    ["gg", "gg, görüşürüz"]
   ]
  ],
- "kisaltma": [
+ "abbreviation": [
   [
    "selam",
    "slm"
@@ -680,9 +680,9 @@
   "Ş": "S",
   "Ü": "U"
  },
- "ascii_oran": 0.55,
- "niyet": {},
- "tepki": {
+ "ascii_ratio": 0.55,
+ "intent": {},
+ "reaction": {
   "kutlama": ["tebrikler", "tebrik ederim", "helal", "eline sağlık", "hayırlı olsun", "gözün aydın", "gratz"],
   "veda": ["görüşürüz", "iyi geceler", "bay bay", "ben kaçtım", "hadi ben kaçar", "kaçtım ben", "gidiyorum ben"],
   "donus": ["geldim", "döndüm", "tekrar geldim", "ben geldim", "geri geldim"],

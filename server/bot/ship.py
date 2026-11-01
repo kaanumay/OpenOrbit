@@ -29,12 +29,12 @@ from . import manager as MGR
 from .goals.pvp import order_grudge
 
 CARRIER = next(iter(WD.CFG['tipler']))       # NPC.__init__ için var olan bir tür (sonra botun değerleriyle değiştirilir)
-LASER_RANGE = WD.COMBAT['lazer_menzil']
+LASER_RANGE = WD.COMBAT['laser_range']
 COMBAT_SEC = 8.0                                 # son hasardan bu kadar sonra yenilenir
 REGEN_RATE = 0.02                               # savaş dışında saniyede azami can+kalkanın payı
 JUMP_SEC = H.JUMP_DELAY_SEC
 ARRIVAL_SEC = 10.0                 # atlayan bot bu süre içinde gövdelenirse varış portalında doğar (sonra uçup gitmiştir)
-COMBAT_INTERVAL = WD.COMBAT['lazer_aralik_sn']
+COMBAT_INTERVAL = WD.COMBAT['laser_interval_sec']
 
 
 class BotShip(WD.NPC):
@@ -148,8 +148,8 @@ def tick(w, now):
         x, yy = spawn_point(w, b)
         n = BotShip(b, x, yy, now)
         if b.__dict__.pop('in_place_repair', None):       # yerinde tamir: canın %10'u, kalkansız, 10 sn koruma (oyuncununki gibi)
-            n.hp, n.shield = max(1, int(n.hp * K.ITEMS['olum_ekrani']['yerinde_can_orani'])), 0
-            n.immune_until = now + K.ITEMS['olum_ekrani']['yerinde_koruma_sn']
+            n.hp, n.shield = max(1, int(n.hp * K.ITEMS['death_screen']['in_place_hp_ratio'])), 0
+            n.immune_until = now + K.ITEMS['death_screen']['in_place_protection_sec']
         w.npcs[n.id] = n
         b.body = n
         b.k['x'], b.k['y'] = x, yy
@@ -381,7 +381,7 @@ def was_hit(w, n, attacker=None):
     n.attacker[w.hid] = now
     n.last_damage = now
     if n.next_think > now + 0.3:
-        n.next_think = now + min(0.6, n.bot.k['kisilik']['tepki_sn'])
+        n.next_think = now + min(0.6, n.bot.k['kisilik']['reaction_sec'])
     return True
 
 
@@ -408,7 +408,7 @@ def was_killed(w, n):
     name = w.p.d['pilot'].get('userName', '')
     if b.target is not None and b.target.name == 'duello':
         b.plan['bitti'] = True                           # düelloyu kaybetti
-        b.k['niyet'] = None
+        b.k['intent'] = None
     y_ = MGR.ACTIVE
     if y_ is not None:
         with y_.lock:
@@ -421,10 +421,10 @@ def player_died(w, n):
     """Bot oyuncuyu yok etti: onur ve hafıza (oyuncunun ölüm ekranı dünyada)."""
     b = n.bot
     name = w.p.d['pilot'].get('userName', '')
-    kill_rewards = K.ITEMS['oyuncu_oldurme']
+    kill_rewards = K.ITEMS['player_kill']
     y = MGR.ACTIVE
     speed = y.speed(b) if y is not None else 1.0
-    b.reward(None, speed, ep=kill_rewards['ep_puan'], onur=kill_rewards['onur_puan'])
+    b.reward(None, speed, ep=kill_rewards['ep_points'], onur=kill_rewards['honor_points'])
     b.ist('oyuncu')
     b.ist('oyuncu_puan', T.ship_rank_points(w.p.ship()['lootId']))
     b.memory.event(name, 'oldurdum')
@@ -432,7 +432,7 @@ def player_died(w, n):
     b.event('oyuncu_oldurdum', ad=name)
     if b.target is not None and b.target.name == 'duello':
         b.plan['bitti'] = True                           # düelloyu kazandı
-        b.k['niyet'] = None
+        b.k['intent'] = None
     n.target = None
 
 
@@ -509,7 +509,7 @@ def kill_npc(w, m, n, now):
         n.bot.event('patron_oldurdum', ad=m.d.get('ad', ''))
         witness(w, 'patron', x, y, exclude=n.id, ad=m.d.get('ad', ''), kim=n.bot.name)
     n.target = None
-    n.next_think = now + random.uniform(0.8, 2.5) * n.bot.k['kisilik']['tepki_sn']      # öldürünce kısa duraklama (ganimete bakar)
+    n.next_think = now + random.uniform(0.8, 2.5) * n.bot.k['kisilik']['reaction_sec']      # öldürünce kısa duraklama (ganimete bakar)
 
 
 # ------------------------------------------------------------------------------------------------------------ ateş
@@ -535,12 +535,12 @@ def _ammo(n, target, m, o):
 
 
 def _color(b, ammo=None):
-    laser_colors = K.ITEMS['lazer_renkleri']
+    laser_colors = K.ITEMS['laser_colors']
     e = b.k['ekip']
     c = ammo or e['cephane']
     lasers = [l for l, k in e['lazer'].items() if k]
-    if len(lasers) == 1 and c in laser_colors['tam_set'].get(lasers[0], {}):
-        return laser_colors['tam_set'][lasers[0]][c]
+    if len(lasers) == 1 and c in laser_colors['full_set'].get(lasers[0], {}):
+        return laser_colors['full_set'][lasers[0]][c]
     return laser_colors['cephane'].get(c, 0)
 
 
@@ -548,7 +548,7 @@ def _fire(b, pvp=False, ammo=None):
     y = K.outfit(b.k['ekip'], b.shield_share())
     multiplier = K.ITEMS['lazer_cephane'].get(ammo or b.k['ekip']['cephane'], {}).get('carpan', 1)
     lab = b.body.lab_shot if b.body is not None and hasattr(b.body, 'lab_shot') else 0.0
-    return int(sum(y['lazer']) * multiplier * (1 + lab) * random.uniform(*K.ITEMS['hasar_rastgele']))
+    return int(sum(y['lazer']) * multiplier * (1 + lab) * random.uniform(*K.ITEMS['damage_random']))
 
 
 def fire(w, n, now):
@@ -662,7 +662,7 @@ def salvo(w, n, target, m, o, now):
                         bot_damage(w, x, dmg, n.id, t2, killer_bot=b)
                     else:
                         hit_npc(w, n, x, dmg, t2, 0, ammo=fr)
-            w.later(WD.COMBAT['roket_ucus_sn'], hit)
+            w.later(WD.COMBAT['rocket_flight_sec'], hit)
         w.later(i * 0.5, at)
     b.ist('salvo')
 
@@ -684,7 +684,7 @@ def hit_npc(w, n, m, dmg, now, atype, once=(), shield=False, ammo=None):
     oyuncu yakınsa). Önceden bot vuruşu bunları atlıyordu: Cubikon bota Protegit çağırmıyordu (kullanıcı bildirimi 2026-10-30)."""
     if not m.alive:
         return
-    only = m.d.get('sadece_cephane')
+    only = m.d.get('ammo_only')
     if (m.invulnerable and m.invulnerable()) or m.effect.invulnerable(now) or w.guarded(m) or (only and ammo not in only):
         dmg = 0
     red = getattr(m, 'damage_reduction', None)
@@ -695,7 +695,7 @@ def hit_npc(w, n, m, dmg, now, atype, once=(), shield=False, ammo=None):
         w.send([legacy('0|n|INV|%d|0' % m.id)])
     w.alien.attacked(m, n.id, now)
     w.npc_summon(m, now, hitter=n)
-    absorb = 1.0 if shield else m.d.get('kalkan_emme', WD.COMBAT['npc_kalkan_emme'])
+    absorb = 1.0 if shield else m.d.get('kalkan_emme', WD.COMBAT['npc_shield_absorb'])
     to_shield = min(int(m.shield), int(round(dmg * absorb)))
     m.shield -= to_shield
     m.hp = max(0, m.hp - (dmg - to_shield))
@@ -732,7 +732,7 @@ def rocket(w, n, target, m, o, now):
     rocket = WP.pick_rocket(b)
     pos = _position(w, target, now)
     nx, ny = n.mover.pos(now)
-    if not rocket or pos is None or math.hypot(pos[0] - nx, pos[1] - ny) > WD.COMBAT['roket_menzil'] or not WP.spend(b, rocket, 1):
+    if not rocket or pos is None or math.hypot(pos[0] - nx, pos[1] - ny) > WD.COMBAT['rocket_range'] or not WP.spend(b, rocket, 1):
         return
     n.rocket_ready = now + WP.rocket_cooldown(b)
     r = K.ITEMS['roketler'][rocket]
@@ -760,7 +760,7 @@ def rocket(w, n, target, m, o, now):
             bot_damage(w, x, dmg, n.id, t, killer_bot=b)
         else:
             hit_npc(w, n, x, dmg, t, 0, ammo=rocket)
-    w.later(WD.COMBAT['roket_ucus_sn'], hit)
+    w.later(WD.COMBAT['rocket_flight_sec'], hit)
 
 
 def npc_reward(b, m, pay=1):
@@ -796,7 +796,7 @@ def drop_cargo(w, m, uid, x, y):
     if not cargo:
         return
     owner_tag = ('b', uid) if WD.SET.get('kargo_sahipligi') else None
-    w.later(WD.COMBAT['kutu_gecikme_sn'], lambda: w.drop_box('FROM_SHIP', x, y, cargo, WD.COMBAT['kutu_omur_sn'], owner_tag=owner_tag))
+    w.later(WD.COMBAT['box_delay_sec'], lambda: w.drop_box('FROM_SHIP', x, y, cargo, WD.COMBAT['box_life_sec'], owner_tag=owner_tag))
 
 
 def _bot(uid):
@@ -904,7 +904,7 @@ def npc_to_bot(w, m, now):
             ms = m.mover.go(gx, gy, m.speed(), now)
             w.send([('MoveCommand', dict(userId=m.id, x=int(gx), y=int(gy), timeToTarget=ms))])
     if now >= m.next_shot and dist <= w.npc_range(m) and m.d['hasar'] > 0:
-        m.next_shot = now + m.d.get('atis_aralik_sn', WD.COMBAT['npc_saldiri_aralik_sn'])
+        m.next_shot = now + m.d.get('shot_interval_sec', WD.COMBAT['npc_attack_interval_sec'])
         _broadcast(w, [('AttackLaserRunCommand', dict(attackerId=m.id, targetId=t.id, laserColor=0, isDiminishedBySkillShield=False,
                                                   skilledLaser=False, visualType=0))], m.id, t.id)
         if random.random() < m.d.get('isabet', WD.COMBAT['npc_isabet']):
@@ -921,14 +921,14 @@ def think(w, n, now):
     fire(w, n, now)
     if now < n.next_think:
         return
-    n.next_think = now + b.k['kisilik']['tepki_sn'] * random.uniform(0.6, 1.4)
+    n.next_think = now + b.k['kisilik']['reaction_sec'] * random.uniform(0.6, 1.4)
     d = b.value()
     if now - n.last_damage > COMBAT_SEC:                     # yenilenme
         from . import extras as EX
-        k = REGEN_RATE * b.k['kisilik']['tepki_sn'] * 1.0
+        k = REGEN_RATE * b.k['kisilik']['reaction_sec'] * 1.0
         rep = EX.repair_sec(b)
         n.shield = min(d['kalkan'], n.shield + d['kalkan'] * k * 2)
-        n.hp = min(d['can'], n.hp + d['can'] * max(k, b.k['kisilik']['tepki_sn'] / rep if rep else 0))     # onarım robotu
+        n.hp = min(d['can'], n.hp + d['can'] * max(k, b.k['kisilik']['reaction_sec'] / rep if rep else 0))     # onarım robotu
     nx, ny = n.mover.pos(now)
     b.k['x'], b.k['y'] = int(nx), int(ny)
     if b.__dict__.get('exit_request') and not any(now - t < 6 for t in n.attacker.values()):
@@ -960,7 +960,7 @@ def think(w, n, now):
             n.target = u                                  # uzaylı vurdu: karşılık
         else:
             opponent = _power(w, u)
-            if opponent / max(0.5, d['guc']) > 1.3 + b.o('risk') + 0.5 * b.mood['ofke'] and ratio < 0.9:
+            if opponent / max(0.5, d['power']) > 1.3 + b.o('risk') + 0.5 * b.mood['ofke'] and ratio < 0.9:
                 return flee(w, n, now)
             n.target = u
             b.memory.event(_name(w, u), 'hakaret', now, multiplier=0.3)
@@ -1006,7 +1006,7 @@ def _power(w, uid):
     if o is not None:
         return hero_power(o)
     m = w.npcs.get(uid)
-    return m.bot.value()['guc'] if m is not None and m.bot is not None else 1.0
+    return m.bot.value()['power'] if m is not None and m.bot is not None else 1.0
 
 
 def approach(w, n, pos, now):
@@ -1049,10 +1049,10 @@ def pvp_target(w, n, now):
             mx, my = m.mover.pos(now)
             if math.hypot(mx - nx, my - ny) > sight or not can_attack_bot(w, n, m, now):
                 continue
-            candidates.append((m.id, m.bot.value()['guc'], m.bot.name, T.clan_relation(b, m.bot)))
+            candidates.append((m.id, m.bot.value()['power'], m.bot.name, T.clan_relation(b, m.bot)))
     if not candidates:
         return None
-    own = max(0.5, b.value()['guc'])
+    own = max(0.5, b.value()['power'])
     ev = H.company(w.map_id) == b.firma                  # kendi firmasının haritası: istilacıya karşı haritasını savunur
     hunt = b.target is not None and b.target.name in ('pvp', 'yardim', 'duello')
     rival = str(b.plan.get('ad', '')).lower() if b.target is not None and b.target.name == 'duello' else ''
@@ -1220,12 +1220,12 @@ def can_kill(b, m):
     önbellekli; gerçek oyuncu gördüğü ve kesebildiği her şeye ateş eder)."""
     c = b.__dict__.setdefault('_can_kill', {})
     v = c.get(m.tip)
-    if v is None or v[1] != b.value()['guc']:
+    if v is None or v[1] != b.value()['power']:
         d = b.value()
         ehp = m.d.get('hp', 0) + m.d.get('kalkan', 0)
         incoming = m.d.get('hasar', 0) * K.COMBAT['npc_isabet'] / K.NPC_INTERVAL
         duration = ehp / max(1.0, d['dps'])
-        v = c[m.tip] = (duration < 180 and duration * incoming < d['ehp'] * (0.4 + 0.5 * b.o('risk')), d['guc'])
+        v = c[m.tip] = (duration < 180 and duration * incoming < d['ehp'] * (0.4 + 0.5 * b.o('risk')), d['power'])
     return v[0]
 
 
@@ -1400,7 +1400,7 @@ def witness(w, kind, x, y, exclude=None, **f):
         mx, my = m.mover.pos(time.time())
         if math.hypot(mx - x, my - y) > 1500 or random.random() > 0.35 * m.bot.o('konuskanlik'):
             continue
-        m.bot.event('tanik', alt=kind, **f)
+        m.bot.event('tanik', sub=kind, **f)
         count += 1
 
 
@@ -1417,7 +1417,7 @@ def collect_box(w, n, now):
     en, best_score = None, 900.0
     for h, k in w.boxes.items():
         tip = k.get('tip')
-        if k.get('etk'):                                 # etkinlik kutusu: anahtarsız, herkes toplar
+        if k.get('event'):                                 # etkinlik kutusu: anahtarsız, herkes toplar
             if not b.permission.get('etkinlik', True) or k.get('sahip') is not None:
                 continue
         elif k.get('keyed'):                          # anahtarlı ganimet kutusu: anahtarı varsa ya da yeşil anahtarı alırsa
@@ -1431,7 +1431,7 @@ def collect_box(w, n, now):
             continue
         if tip in WD.CARGO_BOXES and (not b.permission.get('kargo', True) or b.cargo_fill() >= 1):
             continue                                   # kargo kapalı ya da dolu
-        owner_tag = k.get('mal')
+        owner_tag = k.get('owner_tag')
         if tip in WD.CARGO_BOXES and owner_tag is not None and tuple(owner_tag) != own and WD.SET.get('kargo_sahipligi'):
             if h not in decision:                         # başkasının kargosu: kaba bot ara sıra alır (kutu başına bir karar)
                 decision[h] = is_theft(w, b, owner_tag)
@@ -1446,14 +1446,14 @@ def collect_box(w, n, now):
     if best_score > 60:
         _go_to(w, n, k['x'], k['y'], now, threshold=40)
         return True
-    if k.get('etk'):
+    if k.get('event'):
         from . import events as EV
         del w.boxes[en]
         w.send([('RemoveCollectableCommand', {'collected': False, 'hash': en})])
         decision.pop(en, None)
-        if k['etk'].get('yeniden_sn'):
-            w.schedule(random.uniform(*k['etk']['yeniden_sn']) * WD.SET.multiplier('kutu_yenilenme'), 'etk_kutu', k['tip'])
-        EV.open_box(b, k['etk'])
+        if k['event'].get('yeniden_sn'):
+            w.schedule(random.uniform(*k['event']['yeniden_sn']) * WD.SET.multiplier('kutu_yenilenme'), 'etk_kutu', k['tip'])
+        EV.open_box(b, k['event'])
         n.next_think = now + random.uniform(0.3, 1.0)
         return True
     if k.get('keyed'):                               # açılış ganimet.ACMA_SN sürer (oyuncudaki gibi), sonra kutu alınır
@@ -1473,15 +1473,15 @@ def collect_box(w, n, now):
         n.next_think = now + random.uniform(0.3, 1.0)
         return True
     if k['tip'] in WD.CARGO_BOXES:                     # cevherler sığdığı kadar; sığmayan kutuda kalır (oyuncudaki gibi)
-        claimed = b.add_cargo(k.get('icerik') or {})
-        remaining = {t: int(v) - claimed.get(int(t), 0) for t, v in (k.get('icerik') or {}).items() if int(v) - claimed.get(int(t), 0) > 0}
+        claimed = b.add_cargo(k.get('contents') or {})
+        remaining = {t: int(v) - claimed.get(int(t), 0) for t, v in (k.get('contents') or {}).items() if int(v) - claimed.get(int(t), 0) > 0}
         b.ist('kargo_kutusu')
-        owner_tag = k.get('mal')
+        owner_tag = k.get('owner_tag')
         if owner_tag is not None and tuple(owner_tag) != own and not k.get('stolen') and WD.SET.get('kargo_sahipligi'):
             k['stolen'] = True
             theft_penalty(w, b, owner_tag)
         if remaining:
-            k['icerik'] = remaining
+            k['contents'] = remaining
             n.next_think = now + random.uniform(0.3, 1.0)
             return True
     del w.boxes[en]
@@ -1501,7 +1501,7 @@ def _box_company(w, owner_tag):
 
 def _stolen_today(b):
     """Botun bugünkü kargo alma sayacı {gun, n} (o günün ilk cezası 10, her seferinde iki katı)."""
-    d = b.k.setdefault('kargo_calma', {})
+    d = b.k.setdefault('cargo_theft', {})
     day = time.strftime('%Y-%m-%d', time.localtime(b.hour()))
     if d.get('gun') != day:
         d.update(gun=day, n=0)

@@ -33,7 +33,7 @@ def _load(name):
 def station_pos(map_id):
     """Haritanın istasyonunun konumu (game.Sablonlar.station gibi) ya da None."""
     import map_links as H
-    maps = _load('haritalar.json')
+    maps = _load('maps.json')
     rec = maps.get(str(map_id))
     if rec is None:
         rec = H.map_world(map_id, maps.get('5'))
@@ -55,7 +55,7 @@ def new_(path, pilot, firma, kredi=None, uridyum=None, seviye=None, onur=None, l
         raise ValueError('Bu yolda zaten bir profil var.')
     from player_profile import Profile
     firma = int(firma)
-    pr = Profile(_load('giris.json').get('tohum'), path)
+    pr = Profile(_load('login.json').get('seed'), path)
     pl = pr.d['pilot']
     pl['userName'] = pilot
     pl['factionId'] = firma
@@ -73,14 +73,14 @@ def new_(path, pilot, firma, kredi=None, uridyum=None, seviye=None, onur=None, l
     mid = HOME_MAP[firma]
     pos = station_pos(mid)
     if pos:
-        pr.d['konum'] = {'mapId': mid, 'x': pos[0], 'y': pos[1]}
-    pr.d['olusturma'] = time.strftime('%Y-%m-%d %H:%M:%S')
+        pr.d['position'] = {'mapId': mid, 'x': pos[0], 'y': pos[1]}
+    pr.d['created'] = time.strftime('%Y-%m-%d %H:%M:%S')
     if ilerlemeli:                                          # Season Pass ilk sezondan sırayla (sezon.py)
         pr.d['ilerlemeli'] = True
     if kampanya:                                            # başlangıç kampanyası: "Level N" görevleri (gorev.KAMPANYA_SN boyunca)
         pr.d['kampanya'] = int(time.time())
     pr.save(force=True)
-    return {'harita': mid, 'konum': pos, 'sablon': bool(_load('giris.json'))}
+    return {'harita': mid, 'position': pos, 'template': bool(_load('login.json'))}
 
 
 def home_base(path):
@@ -89,12 +89,12 @@ def home_base(path):
     pos = station_pos(mid)
     if not pos:
         raise ValueError('Ana istasyonun konumu bulunamadı.')
-    d['konum'] = {'mapId': mid, 'x': pos[0], 'y': pos[1]}
+    d['position'] = {'mapId': mid, 'x': pos[0], 'y': pos[1]}
     tmp = path + '.tmp'
     with open(tmp, 'w', encoding='utf8', newline='\n') as fh:
         json.dump(d, fh, ensure_ascii=False, indent=1)
     os.replace(tmp, path)
-    return {'harita': mid, 'konum': pos}
+    return {'harita': mid, 'position': pos}
 
 
 def known_loots():
@@ -126,8 +126,8 @@ def give(path, items, pr=None):
         raise ValueError('Bilinmeyen eşya: %s', ', '.join(bad))
     notes = []
     save = pr is None
-    pr = pr or Profile(_load('giris.json').get('tohum'), path)
-    m = Shop(pr, _load('yanitlar.json'), notes.append)      # oyundaki şablonlar: takılan ekipmanın HangarShipEquipmentCommand'ı
+    pr = pr or Profile(_load('login.json').get('seed'), path)
+    m = Shop(pr, _load('responses.json'), notes.append)      # oyundaki şablonlar: takılan ekipmanın HangarShipEquipmentCommand'ı
     m.gates = KAPI.Gates(pr, notes.append)
     m.new_ = NS.NewSystems(pr, m, notes.append)
     before = (len(pr.d.get('esyalar', {})), len(pr.d.get('gemiler', {})), len(pr.d.get('dronlar', [])))
@@ -136,7 +136,7 @@ def give(path, items, pr=None):
     if save:
         pr.save(force=True)
     after = (len(pr.d.get('esyalar', {})), len(pr.d.get('gemiler', {})), len(pr.d.get('dronlar', [])))
-    return {'verilen': [[l, n] for l, n in items], 'esya': after[0] - before[0], 'gemi': after[1] - before[1],
+    return {'given': [[l, n] for l, n in items], 'esya': after[0] - before[0], 'gemi': after[1] - before[1],
             'dron': after[2] - before[2], 'notlar': [x.strip() for x in notes if x.strip()][-20:]}
 
 
@@ -155,7 +155,7 @@ def reset(path, parts):
 
 def reset_d(d, parts):
     """Profil sözlüğünde durum sıfırlama (save_editor.py taslakta da kullanır) -> sıfırlanan bölümler."""
-    seed = _load('giris.json').get('tohum') or {}
+    seed = _load('login.json').get('seed') or {}
     done = []
     for part in parts:
         if part == 'ipuclari':                     # ipucu pencereleri ve etkinlik bildirimleri yeniden (ipucu.py)
@@ -168,7 +168,7 @@ def reset_d(d, parts):
         elif part == 'aktif_gorevler':             # alınmış görevler bırakılır (bitenler kalır)
             d.setdefault('gorevler', {})['aktif'] = {}
         elif part == 'gecmis':                     # seyir defteri ve hesap geçmişi boşalır
-            d['seyir_defteri'], d['hesap_gecmisi'] = [], []
+            d['logbook'], d['account_history'] = [], []
         else:
             raise ValueError('Bilinmeyen bölüm: %s', part)
         done.append(part)

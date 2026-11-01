@@ -32,12 +32,12 @@ import quest_tracker as GT
 import event_calendar as CAL
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-B = json.load(open(os.path.join(HERE, 'data', 'tickets.json'), encoding='utf8'))['savas_bileti']
+B = json.load(open(os.path.join(HERE, 'data', 'tickets.json'), encoding='utf8'))['battle_pass']
 PASSES = {k: dict(p, gorevler={int(q): d for q, d in p['gorevler'].items()}, oduller={int(q): r for q, r in p['oduller'].items()})
           for k, p in B['passler'].items()}
-EXCHANGE = {r['exchangeReward']: r for r in B['anahtar_degisimi']}
+EXCHANGE = {r['exchangeReward']: r for r in B['key_exchange']}
 EVENT_EXCHANGE = {k: {r['exchangeReward']: r for r in EG.exchange_rows(k)} for k in PASSES}      # etkinlik -> tasarım satırları
-PASS_EXCHANGE = {k: {r['exchangeReward']: dict(r) for r in p['anahtar_degisimi']} for k, p in PASSES.items() if p.get('anahtar_degisimi')}
+PASS_EXCHANGE = {k: {r['exchangeReward']: dict(r) for r in p['key_exchange']} for k, p in PASSES.items() if p.get('key_exchange')}
 for _k, _rows in PASS_EXCHANGE.items():
     # etkinliğin kendi tablosunda olmayan tasarımlar (etkinlik_gorunumleri.json: başka tasarım sayfalarının kaynakları) sona özel satır
     # olarak kalır; mağazada satılmayan bu tasarımların tek yolu burası (etkinlik_gorunumleri.ITEMS)
@@ -76,7 +76,7 @@ def duration():
 def event_key(now=None):
     """Battle Pass'i açan etkinlik ve dönemi ('halloween-2026') ya da None."""
     for k in sorted(CAL.active(now)):
-        if 'BattlePass' in CAL.EVENTS[k].get('turler', []) and k in PASSES:
+        if 'BattlePass' in CAL.EVENTS[k].get('kinds', []) and k in PASSES:
             p = CAL.period(k, now)
             year = time.localtime(p[0]).tm_year if p else time.localtime(now).tm_year
             return '%s-%d' % (k, year)
@@ -96,7 +96,7 @@ class BattlePass:
 
     @property
     def st(self):
-        return self.p.d.setdefault('savas_bileti', {})
+        return self.p.d.setdefault('battle_pass', {})
 
     def active(self, now=None):
         return event_key(now) is not None
@@ -128,12 +128,12 @@ class BattlePass:
             return None
         with self.p.lock:
             st.clear()
-            st.update(donem=extra, bas=now, satin=False, deger={}, tamam=[], toplanacak=[], toplandi=[], degisim={},
+            st.update(donem=extra, bas=now, purchased=False, deger={}, tamam=[], to_collect=[], collected=[], degisim={},
                       suzgec=B['ayarlar'].get('battlePassItemFilters', []))
             self.p.dirty = True
         if self.p.resource(PASS_ITEM) > 0:                       # önceden alınmış Battle Pass bu döneme
             self.p.add_resource(PASS_ITEM, -1)
-            st['satin'] = True
+            st['purchased'] = True
         CAL.PASS_RUNS[extra.rsplit('-', 1)[0]] = (now, self.end())
         self.log('   Battle Pass başladı: %s (%d gün)' % (extra, duration() // 86400))
         return extra
@@ -141,7 +141,7 @@ class BattlePass:
     # ------------------------------------------------------------ mesajlar
     def status_cmd(self):
         st = self.st
-        return mod('BattlePassUpdateStatusCommand', questsToCollectReward=list(st.get('toplanacak', [])), purchased=bool(st.get('satin')))
+        return mod('BattlePassUpdateStatusCommand', questsToCollectReward=list(st.get('to_collect', [])), purchased=bool(st.get('purchased')))
 
     def info_cmd(self):
         st, bp = self.st, self.bp
@@ -152,7 +152,7 @@ class BattlePass:
     def exchanges(self):
         """Dönemin anahtar değişimi (ensure'dan sonra): etkinliğin kendi tablosu; yoksa (Halloween) tasarımları, ardından kayıttaki liste."""
         k = self.st['donem'].rsplit('-', 1)[0]
-        if self.bp.get('anahtarsiz'):
+        if self.bp.get('keyless'):
             return {}
         return dict(PASS_EXCHANGE[k]) if k in PASS_EXCHANGE else dict(EVENT_EXCHANGE.get(k, {}), **EXCHANGE)
 
@@ -174,7 +174,7 @@ class BattlePass:
 
     # ------------------------------------------------------------ görevler
     def event(self, kind, **kw):
-        if not self.p.d.get('savas_bileti') or not self.ensure():     # etkinlik değiştiyse yeni dönemin pass'i
+        if not self.p.d.get('battle_pass') or not self.ensure():     # etkinlik değiştiyse yeni dönemin pass'i
             return []
         st, msgs, done = self.st, [], []
         for q, d in self.bp['gorevler'].items():
@@ -187,7 +187,7 @@ class BattlePass:
         for q in done:
             with self.p.lock:
                 st['tamam'].append(q)
-                st['toplanacak'].append(q)
+                st['to_collect'].append(q)
                 self.p.dirty = True
             msgs.append(('QuestCompletedCommand', {'id': q, 'rating': 0}))
             self.p.ach('quest', id=q)
@@ -214,24 +214,24 @@ class BattlePass:
         """Biletli ödüller (anahtarsız pass): Battle Pass alınmışsa toplanan hedeflerinki."""
         msgs = []
         for q in qs:
-            for loot, n in self.bp['oduller'].get(q, {}).get('bilet_odul', []):
+            for loot, n in self.bp['oduller'].get(q, {}).get('ticket_reward', []):
                 msgs += self.m.reward(loot, n) if self.m else []
         return msgs
 
     def collect(self, f=None):
         st = self.st
-        if not self.ensure() or not st['toplanacak']:
-            return [('BattlePassInfoCommand', self.info_cmd()[1])] if self.p.d.get('savas_bileti') else []
+        if not self.ensure() or not st['to_collect']:
+            return [('BattlePassInfoCommand', self.info_cmd()[1])] if self.p.d.get('battle_pass') else []
         msgs, keys = [], 0
-        for q in list(st['toplanacak']):
+        for q in list(st['to_collect']):
             for loot, n in self.bp['oduller'].get(q, {}).get('odul', []):
                 msgs += self.m.reward(loot, n) if self.m else []
-            if st.get('satin'):
+            if st.get('purchased'):
                 keys += self.keys_for(q)
                 msgs += self.ticket_rewards([q])
         with self.p.lock:
-            st['toplandi'] += st['toplanacak']
-            st['toplanacak'] = []
+            st['collected'] += st['to_collect']
+            st['to_collect'] = []
             self.p.dirty = True
         if keys:
             self.p.add_resource(KEY, keys)
@@ -244,16 +244,16 @@ class BattlePass:
             self.p.add_resource(PASS_ITEM, n)                        # etkinlik yokken alınırsa sonraki Battle Pass'e
             return []
         st = self.st
-        if st.get('satin'):
+        if st.get('purchased'):
             self.p.add_resource(PASS_ITEM, n)
             return []
-        keys = sum(self.keys_for(q) for q in st['toplandi'])
+        keys = sum(self.keys_for(q) for q in st['collected'])
         with self.p.lock:
-            st['satin'] = True
+            st['purchased'] = True
             self.p.dirty = True
         if keys:
             self.p.add_resource(KEY, keys)
-        msgs = self.ticket_rewards(st['toplandi'])                  # forum 154610: önceki hedeflerin biletli ödülleri de
+        msgs = self.ticket_rewards(st['collected'])                  # forum 154610: önceki hedeflerin biletli ödülleri de
         self.log('   Battle Pass alındı (+%d anahtar)' % keys)
         return msgs + [self.info_cmd(), self.key_update()]
 
@@ -278,7 +278,7 @@ class BattlePass:
 
     def set_filter(self, f):
         mods = (f.get('battlePassWindowSettingsModule') or {}).get('battlePassItemFilters')
-        if mods is not None and self.p.d.get('savas_bileti'):
+        if mods is not None and self.p.d.get('battle_pass'):
             with self.p.lock:
                 self.st['suzgec'] = list(mods)
                 self.p.dirty = True

@@ -21,16 +21,16 @@ def find_target(y, name):
         return None
     kl = KL.clan_of(k.profile)
     return (k.name, int(k.profile.d['pilot'].get('factionId') or 0),
-            int(k.profile.d['konum'].get('mapId', 0)) or None if k.session is not None else None, kl['id'] if kl else None, True)
+            int(k.profile.d['position'].get('mapId', 0)) or None if k.session is not None else None, kl['id'] if kl else None, True)
 
 
 def order_grudge(bot, name, now):
     """Klan emriyle (klan_emir) verilen av ya da klan odağı: bu kişiye kin gibi davranılır (govde.pvp_hedefi 'kin' terimine eklenir)."""
-    a = bot.k.get('av_emri')
+    a = bot.k.get('hunt_order')
     name = str(name).lower()
     if a and now < a['bitis'] and a['ad'] == name:
         return 1.0
-    f = bot.k.get('klan_odagi')
+    f = bot.k.get('clan_focus')
     if f and now < f['bitis']:
         import clan as KL
         c = KL.CLANS.get(f['klan'])
@@ -41,12 +41,12 @@ def order_grudge(bot, name, now):
 
 def order_target(bot, y, now):
     """Sürmekte olan av emrinin (ya da klan odağının) çevrimiçi hedefi -> (ad, harita) ya da None."""
-    a = bot.k.get('av_emri')
+    a = bot.k.get('hunt_order')
     if a and now < a['bitis']:
         t = find_target(y, a['ad'])
         if t is not None and t[2] and t[1] != bot.firma and K.route(bot.game_map, t[2], bot.firma, bot.level):
             return t[0], t[2]
-    f = bot.k.get('klan_odagi')
+    f = bot.k.get('clan_focus')
     if f and now < f['bitis']:
         import clan as KL
         c = KL.CLANS.get(f['klan'])
@@ -66,7 +66,7 @@ class PvpHunt(Goal):
     def eligible(self, bot, b):
         from .. import admin_warnings as AW
         from .. import weapons as WP
-        return bot.level >= (b.setting('pvp_seviye', 6) or 1) and bot.value()['guc'] >= 8 and not AW.active(bot, 'pvp', b.now)             and WP.has_laser(bot)                         # cephanesiz oyuncu avlanmaz
+        return bot.level >= (b.setting('pvp_seviye', 6) or 1) and bot.value()['power'] >= 8 and not AW.active(bot, 'pvp', b.now)             and WP.has_laser(bot)                         # cephanesiz oyuncu avlanmaz
 
     def points(self, bot, b):
         o = bot.traits
@@ -86,19 +86,19 @@ class PvpHunt(Goal):
         order = order_target(bot, y, b.now) if y is not None else None
         if order is not None:
             target_map = order[1]                           # klan emri: söylenen kişiyi (ya da odaktaki klanın üyesini) bulmaya gider
-            bot.plan['av'] = order[0]
+            bot.plan['hunt'] = order[0]
             grudge = order
         elif grudge is not None and K.route(bot.game_map, grudge.game_map, bot.firma, bot.level):
             target_map = grudge.game_map                        # intikam: onu öldüreni bulmaya gider
-            bot.plan['av'] = grudge.name
+            bot.plan['hunt'] = grudge.name
         elif y is not None:
             # düşmanların olduğu, gidilebilen ve çok güçlü düşmanı olmayan harita
-            power = bot.value()['guc']
+            power = bot.value()['power']
             candidates = []
             for m, enemy in y.enemy_population(bot).items():
                 if not enemy or not K.can_enter(m, bot.firma, bot.level) or not K.route(bot.game_map, m, bot.firma, bot.level):
                     continue
-                threat = max(d.value()['guc'] for d in enemy) / max(1.0, power)
+                threat = max(d.value()['power'] for d in enemy) / max(1.0, power)
                 candidates.append((len(enemy) - 2.5 * max(0.0, threat - 1.0 - bot.o('risk')), m))
             if candidates:
                 target_map = max(candidates)[1]
@@ -125,8 +125,8 @@ class PvpHunt(Goal):
         y = BG.MGR.ACTIVE
         order = order_target(bot, y, now) if y is not None else None
         if order is not None:
-            bot.plan['av'] = order[0]                      # süren emir önce gelir (zaten PvP'deyken verilen emirde basla yeniden çalışmaz)
-        name = str(bot.plan.get('av') or '').lower()
+            bot.plan['hunt'] = order[0]                      # süren emir önce gelir (zaten PvP'deyken verilen emirde basla yeniden çalışmaz)
+        name = str(bot.plan.get('hunt') or '').lower()
         if not name or g.target is not None or bot.en_route or any(now - t < 6 for t in g.attacker.values()):
             return False
         uid = next((m.id for m in w.npcs.values() if m.alive and m.bot is not None and m.bot.name.lower() == name), None)

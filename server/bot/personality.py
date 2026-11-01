@@ -69,7 +69,7 @@ def generate_name(r, lang='karisik'):
     from .language_data import LANGUAGES, pick_mixed
     d = LANGUAGES.get(lang) or LANGUAGES[pick_mixed(r)]
     a = d['adlar']
-    pattern = r.choices([x[1] for x in a['desenler']], weights=[x[0] for x in a['desenler']])[0]
+    pattern = r.choices([x[1] for x in a['patterns']], weights=[x[0] for x in a['patterns']])[0]
     s = re.sub(r'\{([^}]+)\}', lambda m: _part(m.group(1), a['parcalar'], r), pattern)
     s = re.sub(r'[^A-Za-z0-9_.\-]', '', s)
     return s[:20] if len(s) >= 3 else s + r.choice(a['parcalar'].get('sayi') or _NUMBERS)
@@ -107,15 +107,15 @@ def generate_personality(r, archetype=None, lang='tr'):
     take = _choice(r, HABITS)
     talk = traits['konuskanlik']
     style = dict(
-        kucuk_harf=round(clamp(r.gauss(0.6, 0.25)), 2),       # her şeyi küçük harfle yazar
-        noktalama=round(clamp(r.gauss(0.3, 0.25)), 2),        # cümle sonu noktalama
-        kisaltma=round(clamp(r.gauss(0.5, 0.25)), 2),         # "slm", "nbr", "tmm", "gg", "np"
+        lowercase=round(clamp(r.gauss(0.6, 0.25)), 2),       # her şeyi küçük harfle yazar
+        punctuation=round(clamp(r.gauss(0.3, 0.25)), 2),        # cümle sonu noktalama
+        abbreviation=round(clamp(r.gauss(0.5, 0.25)), 2),         # "slm", "nbr", "tmm", "gg", "np"
         emoji=round(clamp(r.gauss(0.3 + talk * 0.2, 0.2)), 2),  # ":D", "xD", "^^"
         hata=round(clamp(r.gauss(0.08, 0.06), 0, 0.3), 2),    # yazım hatası
-        buyuk_harf=round(clamp(r.gauss(0.05 + traits['saldirganlik'] * 0.1, 0.05), 0, 0.4), 2),   # BAĞIRIR
+        uppercase=round(clamp(r.gauss(0.05 + traits['saldirganlik'] * 0.1, 0.05), 0, 0.4), 2),   # BAĞIRIR
     )
-    return dict(arketip=a, ozellik=traits, aliskanlik=take, uslup=style, dil=lang,
-                tepki_sn=round(clamp(r.gauss(0.9, 0.35), 0.35, 2.0), 2))   # insan tepki süresi (sn): somut savaşta gecikme
+    return dict(arketip=a, ozellik=traits, habit=take, uslup=style, dil=lang,
+                reaction_sec=round(clamp(r.gauss(0.9, 0.35), 0.35, 2.0), 2))   # insan tepki süresi (sn): somut savaşta gecikme
 
 
 def generate_roster(seed, count, company_distribution=(1, 1, 1), lang='karisik', existing=(), name_lang=None, special=(), pool=None):
@@ -162,7 +162,7 @@ def generate_roster(seed, count, company_distribution=(1, 1, 1), lang='karisik',
             else:
                 name = 'Pilot%d' % r.randint(1000, 99999)
         used.add(name.lower())
-        x = dict(no=no, ad=name, firma=firma, kisilik=dict(generate_personality(r, archetype=o.get('arketip'), lang=chat), ad_dili=o.get('dil') or name_langs))
+        x = dict(no=no, ad=name, firma=firma, kisilik=dict(generate_personality(r, archetype=o.get('arketip'), lang=chat), name_lang=o.get('dil') or name_langs))
         if o:
             x['ozel'] = True                             # kullanıcının botu (panel: Kadro'da işaretli)
         out.append(x)
@@ -259,32 +259,32 @@ class Memory:
 def timezone(personality):
     """Botun saat dilimi farkı (saat): çoğu sunucunun saatinde, bir kısmı komşu ülkelerde, azı uzakta. Kişilikte yoksa adından
     (eski kayıtlar için kalıcı ve belirlenimci). Herkes aynı saatte yaşasaydı gece sunucu bomboş, akşam tıklım tıklım olurdu."""
-    d = personality.get('dilim')
+    d = personality.get('timezone_offset')
     if d is None:
         import zlib
-        r = zlib.crc32(str(personality.get('_ad') or personality.get('arketip')).encode()) % 100
+        r = zlib.crc32(str(personality.get('_name') or personality.get('arketip')).encode()) % 100
         d = 0 if r < 55 else -1 if r < 70 else 1 if r < 82 else -2 if r < 88 else 2 if r < 93 else -7 if r < 97 else 7
-        personality['dilim'] = d
+        personality['timezone_offset'] = d
     return d
 
 
 def taste(personality):
     """Botun kalıcı gemi zevki (gemi ailesi): herkes aynı gemiye yakınsamasın. Kişilikte yoksa adından (eski kayıtlar)."""
-    z = personality.get('zevk')
+    z = personality.get('taste')
     if z is None:
         import zlib
         families = ('goliath', 'vengeance', 'aegis', 'citadel', 'spearhead', 'leonov', 'nostromo', 'piranha', 'bigboy', 'solace')
-        z = personality['zevk'] = families[zlib.crc32(('z' + str(personality.get('_ad') or personality.get('arketip'))).encode()) % len(families)]
+        z = personality['taste'] = families[zlib.crc32(('z' + str(personality.get('_name') or personality.get('arketip'))).encode()) % len(families)]
     return z
 
 
 def online_tendency(personality, hour):
     """Alışkanlığa ve arketipe göre bu saatte (0-23; botun kendi saat diliminde) çevrimiçi olma eğilimi."""
-    return HABITS[personality['aliskanlik']][1][int(hour + timezone(personality)) % 24] * ACTIVITY[personality['arketip']][0]
+    return HABITS[personality['habit']][1][int(hour + timezone(personality)) % 24] * ACTIVITY[personality['arketip']][0]
 
 
 def session_min(personality, r=random):
-    a, b = HABITS[personality['aliskanlik']][2]
+    a, b = HABITS[personality['habit']][2]
     return r.uniform(a, b)
 
 

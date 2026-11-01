@@ -1,7 +1,7 @@
 {
- "kod": "de",
+ "code": "de",
  "ad": "Deutsch",
- "agirlik": 10,
+ "weight": 10,
  "adlar": {
   "parcalar": {
    "isim": ["Lukas", "Leon", "Jonas", "Felix", "Tim", "Max", "Paul", "Niklas", "Finn", "Ben", "Luca", "Jan", "Tobi", "Basti", "Dominik", "Kevin", "Marcel", "Sven", "Dennis", "Patrick", "Lena", "Laura", "Julia", "Sarah", "Jule", "Timo", "Flo", "Chris", "Domi", "Marvin"],
@@ -12,7 +12,7 @@
    "ayrac": ["", "_", "."],
    "sayi": ["1", "7", "13", "21", "42", "69", "77", "99", "187", "1337", "2001", "2004", "89", "96", "04", "09", "1860", "23", "05"]
   },
-  "desenler": [[22, "{isim}{sayi}"], [20, "{sifat}{soz}"], [14, "{soz}{sayi}"], [10, "{isim_k}{ayrac}{soz_k}"], [12, "{tek}"], [9, "{soz}{ek}"], [5, "xX{soz}Xx"], [8, "{leet:tek|soz}"]]
+  "patterns": [[22, "{isim}{sayi}"], [20, "{sifat}{soz}"], [14, "{soz}{sayi}"], [10, "{isim_k}{ayrac}{soz_k}"], [12, "{tek}"], [9, "{soz}{ek}"], [5, "xX{soz}Xx"], [8, "{leet:tek|soz}"]]
  },
  "kaliplar": {
   "laf_oldurdum": ["{ad} zurück zur basis lol", "{ad} meine oma fliegt besser", "noch wer? {ad} hat schon", "{ad} deinstallier lieber", "{ad} auf {harita} gefarmt, naechster", "danke fuer die ehre {ad}"],
@@ -119,10 +119,10 @@
   "klan_posta_ksi_konu": ["Station angegriffen: {istasyon}"],
   "klan_posta_ksi": ["unsere Station {istasyon} auf {harita} wird angegriffen. alle die online sind sofort kommen"]
  },
- "kisaltma": [["vielleicht", "vllt"], ["nicht", "nich"], ["danke", "thx"], ["bitte", "pls"], ["kein problem", "np"], ["gleich", "gleich"], ["keine ahnung", "kp"]],
+ "abbreviation": [["vielleicht", "vllt"], ["nicht", "nich"], ["danke", "thx"], ["bitte", "pls"], ["kein problem", "np"], ["gleich", "gleich"], ["keine ahnung", "kp"]],
  "ascii": {"ä": "ae", "ö": "oe", "ü": "ue", "ß": "ss"},
- "ascii_oran": 0.3,
- "niyet": {
+ "ascii_ratio": 0.3,
+ "intent": {
   "selam": ["hallo", "moin", "servus", "nabend", "tach", "hi leute"],
   "yardim": ["hilfe", "helft", "helfen", "hilft"],
   "grup": ["gruppe", "grp", "zusammen"],
@@ -137,7 +137,7 @@
   "tesekkur": ["danke", "dankeschön", "dankeschoen"],
   "pvp": ["angriff", "greifen an", "greift an", "feind", "feinde", "spieler"]
  },
- "tepki": {
+ "reaction": {
   "kutlama": ["glückwunsch", "gratuliere", "herzlichen glückwunsch", "gg"],
   "veda": ["tschüss", "tschau", "bis später", "gute nacht", "bin weg", "bis morgen"],
   "donus": ["wieder da", "bin zurück", "bin wieder da"],
@@ -145,7 +145,7 @@
   "oyun": ["karte", "schiff", "laser", "quest", "aufgabe", "schild", "level", "clan", "uridium", "credits", "farmen", "drohne", "boss"]
  },
  "zararli": ["bring dich um", "töte dich", "häng dich auf", "verreck", "krepier", "stirb doch", "selbstmord", "hurensohn", "hure", "schlampe", "schwuchtel", "neger", "spasti", "vergewaltig\\w*", "nazi", "hitler"],
- "diyaloglar": [
+ "dialogues": [
   [
    ["erst schilde oder laser?", "was soll ich zuerst upgraden, schilde oder laser?"],
    ["laser, dann schilde", "laser würd ich sagen", "erst schilde, sterben ist teuer"],

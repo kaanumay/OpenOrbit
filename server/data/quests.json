@@ -1,6 +1,6 @@
 {
- "_aciklama": "server/data/gorevler.json: oynanabilen görevlerin listesi ve tanımları; npc.json türlerine istemcinin NPC kimliği (npc_kimlik). Üreten: tools/gorevler.py.",
- "_atlananlar": {
+ "_description": "server/data/gorevler.json: oynanabilen görevlerin listesi ve tanımları; npc.json türlerine istemcinin NPC kimliği (npc_kimlik). Üreten: tools/gorevler.py.",
+ "_skipped": {
   "Good Advice": "istemcide başlığı yok",
   "Uncovering History": "konum R-Zone",
   "Dangerous Times": "konum R-Zone",
@@ -41,8 +41,8 @@
   "2": {
    "ad": "The Skylab",
    "seviye": 6,
-   "oncelik": 1000,
-   "turler": [
+   "priority": 1000,
+   "kinds": [
     2
    ],
    "simge": 2,
@@ -99,8 +99,8 @@
   "471": {
    "ad": "Target Practice",
    "seviye": 0,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -253,8 +253,8 @@
   "20000": {
    "ad": "Elite Force Audition",
    "seviye": 0,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     1
    ],
    "simge": 2,
@@ -311,8 +311,8 @@
   "20001": {
    "ad": "The Price of Betrayal",
    "seviye": 0,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     1
    ],
    "simge": 0,
@@ -466,8 +466,8 @@
   "20002": {
    "ad": "Ex-Humans",
    "seviye": 0,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     1
    ],
    "simge": 0,
@@ -556,8 +556,8 @@
   "20003": {
    "ad": "Perquisites",
    "seviye": 0,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     1
    ],
    "simge": 1,
@@ -680,8 +680,8 @@
   "20004": {
    "ad": "Better Living Through Weaponry",
    "seviye": 0,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -887,8 +887,8 @@
   "20005": {
    "ad": "Keeping Yourself Supplied",
    "seviye": 0,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -979,8 +979,8 @@
   "20006": {
    "ad": "Incoming!",
    "seviye": 0,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -1172,8 +1172,8 @@
   "20008": {
    "ad": "Proven Pilot",
    "seviye": 0,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -1368,8 +1368,8 @@
   "20009": {
    "ad": "Cannon Fodder",
    "seviye": 0,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -1530,8 +1530,8 @@
   "20012": {
    "ad": "Preemptive Strike Force",
    "seviye": 0,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -1618,8 +1618,8 @@
   "20014": {
    "ad": "New Company Policy",
    "seviye": 0,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -1760,8 +1760,8 @@
   "105001": {
    "ad": "Ancient Alien Artifact",
    "seviye": 5,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -1856,8 +1856,8 @@
   "105002": {
    "ad": "Intrepid Expedition",
    "seviye": 5,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 1,
@@ -1922,8 +1922,8 @@
   "105003": {
    "ad": "Gathering Intel",
    "seviye": 5,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -1988,8 +1988,8 @@
   "105004": {
    "ad": "Trial and Error",
    "seviye": 5,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 1,
@@ -2054,8 +2054,8 @@
   "105005": {
    "ad": "Saimon Blockade",
    "seviye": 5,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -2150,8 +2150,8 @@
   "105006": {
    "ad": "Unexpected Support",
    "seviye": 5,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -2246,8 +2246,8 @@
   "105007": {
    "ad": "Break the Supply Chain",
    "seviye": 5,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -2312,8 +2312,8 @@
   "105008": {
    "ad": "Expedition Escort",
    "seviye": 5,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -2408,8 +2408,8 @@
   "105009": {
    "ad": "Playing with Fire",
    "seviye": 5,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -2504,8 +2504,8 @@
   "105010": {
    "ad": "A Wild Streuner Appears!",
    "seviye": 0,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -2570,8 +2570,8 @@
   "105011": {
    "ad": "Streuner Metammorphosis",
    "seviye": 0,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -2636,8 +2636,8 @@
   "106001": {
    "ad": "Crystal Shield",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -2702,8 +2702,8 @@
   "106002": {
    "ad": "Kristallon Query",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -2768,8 +2768,8 @@
   "106003": {
    "ad": "Ancient and Forgotten",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -2834,8 +2834,8 @@
   "106005": {
    "ad": "The Lost Colony",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -2968,8 +2968,8 @@
   "106007": {
    "ad": "Slave Traders",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -3102,8 +3102,8 @@
   "106008": {
    "ad": "Patronage",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -3187,8 +3187,8 @@
   "106009": {
    "ad": "Propaganda! Propaganda!",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -3272,8 +3272,8 @@
   "106010": {
    "ad": "Nasty Surprise",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -3455,8 +3455,8 @@
   "106011": {
    "ad": "Ore Bottleneck",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 1,
@@ -3521,8 +3521,8 @@
   "106012": {
    "ad": "Endurium Reserves",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 1,
@@ -3587,8 +3587,8 @@
   "106013": {
    "ad": "Prometid Bribery",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 1,
@@ -3721,8 +3721,8 @@
   "106014": {
    "ad": "Terbium Core",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 1,
@@ -3806,8 +3806,8 @@
   "107001": {
    "ad": "Spam",
    "seviye": 7,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -3872,8 +3872,8 @@
   "107002": {
    "ad": "Missed Connections?",
    "seviye": 7,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -4006,8 +4006,8 @@
   "107003": {
    "ad": "Dead Ends",
    "seviye": 7,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -4140,8 +4140,8 @@
   "107004": {
    "ad": "More Juice!",
    "seviye": 7,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 1,
@@ -4206,8 +4206,8 @@
   "107005": {
    "ad": "Brutal Attacks",
    "seviye": 7,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -4340,8 +4340,8 @@
   "107006": {
    "ad": "Stimulus Package",
    "seviye": 7,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 1,
@@ -4406,8 +4406,8 @@
   "107007": {
    "ad": "Stand Your Ground",
    "seviye": 7,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -4540,8 +4540,8 @@
   "107008": {
    "ad": "Human Emotion",
    "seviye": 7,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -4606,8 +4606,8 @@
   "107009": {
    "ad": "Civil Unrest",
    "seviye": 7,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -4672,8 +4672,8 @@
   "107010": {
    "ad": "Traitor in the Ranks",
    "seviye": 7,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -4806,8 +4806,8 @@
   "107011": {
    "ad": "Common Enemy",
    "seviye": 7,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -4951,8 +4951,8 @@
   "107012": {
    "ad": "Alien Alliance",
    "seviye": 7,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -5047,8 +5047,8 @@
   "107013": {
    "ad": "Tech Addicts",
    "seviye": 7,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -5143,8 +5143,8 @@
   "107014": {
    "ad": "No Dealer, No Deal",
    "seviye": 7,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -5239,8 +5239,8 @@
   "108001": {
    "ad": "Data Acquisition",
    "seviye": 8,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -5324,8 +5324,8 @@
   "108002": {
    "ad": "Sitting Duck",
    "seviye": 8,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 1,
@@ -5390,8 +5390,8 @@
   "108003": {
    "ad": "War Machine",
    "seviye": 8,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -5486,8 +5486,8 @@
   "108004": {
    "ad": "Strange Behavior",
    "seviye": 8,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -5620,8 +5620,8 @@
   "108005": {
    "ad": "Ship Wrecks",
    "seviye": 8,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -5754,8 +5754,8 @@
   "108006": {
    "ad": "Breakthrough",
    "seviye": 8,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 1,
@@ -5820,8 +5820,8 @@
   "108007": {
    "ad": "School of Lordakia",
    "seviye": 8,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -5963,8 +5963,8 @@
   "108008": {
    "ad": "Puppeteer",
    "seviye": 8,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -6146,8 +6146,8 @@
   "108009": {
    "ad": "The Scout",
    "seviye": 8,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -6212,8 +6212,8 @@
   "108010": {
    "ad": "No Reception",
    "seviye": 8,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -6355,8 +6355,8 @@
   "108011": {
    "ad": "Prepare for Trouble",
    "seviye": 8,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 1,
@@ -6421,8 +6421,8 @@
   "108012": {
    "ad": "Diversion",
    "seviye": 8,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -6487,8 +6487,8 @@
   "108013": {
    "ad": "Mysterious Cube",
    "seviye": 8,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -6613,8 +6613,8 @@
   "108014": {
    "ad": "Hold Position!",
    "seviye": 8,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -6709,8 +6709,8 @@
   "108015": {
    "ad": "Cube Destroyed",
    "seviye": 8,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -6835,8 +6835,8 @@
   "109001": {
    "ad": "Pest Control",
    "seviye": 9,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -6901,8 +6901,8 @@
   "109002": {
    "ad": "Modern Art",
    "seviye": 9,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -7055,8 +7055,8 @@
   "109003": {
    "ad": "Studio Attack",
    "seviye": 9,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -7151,8 +7151,8 @@
   "109004": {
    "ad": "Salvage Commando",
    "seviye": 9,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 1,
@@ -7247,8 +7247,8 @@
   "109005": {
    "ad": "Art Thieves",
    "seviye": 9,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -7401,8 +7401,8 @@
   "109006": {
    "ad": "Fair Game",
    "seviye": 9,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -7468,8 +7468,8 @@
   "109007": {
    "ad": "Neuro-warfare",
    "seviye": 9,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 1,
@@ -7534,8 +7534,8 @@
   "109008": {
    "ad": "Revenge",
    "seviye": 9,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -7600,8 +7600,8 @@
   "109009": {
    "ad": "Art Black Market",
    "seviye": 9,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 1,
@@ -7666,8 +7666,8 @@
   "109010": {
    "ad": "Smuggler Hunt",
    "seviye": 9,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -7733,8 +7733,8 @@
   "109011": {
    "ad": "Grand Theft Relic",
    "seviye": 9,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -7829,8 +7829,8 @@
   "109012": {
    "ad": "Finder’s Fee",
    "seviye": 9,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -7895,8 +7895,8 @@
   "109013": {
    "ad": "Saber-rattling",
    "seviye": 9,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -7961,8 +7961,8 @@
   "109014": {
    "ad": "Negotiator",
    "seviye": 9,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -8057,8 +8057,8 @@
   "109015": {
    "ad": "Stop, Thief!",
    "seviye": 9,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -8124,8 +8124,8 @@
   "110001": {
    "ad": "Miner Difficulties",
    "seviye": 10,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -8190,8 +8190,8 @@
   "110002": {
    "ad": "Those Who Help Themselves",
    "seviye": 10,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -8275,8 +8275,8 @@
   "110003": {
    "ad": "Frequency Disruption",
    "seviye": 10,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -8371,8 +8371,8 @@
   "110004": {
    "ad": "The Grumpy Ore",
    "seviye": 10,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -8525,8 +8525,8 @@
   "110005": {
    "ad": "Race to a Rescue",
    "seviye": 10,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -8600,8 +8600,8 @@
   "110006": {
    "ad": "Our Oldest Enemies",
    "seviye": 10,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -8666,8 +8666,8 @@
   "110007": {
    "ad": "Our Oldest Friends",
    "seviye": 10,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -8800,8 +8800,8 @@
   "110008": {
    "ad": "Unbranded Humans",
    "seviye": 10,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -9041,8 +9041,8 @@
   "110009": {
    "ad": "Patience and Distraction",
    "seviye": 10,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -9107,8 +9107,8 @@
   "110010": {
    "ad": "Plans and Provocation",
    "seviye": 10,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -9192,8 +9192,8 @@
   "110011": {
    "ad": "Clear Purpose",
    "seviye": 10,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -9282,8 +9282,8 @@
   "110012": {
    "ad": "Security Breach",
    "seviye": 10,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -9367,8 +9367,8 @@
   "110013": {
    "ad": "Exogorth",
    "seviye": 10,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -9433,8 +9433,8 @@
   "111001": {
    "ad": "Quarantine",
    "seviye": 11,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -9499,8 +9499,8 @@
   "111002": {
    "ad": "Honor Guard",
    "seviye": 11,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -9565,8 +9565,8 @@
   "111003": {
    "ad": "Litterbugs",
    "seviye": 11,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -9636,8 +9636,8 @@
   "111004": {
    "ad": "Future Expansion",
    "seviye": 11,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -9702,8 +9702,8 @@
   "111005": {
    "ad": "Clean Sweep",
    "seviye": 11,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -9773,8 +9773,8 @@
   "111006": {
    "ad": "Falsely Accused",
    "seviye": 11,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -9858,8 +9858,8 @@
   "111007": {
    "ad": "Chosen Minions",
    "seviye": 11,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -9943,8 +9943,8 @@
   "111008": {
    "ad": "Traitors At Large",
    "seviye": 11,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -10014,8 +10014,8 @@
   "111009": {
    "ad": "Biological Warfare",
    "seviye": 11,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -10080,8 +10080,8 @@
   "111010": {
    "ad": "Attack of Opportunity",
    "seviye": 11,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -10176,8 +10176,8 @@
   "111011": {
    "ad": "Can’t Stop the Signal",
    "seviye": 11,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -10272,8 +10272,8 @@
   "112001": {
    "ad": "Minor Miner Obfuscation",
    "seviye": 12,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -10344,8 +10344,8 @@
   "112002": {
    "ad": "Earthling Inner Conflicts",
    "seviye": 12,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -10416,8 +10416,8 @@
   "112003": {
    "ad": "Vandals Remain Undercover",
    "seviye": 12,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -10488,8 +10488,8 @@
   "112004": {
    "ad": "The Usual Suspects",
    "seviye": 12,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -10573,8 +10573,8 @@
   "112005": {
    "ad": "Blood Ties",
    "seviye": 12,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -10658,8 +10658,8 @@
   "112006": {
    "ad": "About-Face",
    "seviye": 12,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -10724,8 +10724,8 @@
   "112007": {
    "ad": "Stronghold",
    "seviye": 12,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -10858,8 +10858,8 @@
   "112008": {
    "ad": "Stealth Observation",
    "seviye": 12,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -10943,8 +10943,8 @@
   "112009": {
    "ad": "Sabotage Suppliers",
    "seviye": 12,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -11077,8 +11077,8 @@
   "112010": {
    "ad": "Target Unclear",
    "seviye": 12,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -11211,8 +11211,8 @@
   "112011": {
    "ad": "New Lead",
    "seviye": 12,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -11307,8 +11307,8 @@
   "112012": {
    "ad": "Duke in the Spotlight",
    "seviye": 12,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -11441,8 +11441,8 @@
   "112013": {
    "ad": "Rival Motivations",
    "seviye": 12,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -11512,8 +11512,8 @@
   "112014": {
    "ad": "Pilot Proficiency",
    "seviye": 12,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -11608,8 +11608,8 @@
   "112015": {
    "ad": "Treacherous Beacon",
    "seviye": 12,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -11708,8 +11708,8 @@
   "112016": {
    "ad": "The Mad Duke",
    "seviye": 12,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -11808,8 +11808,8 @@
   "113001": {
    "ad": "Recruitment Drive",
    "seviye": 13,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -11942,8 +11942,8 @@
   "113002": {
    "ad": "The Other Side of the Coin",
    "seviye": 13,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -12076,8 +12076,8 @@
   "113003": {
    "ad": "Summary Execution",
    "seviye": 13,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -12161,8 +12161,8 @@
   "113004": {
    "ad": "Artificial Intelligence",
    "seviye": 13,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -12232,8 +12232,8 @@
   "113005": {
    "ad": "Inexplicably Dangerous",
    "seviye": 13,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -12317,8 +12317,8 @@
   "113006": {
    "ad": "Threat Level Upgraded",
    "seviye": 13,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -12402,8 +12402,8 @@
   "113007": {
    "ad": "Free To Lose",
    "seviye": 13,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -12473,8 +12473,8 @@
   "113008": {
    "ad": "EMP Side Effect",
    "seviye": 13,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -12607,8 +12607,8 @@
   "114001": {
    "ad": "Look Sharp",
    "seviye": 14,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -12673,8 +12673,8 @@
   "114002": {
    "ad": "Diplomatic Suicide",
    "seviye": 14,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -12739,8 +12739,8 @@
   "114003": {
    "ad": "Locked and Loaded",
    "seviye": 14,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -12811,8 +12811,8 @@
   "114004": {
    "ad": "Mr. Hyde",
    "seviye": 14,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -12945,8 +12945,8 @@
   "114005": {
    "ad": "Turbulence",
    "seviye": 14,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -13079,8 +13079,8 @@
   "114006": {
    "ad": "Camouflage",
    "seviye": 14,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -13164,8 +13164,8 @@
   "114007": {
    "ad": "Witch Hunt",
    "seviye": 14,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -13260,8 +13260,8 @@
   "114008": {
    "ad": "Toothless Hounds",
    "seviye": 14,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -13356,8 +13356,8 @@
   "114009": {
    "ad": "Deep Space Vagabonds",
    "seviye": 14,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -13422,8 +13422,8 @@
   "114010": {
    "ad": "Border Patrol",
    "seviye": 14,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -13494,8 +13494,8 @@
   "114011": {
    "ad": "Titanic Battle",
    "seviye": 14,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -13590,8 +13590,8 @@
   "114012": {
    "ad": "Uber Hatchery",
    "seviye": 14,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -13716,8 +13716,8 @@
   "114013": {
    "ad": "Colonies in the Crossfire",
    "seviye": 14,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -13812,8 +13812,8 @@
   "114014": {
    "ad": "Cubikon Ahoy!",
    "seviye": 14,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -13938,8 +13938,8 @@
   "114015": {
    "ad": "Civil Disobedience",
    "seviye": 14,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -14121,8 +14121,8 @@
   "114016": {
    "ad": "Shoot First, Ask Questions Later",
    "seviye": 14,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -14187,8 +14187,8 @@
   "114017": {
    "ad": "Project Ubermensch",
    "seviye": 14,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -14283,8 +14283,8 @@
   "114018": {
    "ad": "Cruising for a Bruising",
    "seviye": 14,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -14355,8 +14355,8 @@
   "114019": {
    "ad": "Underhanded Aliens",
    "seviye": 14,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -14440,8 +14440,8 @@
   "114020": {
    "ad": "Invasion!",
    "seviye": 14,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -14511,8 +14511,8 @@
   "115001": {
    "ad": "Prehistoric Jump Gate",
    "seviye": 15,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -14626,8 +14626,8 @@
   "115002": {
    "ad": "UFOs",
    "seviye": 15,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -14809,8 +14809,8 @@
   "115003": {
    "ad": "Competition Incoming",
    "seviye": 15,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -14880,8 +14880,8 @@
   "115004": {
    "ad": "Unreliable Report",
    "seviye": 15,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -15025,8 +15025,8 @@
   "115005": {
    "ad": "Drones Gone Wild",
    "seviye": 15,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -15096,8 +15096,8 @@
   "115006": {
    "ad": "Race to Disassembly",
    "seviye": 15,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -15167,8 +15167,8 @@
   "115007": {
    "ad": "Protegit Shield",
    "seviye": 15,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -15301,8 +15301,8 @@
   "115008": {
    "ad": "Tracker Jacked In",
    "seviye": 15,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -15446,8 +15446,8 @@
   "115009": {
    "ad": "Mechanical Disorientation",
    "seviye": 15,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -15591,8 +15591,8 @@
   "116001": {
    "ad": "Marauders",
    "seviye": 16,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -15687,8 +15687,8 @@
   "116002": {
    "ad": "Pride Comes Before the Fall",
    "seviye": 16,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -15783,8 +15783,8 @@
   "116003": {
    "ad": "Victory Across the Board",
    "seviye": 16,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -15879,8 +15879,8 @@
   "116004": {
    "ad": "Scrap Merchants",
    "seviye": 16,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -15975,8 +15975,8 @@
   "116005": {
    "ad": "Pirate Nest",
    "seviye": 16,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -16060,8 +16060,8 @@
   "116006": {
    "ad": "Jolly Rogers",
    "seviye": 16,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -16145,8 +16145,8 @@
   "116007": {
    "ad": "Pike in the Koi Pond",
    "seviye": 16,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -16279,8 +16279,8 @@
   "116008": {
    "ad": "Poked the Wasp’s Nest",
    "seviye": 16,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -16345,8 +16345,8 @@
   "116009": {
    "ad": "Sinking Morale",
    "seviye": 16,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -16411,8 +16411,8 @@
   "116010": {
    "ad": "Creatively Waging War",
    "seviye": 16,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -16477,8 +16477,8 @@
   "116011": {
    "ad": "Thaw",
    "seviye": 16,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -16543,8 +16543,8 @@
   "116012": {
    "ad": "Timesink",
    "seviye": 16,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -16639,8 +16639,8 @@
   "116013": {
    "ad": "A Daring Raid",
    "seviye": 16,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -16724,8 +16724,8 @@
   "116014": {
    "ad": "Know Thine Enemy",
    "seviye": 16,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -16850,8 +16850,8 @@
   "116015": {
    "ad": "A Mentor’s Rage",
    "seviye": 16,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -16976,15 +16976,15 @@
   "116016": {
    "ad": "The MMO Dispute",
    "seviye": 16,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
    "onceki": [],
    "kaynak": "wiki",
    "pvp": true,
-   "firma_haric": 1,
+   "company_excluded": 1,
    "kok": {
     "_": "QuestCaseModule",
     "id": 11601600,
@@ -17049,15 +17049,15 @@
   "116017": {
    "ad": "The EIC Dispute",
    "seviye": 16,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
    "onceki": [],
    "kaynak": "wiki",
    "pvp": true,
-   "firma_haric": 2,
+   "company_excluded": 2,
    "kok": {
     "_": "QuestCaseModule",
     "id": 11601700,
@@ -17122,15 +17122,15 @@
   "116018": {
    "ad": "The VRU Dispute",
    "seviye": 16,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
    "onceki": [],
    "kaynak": "wiki",
    "pvp": true,
-   "firma_haric": 3,
+   "company_excluded": 3,
    "kok": {
     "_": "QuestCaseModule",
     "id": 11601800,
@@ -17195,15 +17195,15 @@
   "116019": {
    "ad": "Down with MMO",
    "seviye": 16,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
    "onceki": [],
    "kaynak": "wiki",
    "pvp": true,
-   "firma_haric": 1,
+   "company_excluded": 1,
    "kok": {
     "_": "QuestCaseModule",
     "id": 11601900,
@@ -17268,15 +17268,15 @@
   "116020": {
    "ad": "Down with EIC",
    "seviye": 16,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
    "onceki": [],
    "kaynak": "wiki",
    "pvp": true,
-   "firma_haric": 2,
+   "company_excluded": 2,
    "kok": {
     "_": "QuestCaseModule",
     "id": 11602000,
@@ -17341,15 +17341,15 @@
   "116021": {
    "ad": "Down with VRU",
    "seviye": 16,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
    "onceki": [],
    "kaynak": "wiki",
    "pvp": true,
-   "firma_haric": 3,
+   "company_excluded": 3,
    "kok": {
     "_": "QuestCaseModule",
     "id": 11602100,
@@ -17414,8 +17414,8 @@
   "116022": {
    "ad": "Resumption of Hostilities",
    "seviye": 16,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -17485,8 +17485,8 @@
   "116023": {
    "ad": "Fuel for the War Machine",
    "seviye": 16,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 1,
@@ -17551,8 +17551,8 @@
   "116024": {
    "ad": "Threatened Convoy",
    "seviye": 16,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -17677,8 +17677,8 @@
   "116025": {
    "ad": "Privateer Tactics",
    "seviye": 16,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -17803,8 +17803,8 @@
   "117001": {
    "ad": "Total War",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -17899,8 +17899,8 @@
   "117002": {
    "ad": "Flying Blind",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -17965,8 +17965,8 @@
   "117003": {
    "ad": "Sold Out",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -18031,8 +18031,8 @@
   "117004": {
    "ad": "Pirate Radio",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -18146,8 +18146,8 @@
   "117005": {
    "ad": "Suspiciously Cunning",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -18242,8 +18242,8 @@
   "117006": {
    "ad": "Tailed by Protegits",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -18308,8 +18308,8 @@
   "117007": {
    "ad": "Counterintelligence",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -18410,8 +18410,8 @@
   "117008": {
    "ad": "Lightning Strike",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -18481,8 +18481,8 @@
   "117009": {
    "ad": "A Matter of Pride",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -18577,8 +18577,8 @@
   "117010": {
    "ad": "A Matter of Survival",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -18673,8 +18673,8 @@
   "117011": {
    "ad": "Opportunity Makes a Hunter",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -18799,8 +18799,8 @@
   "117012": {
    "ad": "Steadfast Soldiers",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -18895,8 +18895,8 @@
   "117013": {
    "ad": "A Real Coup",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -18966,8 +18966,8 @@
   "117014": {
    "ad": "Last Gasp",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -19056,8 +19056,8 @@
   "117015": {
    "ad": "Cryosleep",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 1,
@@ -19122,8 +19122,8 @@
   "117016": {
    "ad": "Under Pressure",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -19248,8 +19248,8 @@
   "117017": {
    "ad": "Many Times Removed",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -19314,8 +19314,8 @@
   "117018": {
    "ad": "Enemy at the Gates",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -19385,8 +19385,8 @@
   "117019": {
    "ad": "Clumsy Spies",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -19575,8 +19575,8 @@
   "117020": {
    "ad": "Diversionary Tactics",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -19665,8 +19665,8 @@
   "117021": {
    "ad": "MMO Strikes Back",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -19736,8 +19736,8 @@
   "117022": {
    "ad": "Sweet Vengeance",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -19919,8 +19919,8 @@
   "117023": {
    "ad": "Law of the Jungle",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -20045,8 +20045,8 @@
   "118001": {
    "ad": "Marauder Slights",
    "seviye": 18,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -20171,8 +20171,8 @@
   "118002": {
    "ad": "Fresh Meat",
    "seviye": 18,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -20267,8 +20267,8 @@
   "118003": {
    "ad": "Earth’s Endless Infantry",
    "seviye": 18,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -20393,8 +20393,8 @@
   "118004": {
    "ad": "The Tide Turns",
    "seviye": 18,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -20519,8 +20519,8 @@
   "118005": {
    "ad": "Cradle of Civilization",
    "seviye": 18,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -20590,8 +20590,8 @@
   "118006": {
    "ad": "Sailing Against the Wind",
    "seviye": 18,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -20661,8 +20661,8 @@
   "118007": {
    "ad": "Promising Development",
    "seviye": 18,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -20787,8 +20787,8 @@
   "118008": {
    "ad": "Combat Elsewhere",
    "seviye": 18,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -20872,8 +20872,8 @@
   "118009": {
    "ad": "Fool Me Twice",
    "seviye": 18,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -20968,8 +20968,8 @@
   "118010": {
    "ad": "Recruitment Foiled",
    "seviye": 18,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -21058,8 +21058,8 @@
   "118011": {
    "ad": "Gate Ploy",
    "seviye": 18,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 1,
@@ -21124,8 +21124,8 @@
   "118012": {
    "ad": "Alien Ore",
    "seviye": 18,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 1,
@@ -21190,8 +21190,8 @@
   "118013": {
    "ad": "Patrol and Protect",
    "seviye": 18,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -21286,8 +21286,8 @@
   "118014": {
    "ad": "Crystal Conflict",
    "seviye": 18,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -21410,8 +21410,8 @@
   "118015": {
    "ad": "Dogfights",
    "seviye": 18,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -21481,8 +21481,8 @@
   "118016": {
    "ad": "A Hit Where It Hurts",
    "seviye": 18,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -21571,8 +21571,8 @@
   "118017": {
    "ad": "City in Ruins",
    "seviye": 18,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -21661,8 +21661,8 @@
   "118018": {
    "ad": "Long-Held Grudges",
    "seviye": 18,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -21732,8 +21732,8 @@
   "118019": {
    "ad": "Hinterland Headquarters",
    "seviye": 18,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -21822,8 +21822,8 @@
   "118020": {
    "ad": "Civilian Evacuation",
    "seviye": 18,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -21893,8 +21893,8 @@
   "118021": {
    "ad": "Not In My Backyard",
    "seviye": 18,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -21983,8 +21983,8 @@
   "118022": {
    "ad": "Pressure Cooker",
    "seviye": 18,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -22073,8 +22073,8 @@
   "118023": {
    "ad": "Gate Gambit",
    "seviye": 18,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -22256,8 +22256,8 @@
   "118024": {
    "ad": "Epsilon Expedition",
    "seviye": 18,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -22439,8 +22439,8 @@
   "118025": {
    "ad": "Gated Community",
    "seviye": 18,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -22524,8 +22524,8 @@
   "119001": {
    "ad": "Don’t Thread On Me",
    "seviye": 19,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -22697,8 +22697,8 @@
   "119002": {
    "ad": "Suddenly, Sibelons",
    "seviye": 19,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -22842,8 +22842,8 @@
   "119003": {
    "ad": "Failed Retribution",
    "seviye": 19,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -22927,8 +22927,8 @@
   "119004": {
    "ad": "Vermin in the Walls",
    "seviye": 19,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -23053,8 +23053,8 @@
   "119005": {
    "ad": "Hot Wings",
    "seviye": 19,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -23124,8 +23124,8 @@
   "119006": {
    "ad": "Terrorism, Foreign and Domestic",
    "seviye": 19,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -23195,8 +23195,8 @@
   "119007": {
    "ad": "Inconceviable Alliance",
    "seviye": 19,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -23338,8 +23338,8 @@
   "119008": {
    "ad": "Sharp Retort",
    "seviye": 19,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -23453,8 +23453,8 @@
   "119009": {
    "ad": "Janus Affront",
    "seviye": 19,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -23538,8 +23538,8 @@
   "119010": {
    "ad": "Carpe Diem",
    "seviye": 19,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -23609,8 +23609,8 @@
   "119011": {
    "ad": "Scorched Earth",
    "seviye": 19,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -23743,8 +23743,8 @@
   "119012": {
    "ad": "Scavanger Hunt",
    "seviye": 19,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -23935,8 +23935,8 @@
   "119013": {
    "ad": "Cry Havoc!",
    "seviye": 19,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -24020,8 +24020,8 @@
   "119014": {
    "ad": "Monomania",
    "seviye": 19,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -24086,8 +24086,8 @@
   "119015": {
    "ad": "Flying Fortresses",
    "seviye": 19,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -24157,8 +24157,8 @@
   "119016": {
    "ad": "Breakneck Speed",
    "seviye": 19,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -24228,8 +24228,8 @@
   "119017": {
    "ad": "Frame Job",
    "seviye": 19,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -24362,8 +24362,8 @@
   "119018": {
    "ad": "Dal Segno",
    "seviye": 19,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -24447,8 +24447,8 @@
   "119019": {
    "ad": "One-Trick Ponies",
    "seviye": 19,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -24543,8 +24543,8 @@
   "119020": {
    "ad": "Rearguard",
    "seviye": 19,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -24614,8 +24614,8 @@
   "120001": {
    "ad": "A Wager Lost",
    "seviye": 20,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -24680,8 +24680,8 @@
   "120002": {
    "ad": "Level Playing Field",
    "seviye": 20,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -24776,8 +24776,8 @@
   "120003": {
    "ad": "Chapter Closed",
    "seviye": 20,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -24866,8 +24866,8 @@
   "120004": {
    "ad": "Keeping Up Appearances",
    "seviye": 20,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -24956,8 +24956,8 @@
   "120005": {
    "ad": "Intensive Study",
    "seviye": 20,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -25052,8 +25052,8 @@
   "120006": {
    "ad": "Saimon Says ‘Fire!’",
    "seviye": 20,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -25137,8 +25137,8 @@
   "120007": {
    "ad": "Misdirection",
    "seviye": 20,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -25227,8 +25227,8 @@
   "120008": {
    "ad": "Misidentification",
    "seviye": 20,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -25317,8 +25317,8 @@
   "120009": {
    "ad": "Euthanasia",
    "seviye": 20,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -25402,8 +25402,8 @@
   "120010": {
    "ad": "Rejected Overtures",
    "seviye": 20,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -25487,8 +25487,8 @@
   "120011": {
    "ad": "Unlikely Threat",
    "seviye": 20,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -25577,8 +25577,8 @@
   "120012": {
    "ad": "All Sound and Fury",
    "seviye": 20,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -25667,8 +25667,8 @@
   "120013": {
    "ad": "Dearth of Data",
    "seviye": 20,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -25752,8 +25752,8 @@
   "120014": {
    "ad": "ImpostoRs",
    "seviye": 20,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -25837,8 +25837,8 @@
   "120015": {
    "ad": "Crystal Camouflage",
    "seviye": 20,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -25908,8 +25908,8 @@
   "120016": {
    "ad": "Human Fruads",
    "seviye": 20,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -26098,8 +26098,8 @@
   "120017": {
    "ad": "Reminders of Failure",
    "seviye": 20,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -26183,8 +26183,8 @@
   "120018": {
    "ad": "In the Crosshairs",
    "seviye": 20,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -26366,8 +26366,8 @@
   "120019": {
    "ad": "Grudging Capitulation",
    "seviye": 20,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -26437,8 +26437,8 @@
   "120020": {
    "ad": "Vindicated",
    "seviye": 20,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -26527,8 +26527,8 @@
   "120021": {
    "ad": "Player 4, Press Start",
    "seviye": 20,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -26627,8 +26627,8 @@
   "120022": {
    "ad": "They’re In The Walls",
    "seviye": 20,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -26698,8 +26698,8 @@
   "120023": {
    "ad": "Gnawing at the Roots",
    "seviye": 20,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -26828,8 +26828,8 @@
   "120024": {
    "ad": "Dulce et Decorum Est",
    "seviye": 20,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -26899,8 +26899,8 @@
   "120025": {
    "ad": "Stabbed in the Back",
    "seviye": 20,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -27029,8 +27029,8 @@
   "120026": {
    "ad": "Martial Law",
    "seviye": 20,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -27219,8 +27219,8 @@
   "120027": {
    "ad": "Audacity",
    "seviye": 20,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 2,
@@ -27459,8 +27459,8 @@
   "120028": {
    "ad": "Incorruptible",
    "seviye": 20,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -27559,8 +27559,8 @@
   "120029": {
    "ad": "Defamation",
    "seviye": 20,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -27629,8 +27629,8 @@
   "120030": {
    "ad": "Lynch Mob",
    "seviye": 20,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -27719,8 +27719,8 @@
   "120031": {
    "ad": "Merc Army",
    "seviye": 20,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -27819,8 +27819,8 @@
   "120032": {
    "ad": "No Guts, No Glory",
    "seviye": 20,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -27890,8 +27890,8 @@
   "120033": {
    "ad": "Duplicity",
    "seviye": 20,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -27960,8 +27960,8 @@
   "120034": {
    "ad": "Final Purge",
    "seviye": 20,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -28090,8 +28090,8 @@
   "121001": {
    "ad": "Aggressive Treatment",
    "seviye": 21,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -28175,8 +28175,8 @@
   "121002": {
    "ad": "The Helix Speaks",
    "seviye": 21,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -28265,8 +28265,8 @@
   "121003": {
    "ad": "Past Brethren",
    "seviye": 21,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -28399,8 +28399,8 @@
   "121004": {
    "ad": "Hunting License",
    "seviye": 21,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -28495,8 +28495,8 @@
   "121005": {
    "ad": "Set Your House in Order",
    "seviye": 21,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -28585,8 +28585,8 @@
   "121006": {
    "ad": "Emetic",
    "seviye": 21,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -28675,8 +28675,8 @@
   "121007": {
    "ad": "Troublemakers",
    "seviye": 21,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -28760,8 +28760,8 @@
   "121008": {
    "ad": "Bounty Bumblers",
    "seviye": 21,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -28826,8 +28826,8 @@
   "121009": {
    "ad": "Blacklist",
    "seviye": 21,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -28916,8 +28916,8 @@
   "121010": {
    "ad": "Collateral Damage",
    "seviye": 21,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -29006,8 +29006,8 @@
   "121011": {
    "ad": "Life For An Eye",
    "seviye": 21,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -29072,8 +29072,8 @@
   "121012": {
    "ad": "Personal Vendetta",
    "seviye": 21,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -29224,8 +29224,8 @@
   "121013": {
    "ad": "MESSAGE BEGINS",
    "seviye": 21,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -29290,8 +29290,8 @@
   "121014": {
    "ad": "Taken for Questioning",
    "seviye": 21,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -29416,8 +29416,8 @@
   "121015": {
    "ad": "Approved Targets",
    "seviye": 21,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -29568,8 +29568,8 @@
   "121016": {
    "ad": "It’s Not What You Know…",
    "seviye": 21,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -29720,8 +29720,8 @@
   "121017": {
    "ad": "Contact Request",
    "seviye": 21,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -29805,8 +29805,8 @@
   "121018": {
    "ad": "Anonymous Benefactor",
    "seviye": 21,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
@@ -29957,8 +29957,8 @@
   "121019": {
    "ad": "And Carry On",
    "seviye": 21,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,

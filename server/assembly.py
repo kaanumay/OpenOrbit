@@ -33,7 +33,7 @@ import ranks as RT
 from legacy_protocol import legacy
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-T = json.load(open(os.path.join(HERE, 'data', 'recipes.json'), encoding='utf8'))['tarifler']
+T = json.load(open(os.path.join(HERE, 'data', 'recipes.json'), encoding='utf8'))['recipes']
 INGREDIENTS = {loot for r in T.values() for loot in r.get('parcalar', {})}      # girişte sayaçları gönderilenler (magaza.count_msgs)
 ALREADY_OWNS, ALREADY_USED, ALREADY_USED_LIMIT = 0, 1, 2          # RecipeUnavailableType (istemci)
 # koşulla açılan tarifler (wiki): Spartan dron tasarımı Kronos kapısı tamamlanınca
@@ -65,9 +65,9 @@ def event_recipes(p, now=None):
     Champion Token'lılar elde jeton varken, ötekiler sürekli; kaynağı olmayan malzemeyi isteyenler, test tarifleri, koşulla
     açılanlar (UNLOCK) ve bot oyuncu isteyenler (BOT) dışarıda."""
     import event_calendar as CAL
-    currency = {l for e in CAL.EVENTS.values() for l in e.get('para', [])} | {CHAMPION}
-    cur = {l for k in CAL.active(now) for l in CAL.EVENTS[k].get('para', [])} | {l for l in currency if p.resource(l) > 0}
-    run, chromin = chromin_recipes(now), set(CAL.EVENTS.get('chromin', {}).get('para', []))
+    currency = {l for e in CAL.EVENTS.values() for l in e.get('currency', [])} | {CHAMPION}
+    cur = {l for k in CAL.active(now) for l in CAL.EVENTS[k].get('currency', [])} | {l for l in currency if p.resource(l) > 0}
+    run, chromin = chromin_recipes(now), set(CAL.EVENTS.get('chromin', {}).get('currency', []))
     out = []
     for k, r in T.items():
         ps = set(r['parcalar'])
@@ -86,7 +86,7 @@ def chromin_recipes(now=None):
     import datetime
     import event_calendar as CAL
     span = CAL.period('chromin', now)
-    runs = CAL.EVENTS.get('chromin', {}).get('kosu_tarifleri') or {}
+    runs = CAL.EVENTS.get('chromin', {}).get('run_recipes') or {}
     if not span or not runs:
         return None
     start = datetime.date.fromtimestamp(span[0])
@@ -101,15 +101,15 @@ def recipe_event(key, now=None):
     """Tarifi parasıyla bağlayan etkin etkinlik (event_calendar.py 'para'; yoksa None)."""
     import event_calendar as CAL
     ps = set(T[key]['parcalar'])
-    return next((k for k in sorted(CAL.active(now)) if ps & set(CAL.EVENTS[k].get('para', []))), None)
+    return next((k for k in sorted(CAL.active(now)) if ps & set(CAL.EVENTS[k].get('currency', []))), None)
 
 
 def recorded_end(key, now=None):
     """Resmî sunucuda süreli tarifin bitişi (recipes.json gecici: "sezon" Season Pass sezonunun sonu, sayı kayıttaki bitiş) ya da
     None (süresiz, bitişi geçmiş ya da etkinlik parasıyla: onun süresi yerel takvimden, recipe_event)."""
     import event_calendar as CAL
-    g = T[key].get('gecici')
-    if g and set(T[key]['parcalar']) & {l for e in CAL.EVENTS.values() for l in e.get('para', [])}:
+    g = T[key].get('temporary')
+    if g and set(T[key]['parcalar']) & {l for e in CAL.EVENTS.values() for l in e.get('currency', [])}:
         return None
     if g == 'sezon':
         import season
@@ -157,7 +157,7 @@ class Assembly:
         """Pencerede görünen tarifler, kayıttaki sırayla; sonra depoda olan ONLY_WHEN_OWNED tarifler, koşulla açılanlar, kayıtta
         olmayanlar (event_recipes) ve üretimi süren ya da toplanmamış olanlar (etkinlik bitse de)."""
         out = sorted((k for k, r in T.items() if 'kayitta' in r and k not in BOT), key=lambda k: T[k]['kayitta'])
-        out += sorted(k for k, r in T.items() if 'kayitta' not in r and r['gorunurluk'] == 'ONLY_WHEN_OWNED' and self.p.resource(k) > 0)
+        out += sorted(k for k, r in T.items() if 'kayitta' not in r and r['visibility'] == 'ONLY_WHEN_OWNED' and self.p.resource(k) > 0)
         out += [k for k, cond in UNLOCK.items() if k not in out and cond(self.p)]
         seen = set(out)
         out += [k for k in event_recipes(self.p) if k not in seen]
@@ -172,11 +172,11 @@ class Assembly:
     def limit_left(self, key):
         """Kalan kullanım (None: sınırsız)."""
         r = T[key]
-        if r['kullanim'] == NO_LIMIT:
+        if r['usage'] == NO_LIMIT:
             return None
-        if r['kullanim'] == 'USABLE_ONCE':
+        if r['usage'] == 'USABLE_ONCE':
             return max(0, 1 - self.st['sayac'].get(key, 0))
-        cap = 1 if r['kullanim'] == 'USABLE_ONCE_PER_SCHEDULE' else (r['en_cok'] or 1)
+        cap = 1 if r['usage'] == 'USABLE_ONCE_PER_SCHEDULE' else (r['en_cok'] or 1)
         return max(0, cap - self.used_today(key))
 
     def cost(self, key, amount):
@@ -184,7 +184,7 @@ class Assembly:
         if SET.get('assembly_ucretsiz'):
             return {}
         r = T[key]
-        f = r['olcek'] ** self.used_today(key) if r['olcek'] != 1 else 1
+        f = r['scale'] ** self.used_today(key) if r['scale'] != 1 else 1
         return {loot: int(math.ceil(n * f * amount)) for loot, n in r['parcalar'].items()}
 
     def status(self, key, now=None):
@@ -197,7 +197,7 @@ class Assembly:
             return mod('AssemblyRecipeReadyToCollectStatusModule', prevBuildCount=b['onceki'], buildAmount=b['adet'])
         left = self.limit_left(key)
         if left == 0:
-            kind = ALREADY_USED if T[key]['kullanim'] in ('USABLE_ONCE', 'USABLE_ONCE_PER_SCHEDULE') else ALREADY_USED_LIMIT
+            kind = ALREADY_USED if T[key]['usage'] in ('USABLE_ONCE', 'USABLE_ONCE_PER_SCHEDULE') else ALREADY_USED_LIMIT
             return mod('AssemblyRecipeUnavailableStatusModule', type=kind)
         return mod('AssemblyRecipeAvailableStatusModule', currentBuildCount=self.build_count(key), isNew=key not in self.st['gorulen'])
 
@@ -205,9 +205,9 @@ class Assembly:
         """İstemcinin "Crafting Limit: <bu>/<MaxUses>" sayacı; MaxUses'a varınca Build'i kilitler. Sınırsız tariflerde MaxUses bir
         üretimin en çok adedi (U-LF-4, LF-P01 …): sayaç 0 (canlı test H32: bir üretimden sonra Build kilitleniyordu)."""
         r = T[key]
-        if r['kullanim'] == NO_LIMIT:
+        if r['usage'] == NO_LIMIT:
             return 0
-        if r['kullanim'] == 'USABLE_ONCE':
+        if r['usage'] == 'USABLE_ONCE':
             return self.st['sayac'].get(key, 0)
         return self.used_today(key)
 
@@ -253,7 +253,7 @@ class Assembly:
         left = self.limit_left(key)
         if left is not None:
             amount = min(amount, left)
-        if amount <= 0 or (not r['yigilir'] and amount > 1):
+        if amount <= 0 or (not r['stackable'] and amount > 1):
             amount = 1 if amount > 0 else 0
         if amount <= 0:
             return [self.update(key)]
@@ -271,7 +271,7 @@ class Assembly:
             self.st['uretim'][key] = dict(adet=amount, bitis=now + SET.duration(r['sure_sn'] * amount, 'assembly'), onceki=self.st['sayac'].get(key, 0))
             if key not in self.st['gorulen']:
                 self.st['gorulen'].append(key)
-            if r['kullanim'] != NO_LIMIT or r['olcek'] != 1:
+            if r['usage'] != NO_LIMIT or r['scale'] != 1:
                 self.st['gunluk'][key] = [period_of(key), self.used_today(key) + amount]
             self.p.dirty = True
         self.p.ach('assembly_build', tarif=key, adet=amount)
@@ -289,14 +289,14 @@ class Assembly:
             self.st['sayac'][key] = self.st['sayac'].get(key, 0) + b['adet']
             self.p.dirty = True
         msgs = []
-        for loot, n in T[key]['sonuc'].items():
+        for loot, n in T[key]['result'].items():
             msgs += self.grant(loot, n * b['adet'])
         self.p.ach('assembly_collect', tarif=key, adet=b['adet'])
         # seyir defteri (MSJ-10): istemci (ReturnLogBookInfoText) "his_assembly_…" metnini çevirir; %recipename% info'daki lootId'nin
         # adı (items_<lootId>_fullname; sonucun adı hepsinde var, tarifin adı 35 tarifte yok), %buildamount% count
         RT.note(self.p, 'his_assembly_recipe_collected_multi' if b['adet'] > 1 else 'his_assembly_recipe_collected',
-                next(iter(T[key]['sonuc'])), b['adet'])
-        self.log('   Assembly: %s x%d toplandı (%s)' % (key, b['adet'], T[key]['sonuc']))
+                next(iter(T[key]['result'])), b['adet'])
+        self.log('   Assembly: %s x%d toplandı (%s)' % (key, b['adet'], T[key]['result']))
         return msgs + [self.update(key, f.get('targetItemId', 0))]
 
     def grant(self, loot, n):

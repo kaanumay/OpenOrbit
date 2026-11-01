@@ -19,7 +19,7 @@ from urllib.request import Request, urlopen
 from lang import t as _
 
 URL = 'https://alicdn-oss-prod.darkorbit.com/release/archive/DarkOrbit_Version1.1.116.zip'
-TEMP = 'istemci_indiriliyor'      # proje kökünde; .gitignore'da
+TEMP = 'client_downloading'       # proje kökünde; .gitignore'da (eski adı istemci_indiriliyor: yarım indirme baştan)
 CHUNK = 1 << 20
 CHUNK_SIZE = 64 << 20                     # bir bağlantının tek istekle okuduğu ardışık dosyalar (büyük dosya tek başına)
 CONNECTIONS = 3                        # aynı anda açık bağlantı (tek bağlantıyla ≈5 MB/sn); 6 bağlantı CDN engeline takılıyordu

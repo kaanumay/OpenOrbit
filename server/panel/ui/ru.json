@@ -2856,5 +2856,6 @@
 "{0} / {1} yuva": "{0} / {1} слотов",
 "{0} paketi · {1}. bot": "Пакет {0} · бот №{1}",
 "Özellikler": "Черты",
-"Şu anki duyguları: zamanla dengeye döner. Öfkeli bot intikam peşine düşer, yorgun bot erken çıkar.": "Текущие чувства: со временем возвращаются к норме. Злой бот ищет мести, уставший уходит раньше."
+"Şu anki duyguları: zamanla dengeye döner. Öfkeli bot intikam peşine düşer, yorgun bot erken çıkar.": "Текущие чувства: со временем возвращаются к норме. Злой бот ищет мести, уставший уходит раньше.",
+"Kayıtlar yeni biçime taşınamadı (%s). Eski kayıtların yedeği server/save altında (v1_backup_*.zip); sunucular başlatılmaz.": "Не удалось перенести сохранения в новый формат (%s). Резервная копия старых сохранений лежит в server/save (v1_backup_*.zip); серверы не будут запущены."
 }

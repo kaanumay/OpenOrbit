@@ -48,7 +48,7 @@ def used(p, kind):
     if kind == ROCKET_LAUNCHER:
         return any(i.startswith('equipment_weapon_rocketlauncher_') for i in items)
     if kind == SHIP_DESIGN:
-        return any(s.get('tasarimlar') for s in p.d.get('gemiler', {}).values())
+        return any(s.get('designs') for s in p.d.get('gemiler', {}).values())
     if kind == GALAXY_GATE:
         return any(g.get('parcalar') or g.get('tamam') for g in ((p.d.get('kapilar') or {}).get('kapilar') or {}).values() if g)
     return False

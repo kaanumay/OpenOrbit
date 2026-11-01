@@ -1,10 +1,10 @@
 {
- "_aciklama": "Sıralama ödül tabloları -> server/data/sira_odulleri.json (yol haritası Ö1; sunucu: siralama.py).\n\nİstemcinin akışı: modun penceresi sıralama bilgisiyle ödül aralıklarını alır (PlutusInfoCommand.playerRanges,\nEternalBlacklightRankingEventInfoCommand / RogueLiteRankEventInfoCommand.playerRankRanges: RankRewardRangeModule {from, to}); ödül\nsekmesi her aralık için RankRewardRequest {ranking: aralığın başı, rankType} gönderir; yanıt RankRewardCommand {rankType,\nrewardContentModuleList [RewardModule {lootId, amount} | RewardTitleModule {titleKey}], rewardRange}. rankType istemcinin RankType'ı:\n2 Gauntlet of Plutus, 7 Eternal Black Light, 9 Astral Ascension (Rogue-Lite).\n\nKaynaklar:\n  2  belgeler/wiki/etkinlikler/gauntlet_of_plutus.json \"ranking\" (wiki etkinlik sayfasının kademeleri, metin)\n  7  belgeler/wiki/pve_modlari/eternal_black_light.json ebl.ranking.reward_sets[0] (2020 tablosu; sonraki setler aynı miktarlarla,\n     P.E.T. tasarımları olmadan); unvan en son setinki (Eylül 2026, \"Eternal King\")\n  9  server/data/yanitlar.json: kaydın RankRewardCommand'ları (Ekim 2026 Astral seti)\nTek oyunculuda sıralamada yalnız oyuncu var: tablolar pencerede görünür; dağıtım bot oyuncularla (Aşama 11).",
+ "_description": "Sıralama ödül tabloları -> server/data/sira_odulleri.json (yol haritası Ö1; sunucu: siralama.py).\n\nİstemcinin akışı: modun penceresi sıralama bilgisiyle ödül aralıklarını alır (PlutusInfoCommand.playerRanges,\nEternalBlacklightRankingEventInfoCommand / RogueLiteRankEventInfoCommand.playerRankRanges: RankRewardRangeModule {from, to}); ödül\nsekmesi her aralık için RankRewardRequest {ranking: aralığın başı, rankType} gönderir; yanıt RankRewardCommand {rankType,\nrewardContentModuleList [RewardModule {lootId, amount} | RewardTitleModule {titleKey}], rewardRange}. rankType istemcinin RankType'ı:\n2 Gauntlet of Plutus, 7 Eternal Black Light, 9 Astral Ascension (Rogue-Lite).\n\nKaynaklar:\n  2  belgeler/wiki/etkinlikler/gauntlet_of_plutus.json \"ranking\" (wiki etkinlik sayfasının kademeleri, metin)\n  7  belgeler/wiki/pve_modlari/eternal_black_light.json ebl.ranking.reward_sets[0] (2020 tablosu; sonraki setler aynı miktarlarla,\n     P.E.T. tasarımları olmadan); unvan en son setinki (Eylül 2026, \"Eternal King\")\n  9  server/data/yanitlar.json: kaydın RankRewardCommand'ları (Ekim 2026 Astral seti)\nTek oyunculuda sıralamada yalnız oyuncu var: tablolar pencerede görünür; dağıtım bot oyuncularla (Aşama 11).",
  "tablolar": {
   "2": {
    "ad": "Gauntlet of Plutus",
    "_kaynak": "wiki etkinlik sayfası (gauntlet_of_plutus.json ranking); premium ay = 30 gün",
-   "araliklar": [
+   "ranges": [
     {
      "den": 1,
      "e": 1,
@@ -242,7 +242,7 @@
   "7": {
    "ad": "Eternal Black Light",
    "_kaynak": "forum 2020 tablosu (eternal_black_light.json reward_sets[0]; sonraki setler aynı miktarlarla, P.E.T. tasarımsız); unvan Eylül 2026 seti",
-   "araliklar": [
+   "ranges": [
     {
      "den": 1,
      "e": 1,
@@ -480,7 +480,7 @@
   "9": {
    "ad": "Astral Ascension",
    "_kaynak": "kayıt (yanitlar.json RankRewardCommand, Ekim 2026 seti)",
-   "araliklar": [
+   "ranges": [
     {
      "den": 1,
      "e": 1,
@@ -744,7 +744,7 @@
    ]
   }
  },
- "unvan_setleri": {
+ "title_sets": {
   "7": [
    "title_blacklightRankings-apr2021set1",
    "title_blacklightRankings-apr2021set2",
@@ -886,6 +886,6 @@
    "title_astralRankings-oct2027set1",
    "title_astralRankings-oct2027set2"
   ],
-  "_aciklama": "İstemcinin set unvanları (loc_en; title_<sıralama>-<ay><yıl>set<n>): ödül anında tarihe göre seçilir (siralama.set_title; ayın 20'sinden önce set 1, sonra set 2; ayın ilk 3 günü önceki ayın set 2'si); listede yoksa tablonun unvanı. Resmî Türk forumu: her setin unvanı ayrı (Temmuz 2026 Eternal Sovereign/Emperor, Aralık 2025 Alchemist/Wanderer of the Rifts …)"
+  "_description": "İstemcinin set unvanları (loc_en; title_<sıralama>-<ay><yıl>set<n>): ödül anında tarihe göre seçilir (siralama.set_title; ayın 20'sinden önce set 1, sonra set 2; ayın ilk 3 günü önceki ayın set 2'si); listede yoksa tablonun unvanı. Resmî Türk forumu: her setin unvanı ayrı (Temmuz 2026 Eternal Sovereign/Emperor, Aralık 2025 Alchemist/Wanderer of the Rifts …)"
  }
 }

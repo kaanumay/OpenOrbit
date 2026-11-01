@@ -27,7 +27,7 @@ def accrue(p, n, reason=None):
 
 
 def price(p):
-    return value(p) * B['kredi_fiyati']
+    return value(p) * B['credit_price']
 
 
 def info_cmd(p):

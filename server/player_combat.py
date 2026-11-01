@@ -60,7 +60,7 @@ def on_kill(killer, victim):
     rütbe sayacı, görev olayı ve dron puanı (resmî forum 127379, 127509, 127526)."""
     import ranks as RT
     import world as D
-    C = D.ITEMS['oyuncu_oldurme']
+    C = D.ITEMS['player_kill']
     kp, vp = killer.p, victim.p
     ship = vp.ship()['lootId']
     vf, kf = vp.d['pilot'].get('factionId'), kp.d['pilot'].get('factionId')
@@ -68,29 +68,29 @@ def on_kill(killer, victim):
     msgs = []
     if vf == kf and 3 not in (KL.relation(kp, vp), KL.relation(vp, kp)):     # savaştaki klan: kendi şirketinden de ceza yok (oyuncu bildirimi 2026-10-31)
         with kp.lock:
-            n = kp.d.setdefault('dost_oldurme', 0) + 1
-            kp.d['dost_oldurme'] = n
+            n = kp.d.setdefault('friendly_kills', 0) + 1
+            kp.d['friendly_kills'] = n
             RT.counters(kp)['dost'] += 1
             kp.dirty = True
-        honor = int(C['dost_onur'] * 2 ** (n - 1))
-        credits = -min(-C['dost_kredi'], kp.d['pilot'].get('credits', 0))
+        honor = int(C['friend_honor'] * 2 ** (n - 1))
+        credits = -min(-C['friend_credits'], kp.d['pilot'].get('credits', 0))
         tot = kp.gain(onur=honor, kredi=credits, neden='friendly_kill')
         RT.note(kp, 'history_friendly_kill', name)
         return killer.reward_msgs(tot, onur=honor, kredi=credits) + [legacy('0|A|STM|friendlyfire')]
     with kp.lock:
-        g = kp.d.setdefault('pvp_gunluk', {})
+        g = kp.d.setdefault('pvp_daily', {})
         if g.get('gun') != RT.today():
             g.clear()
             g['gun'] = RT.today()
         k = str(vp.user_id)
-        cnt = g.setdefault('kurban', {}).get(k, 0) + 1
-        g['kurban'][k] = cnt
+        cnt = g.setdefault('victim', {}).get(k, 0) + 1
+        g['victim'][k] = cnt
         kp.dirty = True
-    f = max(0.0, 1 - C['itme_adim'] * max(0, cnt - C['itme_esik']))
+    f = max(0.0, 1 - C['push_step'] * max(0, cnt - C['push_threshold']))
     if f <= 0:
         return [legacy('0|A|STM|msg_pusher_no_pushing')] + [D.stm('pusher_info_no_reward', '%NAME%', name)]
-    pts = RT.R.get('gemi_puan', {}).get(ship, {}).get('puan', 1)
-    ep, honor = int(C['ep_puan'] * pts * f), int(C['onur_puan'] * pts * f)
+    pts = RT.R.get('ship_points', {}).get(ship, {}).get('puan', 1)
+    ep, honor = int(C['ep_points'] * pts * f), int(C['honor_points'] * pts * f)
     tot = kp.gain(ep=ep, onur=honor, neden='bonus_abschussPlayer')
     msgs += killer.reward_msgs(tot, ep=ep, onur=honor)
     if f < 1:
@@ -108,7 +108,7 @@ def _hit(w, other, now, normal, shield=0, atype=1):
         import world as D
         factor = D.SET.multiplier('oyuncu_hasar', 'pvp')                 # panelin hasar çarpanı (Oyunculara alt ayarı)
         if atype == 1:
-            factor *= max(0.0, 1 + other.p.mods().get('alinan_lazer', 0))
+            factor *= max(0.0, 1 + other.p.mods().get('laser_taken', 0))
         normal, shield = int(round(normal * factor)), int(round(shield * factor))
         if shield > 0:
             before = other.p.d['gemi'].get('shield', 0)
@@ -158,8 +158,8 @@ def rocket(w, other, now):
         return True
     hx, hy = w.hero_pos(now)
     tx, ty = other.hero_pos(now)
-    if math.hypot(tx - hx, ty - hy) > D.COMBAT['roket_menzil']:
-        w.send([D.range_exceeded(other.hid, D.COMBAT['roket_menzil'], 0)])
+    if math.hypot(tx - hx, ty - hy) > D.COMBAT['rocket_range']:
+        w.send([D.range_exceeded(other.hid, D.COMBAT['rocket_range'], 0)])
         return True
     if w.p.use_ammo(rocket, 1) is None:
         sub, msgs = w.ammo_out('roket', rocket, 1)
@@ -184,7 +184,7 @@ def rocket(w, other, now):
             cooldownType=D.mod('CooldownTypeModule', typeValue=4), maxTime=ms, time=ms))])
     r = D.ITEMS['roketler'][rocket]
     damage = int(r.get('pvp_hasar', r.get('hasar', 1000)) * random.uniform(0.85, 1.0)         # BDR-1211 oyunculara en çok 4.000
-                 * (1 + mods.get('roket', 0) + (mods.get('ev_roket', 0) if getattr(getattr(other, 'p', None), 'd', {}).get('pilot', {}).get('factionId') != w.p.d['pilot'].get('factionId') else 0))
+                 * (1 + mods.get('roket', 0) + (mods.get('enemy_rocket', 0) if getattr(getattr(other, 'p', None), 'd', {}).get('pilot', {}).get('factionId') != w.p.d['pilot'].get('factionId') else 0))
                  * (1 + w.p.lab_bonus(1)))
     if w.p.lab_bonus(1):
         w.lab_spend(1)
@@ -195,7 +195,7 @@ def rocket(w, other, now):
             _hit(w, other, impact_now, damage, atype=0)
         elif not attack_error(w, other, impact_now):
             w.send([('AttackMissedCommand', dict(attackType=D.attack_type(0), targetUserId=other.hid, skillColorId=0))])
-    w.later(D.COMBAT['roket_ucus_sn'], impact)
+    w.later(D.COMBAT['rocket_flight_sec'], impact)
     w.later(ms / 1000, lambda: w.send([('MenuItemCooldownGroupTimerCommand', dict(
         timerState=D.mod('TimerStateModule', timerStateValue=0), cooldownType=D.mod('CooldownTypeModule', typeValue=4),
         maxTime=ms, time=0))]))

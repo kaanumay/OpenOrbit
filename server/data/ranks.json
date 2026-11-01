@@ -1198,7 +1198,7 @@
    "puan": 0
   }
  },
- "gemi_puan": {
+ "ship_points": {
   "ship_phoenix": {
    "ad": "Phoenix",
    "puan": 1
@@ -1660,7 +1660,7 @@
    "deger": 1
   }
  ],
- "gemi_turu": {
+ "ship_type": {
   "ship_a-elite": 12,
   "ship_a-veteran": 12,
   "ship_aegis": 12,
@@ -1749,7 +1749,7 @@
   550000
  ],
  "_esikler": "tek oyunculu uyarlama: gerçek oyunda rütbe her gün şirketteki oyuncular arasındaki sıraya göre verilir (Chief General 1 kişi … Basic Space Pilot %20). Şirkette başka oyuncu olmadığından rütbe, rütbe puanının bu eşiklerine göre (rütbe N için en az esikler[N-1]); bot oyuncular gelince (Aşama 11) gerçek sıralamaya dönülebilir",
- "kanun_disi": {
+ "outlaw": {
   "onur": -500,
   "simge": 5000,
   "_not": "onur -500 ve altı: gemide 5000 simgesi (istemcide yalnız simge; Outlaw olduğu çıkarım). Tek oyunculuda onur eksiye düşmüyor (PvP ile, Aşama 11)"

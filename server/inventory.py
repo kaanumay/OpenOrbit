@@ -18,7 +18,7 @@ import technology as TECH
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ORES = {loot: int(t) for t, loot in json.load(open(os.path.join(HERE, 'data', 'items.json'), encoding='utf8'))
-        ['cevherler']['turler'].items()}
+        ['cevherler']['kinds'].items()}
 CURRENCY = {'currency_credits': ('credits', 'kredi'), 'currency_uridium': ('uridium', 'uridyum')}
 ITEM_PREFIXES = ('equipment_', 'drone_', 'pet_')
 _CLIENT = json.load(open(os.path.join(HERE, 'data', 'client_items.json'), encoding='utf8'))['esyalar']
@@ -143,7 +143,7 @@ def update_msgs(m, p, loots, removed=()):
         msgs += m.ship_count_msgs([l for l in loots if l.startswith('ship_')])     # Assembly sayacı
     ores = sorted(ORES[l] for l in loots if l in ORES)
     if ores:
-        msgs += [('AttributeOreCountUpdateCommand', {'oreCountList': p.d['madenler']}), m.ore_pack(ores)]
+        msgs += [('AttributeOreCountUpdateCommand', {'oreCountList': p.d['ores']}), m.ore_pack(ores)]
     for loot in loots:
         if loot in CURRENCY or loot in ORES or loot.startswith(ITEM_PREFIXES + ('ship_',)):
             continue

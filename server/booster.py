@@ -15,9 +15,9 @@ import settings as SET
 HERE = os.path.dirname(os.path.abspath(__file__))
 B = json.load(open(os.path.join(HERE, 'data', 'items.json'), encoding='utf8'))['boosterlar']
 O6 = json.load(open(os.path.join(HERE, 'data', 'items_o6.json'), encoding='utf8'))['boosterlar']     # Ö6 (tools/esyalar_o6.py)
-for _loot, _effect in O6['turler'].items():           # bb-01 bonus kutusu, qr-01 görev ödülü, prm-b01 Hybrid Alloy/Indoctrine Oil miktarı …
-    B['turler'].setdefault(_loot, _effect)
-ALIAS = O6['takma_ad']                              # istemcinin tanımadığı boosterlar -> [[eşdeğer, saat]] (MAX-BP01, NBX, NQR, PCOMB …)
+for _loot, _effect in O6['kinds'].items():           # bb-01 bonus kutusu, qr-01 görev ödülü, prm-b01 Hybrid Alloy/Indoctrine Oil miktarı …
+    B['kinds'].setdefault(_loot, _effect)
+ALIAS = O6['alias']                              # istemcinin tanımadığı boosterlar -> [[eşdeğer, saat]] (MAX-BP01, NBX, NQR, PCOMB …)
 ATTRS = ['ABILITY_COOLDOWN_TIME', 'COLLECT_RESOURCES', 'COLLECT_RESOURCES_NEWBIE', 'EXPERIENCE_POINTS', 'HITPOINTS', 'HONOUR_POINTS',
          'DAMAGE', 'REPAIR', 'SHIELD', 'SHIELD_REGENERATION']                      # kayıttaki sıra
 # istemcinin türü -> sunucunun bonus anahtarı (profil.mods(): formasyon ve dron tasarımlarıyla toplanır)
@@ -32,7 +32,7 @@ def mod(name, **f):
 
 
 def is_booster(loot):
-    return loot in B['turler'] or loot in ALIAS
+    return loot in B['kinds'] or loot in ALIAS
 
 
 def state(p):
@@ -57,10 +57,10 @@ def values(p, now=None):
     out = {}
     k = SET.multiplier('booster_guc')                    # panel: boosterların etkisi (üst sınırları da)
     for loot in active(p, now):
-        for a, v in B['turler'].get(loot, {}).items():
+        for a, v in B['kinds'].get(loot, {}).items():
             if a in ATTRS:
                 out[a] = out.get(a, 0) + v * k
-    return {a: min(v, B['tavan'][a] * k) if a in B['tavan'] else v for a, v in out.items()}
+    return {a: min(v, B['cap'][a] * k) if a in B['cap'] else v for a, v in out.items()}
 
 
 def mods(p, now=None):
@@ -70,7 +70,7 @@ def mods(p, now=None):
         for k in MOD_KEYS.get(a, ()):
             out[k] = out.get(k, 0) + v / 100.0
     for l in active(p, now):                       # göstergede türü olmayan etkiler: isabet (DMG-H01), npc (NPC-B01), pet_ep
-        for k, v in B['turler'][l].items():
+        for k, v in B['kinds'][l].items():
             if k not in ATTRS:
                 out[k] = out.get(k, 0) + v / 100.0
     return out
@@ -125,7 +125,7 @@ def drop_for(npc_name):
     Türler eşit ağırlıkla. -> (lootId, saat) ya da None."""
     d = B['dusme']
     kind = 'boss' if npc_name.startswith('..::{') else 'uber' if npc_name.startswith('( Uber') else None
-    if not kind or random.random() >= SET.chance('dusme', d['olasilik'][kind], 'booster'):
+    if not kind or random.random() >= SET.chance('dusme', d['probability'][kind], 'booster'):
         return None
-    loot, hours = random.choice([(l, None) for l in d['turler']] + [(l, 1) for l in d.get('turler_1sa', ())])     # 1 saatlik türler sabit 1 sa
+    loot, hours = random.choice([(l, None) for l in d['kinds']] + [(l, 1) for l in d.get('kinds_1h', ())])     # 1 saatlik türler sabit 1 sa
     return loot, hours or random.randint(*d['saat'])

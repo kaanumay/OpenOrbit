@@ -23,8 +23,8 @@ import event_calendar as CAL
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 D = json.load(open(os.path.join(HERE, 'data', 'tickets.json'), encoding='utf8'))
-MINI, DELUXE, UNITY = D['mini_istemci'], D['aylik_deluxe'], D['unity_odul']
-MINI_EVENT = D.get('mini_istemci_etkinlik', {})       # etkinlik -> kendi gün listesi (yoksa MINI)
+MINI, DELUXE, UNITY = D['mini_client'], D['monthly_deluxe'], D['unity_reward']
+MINI_EVENT = D.get('mini_client_event', {})       # etkinlik -> kendi gün listesi (yoksa MINI)
 UNITY_Q = {q['id']: q for day in UNITY for q in day}
 DELUXE_ITEM = 'resource_monthly-deluxe'
 
@@ -45,7 +45,7 @@ def mini_list(now=None):
 
 def mini_event(now=None):
     for k in sorted(CAL.active(now)):
-        if 'MiniClientReward' in CAL.EVENTS[k].get('turler', []):
+        if 'MiniClientReward' in CAL.EVENTS[k].get('kinds', []):
             p = CAL.period(k, now)
             return k, ('%s-%d' % (k, time.localtime(p[0]).tm_year) if p else k)
     return None, None
@@ -66,7 +66,7 @@ class DailyReward:
         k, pid = mini_event(now)
         if not k:
             return None
-        st = self.p.d.setdefault('mini_istemci', {})
+        st = self.p.d.setdefault('mini_client', {})
         if st.get('donem') != pid:
             with self.p.lock:
                 st.clear()
@@ -100,14 +100,14 @@ class DailyReward:
 
     # ------------------------------------------------------------ Monthly Deluxe
     def deluxe_day(self, now=None):
-        st = self.p.d.get('aylik_deluxe')
+        st = self.p.d.get('monthly_deluxe')
         if not st:
             return -1
         d = (today(now) - datetime.date.fromisoformat(st['baslangic'])).days
         return d if 0 <= d < len(DELUXE) else -1
 
     def deluxe_day_cmd(self, now=None):
-        st = self.p.d.get('aylik_deluxe') or {}
+        st = self.p.d.get('monthly_deluxe') or {}
         d = self.deluxe_day(now)
         return mod('MonthlyDeluxeDayInfoCommand', today=d, daysClaimed=list(st.get('alinan', [])) if d >= 0 else [],
                    isClaimable=d >= 0 and d not in st.get('alinan', []))
@@ -119,7 +119,7 @@ class DailyReward:
 
     def deluxe_info(self, now=None):
         now = time.time() if now is None else now
-        st = self.p.d.get('aylik_deluxe')
+        st = self.p.d.get('monthly_deluxe')
         if st and self.deluxe_day(now) >= 0:
             end = datetime.datetime.combine(datetime.date.fromisoformat(st['baslangic']) + datetime.timedelta(days=len(DELUXE)),
                                             datetime.time()).timestamp()
@@ -132,14 +132,14 @@ class DailyReward:
 
     def grant_deluxe(self, n=1):
         """Mağazadan Monthly Deluxe: bugünden 28 gün (sürerken alınırsa bittiği gün başlar)."""
-        st = self.p.d.get('aylik_deluxe')
+        st = self.p.d.get('monthly_deluxe')
         start = today()
         if st and self.deluxe_day() >= 0:
             start = datetime.date.fromisoformat(st['baslangic']) + datetime.timedelta(days=len(DELUXE))
             self.p.add_resource(DELUXE_ITEM, n)                          # sıradaki ay depoda (bitince başlar)
             return []
         with self.p.lock:
-            self.p.d['aylik_deluxe'] = {'baslangic': start.isoformat(), 'alinan': []}
+            self.p.d['monthly_deluxe'] = {'baslangic': start.isoformat(), 'alinan': []}
             self.p.dirty = True
         if n > 1:
             self.p.add_resource(DELUXE_ITEM, n - 1)                      # kalan aylar depoda (yoksa yalnız bir ay veriliyordu)
@@ -147,7 +147,7 @@ class DailyReward:
         return [self.deluxe_info()]
 
     def deluxe_claim(self, f=None):
-        st = self.p.d.get('aylik_deluxe')
+        st = self.p.d.get('monthly_deluxe')
         d = self.deluxe_day()
         if not st or d < 0 or d in st['alinan']:
             return [self.deluxe_day_msg()]
@@ -160,17 +160,17 @@ class DailyReward:
 
     def deluxe_roll(self):
         """Biten aboneliğin yerine depodaki bir sonraki ay."""
-        st = self.p.d.get('aylik_deluxe')
+        st = self.p.d.get('monthly_deluxe')
         if st and self.deluxe_day() < 0 and self.p.resource(DELUXE_ITEM) > 0:
             self.p.add_resource(DELUXE_ITEM, -1)
             with self.p.lock:
-                self.p.d['aylik_deluxe'] = {'baslangic': today().isoformat(), 'alinan': []}
+                self.p.d['monthly_deluxe'] = {'baslangic': today().isoformat(), 'alinan': []}
                 self.p.dirty = True
 
     # ------------------------------------------------------------ Unity istemcisi ödülü
     @property
     def parent(self):
-        st = self.p.d.setdefault('unity_odul', {})
+        st = self.p.d.setdefault('unity_reward', {})
         if not st:
             st.update(baslangic=today().isoformat(), deger={}, tamam=[], alinan=[])
             self.p.dirty = True

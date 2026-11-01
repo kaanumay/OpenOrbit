@@ -62,7 +62,7 @@ def offer_reply(b, name, text, now):
 
 
 def _result(intent, accept, not_, template=None, action=None):
-    return {'niyet': intent, 'kabul': accept, 'not': not_, 'template': template, 'eylem': action}
+    return {'intent': intent, 'kabul': accept, 'not': not_, 'template': template, 'eylem': action}
 
 
 def decision(y, b, intent, name, who, game_map, text, now, mailer=False):
@@ -71,7 +71,7 @@ def decision(y, b, intent, name, who, game_map, text, now, mailer=False):
         return _group(y, b, name, who, now, mailer)
     if intent == 'gorev':
         k = _group(y, b, name, who, now, mailer)          # görev yardımı = gruplanmak: grubun öldürdüğü uzaylı herkesin görevine sayılır
-        k['niyet'] = 'gorev'
+        k['intent'] = 'gorev'
         k['not'] = 'He asks for help with his quest; in a group every kill counts for everyone\'s quest. ' + k['not']
         return k
     if intent == 'duello':
@@ -177,7 +177,7 @@ def _duel(y, b, name, who, game_map, now):
     if b.r.random() >= p:
         return _result('duello', False, 'You decided NOT to fight him (busy or not worth it). Answer in character: a short taunt '
                                        'or a lazy no.', ('duello_ret', {}))
-    candidates = [TL._game_map(game_map) if game_map else None, int(o.profile.d['konum'].get('mapId', 0)), DUEL_MAP]
+    candidates = [TL._game_map(game_map) if game_map else None, int(o.profile.d['position'].get('mapId', 0)), DUEL_MAP]
     m = next((m for m in candidates if m and m in K.MAPS and K.can_enter(m, b.firma, b.level)
               and K.route(b.game_map, m, b.firma, b.level)), None)
     if m is None:
@@ -194,7 +194,7 @@ def _follow(y, b, name, who, game_map, text, now):
         return _result('takip', None, 'He asks where you are: you are on %s. Tell him (just the map, no status report).' % here,
                       ('nerede', {'harita': here}))
     o = _person(name)
-    m = TL._game_map(game_map) if game_map else (int(o.profile.d['konum'].get('mapId', 0)) if o is not None else None)
+    m = TL._game_map(game_map) if game_map else (int(o.profile.d['position'].get('mapId', 0)) if o is not None else None)
     if not m or m not in K.MAPS:
         return _result('takip', None, 'He wants you to come but you do not know where he is: ask him which map.')
     if m == b.game_map:

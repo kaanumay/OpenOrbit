@@ -87,10 +87,10 @@ SCORE_EVENTS = {'plutus': 'GauntletOfPlutus'}
 def register_npcs(types):
     """Kapı ve labirent uzaylılarını NPC türleri olarak ekler (kapi.register_npcs'in biçimi)."""
     for key, g in GATES.items():
-        for n, w in enumerate(g['dalgalar']):
+        for n, w in enumerate(g['waves']):
             for i, a in enumerate(w['uzaylilar']):
                 types[npc_type(key, n, i)] = _tip(a, key)
-        for name, a in g.get('ek_turler', {}).items():
+        for name, a in g.get('extra_kinds', {}).items():
             types[extra_type(key, name)] = _tip(a, key)
         for k in [k for k in types if k.startswith(('eg_%s_' % key))]:
             types[k].setdefault('kalkan_emme', KAPI.GATE_ABSORB)      # kapı uzaylıları %50 (kapi.GATE_ABSORB)
@@ -123,7 +123,7 @@ class EventGates:
 
     @property
     def d(self):
-        return self.p.d.setdefault('etkinlik_kapilari', {})
+        return self.p.d.setdefault('event_gates', {})
 
     def gate(self, key):
         return self.d.setdefault(key, dict(hazir=False, dalga=0, can=GATES[key]['can'], tamam=0))
@@ -199,7 +199,7 @@ class EventGates:
         for i, g in enumerate(out):
             a = -math.pi / 2 + (i - (len(out) - 1) / 2.0) * 0.55
             g['x'], g['y'] = int(cx + math.cos(a) * 2400), int(cy + math.sin(a) * 2400)
-            pos = (GATES.get(g['kapi'], {}).get('konum') or {}).get(str(self.p.d['pilot'].get('factionId')))
+            pos = (GATES.get(g['kapi'], {}).get('position') or {}).get(str(self.p.d['pilot'].get('factionId')))
             if pos:
                 g['x'], g['y'] = pos                    # kaynaklı konum (Devolarium Attack: wiki'nin firma başına X-1 koordinatı)
         return out
@@ -210,20 +210,20 @@ class EventGates:
         g, G = GATES[key], self.gate(key)
         if G.get('hazir'):
             return
-        waves = g['dalgalar']
+        waves = g['waves']
         groups = {}
         for i, w in enumerate(waves):
-            if w.get('secenek'):
-                groups.setdefault(w['secenek'], []).append(i)
+            if w.get('option'):
+                groups.setdefault(w['option'], []).append(i)
         pick = {s: random.choice(v) for s, v in groups.items()}       # "ya da" dalgalarından biri
-        order = [i for i, w in enumerate(waves) if not w.get('secenek') or pick[w['secenek']] == i]
+        order = [i for i, w in enumerate(waves) if not w.get('option') or pick[w['option']] == i]
         if g.get('kural', {}).get('rastgele'):        # aynı haritanın dalgaları kendi aralarında karışır
             by_map = {}
             for i in order:
                 by_map.setdefault(waves[i]['harita'], []).append(i)
             order = []
             maps = sorted(by_map, key=lambda m: min(by_map[m]))
-            if g['kural'].get('portallar'):          # Trial of Terrors: haritalar da karışık, son harita (patron) sonda
+            if g['kural'].get('portals'):          # Trial of Terrors: haritalar da karışık, son harita (patron) sonda
                 head = maps[:-1]
                 random.shuffle(head)
                 maps = head + maps[-1:]
@@ -241,11 +241,11 @@ class EventGates:
     def dest(self, key):
         """Kapıya girince inilecek harita: süren kapıda sıradaki dalganınki, kurulmamışsa ilk dalganınki."""
         G, g, order = self.gate(key), GATES[key], self.order(key)
-        return g['dalgalar'][order[min(G['dalga'], len(order) - 1)]]['harita'] if G.get('hazir') else g['dalgalar'][0]['harita']
+        return g['waves'][order[min(G['dalga'], len(order) - 1)]]['harita'] if G.get('hazir') else g['waves'][0]['harita']
 
     def order(self, key):
         G = self.gate(key)
-        return G.get('sira') or list(range(len(GATES[key]['dalgalar'])))
+        return G.get('sira') or list(range(len(GATES[key]['waves'])))
 
     # ------------------------------------------------------------ portallar
     def exit_portal(self, key, map_id, side=False):
@@ -262,7 +262,7 @@ class EventGates:
         """Sonraki haritanın portalları: kuralın 'portallar' sayısı kadar (Trial of Terrors 3; hepsi rastgele sıradaki haritaya: fandom
         Vortex of Terror "dalgalar portallarla rastgele, hangi portalın hangi dalgaya götürdüğü bilinmez"; oyuncu bildirimi 2026-10-27:
         3 portal, solda üsse dönüş) ya da tek portal."""
-        n = GATES[key].get('kural', {}).get('portallar', 1)
+        n = GATES[key].get('kural', {}).get('portals', 1)
         one = self.next_portal(key, map_id, dest)
         return [dict(one, gateId=one['gateId'] + 200 * j, y=one['y'] + (j - (n - 1) / 2.0) * 1400) for j in range(n)]
 
@@ -297,12 +297,12 @@ class EventGates:
         for loot, n, chance in o.get('sans', []):          # şanslı ödül (Quarantine Box'ın LF-4'ü)
             if random.random() < SET.chance('dusme', chance, 'kapi') and self.m:
                 msgs += self.m.prize(loot, n, 'kapi')
-        if o.get('ruller') and self.m:                     # Karantina: Indoctrine Oil ruloları (forum 140274)
-            loot, rows = o['ruller']
+        if o.get('rolls') and self.m:                     # Karantina: Indoctrine Oil ruloları (forum 140274)
+            loot, rows = o['rolls']
             n = sum(random.randint(*a) if isinstance(a, list) else a for a, c in rows if random.random() < SET.chance('dusme', c, 'kapi'))
             msgs += self.m.prize(loot, n, 'kapi') if n else []
-        bp = o.get('buyuk_paket')
-        if bp and self.m and random.random() < SET.chance('dusme', bp['olasilik'], 'kapi'):     # %0,001 Büyük Ödül Paketi
+        bp = o.get('big_pack')
+        if bp and self.m and random.random() < SET.chance('dusme', bp['probability'], 'kapi'):     # %0,001 Büyük Ödül Paketi
             for loot, n in bp['esyalar']:
                 if loot == 'premium_30':
                     self.p.d['pilot']['premium'] = True        # tek oyunculuda Premium hep açık: yalnız kayıt
@@ -323,7 +323,7 @@ class EventGates:
         self.end(key, now)
         for fn in self.finish_hooks:
             msgs += fn(key)
-        self.p.ach('gate', tur=g.get('kapi_turu') or '%s_GATE' % key.upper())    # istemcinin GalaxyGateType'ı (Birthday: BIRTHDAY)
+        self.p.ach('gate', tur=g.get('gate_kind') or '%s_GATE' % key.upper())    # istemcinin GalaxyGateType'ı (Birthday: BIRTHDAY)
         record = G.get('best_sec') == secs and best != secs
         if record:
             self.p.ach('rekor_plutus')               # şampiyon başarımı (Gauntlet of Plutus; süreli tek kapı): kişisel rekor
@@ -399,7 +399,7 @@ class Run(KAPI.Run):
                 world.add_gate(g)
             world.add_gate(event_gate.exit_portal(key, self.map, side=True))
         else:
-            wait = self.g.get('kural', {}).get('giris_sn')         # Plutus: Normal 1 sn, Kolay 15 sn (forum 143902)
+            wait = self.g.get('kural', {}).get('entry_sec')         # Plutus: Normal 1 sn, Kolay 15 sn (forum 143902)
             self.phase, self.t = 'intro', now + (KAPI.pace('giris_bekleme_sn') if wait is None else wait * SET.multiplier('dalga_bekleme'))
             world.send(self.say('devam' if G['dalga'] else 'giris') + self.k.plutus_cmds(key, now))
         world.log('   %s: dalga %d/%d, can %d (%s)' % (self.g['ad'], G['dalga'] + 1, self.wave_count(), G['can'], self.phase))
@@ -436,8 +436,8 @@ class Run(KAPI.Run):
             if spec and boss.shield <= 0 and now >= self.rad_next and not w.hero_dead and not w.jumping:
                 self.radio_start(boss, spec, now)
         else:
-            if now >= r['sonraki']:
-                r['sonraki'] += 1.0
+            if now >= r['next']:
+                r['next'] += 1.0
                 self.radio_pulse(boss, spec, now)
             if now >= r['bitis']:
                 self.radio_end(now)
@@ -446,12 +446,12 @@ class Run(KAPI.Run):
         w = self.w
         hx, hy = w.hero_pos(now)
         a0, circles = random.uniform(0, 2 * math.pi), []
-        for i in range(spec['daire']):          # biri yakın (uyarı süresinde ulaşılır), ötekiler uzak
-            a = a0 + i * 2 * math.pi / spec['daire']
-            d = random.uniform(*spec['uzaklik']) if i else spec['uzaklik'][0]
+        for i in range(spec['circle']):          # biri yakın (uyarı süresinde ulaşılır), ötekiler uzak
+            a = a0 + i * 2 * math.pi / spec['circle']
+            d = random.uniform(*spec['distance']) if i else spec['distance'][0]
             m = spec['yaricap']
             circles.append((min(max(m, hx + math.cos(a) * d), w.map_w - m), min(max(m, hy + math.sin(a) * d), w.map_h - m)))
-        self.rad = dict(circles=circles, bitis=now + spec['uyari_sn'] + spec['sure_sn'], sonraki=now + spec['uyari_sn'])
+        self.rad = dict(circles=circles, bitis=now + spec['warning_sec'] + spec['sure_sn'], next=now + spec['warning_sec'])
         w.send([KAPI.screen('Plutus: Space Uncertainty! Get into a green circle!', big=True)]
                + [poi('plutusSpaceUncertainty%d' % i, x, y, spec['yaricap']) for i, (x, y) in enumerate(circles)])
         w.log('   %s: radyoaktif alan (%d daire, %d sn)' % (self.g['ad'], len(circles), spec['sure_sn']))
@@ -463,10 +463,10 @@ class Run(KAPI.Run):
         g = w.p.d['gemi']
         if any(math.hypot(hx - x, hy - y) <= spec['yaricap'] for x, y in self.rad['circles']):
             hp0 = g.get('hitPoints', 0)
-            w.p.set_hull(hp=hp0 + spec['iyilesme_sn'])
+            w.p.set_hull(hp=hp0 + spec['heal_sec'])
             w.send([w.hp_msg()] + w.heal_msgs(hp0))
         else:
-            w.send(w.hurt_hero(min(spec['hasar_sn'], int(g.get('hitMax', 1) * spec['azami_oran'])), boss, atype=0, now=now,
+            w.send(w.hurt_hero(min(spec['hasar_sn'], int(g.get('hitMax', 1) * spec['max_ratio'])), boss, atype=0, now=now,
                                source_asset=True))
 
     def radio_end(self, now):
@@ -496,7 +496,7 @@ class Run(KAPI.Run):
     def wave(self):
         G = self.k.gate(self.key)
         order = self.k.order(self.key)
-        return self.g['dalgalar'][order[min(G['dalga'], len(order) - 1)]]
+        return self.g['waves'][order[min(G['dalga'], len(order) - 1)]]
 
     def wave_msgs(self):
         return self.k.plutus_cmds(self.key)
@@ -515,7 +515,7 @@ class Run(KAPI.Run):
         n.gate, n.hunt = True, True
         self.npcs.add(n.id)
         group.add(n.id)
-        if a.get('kalici'):
+        if a.get('permanent'):
             self.keep.add(n.id)
             n.invulnerable = lambda: bool(self.queue) or any(j in self.w.npcs for j in self.guards)
             self.boss = a['gorunen_ad']
@@ -538,7 +538,7 @@ class Run(KAPI.Run):
             self.k.p.dirty = True
         for fn in self.k.wave_hooks:
             self.w.send(fn(self.key, G['total_waves']))
-        if G['dalga'] >= self.wave_count() and self.g.get('kural', {}).get('sonsuz'):
+        if G['dalga'] >= self.wave_count() and self.g.get('kural', {}).get('infinite'):
             with self.k.p.lock:
                 G['dalga'] = 0                      # sonsuz kapı (eski Invasion): son dalgadan sonra baştan
                 self.k.p.dirty = True

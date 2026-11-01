@@ -31,14 +31,14 @@ class BotProfile(PF.Profile):
 
 def _skeleton(bot):
     return {
-        'surum': 1, 'olusturma': '2026-01-01 00:00:00',
+        'surum': 1, 'created': '2026-01-01 00:00:00',
         'pilot': {'userId': bot.uid, 'userName': bot.name, 'factionId': bot.firma, 'clanId': 0, 'clanTag': '', 'level': 1, 'ep': 0,
                   'honourPoints': 0, 'credits': 0, 'uridium': 0, 'premium': False, 'dailyRank': 1, 'useSystemFont': False},
         'gemi': {'typeId': 'ship_phoenix', 'speed': 320, 'shield': 0, 'shieldMax': 0, 'hitPoints': 104000, 'hitMax': 104000},
-        'konum': {'mapId': bot.game_map, 'x': 0, 'y': 0},
-        'gemiler': {'1': {'lootId': 'ship_phoenix', 'hangarId': 1, 'konfigler': {}, 'aktif_konfig': 1}}, 'aktif_gemi': 1,
-        'dronlar': [], 'esyalar': {}, 'madenler': [], 'formasyon': 0, 'ayarlar': {}, 'tus_atamalari': [], 'arayuz': {'featureBars': []},
-        'rehber': bot.k.setdefault('rehber', {}), 'muzayede': bot.k.setdefault('muzayede', {'teklifler': {}}),
+        'position': {'mapId': bot.game_map, 'x': 0, 'y': 0},
+        'gemiler': {'1': {'lootId': 'ship_phoenix', 'hangarId': 1, 'konfigler': {}, 'active_config': 1}}, 'aktif_gemi': 1,
+        'dronlar': [], 'esyalar': {}, 'ores': [], 'formation': 0, 'ayarlar': {}, 'key_bindings': [], 'arayuz': {'featureBars': []},
+        'rehber': bot.k.setdefault('rehber', {}), 'muzayede': bot.k.setdefault('muzayede', {'bids': {}}),
         'posta': bot.k.setdefault('posta', {}),
     }
 
@@ -79,7 +79,7 @@ def update(bot):
         g.update(hitPoints=int(d['can']), shield=int(d['kalkan']))
     else:
         g.update(hitPoints=int(bot.body.hp), shield=int(bot.body.shield))
-    p.d['konum'].update(mapId=bot.game_map, x=int(k.get('x') or 0), y=int(k.get('y') or 0))
+    p.d['position'].update(mapId=bot.game_map, x=int(k.get('x') or 0), y=int(k.get('y') or 0))
     p.d['dronlar'] = [dict(lootId=loot, seviye=1, kimlik=i) for i, (loot, n) in
                       enumerate((l, n) for l, n in k['ekip'].get('dron', {}).items() for _ in range(n))]
 
@@ -94,7 +94,7 @@ def npc_rank_points(tip):
 def ship_rank_points(ship):
     """Yok edilen oyuncu gemisinin rütbe puanı (ranks.json gemi_puan; Goliath 20, Phoenix 1)."""
     import ranks as RT
-    return RT.R['gemi_puan'].get(ship, {}).get('puan', 0)
+    return RT.R['ship_points'].get(ship, {}).get('puan', 0)
 
 
 def points(bot):
@@ -105,10 +105,10 @@ def points(bot):
     import ranks as RT
     F = RT.R['formul']
     k, i = bot.k, bot.k['istat']
-    day = (bot.hour() - k['kayit_t']) // 86400 if k.get('kayit_t') else i.get('sure_sn', 0) // 86400   # eski kayıt: oynadığı süre
+    day = (bot.hour() - k['registered_at']) // 86400 if k.get('registered_at') else i.get('sure_sn', 0) // 86400   # eski kayıt: oynadığı süre
     return k['ep'] * F['ep'] + k['onur'] * F['onur'] + k['seviye'] * F['seviye'] + i.get('npc_puan', 0) * F['npc'] \
         + i.get('oyuncu_puan', 0) * F['oyuncu'] + i.get('gorev', 0) * F['gorev'] + max(0, day) * F['gun'] \
-        + RT.R['gemi_turu'].get(k['ekip']['gemi'], 0) * F['gemi'] + i.get('olum', 0) * F['olum_dusman']
+        + RT.R['ship_type'].get(k['ekip']['gemi'], 0) * F['gemi'] + i.get('olum', 0) * F['olum_dusman']
 
 
 def rank(bot):
@@ -239,7 +239,7 @@ def invites(y, b, now):
     import group as GR
     remaining = []
     for kind, uid, name, t in b.pending:
-        if now - t < b.k['kisilik']['tepki_sn'] * b.r.uniform(3, 9):
+        if now - t < b.k['kisilik']['reaction_sec'] * b.r.uniform(3, 9):
             remaining.append((kind, uid, name, t))
             continue
         if kind == 'grup_kuruldu':
@@ -327,7 +327,7 @@ _TAIL = ('Power', 'Army', 'Force', 'Elite', 'Warriors', 'Family', 'Team', 'Mafia
 def clan_name(b, r, tags=()):
     """Gerçek sunuculardaki gibi klan adı ve etiketi: ikili ad, tek sözcük (bazen süslü, küçük harf ya da sarılı), "The X",
     "Turkish Power"; etiket önce paketin gerçek etiket havuzundan (DOStats), değilse baş harfler, bazen süslü (Λ И Σ)."""
-    lang = b.k['kisilik'].get('ad_dili') or b.k['kisilik'].get('dil')
+    lang = b.k['kisilik'].get('name_lang') or b.k['kisilik'].get('dil')
     tr = lang == 'tr' and r.random() < 0.7
     style = r.choices(('ikili', 'tek', 'the', 'ulke', 'kucuk', 'sarili'), (35, 20, 10, 15 if lang in _ULKE else 0, 10, 10))[0]
     single = r.choice(_SINGLE + (_SUFFIX_TR if tr else _SUFFIX))
@@ -368,7 +368,7 @@ def clan_actions(y, b, now):
             r = random.Random('%s|klan|%d' % (b.name, len(KL.CLANS)))
             kl = KL.Clan(p, log=y.log)
             for _ in range(6):
-                name, tag = clan_name(b, r, y.package.get('klan_etiketleri') or ())
+                name, tag = clan_name(b, r, y.package.get('clan_tags') or ())
                 if KL.Clan.valid_tag(tag) and not kl.taken(name, tag):      # [CM] gibi ayrılmış etiketler olmaz
                     break
             description = 'PvP' if b.o('saldirganlik') > 0.6 else 'PvE & quests'
@@ -393,7 +393,7 @@ def clan_actions(y, b, now):
     pay_tax(b, k)
     kl = KL.Clan(p, log=y.log)
     if kl.right('hiremember', k):
-        for bs in list(k.get('basvurular', [])):
+        for bs in list(k.get('applications', [])):
             if not application_decision(y, b, k, bs, now):
                 continue
             accept = application_decision(y, b, k, bs, now, final=True)
@@ -429,7 +429,7 @@ def pay_tax(b, k):
     b.k['kredi'] = max(0, b.k['kredi'] - pay)
     with KL.LOCK:
         k['kasa'] += pay
-        k['gelir'] = int(k.get('gelir', 0)) + pay
+        k['income'] = int(k.get('income', 0)) + pay
         u = k['uyeler'].get(b.name.lower())
         if u is not None:
             u['contrib_period'] = int(u.get('contrib_period', 0)) + pay     # haftalık ödemede en çok katkı verenlere (klan_yonetim)
@@ -450,7 +450,7 @@ def diplomacy(y, b, k, kl, now):
     ittifak ya da saldırmazlık; başka firmadan, üyelerimizi öldürmüş ya da denk bir klana savaş (500.000 kredi kasadan; kasada
     yoksa lider yatırır); uzayan savaşta barış. Kişilik: sosyallik ittifakı, saldırganlık savaşı, temkin barışı sever."""
     import clan as KL
-    incoming = [r for r in k.get('diplo_istek', []) if r['kime'] == k['id']]
+    incoming = [r for r in k.get('diplomacy_requests', []) if r['to'] == k['id']]
     if incoming and b.r.random() < 0.35:
         r = incoming[0]
         o = KL.CLANS.get(r['kimden'])
@@ -473,7 +473,7 @@ def diplomacy(y, b, k, kl, now):
         return
     existing = {d['klan']: d for d in k.get('diplomasi', [])}
     last = b.k.setdefault('last_diplo', {})            # bir klana teklifi tekrarlamaz: reddedilen ya da yanıtsız kalan 6 saat dinlenir
-    pending = {r['kime'] for r in k.get('diplo_istek', [])} | {r['kimden'] for r in k.get('diplo_istek', [])}
+    pending = {r['to'] for r in k.get('diplomacy_requests', [])} | {r['kimden'] for r in k.get('diplomacy_requests', [])}
     wars = [d for d in existing.values() if d['tur'] == 3]
     for d in wars:                              # uzayan savaş: barış ister
         if d['klan'] not in pending and b.r.random() < 0.15 * (1.2 - b.o('saldirganlik')):
@@ -545,9 +545,9 @@ def pick_clan(y, b, clans):
     çeker ama dolu değil). Başvurusu bekleyen ya da reddedilmiş bot yeniden başvurmaz."""
     candidates = []
     for c in clans:
-        if any(str(x.get('ad', '')).lower() == b.name.lower() for x in c.get('basvurular', [])):
+        if any(str(x.get('ad', '')).lower() == b.name.lower() for x in c.get('applications', [])):
             return None
-        if c.get('firma') and c['firma'] != b.firma or b.name.lower() in [str(r).lower() for r in c.get('retler', [])]:
+        if c.get('firma') and c['firma'] != b.firma or b.name.lower() in [str(r).lower() for r in c.get('rejected', [])]:
             continue
         uy = list(c['uyeler'].values())
         if len(uy) >= 50:
@@ -635,14 +635,14 @@ def auction(y, b, now):
     settle_bot(b, now)
     from . import loot as LT
     free = b.k['kredi'] - b.clan_savings()
-    if free < 3 * MZ.D.get('en_az_teklif', 10000):
+    if free < 3 * MZ.D.get('min_bid', 10000):
         return
     candidates = []
     for lot in list(MZ.LOTS.values()):
         importance = lot_importance(b, lot)
         if importance:
             end = MZ.period_end(lot['tur'], now)
-            own = b.k['muzayede']['teklifler'].get('%s|%s' % (lot['tur'], lot['loot']))
+            own = b.k['muzayede']['bids'].get('%s|%s' % (lot['tur'], lot['loot']))
             candidates.append((importance, lot, end, int(own['teklif']) if own and own.get('bitis') == end else 0))
     defend = [a for a in candidates if a[3] and a[3] <= (MZ.best(MZ.bids(a[1], a[2], skip=b.profile)) or (0,))[0]]
     if defend:
@@ -667,12 +667,12 @@ def auction(y, b, now):
     cap = min(cap, free * (0.5 + (0.45 * ambition if importance >= 3 else 0)))
     rival = MZ.best(MZ.bids(lot, end, skip=b.profile))
     current_time = rival[0] if rival else 0
-    bid = max(MZ.D.get('en_az_teklif', 10000), int(current_time * b.r.uniform(1.05, 1.25)) + MZ.D.get('artis', 1000))
-    if bid > cap and current_time + MZ.D.get('artis', 1000) <= cap:
+    bid = max(MZ.D.get('min_bid', 10000), int(current_time * b.r.uniform(1.05, 1.25)) + MZ.D.get('increase', 1000))
+    if bid > cap and current_time + MZ.D.get('increase', 1000) <= cap:
         bid = int(cap)                          # son kuruşuna kadar: tavanı geçmeden en yüksek
     if bid > cap or not b.pay('C', bid - old):
         return
-    b.k['muzayede']['teklifler'][key] = {'teklif': bid, 'bitis': end, 'zaman': int(now)}
+    b.k['muzayede']['bids'][key] = {'teklif': bid, 'bitis': end, 'time': int(now)}
     b.event('muzayede_teklif', now, esya=loot, teklif=bid)
 
 
@@ -692,12 +692,12 @@ def mail_tasks(y, b, now):
     with p.lock:
         incoming = [r for r in p.d.get('posta', {}).get('gelen', ()) if r.get('durum') == PS.UNREAD]
     for r in incoming:
-        if r.get('tur') not in (PS.USER, PS.CLAN) or str(r.get('gonderen', '')).lower() in y.name_index or not r.get('gonderen'):
+        if r.get('tur') not in (PS.USER, PS.CLAN) or str(r.get('sender', '')).lower() in y.name_index or not r.get('sender'):
             with p.lock:
                 r['durum'] = PS.READ                       # sistem, müzayede, bot postası: okunur geçilir
             continue
         seen = r.setdefault('_bot_seen', now)
-        if now - seen < b.k['kisilik']['tepki_sn'] * 20 + b.r.uniform(30, 300):
+        if now - seen < b.k['kisilik']['reaction_sec'] * 20 + b.r.uniform(30, 300):
             continue                                         # postaya hemen değil, birkaç dakika sonra bakar
         with p.lock:
             r['durum'] = PS.READ
@@ -710,7 +710,7 @@ def mail_template(b, k):
     from . import speech as SPC
     if not k:
         return None
-    if k['niyet'] == 'grup':
+    if k['intent'] == 'grup':
         return SPC.template(b, 'posta_grup_evet' if k['kabul'] else 'posta_grup_hayir')
     text = SPC.template(b, k['template'][0], **k['template'][1]) if k.get('template') else None
     return text and (text + ', ' + SPC.template(b, 'posta_cevap') if len(text.split()) < 4 else text)
@@ -721,9 +721,9 @@ def reply_mail(y, b, r, now):
     from . import interaction as IX
     from . import speech as SPC
     import community as TP
-    name = r['gonderen']
+    name = r['sender']
     o = TP.find(name=name)
-    who = {'userId': name, 'id': str(r.get('gonderen_id', 0)),
+    who = {'userId': name, 'id': str(r.get('sender_id', 0)),
            'factionId': str(o.profile.d['pilot'].get('factionId', 0)) if o is not None else '0'}
     text = '%s\n%s' % (r.get('konu', ''), r.get('metin', ''))
     intent, game_map = SPC.intent(text)
@@ -742,7 +742,7 @@ def reply_mail(y, b, r, now):
 def settle_bot(b, now):
     """Biten dönemlerdeki bot teklifleri: en yüksekse eşya, değilse kredi geri."""
     import auction as MZ
-    t = b.k['muzayede']['teklifler']
+    t = b.k['muzayede']['bids']
     for key, bid in list(t.items()):
         if bid['bitis'] + 120 > now:
             continue                                     # oyuncunun sonucu (Muzayede.settle) bot teklifini görsün diye biraz sonra
@@ -754,7 +754,7 @@ def settle_bot(b, now):
             g = b.k['muzayede'].setdefault('gecmis', [])          # oyuncunun müzayede geçmişi de gösterir (Muzayede.history)
             g.insert(0, {'grup': lot['grup'], 'kim': b.uid, 'teklif': int(bid['teklif']), 'tarih': MZ.stamp(bid['bitis'] - MZ.SPAN[kind]),
                          'loot': loot, 'tur': kind, 'ad': b.name})
-            del g[MZ.D['gecmis_siniri']:]
+            del g[MZ.D['history_limit']:]
             if not b.add(loot, lot.get('adet', 1)):
                 b.earn(kredi=int(bid['teklif']) // 2)       # işine yaramayan: satar (yarı değer)
             b.event('muzayede_kazandi', now, esya=loot)

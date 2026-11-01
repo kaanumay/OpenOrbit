@@ -83,15 +83,15 @@ class Astral:
 
     def ship_list(self):
         from shop import ITEMS
-        y, out = D['yukleme'], []
+        y, out = D['loadout'], []
         dr = y['dronlar']
-        drones = [mod('RogueLiteDroneModule', lootId=dr['tur'], level=6, equipments=[self.item_mod(dr['lazer'], 0)] * dr['dron_basina'])
+        drones = [mod('RogueLiteDroneModule', lootId=dr['tur'], level=6, equipments=[self.item_mod(dr['lazer'], 0)] * dr['per_drone'])
                   for _ in range(dr['adet'])]
         eq = [self.item_mod(l, lvl - 1, n) for slot in ('laser', 'generators', 'extra') for l, n, lvl in y[slot]]
         for s in D['gemiler']:
             row = ITEMS['gemiler'].get(s['lootId'], {})
-            out.append(mod('RogueLiteShipModule', petEquipments=[], speed=row.get('temel_hiz', 300), drones=drones, lootId=s['lootId'],
-                           loadOutId=s['yukleme'], hp=row.get('hp', 0), shipId=s['shipId'], shield=0, equipments=eq, spread=0))
+            out.append(mod('RogueLiteShipModule', petEquipments=[], speed=row.get('base_speed', 300), drones=drones, lootId=s['lootId'],
+                           loadOutId=s['loadout'], hp=row.get('hp', 0), shipId=s['shipId'], shield=0, equipments=eq, spread=0))
         return ('RogueLiteSelectShipCommand', dict(modifierList=[], shipList=out))
 
     def gate_jump(self):
@@ -103,7 +103,7 @@ class Astral:
 
     def select_ship(self, f):
         """RogueLiteSelectShipRequest {loadoutId} -> hedef harita ya da None."""
-        ship = next((s for s in D['gemiler'] if s['yukleme'] == f.get('loadoutId')), None)
+        ship = next((s for s in D['gemiler'] if s['loadout'] == f.get('loadoutId')), None)
         if not ship or self.run or not self.st.get('kapi'):
             return None
         self.loan(ship)
@@ -112,7 +112,7 @@ class Astral:
     # ------------------------------------------------------------ kiralık donanım
     def loan(self, ship):
         """Kiralık gemi, eşyalar, dronlar ve cephane; koşu kaydı."""
-        p, y = self.p, D['yukleme']
+        p, y = self.p, D['loadout']
         sid = str(p.add_ship(ship['lootId']))
         cfg = p.d['gemiler'][sid]['konfigler']['1']
         lv = p.d.setdefault('yukseltme_seviye', {})
@@ -129,13 +129,13 @@ class Astral:
         for k in range(dr['adet']):
             did = 990000 + k
             drones.append({'kimlik': did, 'lootId': dr['tur'], 'seviye': 6, 'puan': 0, 'yukseltme': 1})
-            ids = [p.new_item(dr['lazer']) for _ in range(dr['dron_basina'])]
+            ids = [p.new_item(dr['lazer']) for _ in range(dr['per_drone'])]
             dcfg[str(did)] = ids
             items += ids
         with p.lock:
             p.d['gemiler'][sid]['on_loan'] = True
-            self.st['kosu'] = dict(gemi=ship['lootId'], shipId=ship['shipId'], sid=sid, rift=1, tur=None, cilgin=False, puan=0, atlas=0,
-                                   envanter=[], esyalar=items, icerde=False, bas=time.time(),
+            self.st['kosu'] = dict(gemi=ship['lootId'], shipId=ship['shipId'], sid=sid, rift=1, tur=None, frenzied=False, puan=0, atlas=0,
+                                   envanter=[], esyalar=items, inside=False, bas=time.time(),
                                    rented=dict(dronlar=drones, cephane=dict(y['cephane']), secili=None))
             self.st['kapi'] = False
             p.dirty = True
@@ -145,7 +145,7 @@ class Astral:
     def swap_in(self):
         """Kiralık donanım etkin (oyuncununki koşuda saklanır)."""
         r, p = self.run, self.p
-        if not r or r['icerde']:
+        if not r or r['inside']:
             return
         k = r['rented']
         with p.lock:
@@ -155,7 +155,7 @@ class Astral:
                 p.d['secili'] = k['secili']
             else:
                 p.d['secili'] = {'lazer': 'ammunition_laser_lcb-10', 'roket': 'ammunition_rocket_r-310'}
-            r['icerde'] = True
+            r['inside'] = True
             p.dirty = True
         self.m.activate({'shipId': r['sid']})
         self.log('   Astral: kiralık donanım etkin')
@@ -163,13 +163,13 @@ class Astral:
     def swap_out(self):
         """Oyuncunun donanımı geri (kiralıklar koşuda saklanır)."""
         r, p = self.run, self.p
-        if not r or not r['icerde']:
+        if not r or not r['inside']:
             return
         y = r['yedek']
         with p.lock:
             r['rented'].update(dronlar=p.d['dronlar'], cephane=p.d['cephane'], secili=dict(p.d.get('secili', {})))
             p.d['dronlar'], p.d['cephane'], p.d['secili'] = y['dronlar'], y['cephane'], y['secili']
-            r['icerde'] = False
+            r['inside'] = False
             p.dirty = True
         self.m.activate({'shipId': y['aktif']})
         self.log('   Astral: oyuncunun donanımı geri')
@@ -212,23 +212,23 @@ class Astral:
         return D['haritalar'][(self.run['rift'] - 1) % len(D['haritalar'])]
 
     def rift(self):
-        return D['riftler'][self.run['rift'] - 1]
+        return D['rifts'][self.run['rift'] - 1]
 
     def waves(self):
-        sets = self.rift()['setler']
-        return sets[1 if self.run['cilgin'] and len(sets) > 1 else 0]      # kaynağın iki örnek koşusu: normal ve çılgın
+        sets = self.rift()['sets']
+        return sets[1 if self.run['frenzied'] and len(sets) > 1 else 0]      # kaynağın iki örnek koşusu: normal ve çılgın
 
     def wave_count(self):
         return len(self.waves())
 
     def scale(self, n, i, wave):
-        r, o, rf = self.run, D['olcek'], self.rift()
+        r, o, rf = self.run, D['scale'], self.rift()
         k = r['rift'] - 1
-        hp = (1 + o['rift_can'] * k) * (o['cilgin_can'] if r['cilgin'] else 1)
-        dmg = (1 + o['rift_hasar'] * k) * (o['cilgin_hasar'] if r['cilgin'] else 1)
+        hp = (1 + o['rift_hp'] * k) * (o['frenzied_hp'] if r['frenzied'] else 1)
+        dmg = (1 + o['rift_damage'] * k) * (o['frenzied_damage'] if r['frenzied'] else 1)
         if rf['patron']:
-            hp *= o['patron_can'][rf['ad']]
-            dmg *= o['patron_hasar'][rf['ad']]
+            hp *= o['boss_hp'][rf['ad']]
+            dmg *= o['boss_damage'][rf['ad']]
         return PS.scale_npc(n, hp, dmg, 0)          # Astral'da uzaylılar EP/onur/kredi/uridyum/kargo vermez
 
     def attach(self, world):
@@ -255,7 +255,7 @@ class Astral:
     def wave_started(self, i):
         r = self.run                                     # istemcinin metni: "%NAME% - Rift %RIFT% Wave %WAVE%"
         self.world.send([KAPI.screen('key:log_astralascension_wave_name', big=True, RIFT=r['rift'], WAVE=i + 1,
-                                 NAME='Astral Ascension' + (' (Frenzied)' if r['cilgin'] else ''))])
+                                 NAME='Astral Ascension' + (' (Frenzied)' if r['frenzied'] else ''))])
         if self.rift()['patron']:
             self.run['wave_start'] = time.time()
 
@@ -268,7 +268,7 @@ class Astral:
     def rift_done(self, now):
         r, w, rf = self.run, self.world, self.rift()
         S = D['puan']
-        pts = S['per_frenzied_rift_cleared'] if r['cilgin'] else S['per_rift_cleared']
+        pts = S['per_frenzied_rift_cleared'] if r['frenzied'] else S['per_rift_cleared']
         if rf['patron']:
             g = self.p.d['gemi']
             pct = 100.0 * g.get('hitPoints', 0) / max(1, g.get('hitMax', 1))
@@ -281,7 +281,7 @@ class Astral:
             self.p.dirty = True
         msgs = [KAPI.screen('Rift %d cleared! +%d points' % (r['rift'], pts), big=True)]
         self.log('   Astral rift %d bitti: +%d puan (%d)' % (r['rift'], pts, r['puan']))
-        if r['rift'] >= len(D['riftler']):
+        if r['rift'] >= len(D['rifts']):
             w.send(msgs + self.end_run(16, final=True))
             w.add_gate(self.exit_portal(w))
             return
@@ -305,14 +305,14 @@ class Astral:
         t = r.get('tur')
         if not t:
             return []
-        lvl_bonus = 3 if r['cilgin'] else 0
+        lvl_bonus = 3 if r['frenzied'] else 0
         pool = D['havuz'].get(t, [])
         if t == 'can':
             return self.heal(0.5) + [KAPI.screen('50% of your hit points restored.')]
         if t == 'cephane':
             msgs = []
             for loot, lo, hi in random.sample(pool, 2):
-                n = int(random.randint(lo, hi) * (1.5 if r['cilgin'] else 1))
+                n = int(random.randint(lo, hi) * (1.5 if r['frenzied'] else 1))
                 with self.p.lock:
                     self.p.d['cephane'][loot] = self.p.d['cephane'].get(loot, 0) + n
                     self.p.dirty = True
@@ -320,7 +320,7 @@ class Astral:
             return msgs
         if t == 'kaynak':
             loot, lo, hi = pool[0]
-            n = int(random.randint(lo, hi) * (1.5 if r['cilgin'] else 1))
+            n = int(random.randint(lo, hi) * (1.5 if r['frenzied'] else 1))
             r['atlas'] += n
             return [KAPI.screen('+%d Atlas Shard (booked at the end of the run)' % n)]
         picks = []
@@ -380,11 +380,11 @@ class Astral:
         """İki ödül kapısı (türleri rastgele; can kapısının çılgını yok) ve çıkış."""
         w = self.world
         x, y = w.map_w // 2, w.map_h // 2
-        kinds = random.sample(D['kapi_turleri'], 2)
+        kinds = random.sample(D['gate_kinds'], 2)
         for i, k in enumerate(kinds):
-            crazy = bool(k['cilgin']) and random.random() < 0.35
-            w.add_gate(dict(gateId=PORTAL + 10 + i, x=x - 1500 + 3000 * i, y=y - 1200, hedef=0, designId=k['cilgin'] if crazy else k['tasarim'],
-                            kapi='astral', pencere='astral_odul', tur=k['ad'], cilgin=crazy))
+            crazy = bool(k['frenzied']) and random.random() < 0.35
+            w.add_gate(dict(gateId=PORTAL + 10 + i, x=x - 1500 + 3000 * i, y=y - 1200, hedef=0, designId=k['frenzied'] if crazy else k['tasarim'],
+                            kapi='astral', pencere='astral_odul', tur=k['ad'], frenzied=crazy))
         w.add_gate(self.exit_portal(w))
         w.send([self.info_cmd(at_gate=True)])
 
@@ -397,9 +397,9 @@ class Astral:
         """Ödül kapısına atlandı: sonraki rift o türle -> hedef harita."""
         r = self.run
         with self.p.lock:
-            r.update(rift=r['rift'] + 1, tur=g['tur'], cilgin=g['cilgin'], temiz=False)
+            r.update(rift=r['rift'] + 1, tur=g['tur'], frenzied=g['frenzied'], temiz=False)
             self.p.dirty = True
-        self.log('   Astral: rift %d (%s%s)' % (r['rift'], g['tur'], ', çılgın' if g['cilgin'] else ''))
+        self.log('   Astral: rift %d (%s%s)' % (r['rift'], g['tur'], ', çılgın' if g['frenzied'] else ''))
         return self.rift_map()
 
     def leaving(self):

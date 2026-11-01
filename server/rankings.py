@@ -12,7 +12,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 _P = os.path.join(HERE, 'data', 'ranking_rewards.json')
 _D = json.load(open(_P, encoding='utf8')) if os.path.exists(_P) else {}
 TABLES = {int(k): v for k, v in _D.get('tablolar', {}).items()}
-SET_TITLES = {t for k, v in _D.get('unvan_setleri', {}).items() if not k.startswith('_') for t in v}
+SET_TITLES = {t for k, v in _D.get('title_sets', {}).items() if not k.startswith('_') for t in v}
 MONTHS = ('jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec')
 PLUTUS, EBL, ASTRAL = 2, 7, 9
 DEFAULT_REWARD, PAYLOAD_ESCORT_REWARD = 3, 6                 # EventRewardConfirmationCommand.RewardType
@@ -29,7 +29,7 @@ def range_mod(r):
 
 def ranges(rank_type):
     """Pencerenin ödül aralıkları (bilgi komutunun playerRanges / playerRankRanges alanı)."""
-    return [range_mod(r) for r in TABLES.get(rank_type, {}).get('araliklar', [])]
+    return [range_mod(r) for r in TABLES.get(rank_type, {}).get('ranges', [])]
 
 
 def reward(f):
@@ -38,7 +38,7 @@ def reward(f):
     if not t:
         return None
     n = int(f.get('ranking') or 0)
-    r = next((r for r in t['araliklar'] if r['den'] <= n <= r['e']), None)
+    r = next((r for r in t['ranges'] if r['den'] <= n <= r['e']), None)
     if not r:
         return []
     return [('RankRewardCommand', dict(rankType=int(f['rankType']), rewardContentModuleList=items(r), rewardRange=range_mod(r)))]

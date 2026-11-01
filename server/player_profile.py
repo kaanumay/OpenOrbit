@@ -44,9 +44,9 @@ def window_events(item_id):
     if keys is not None:
         return keys
     if item_id == 'miniclient_reward':       # Mini Client ödülü: türlerinde MiniClientReward olanlar (gunluk_odul.py; dışında boş açılırdı)
-        return tuple(k for k, e in CAL.EVENTS.items() if 'MiniClientReward' in e.get('turler', []))
+        return tuple(k for k, e in CAL.EVENTS.items() if 'MiniClientReward' in e.get('kinds', []))
     return tuple(k for k, e in CAL.EVENTS.items() for s in ([e['harita']] if 'harita' in e else []) + e.get('harita_ek', [])
-                 if INDICATOR_WINDOWS.get((s.get('bilgi') or {}).get('komut')) == item_id)
+                 if INDICATOR_WINDOWS.get((s.get('bilgi') or {}).get('command')) == item_id)
 
 
 def event_window_visible(item_id, now=None, hooks=None):
@@ -79,9 +79,10 @@ import technology as TECH
 import bank as BANK
 import map_links as H
 import paths as PTH
+import save_migration as SM
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-PROFILE_PATH = os.path.join(HERE, 'save', 'profil.json')     # eski düzen; etkin yuva: yollar.profile_path()
+PROFILE_PATH = os.path.join(HERE, 'save', 'profile.json')     # eski düzen; etkin yuva: yollar.profile_path()
 
 PILOT_FIELDS = ('userId', 'userName', 'factionId', 'clanId', 'clanTag', 'level', 'ep', 'honourPoints', 'credits', 'uridium', 'premium',
                 'dailyRank', 'galaxyGatesDone', 'expansionStage', 'jackpot', 'useSystemFont', 'captainEnergy', 'maxCaptainEnergy')
@@ -154,7 +155,7 @@ def _formations():
 
 
 def lab_data():
-    return item()['laboratuvar']
+    return item()['lab']
 
 
 def formation_id(loot_id):
@@ -165,7 +166,7 @@ def formation_id(loot_id):
 
 def formation_drones_ok(p, loot_id):
     """Formasyon için yeterli dron var mı (Arrow ve Dome 4, Heart ve Pincer 6: formasyonlar.asgari_dron; wiki)."""
-    return len(p.d['dronlar']) >= item()['formasyon_kurallari'].get(loot_id, {}).get('asgari_dron', 0)
+    return len(p.d['dronlar']) >= item()['formation_rules'].get(loot_id, {}).get('asgari_dron', 0)
 
 
 def formation_loot(fid):
@@ -210,7 +211,7 @@ class Profile:
         if d is not None:
             self.d = d
         elif not created:
-            self.d = json.load(open(path, encoding='utf8'))
+            self.d = SM.migrate_obj(json.load(open(path, encoding='utf8')))   # eski biçimli profil (içe aktarılan, --profile=...)
         else:
             self.d = self._from_seed(self.seed)
             self.dirty = True
@@ -231,14 +232,14 @@ class Profile:
         si.update(t.get('ShipInitializationCommand') or {})
         d = {
             'surum': 1,
-            'olusturma': time.strftime('%Y-%m-%d %H:%M:%S'),
+            'created': time.strftime('%Y-%m-%d %H:%M:%S'),
             'pilot': {k: si.get(k) for k in PILOT_FIELDS if k in si},
             'gemi': {k: si.get(k) for k in SHIP_FIELDS if k in si},
-            'konum': {'mapId': si['mapId'], 'x': si['x'], 'y': si['y']},
-            'madenler': (t.get('AttributeOreCountUpdateCommand') or {}).get('oreCountList', []),
-            'formasyon': (t.get('DroneFormationChangeCommand') or {}).get('selectedFormationId', 0),
+            'position': {'mapId': si['mapId'], 'x': si['x'], 'y': si['y']},
+            'ores': (t.get('AttributeOreCountUpdateCommand') or {}).get('oreCountList', []),
+            'formation': (t.get('DroneFormationChangeCommand') or {}).get('selectedFormationId', 0),
             'ayarlar': t.get('UserSettingsCommand') or {},
-            'tus_atamalari': (t.get('UserKeyBindingsUpdate') or {}).get('changedKeyBindings', []),
+            'key_bindings': (t.get('UserKeyBindingsUpdate') or {}).get('changedKeyBindings', []),
             'arayuz': t.get('UILayoutCommand') or {'featureBars': []},
         }
         # kopya: tohumun sözlükleri paylaşılınca profilin değişiklikleri (ayarlar, arayüz, tuşlar) aynı süreçte açılan sonraki yeni
@@ -251,12 +252,12 @@ class Profile:
         if 'ekipman' not in self.d:
             self.d['ekipman'] = t.get('ekipman') or {'laser': ['equipment_weapon_laser_lf-1'], 'generators': [], 'extra': [], 'rocket': []}
             self.dirty = True
-        if not self.d.get('cephane_tohum'):
+        if not self.d.get('ammo_seeded'):
             got = self.d.get('cephane', {})          # bonus kutularından gelenler tohumun üstüne eklenir
             base = dict(t.get('cephane') or {'ammunition_laser_lcb-10': 1000, 'ammunition_rocket_r-310': 20})
             for k, v in got.items():
                 base[k] = base.get(k, 0) + v
-            self.d['cephane'], self.d['cephane_tohum'] = base, True
+            self.d['cephane'], self.d['ammo_seeded'] = base, True
             self.dirty = True
         for k in [k for k in self.d.get('cephane', {}) if k.startswith('resource_')]:
             # Dünya Editörü'nün bonus kutusundaki kaynaklar (ABR …) cephaneye yazılıyordu (oyuncu bildirimi 2026-10-30): depoya
@@ -274,28 +275,28 @@ class Profile:
             if t.get('konfigler') and t.get('esyalar'):
                 self.d['esyalar'] = dict(t['esyalar'])
                 self.d['konfigler'] = json.loads(json.dumps(t['konfigler']))
-                self.d['aktif_konfig'] = t.get('aktif_konfig', 1)
+                self.d['active_config'] = t.get('active_config', 1)
             else:
                 self.d['esyalar'], cfg = {}, {}
                 for slot, loots in self.d['ekipman'].items():
                     cfg[slot] = [self._add_item(loot) for loot in loots]
                 self.d['konfigler'] = {'1': cfg, '2': json.loads(json.dumps(cfg))}
-                self.d['aktif_konfig'] = 1
+                self.d['active_config'] = 1
             self.dirty = True
         if 'sonraki_kimlik' not in self.d:
             self.d['sonraki_kimlik'] = max([int(i) for i in self.d['esyalar']] + [99000000]) + 1
             self.dirty = True
         if 'gemiler' not in self.d:
             # birden çok gemi: her geminin kendi kimliği, hangar kimliği ve iki config'i (kayıttaki Liberator kimlikleriyle başlar)
-            k = t.get('gemi_kimlik') or {'shipId': 1, 'hangarId': 1}
+            k = t.get('ship_ids') or {'shipId': 1, 'hangarId': 1}
             self.d['gemiler'] = {str(k['shipId']): {
                 'lootId': self.d['gemi'].get('typeId', 'ship_liberator'), 'hangarId': k['hangarId'],
-                'konfigler': self.d.pop('konfigler'), 'aktif_konfig': self.d.pop('aktif_konfig', 1), 'favori': False}}
+                'konfigler': self.d.pop('konfigler'), 'active_config': self.d.pop('active_config', 1), 'favori': False}}
             self.d['aktif_gemi'] = str(k['shipId'])
             self.dirty = True
         if 'dronlar' not in self.d:
             # dronlar: sıra = gemi çevresindeki konum; formasyonlar: satın alınanlar (standart her zaman var)
-            self.d['dronlar'], self.d['formasyonlar'], self.d['sonraki_dron'] = [], [], 1
+            self.d['dronlar'], self.d['formasyonlar'], self.d['next_drone'] = [], [], 1
             self.dirty = True
         self.sync_cargo()
         if 'yukseltmeler' not in self.d:
@@ -317,7 +318,7 @@ class Profile:
         run = ((self.d.get('pve') or {}).get('astral') or {}).get('kosu') or {}
         backup = run.get('yedek') or {}
         own = [(self.d['aktif_gemi'], self.d['dronlar'])]
-        if run.get('icerde') and backup.get('aktif') in self.d['gemiler']:
+        if run.get('inside') and backup.get('aktif') in self.d['gemiler']:
             own = [(backup['aktif'], backup.get('dronlar', [])), (self.d['aktif_gemi'], self.d['dronlar'])]
         for sid, drones in own:
             for x in drones:
@@ -429,7 +430,7 @@ class Profile:
     def ship_init(self):
         f = dict(DEFAULT_SHIP_INIT)
         f.update(self.seed.get('ShipInitializationCommand') or {})
-        f.update(self.d['pilot']); f.update(self.d['gemi']); f.update(self.d['konum'])
+        f.update(self.d['pilot']); f.update(self.d['gemi']); f.update(self.d['position'])
         f['premium'] = self.premium      # Profile yazılmaz
         import galaxy_gates as KAPI
         f['galaxyGatesDone'] = KAPI.rings(self)     # kapı halkaları: tamamlanan kapıların bit maskesi
@@ -452,7 +453,7 @@ class Profile:
         b['repairBotSkilled'] = SKILL.maxed(self, '13')       # Engineering 5/5: mavi tamir robotu (resmî SSS)
         if rep:
             b['repairRobotLootId'] = rep
-        x, y = pos if pos else (self.d['konum']['x'], self.d['konum']['y'])
+        x, y = pos if pos else (self.d['position']['x'], self.d['position']['y'])
         b.update(positionX=int(x), positionY=int(y), positionAheadX=int(x), positionAheadY=int(y), inRadiationZone=radiation,
                  nearJumpGate=near_gate)
         inside = False
@@ -477,7 +478,7 @@ class Profile:
                 a = dict(a, qualitySettingsModule=dict(q, notSet=False, qualityCustomized=False, **high))
             return 'UserSettingsCommand', a
         if marker == '@tuslar':
-            return 'UserKeyBindingsUpdate', {'changedKeyBindings': self.d['tus_atamalari']}
+            return 'UserKeyBindingsUpdate', {'changedKeyBindings': self.d['key_bindings']}
         if marker == '@arayuz':
             # P.E.T. penceresinin çubuk öğesi P.E.T. varsa görünür (kayıttaki hesapta P.E.T. yoktu: visible false)
             ui = json.loads(json.dumps(self.d['arayuz']))
@@ -510,13 +511,13 @@ class Profile:
                     bar['featureBarOrder'] = str(ws[order])
             return 'UILayoutCommand', ui
         if marker == '@madenler':
-            return 'AttributeOreCountUpdateCommand', {'oreCountList': self.d['madenler']}
+            return 'AttributeOreCountUpdateCommand', {'oreCountList': self.d['ores']}
         if marker == '@formasyon':
-            return 'DroneFormationChangeCommand', {'uid': self.user_id, 'selectedFormationId': self.d['formasyon']}
+            return 'DroneFormationChangeCommand', {'uid': self.user_id, 'selectedFormationId': self.d['formation']}
         if marker == '@giris_yaniti':
             return 'LoginResponse', {'status': 0}
         if marker == '@isaret':
-            at_portal = bool(self.d['konum'].get('portalda'))
+            at_portal = bool(self.d['position'].get('portalda'))
             return 'BeaconCommand', self.beacon(station, near_gate=at_portal, gate_peace=at_portal)
         return None
 
@@ -570,25 +571,25 @@ class Profile:
     def add_ores(self, ores):
         """{cevher türü: adet} ekler -> güncel OreCountModule listesi."""
         with self.lock:
-            cur = {m['oreType']['typeValue']: m['count'] for m in self.d['madenler']}
+            cur = {m['oreType']['typeValue']: m['count'] for m in self.d['ores']}
             for t, n in ores.items():
                 cur[int(t)] = cur.get(int(t), 0) + n
-            self.d['madenler'] = [{'_': 'OreCountModule', 'oreType': {'_': 'OreTypeModule', 'typeValue': t}, 'count': n}
+            self.d['ores'] = [{'_': 'OreCountModule', 'oreType': {'_': 'OreTypeModule', 'typeValue': t}, 'count': n}
                                   for t, n in sorted(cur.items()) if n > 0]
             self.sync_cargo()
             self.dirty = True
-            return self.d['madenler']
+            return self.d['ores']
 
     def remove_ores(self, ores):
         """{cevher türü: adet} çıkarır (satış) -> güncel liste; biten tür listeden düşer (kayıt: satıştan sonraki liste)."""
         return self.add_ores({t: -n for t, n in ores.items()})
 
     def ore_count(self, t):
-        return next((m['count'] for m in self.d['madenler'] if m['oreType']['typeValue'] == int(t)), 0)
+        return next((m['count'] for m in self.d['ores'] if m['oreType']['typeValue'] == int(t)), 0)
 
     def cargo_used(self):
         """Kargodaki cevherler (her biri 1 birim; kayıt: 73 cevherle boş alan 400 -> 327). Xenomit ve etkinlik malzemeleri sayılmaz."""
-        return sum(m['count'] for m in self.d['madenler'] if m['oreType']['typeValue'] in self.CARGO_ORES)
+        return sum(m['count'] for m in self.d['ores'] if m['oreType']['typeValue'] in self.CARGO_ORES)
 
     def cargo_free(self):
         import settings as SET
@@ -701,7 +702,7 @@ class Profile:
         geminin bonusuna eklenir)."""
         s = self.ship(sid)
         row = item()['gemiler'].get(s['lootId'], {})
-        over = item().get('tasarimlar', {}).get(s.get('tasarim') or '')
+        over = item().get('designs', {}).get(s.get('tasarim') or '')
         if not over or not row:
             return row
         out = dict(row, **{k: v for k, v in over.items() if k != 'bonus'})
@@ -717,11 +718,11 @@ class Profile:
 
     @property
     def active_config(self):
-        return self.ship()['aktif_konfig']
+        return self.ship()['active_config']
 
     def config(self, cid=None, sid=None):
         s = self.ship(sid)
-        return s['konfigler'].setdefault(str(cid or s['aktif_konfig']), {})
+        return s['konfigler'].setdefault(str(cid or s['active_config']), {})
 
     def equipped_ids(self):
         """Herhangi bir geminin herhangi bir config'inde takılı eşya kimlikleri."""
@@ -757,7 +758,7 @@ class Profile:
     def pet_config(self, cid=None, sid=None):
         """Bir geminin bir config'inde (varsayılan: etkin gemi, onun etkin config'i) P.E.T. yuvası -> takılı eşya kimlikleri."""
         s = self.ship(sid)
-        return s.setdefault('pet_konfig', {}).setdefault(str(cid or s['aktif_konfig']), {})
+        return s.setdefault('pet_konfig', {}).setdefault(str(cid or s['active_config']), {})
 
     def loadout(self, sid=None, cid=None):
         """Bir geminin bir config'indeki ekipman: yuva -> lootId listesi."""
@@ -785,7 +786,7 @@ class Profile:
     def drone_config(self, cid=None, sid=None):
         """Bir geminin bir config'inde dron kimliği (metin) -> takılı eşya kimlikleri."""
         s = self.ship(sid)
-        return s.setdefault('dron_konfig', {}).setdefault(str(cid or s['aktif_konfig']), {})
+        return s.setdefault('dron_konfig', {}).setdefault(str(cid or s['active_config']), {})
 
     def drone_loadout(self, sid=None, cid=None):
         """Dron sırasıyla [(dron kaydı, [lootId …])] (hasar ve kalkan hesabı)."""
@@ -801,18 +802,18 @@ class Profile:
 
     def formation(self):
         """Seçili formasyonun bonusları (lazer, roket, kalkan, can, hiz, emme, kacinma, roket_bekleme, ep, onur)."""
-        return _formations().get(formation_loot(self.d.get('formasyon', 0)), {})
+        return _formations().get(formation_loot(self.d.get('formation', 0)), {})
 
     def drone_designs(self, cid=None, sid=None):
         """Bir geminin bir config'inde (varsayılan: etkin gemi, onun etkin config'i) dron kimliği (metin) -> {tasarim, gorunum}."""
         s = self.ship(sid)
-        return s.setdefault('dron_tasarim', {}).setdefault(str(cid or s['aktif_konfig']), {})
+        return s.setdefault('dron_tasarim', {}).setdefault(str(cid or s['active_config']), {})
 
     def drone_design_id(self, x, slot, cid=None, sid=None):
         """Dronun bir geminin bir config'indeki (varsayılan: etkin) tasarımı ('design', bonuslu) ya da görünümü ('visual') -> eşya
         kimliği."""
         s = self.ship(sid)
-        return s.get('dron_tasarim', {}).get(str(cid or s['aktif_konfig']), {}).get(str(x['kimlik']), {}).get(DESIGN_KEYS[slot])
+        return s.get('dron_tasarim', {}).get(str(cid or s['active_config']), {}).get(str(x['kimlik']), {}).get(DESIGN_KEYS[slot])
 
     def set_drone_design(self, x, slot, iid, cid=None, sid=None):
         """Dronun tasarım/görünüm yuvasına eşya (None: boşalt)."""
@@ -839,11 +840,11 @@ class Profile:
         looks = [self.drone_design(x, 'design', cid, sid) for x in self.d.get('dronlar', [])]
         out = {}
         for l in looks:
-            for k, v in designs.get(l or '', {}).get('dron_basina', {}).items():
+            for k, v in designs.get(l or '', {}).get('per_drone', {}).items():
                 out[k] = out.get(k, 0) + v
-        grp = lambda l: designs.get(l or '', {}).get('takim_grubu', l)     # Demon Gümüş ve Epic karışık da "tüm dronlar Demon" (forum 127526)
+        grp = lambda l: designs.get(l or '', {}).get('set_group', l)     # Demon Gümüş ve Epic karışık da "tüm dronlar Demon" (forum 127526)
         if looks and looks[0] and len({grp(l) for l in looks}) == 1:
-            for k, v in designs.get(looks[0], {}).get('takim', {}).items():
+            for k, v in designs.get(looks[0], {}).get('set_bonus', {}).items():
                 out[k] = out.get(k, 0) + v
         for x in self.d.get('dronlar', []):          # görünüm tasarımının etkinlikteki geçici bonusu (Goal Rush, Apocalypse: NPC lazer)
             e = designs.get(self.drone_design(x, 'visual', cid, sid) or '', {}).get('etkinlik_basina')
@@ -879,24 +880,24 @@ class Profile:
         hasar …; giyilen tasarımınki: Tyrannos), Orcus'un modül çarpanı ve Leonov'un kendi X-1..X-4'ündeki bonusu (items.json)."""
         row = self.ship_row()
         out = dict(row.get('bonus', {}))
-        n = min(len(self.config().get('upgrades', [])), row.get('modul_azami', 0))
-        for k, v in row.get('modul_basina', {}).items():
+        n = min(len(self.config().get('upgrades', [])), row.get('module_max', 0))
+        for k, v in row.get('per_module', {}).items():
             out[k] = out.get(k, 0) + v * n
         hp = LAZER.hp_bonus(self.d.get('ekipman', {}).get('laser', [])       # LF-4 Hyperplasmoid: lazer başına can +%0,5 (dronlarda da)
-                            + [l for _, loots in self.d.get('dron_ekipman', []) for l in loots])
+                            + [l for _, loots in self.d.get('drone_equipment', []) for l in loots])
         if hp:
             out['can'] = out.get('can', 0) + hp
         shield_table = item()['kalkan_jeneratorleri']                                  # Fusion Shield: takılı başına kalkan yenilenmesi +%6,25
-        gens = self.d.get('ekipman', {}).get('generators', []) + [g for _, loots in self.d.get('dron_ekipman', []) for g in loots]
-        reg = sum(shield_table.get(g, {}).get('yenilenme', 0) for g in gens)
+        gens = self.d.get('ekipman', {}).get('generators', []) + [g for _, loots in self.d.get('drone_equipment', []) for g in loots]
+        reg = sum(shield_table.get(g, {}).get('regeneration', 0) for g in gens)
         if reg:
             out['kalkan_yenilenme'] = out.get('kalkan_yenilenme', 0) + reg
-        launchers = item()['savas_esyalari']['fircatici']['turler']         # Plus fırlatıcılar: Hydra can/kalkan, Neptune hasar …
+        launchers = item()['savas_esyalari']['fircatici']['kinds']         # Plus fırlatıcılar: Hydra can/kalkan, Neptune hasar …
         for l in self.d.get('ekipman', {}).get('rocket', []):
             for k, v in launchers.get(l, {}).get('bonus', {}).items():
                 out[k] = out.get(k, 0) + v
         import ship_module as GM                                              # gemi modülleri (normal ve kararsız)
-        mk = row.get('modul_carpani', 1)                                     # Orcus: modül nitelikleri x1,75 (eksiler de)
+        mk = row.get('module_multiplier', 1)                                     # Orcus: modül nitelikleri x1,75 (eksiler de)
         for k, v in GM.mods(self, self.ship()['lootId'], self.config().get('upgrades', []), self.d['pilot'].get('level')).items():
             out[k] = out.get(k, 0) + v * mk
         import qfc as QF                                                      # Quantum Fluid Core'lar (bağlı oldukları gemide)
@@ -905,8 +906,8 @@ class Profile:
         import particle as PC                                                 # sürücü/merceğin alt nitelikleri (EP, onur, kaçınma)
         for k, v in PC.mods(self, self.ship()['lootId'], self.config()).items():
             out[k] = out.get(k, 0) + v
-        hb = row.get('harita_bonusu')
-        m = self.d['konum'].get('mapId', 0)
+        hb = row.get('map_bonus')
+        m = self.d['position'].get('mapId', 0)
         if hb and H.map_class(m) in hb['haritalar'] and H.company(m) == self.d['pilot'].get('factionId'):    # Leonov: kendi firmasında
             for k, v in hb['bonus'].items():
                 out[k] = out.get(k, 0) + v
@@ -915,7 +916,7 @@ class Profile:
     def lab_bonus(self, item):
         """Cevher yükseltmesinin bonusu (lazer/roket hasarı, hız, kalkan); yükseltme yoksa 0."""
         u = self.d.get('yukseltmeler', {}).get(str(item))
-        return lab_data()['bonuslar'][str(item)].get(str(u[0]), 0) if u and u[1] > 0 else 0
+        return lab_data()['bonuses'][str(item)].get(str(u[0]), 0) if u and u[1] > 0 else 0
 
     def lab_use(self, item, n=1):
         """Yükseltmeden n birim harcar -> True: bitti."""
@@ -933,8 +934,8 @@ class Profile:
     def add_drone(self, loot_id):
         """Yeni dron (seviye 1, 0 puan) -> dron kimliği."""
         with self.lock:
-            did = self.d.get('sonraki_dron', 1)
-            self.d['sonraki_dron'] = did + 1
+            did = self.d.get('next_drone', 1)
+            self.d['next_drone'] = did + 1
             self.d['dronlar'].append({'kimlik': did, 'lootId': loot_id, 'seviye': 1, 'puan': 0})
             self.dirty = True
             return did
@@ -943,9 +944,9 @@ class Profile:
         """Etkin geminin etkin config'inden lootId listeleri (dünya simülasyonu hasar/onarım için bunları okur).
         dron_ekipman: [[dron seviyesi, [lootId …]] …]."""
         self.d['ekipman'] = self.loadout()
-        self.d['dron_ekipman'] = [[x['seviye'], loots] for x, loots in self.drone_loadout()]
-        self.d['ekipman_seviye'] = self.loadout_levels()          # yükseltme seviyeleri (yukseltme.py), aynı sırada
-        self.d['dron_ekipman_seviye'] = self.drone_levels()
+        self.d['drone_equipment'] = [[x['seviye'], loots] for x, loots in self.drone_loadout()]
+        self.d['equipment_level'] = self.loadout_levels()          # yükseltme seviyeleri (yukseltme.py), aynı sırada
+        self.d['drone_equipment_level'] = self.drone_levels()
 
     def add_ship(self, loot_id):
         """Yeni gemi (boş iki config) -> shipId. Kimlikler kayıttakilerin ardından verilir."""
@@ -953,7 +954,7 @@ class Profile:
             g = self.d['gemiler']
             sid = max(int(k) for k in g) + 1
             hid = max(s['hangarId'] for s in g.values()) + 1
-            g[str(sid)] = {'lootId': loot_id, 'hangarId': hid, 'konfigler': {'1': {}, '2': {}}, 'aktif_konfig': 1, 'favori': False,
+            g[str(sid)] = {'lootId': loot_id, 'hangarId': hid, 'konfigler': {'1': {}, '2': {}}, 'active_config': 1, 'favori': False,
                            'dron_konfig': {'1': {}, '2': {}}}
             self.dirty = True
             return sid
@@ -967,7 +968,7 @@ class Profile:
         if menu_id.startswith('drone_formation_'):
             # kayıtta: standart görünür ve seçili; sahip olunmayanlar görünmez, ipucunda ttip_item_not_owned
             owned = menu_id == 'drone_formation_default' or menu_id in self.d.get('formasyonlar', [])
-            sel = formation_id(menu_id) == self.d.get('formasyon', 0)
+            sel = formation_id(menu_id) == self.d.get('formation', 0)
             enough = formation_drones_ok(self, menu_id)
             st.update(visible=owned, available=owned and enough, activatable=owned and enough, selected=owned and sel)
             for tip in ('toolTipSlotBar', 'toolTipItemBar'):
@@ -1002,7 +1003,7 @@ class Profile:
         """Şablondan gelen mesajı profile göre güncelle: kısayol menüsündeki cephane sayaçları, ekipmana bağlı hız ve config."""
         if name == 'AttributeShipSpeedUpdateCommand':
             g = self.d['gemi']
-            return dict(fields, newSpeed=g.get('speed', fields['newSpeed']), displaySpeed=self.d.get('gosterilen_hiz', fields['displaySpeed']))
+            return dict(fields, newSpeed=g.get('speed', fields['newSpeed']), displaySpeed=self.d.get('shown_speed', fields['displaySpeed']))
         if name == 'LabUpdateItemCommand':
             return dict(fields, itemsUpdatedInfo=self.lab_items())
         if name == 'DailyLoginRewardDayCommand' and self.daily_fields:
@@ -1019,7 +1020,7 @@ class Profile:
             parts = fields['message'].split('|')                # gizlenme CPU'suyla gizliyken girişte gizli
             return dict(fields, message='0|n|INV|%s|%d' % (parts[3], 1 if self.d.get('cpu_gizli') else 0))
         if name == 'InvitationBlockModule':                     # grup daveti engeli (kayıttaki false yerine profilin seçimi)
-            return dict(fields, active=bool(self.d.get('davet_engeli')))
+            return dict(fields, active=bool(self.d.get('invite_block')))
         if name == 'LegacyModule' and fields.get('message', '').startswith('0|S|CFG|'):
             return dict(fields, message='0|S|CFG|%s' % self.active_config)
         if name == 'LegacyModule' and fields.get('message', '').startswith('0|A|JV|'):
@@ -1069,7 +1070,7 @@ class Profile:
         if ws.get('mainmenuPosition'):             # kategori çubuğu (yapılandırmada sürüklenen yeri)
             f['itemBarPosition'] = ws['mainmenuPosition']
         for bar in bars:                           # kısayol çubuğu: oyuncunun düzeni (slot_bar_set)
-            cur = self.d.get('kisayol', {}).get(bar.get('slotBarId'))
+            cur = self.d.get('shortcuts', {}).get(bar.get('slotBarId'))
             if cur is not None:
                 bar['slots'] = [{'_': 'SlotInfoCommand', 'menuItemId': v, 'slotId': int(k)}
                                 for k, v in sorted(cur.items(), key=lambda kv: int(kv[0]))]
@@ -1116,7 +1117,7 @@ class Profile:
         göndererek yanıtlıyor. -> değişti mi"""
         item, src, dst = f.get('menuItemId') or '', f.get('slotBarIdFrom') or '', f.get('slotBarIdTo') or ''
         with self.lock:
-            kb = self.d.setdefault('kisayol', {b['slotBarId']: {str(s['slotId']): s['menuItemId'] for s in b['slots']} for b in bars})
+            kb = self.d.setdefault('shortcuts', {b['slotBarId']: {str(s['slotId']): s['menuItemId'] for s in b['slots']} for b in bars})
             for bid in {src, dst} & {b for b, _ in PREMIUM_SLOT_BARS}:
                 kb.setdefault(bid, {})
             if not item or (dst and dst not in kb) or (src and src not in kb):
@@ -1136,7 +1137,7 @@ class Profile:
     def slot_bar_state(self, bars):
         """Kısayol çubuklarındaki öğeler (görev koşulu PUT_ITEM_IN_SLOT_BAR; Ö1) -> {'items': {(çubuk, öğe)}, 'slots': {(çubuk, yuva,
         öğe)}}. bars: şablonun çubukları (profilde kısayol yoksa ilk düzen)."""
-        kb = self.d.get('kisayol') or {b['slotBarId']: {str(s['slotId']): s['menuItemId'] for s in b['slots']} for b in bars}
+        kb = self.d.get('shortcuts') or {b['slotBarId']: {str(s['slotId']): s['menuItemId'] for s in b['slots']} for b in bars}
         rows = [(bar, slot, item) for bar, slots in kb.items() for slot, item in slots.items() if item]
         return {'items': {(b, i) for b, s, i in rows}, 'slots': {(b, s, i) for b, s, i in rows}}
 
@@ -1161,21 +1162,21 @@ class Profile:
                 if 'notSet' in mod:
                     mod['notSet'] = False
             elif name == 'UserKeyBindingsUpdate':
-                cur = {(b.get('actionType'), b.get('parameter')): b for b in self.d['tus_atamalari']}
+                cur = {(b.get('actionType'), b.get('parameter')): b for b in self.d['key_bindings']}
                 for b in f.get('changedKeyBindings', []):
                     cur[(b.get('actionType'), b.get('parameter'))] = b
-                self.d['tus_atamalari'] = list(cur.values())
+                self.d['key_bindings'] = list(cur.values())
             elif name == 'ResetSettingsRequest':
                 # Ayarlar > Klavye > Reset: tuşlar tohumdakine (istemci isteği çoğu kez bağlantı kapanmadan gönderemiyor: CANLI_TEST
                 # N12; panelin "tuş atamaları" seçeneği aynısı)
-                self.d['tus_atamalari'] = self._from_seed(self.seed)['tus_atamalari']
+                self.d['key_bindings'] = self._from_seed(self.seed)['key_bindings']
             elif name == 'UIWindowUpdateRequest':
                 for bar in self.d['arayuz'].get('featureBars', []):
                     for it in bar.get('featureBarItems', []):
                         if it.get('itemId') == f.get('itemId'):
                             it.update({k: f[k] for k in WINDOW_KEYS if k in f})
             elif name == 'MoveRequest':
-                self.d['konum'].update(x=f['targetX'], y=f['targetY'])
+                self.d['position'].update(x=f['targetX'], y=f['targetY'])
             else:
                 return False
             self.dirty = True

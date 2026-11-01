@@ -191,7 +191,7 @@ def find(cfg):
     r = {'tur': 'yerel', 'yol': None, 'ad': None, 'onek': None, 'umu': None, 'steam': None, 'hata': None}
     if WINDOWS:
         return r
-    choice, route, prefix = cfg.get('calistirici'), cfg.get('calistirici_yolu').strip(), cfg.get('wine_onek').strip()
+    choice, route, prefix = cfg.get('runner'), cfg.get('runner_path').strip(), cfg.get('wine_prefix').strip()
     umu = shutil.which('umu-run') if LINUX else None
     if choice == 'otomatik':
         choice = 'motor' if MAC else 'proton' if LINUX and (umu or protons()) else 'wine'
@@ -234,7 +234,7 @@ def find(cfg):
             r['hata'] = _('Wine bulunamadı: %s', route)
         elif not LINUX:
             r['hata'] = _("Wine bulunamadı: Otomatik'i seç (panel oyunu açacak Wine'ı kendisi kurar) ya da wine programının yolunu yaz.")
-        elif cfg.get('calistirici') == 'otomatik':
+        elif cfg.get('runner') == 'otomatik':
             r['hata'] = _("Wine ya da Proton bulunamadı: Steam'de bir Proton sürümü kur (Kütüphane > Araçlar) ya da Wine kur (ör. sudo apt "
                           "install wine).")
         else:
@@ -296,5 +296,5 @@ def summary(cfg):
     """İstemci sayfasının Wine / Proton kartı: seçilen ve bulunan çalıştırıcılar (Windows'ta None)."""
     if WINDOWS:
         return None
-    return dict(find(cfg), platform='darwin' if MAC else sys.platform, protons=protons(), wineler=wines(),
-                varsayilan_onek={k: default_prefix(k) for k in ('wine', 'proton', 'motor')}, motor=engine().state() if MAC else None)
+    return dict(find(cfg), platform='darwin' if MAC else sys.platform, protons=protons(), wines=wines(),
+                default_prefix={k: default_prefix(k) for k in ('wine', 'proton', 'motor')}, motor=engine().state() if MAC else None)

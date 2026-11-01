@@ -1,7 +1,7 @@
 {
- "_aciklama": "Etkinlik görünümleri: mağazadaki kaynaksız tasarımların (E11 'kozmetik', E4 Holo) gerçek oyundaki kaynağı ve tek oyunculudaki\nkazanma yolları -> server/data/etkinlik_gorunumleri.json (sunucu: etkinlik_gorunumleri.py).\n\nGirdi belgeler/wiki/tasarim_kaynaklari.json: darkorbitwiki'nin gemi, dron ve P.E.T. sayfalarındaki \"OBTAINING\" etiketleri, etkinlik\nsayfalarının ödül satırları ve kutu içerikleri, tasarım başına ('etkinlikler': etiketlerden çıkan etkinlik adları).\nYalnız mağaza etiketli olanlar (SHOP PAYMENTS, HOURLY AUCTION; etkinlik adı yok) etkinlik görünümü sayılmaz, hep mağazadadır. Ötekiler\netkinlik görünümü: panelin \"Etkinlik görünümleri mağazada\" ayarı kapalıyken mağazada görünmez ve satılmaz; ayardan bağımsız buradaki\nyollarla kazanılır:\n  degisim  Battle Pass'li etkinliğin anahtar değişimi (savas_bileti.py): gemi ve P.E.T. tasarımı 25 anahtar, bir kez; dron tasarımı\n           15 anahtar, 10 kez (wiki: Galactic Strife 2026'nın değişimi)\n  kutu     anahtarlı ganimet kutusu (ganimet.py; kutular.json türü; sahip olunan tasarım çekilmez). Kutunun wiki tablosunda (Epic paketleri\n           dahil) zaten olan tasarımın yolu \"tablo\": true (ek satır eklenmez); Red Box'ın tasarımları Blue Box'a da girer. Bu yollar\n           wiki tablosunun dışında, kutunun tasarım çekilişine katılan \"yerel\" satırlardır (ganimet.pick). Üst anahtar \"kutu_ek\": güncel\n           Red / Blue sayfasından (2026-10-25) çıkan, başka kazanma yolu olmayan 15 eski P.E.T. tasarımı (yolsuz kalmasınlar)\n  kapi     GG Special Rewards Weekend'de Zeta ve Kappa kapısının seçimli ödülü (wiki: Delta, Epsilon, Zeta, Kappa; %50, sahip olunan\n           çekilmez)\n  harita   etkinliğin harita kutusu (etkinlik_harita.py): Goal Rush'ın futbol kutusu, Aralık'ın hediye kutusu\n  sezon    Season Pass'in sezon tasarımları (sezon.py): 14 sezonun dron ve P.E.T. tasarımı sezon sırasıyla, 2026-08'den sonra baştan\nEtkinlik seçimi: wiki etiketlerindeki etkinlikler (sunucudaki adıyla); etiketi olmayanlarda ya da yalnız \"BOXES\" / \"–\" olanlarda\ntasarımın teması (aynı temanın etiketli tasarımlarının etkinliği: Arios ve Neikos Galactic Strife, Dusklight ve Phantasm Trial of\nTerrors, Inferno Protegit, Epion / Osiris / Smite üçlüleri GG hafta sonu kapıları …), o da yoksa temanın genel kutusu: gemi Obsidian,\ndron Apocalypse, P.E.T. Red Box (Argon, Lava, Legend, Carbonite, Sandstorm … tasarımları bu kutularda).\nWiki'de sayfası olmayan, bir kez koşmuş geçmiş etkinlikler en yakın etkinliğe (uyarlama): Battle Arena -> Galactic Strife (sıralama\nödülü), Plague Mutation -> Prosperous Mutation, Astral Discovery -> Empyrian March (tasarımı orada da), Blacklight Surge'ün Tyrannos'u\nMimesis Mutiny'ye; SpaceCup'ınkiler halefi Goal Rush'a; Saimon Rebellion, Project Nano, Razer haftası, özel görev temalarıyla.\nÜreten: tools/etkinlik_gorunumleri.py.",
+ "_description": "Etkinlik görünümleri: mağazadaki kaynaksız tasarımların (E11 'kozmetik', E4 Holo) gerçek oyundaki kaynağı ve tek oyunculudaki\nkazanma yolları -> server/data/etkinlik_gorunumleri.json (sunucu: etkinlik_gorunumleri.py).\n\nGirdi belgeler/wiki/tasarim_kaynaklari.json: darkorbitwiki'nin gemi, dron ve P.E.T. sayfalarındaki \"OBTAINING\" etiketleri, etkinlik\nsayfalarının ödül satırları ve kutu içerikleri, tasarım başına ('etkinlikler': etiketlerden çıkan etkinlik adları).\nYalnız mağaza etiketli olanlar (SHOP PAYMENTS, HOURLY AUCTION; etkinlik adı yok) etkinlik görünümü sayılmaz, hep mağazadadır. Ötekiler\netkinlik görünümü: panelin \"Etkinlik görünümleri mağazada\" ayarı kapalıyken mağazada görünmez ve satılmaz; ayardan bağımsız buradaki\nyollarla kazanılır:\n  degisim  Battle Pass'li etkinliğin anahtar değişimi (battle_pass.py): gemi ve P.E.T. tasarımı 25 anahtar, bir kez; dron tasarımı\n           15 anahtar, 10 kez (wiki: Galactic Strife 2026'nın değişimi)\n  kutu     anahtarlı ganimet kutusu (ganimet.py; kutular.json türü; sahip olunan tasarım çekilmez). Kutunun wiki tablosunda (Epic paketleri\n           dahil) zaten olan tasarımın yolu \"tablo\": true (ek satır eklenmez); Red Box'ın tasarımları Blue Box'a da girer. Bu yollar\n           wiki tablosunun dışında, kutunun tasarım çekilişine katılan \"yerel\" satırlardır (ganimet.pick). Üst anahtar \"box_extra\": güncel\n           Red / Blue sayfasından (2026-10-25) çıkan, başka kazanma yolu olmayan 15 eski P.E.T. tasarımı (yolsuz kalmasınlar)\n  kapi     GG Special Rewards Weekend'de Zeta ve Kappa kapısının seçimli ödülü (wiki: Delta, Epsilon, Zeta, Kappa; %50, sahip olunan\n           çekilmez)\n  harita   etkinliğin harita kutusu (etkinlik_harita.py): Goal Rush'ın futbol kutusu, Aralık'ın hediye kutusu\n  sezon    Season Pass'in sezon tasarımları (sezon.py): 14 sezonun dron ve P.E.T. tasarımı sezon sırasıyla, 2026-08'den sonra baştan\nEtkinlik seçimi: wiki etiketlerindeki etkinlikler (sunucudaki adıyla); etiketi olmayanlarda ya da yalnız \"BOXES\" / \"–\" olanlarda\ntasarımın teması (aynı temanın etiketli tasarımlarının etkinliği: Arios ve Neikos Galactic Strife, Dusklight ve Phantasm Trial of\nTerrors, Inferno Protegit, Epion / Osiris / Smite üçlüleri GG hafta sonu kapıları …), o da yoksa temanın genel kutusu: gemi Obsidian,\ndron Apocalypse, P.E.T. Red Box (Argon, Lava, Legend, Carbonite, Sandstorm … tasarımları bu kutularda).\nWiki'de sayfası olmayan, bir kez koşmuş geçmiş etkinlikler en yakın etkinliğe (uyarlama): Battle Arena -> Galactic Strife (sıralama\nödülü), Plague Mutation -> Prosperous Mutation, Astral Discovery -> Empyrian March (tasarımı orada da), Blacklight Surge'ün Tyrannos'u\nMimesis Mutiny'ye; SpaceCup'ınkiler halefi Goal Rush'a; Saimon Rebellion, Project Nano, Razer haftası, özel görev temalarıyla.\nÜreten: tools/etkinlik_gorunumleri.py.",
  "ayar": "etkinlik_gorunumleri_magazada",
- "sezonlar": [
+ "seasons": [
   {
    "sezon": "2023-05",
    "ad": "Mobius",
@@ -101,11 +101,11 @@
    "gemi": null
   }
  ],
- "gorunumler": {
+ "looks": {
   "ship_holo_design_holo-epion": {
    "tur": "ship",
    "etkinlik": "gg_hafta_sonu",
-   "yollar": [
+   "paths": [
     {
      "yol": "kapi",
      "etkinlik": "gg_hafta_sonu",
@@ -113,7 +113,7 @@
       "zeta",
       "kappa"
      ],
-     "olasilik": 0.5
+     "probability": 0.5
     }
    ],
    "kaynak": "–"
@@ -121,7 +121,7 @@
   "ship_holo_design_holo-osiris": {
    "tur": "ship",
    "etkinlik": "gg_hafta_sonu",
-   "yollar": [
+   "paths": [
     {
      "yol": "kapi",
      "etkinlik": "gg_hafta_sonu",
@@ -129,7 +129,7 @@
       "zeta",
       "kappa"
      ],
-     "olasilik": 0.5
+     "probability": 0.5
     }
    ],
    "kaynak": "–"
@@ -137,12 +137,12 @@
   "ship_holo_design_holo-prometheus": {
    "tur": "ship",
    "etkinlik": "prometheus",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "prometheus",
      "kutu": "PROMETHEUS_BOOTY_BOX",
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "–"
@@ -150,7 +150,7 @@
   "ship_holo_design_holo-smite": {
    "tur": "ship",
    "etkinlik": "gg_hafta_sonu",
-   "yollar": [
+   "paths": [
     {
      "yol": "kapi",
      "etkinlik": "gg_hafta_sonu",
@@ -158,7 +158,7 @@
       "zeta",
       "kappa"
      ],
-     "olasilik": 0.5
+     "probability": 0.5
     }
    ],
    "kaynak": "–"
@@ -166,7 +166,7 @@
   "ship_berserker_design_berserker-arios": {
    "tur": "ship",
    "etkinlik": "galactic_strife",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "galactic_strife",
@@ -179,12 +179,12 @@
   "ship_berserker_design_berserker-empyrian": {
    "tur": "ship",
    "etkinlik": "empyrian",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "empyrian",
      "kutu": "EMPYRIAN_BOOTY_BOX",
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "EMPYRIAN MARCH 2025"
@@ -192,7 +192,7 @@
   "ship_berserker_design_berserker-epion": {
    "tur": "ship",
    "etkinlik": "hitac",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "hitac",
@@ -205,7 +205,7 @@
   "ship_berserker_design_berserker-frost": {
    "tur": "ship",
    "etkinlik": "gg_hafta_sonu",
-   "yollar": [
+   "paths": [
     {
      "yol": "kapi",
      "etkinlik": "gg_hafta_sonu",
@@ -213,7 +213,7 @@
       "zeta",
       "kappa"
      ],
-     "olasilik": 0.5
+     "probability": 0.5
     }
    ],
    "kaynak": "GALAXY GATE: Delta, Epsilon, Zeta, Kappa (13-15.12.2019) / SHOP PAYMENTS"
@@ -221,12 +221,12 @@
   "ship_berserker_design_berserker-inferno": {
    "tur": "ship",
    "etkinlik": "empyrian",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "empyrian",
      "kutu": "EMPYRIAN_BOOTY_BOX",
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "Astral Discovery Event (2022) | EVENT Empyrian March: Galaxy Gate 'Empyrian Reward Package' (5% per Alpha/Beta/Gamma completion; not available via Dispatch) 25% within package"
@@ -234,12 +234,12 @@
   "ship_berserker_design_berserker-lava": {
    "tur": "ship",
    "etkinlik": "obsidian_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
-     "agirlik": 0.319
+     "weight": 0.319
     }
    ],
    "kaynak": "BOXES"
@@ -247,7 +247,7 @@
   "ship_berserker_design_berserker-neikos": {
    "tur": "ship",
    "etkinlik": "galactic_strife",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "galactic_strife",
@@ -260,7 +260,7 @@
   "ship_berserker_design_berserker-nobilis": {
    "tur": "ship",
    "etkinlik": "plutus",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "plutus",
@@ -273,12 +273,12 @@
   "ship_bigboy_design_mamba": {
    "tur": "ship",
    "etkinlik": "obsidian_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
-     "agirlik": 0.319
+     "weight": 0.319
     }
    ],
    "kaynak": "–"
@@ -286,7 +286,7 @@
   "ship_centurion_design_centurion-frost": {
    "tur": "ship",
    "etkinlik": "labirent",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "labirent",
@@ -299,7 +299,7 @@
   "ship_centurion_design_centurion-nobilis": {
    "tur": "ship",
    "etkinlik": "plutus",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "plutus",
@@ -312,7 +312,7 @@
   "ship_citadel-plus_design_citadel-plus-arios": {
    "tur": "ship",
    "etkinlik": "galactic_strife",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "galactic_strife",
@@ -325,12 +325,12 @@
   "ship_citadel-plus_design_citadel-plus-elysium": {
    "tur": "ship",
    "etkinlik": "obsidian_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
-     "agirlik": 0.319
+     "weight": 0.319
     }
    ],
    "kaynak": "BOXES"
@@ -338,7 +338,7 @@
   "ship_citadel-plus_design_citadel-plus-epion": {
    "tur": "ship",
    "etkinlik": "hitac",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "hitac",
@@ -351,12 +351,12 @@
   "ship_citadel-plus_design_citadel-plus-frost": {
    "tur": "ship",
    "etkinlik": "kis",
-   "yollar": [
+   "paths": [
     {
      "yol": "harita",
      "etkinlik": "kis",
      "kutu": "GIFT_BOXES",
-     "agirlik": 0.25
+     "weight": 0.25
     }
    ],
    "kaynak": "SHOP PAYMENTS / WINTER CALENDAR 2024"
@@ -364,12 +364,12 @@
   "ship_citadel-plus_design_citadel-plus-legend": {
    "tur": "ship",
    "etkinlik": "obsidian_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
-     "agirlik": 0.319
+     "weight": 0.319
     }
    ],
    "kaynak": "BOXES"
@@ -377,7 +377,7 @@
   "ship_citadel-plus_design_citadel-plus-neikos": {
    "tur": "ship",
    "etkinlik": "galactic_strife",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "galactic_strife",
@@ -390,7 +390,7 @@
   "ship_citadel-plus_design_citadel-plus-nobilis": {
    "tur": "ship",
    "etkinlik": "plutus",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "plutus",
@@ -403,12 +403,12 @@
   "ship_citadel-plus_design_citadel-plus-osiris": {
    "tur": "ship",
    "etkinlik": "bahar",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "bahar",
      "kutu": "LUCENT_ALIEN_EGG_BOOTY_BOX",
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "SPRING SABOTAGE 2026"
@@ -416,7 +416,7 @@
   "ship_citadel-plus_design_citadel-plus-phantasm": {
    "tur": "ship",
    "etkinlik": "halloween",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "halloween",
@@ -429,12 +429,12 @@
   "ship_citadel-plus_design_citadel-plus-prosperous": {
    "tur": "ship",
    "etkinlik": "prosperous",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "prosperous",
      "kutu": "PROSPEROUS_BOOTY_BOX",
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "PROSPEROUS BOX"
@@ -442,7 +442,7 @@
   "ship_citadel-plus_design_citadel-plus-shogun": {
    "tur": "ship",
    "etkinlik": "sezon",
-   "yollar": [
+   "paths": [
     {
      "yol": "sezon",
      "etkinlik": "sezon"
@@ -453,7 +453,7 @@
   "ship_citadel_design_citadel-epion": {
    "tur": "ship",
    "etkinlik": "gg_hafta_sonu",
-   "yollar": [
+   "paths": [
     {
      "yol": "kapi",
      "etkinlik": "gg_hafta_sonu",
@@ -461,7 +461,7 @@
       "zeta",
       "kappa"
      ],
-     "olasilik": 0.5
+     "probability": 0.5
     }
    ],
    "kaynak": "–"
@@ -469,7 +469,7 @@
   "ship_citadel_design_citadel-osiris": {
    "tur": "ship",
    "etkinlik": "gg_hafta_sonu",
-   "yollar": [
+   "paths": [
     {
      "yol": "kapi",
      "etkinlik": "gg_hafta_sonu",
@@ -477,7 +477,7 @@
       "zeta",
       "kappa"
      ],
-     "olasilik": 0.5
+     "probability": 0.5
     }
    ],
    "kaynak": "–"
@@ -485,7 +485,7 @@
   "ship_citadel_design_citadel-smite": {
    "tur": "ship",
    "etkinlik": "gg_hafta_sonu",
-   "yollar": [
+   "paths": [
     {
      "yol": "kapi",
      "etkinlik": "gg_hafta_sonu",
@@ -493,7 +493,7 @@
       "zeta",
       "kappa"
      ],
-     "olasilik": 0.5
+     "probability": 0.5
     }
    ],
    "kaynak": "–"
@@ -501,7 +501,7 @@
   "ship_cyborg_design_cyborg-amor": {
    "tur": "ship",
    "etkinlik": "immortal_union",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "immortal_union",
@@ -514,7 +514,7 @@
   "ship_cyborg_design_cyborg-arios": {
    "tur": "ship",
    "etkinlik": "galactic_strife",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "galactic_strife",
@@ -527,12 +527,12 @@
   "ship_cyborg_design_cyborg-blaze": {
    "tur": "ship",
    "etkinlik": "obsidian_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
-     "agirlik": 0.319
+     "weight": 0.319
     }
    ],
    "kaynak": "–"
@@ -540,13 +540,13 @@
   "ship_cyborg_design_cyborg-carbonite": {
    "tur": "ship",
    "etkinlik": "prosperous",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "prosperous",
      "kutu": "PROSPEROUS_BOOTY_BOX",
      "tablo": true,
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "– | EVENT Prosperous Mutation Event: Prosperous Box - EPIC DESIGNS (0.1%) package 3 of 4 (25% each); package contents: Carbonite Cyborg Ship Design; Carbonite Goliath-X Drone Design; Carbonite Cyborg "
@@ -554,12 +554,12 @@
   "ship_cyborg_design_cyborg-celestial": {
    "tur": "ship",
    "etkinlik": "goal_rush",
-   "yollar": [
+   "paths": [
     {
      "yol": "harita",
      "etkinlik": "goal_rush",
      "kutu": "FOOTBALL_BOX",
-     "agirlik": 1
+     "weight": 1
     }
    ],
    "kaynak": "– | EVENT Spacecup: Key Exchange 5 Battle Keys; exchange limit 0/1"
@@ -567,12 +567,12 @@
   "ship_cyborg_design_cyborg-empyrian": {
    "tur": "ship",
    "etkinlik": "empyrian",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "empyrian",
      "kutu": "EMPYRIAN_BOOTY_BOX",
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "EMPYRIAN MARCH EVENT 2025"
@@ -580,7 +580,7 @@
   "ship_cyborg_design_cyborg-epion": {
    "tur": "ship",
    "etkinlik": "gg_hafta_sonu",
-   "yollar": [
+   "paths": [
     {
      "yol": "kapi",
      "etkinlik": "gg_hafta_sonu",
@@ -588,7 +588,7 @@
       "zeta",
       "kappa"
      ],
-     "olasilik": 0.5
+     "probability": 0.5
     }
    ],
    "kaynak": "Gates: Delta, Epsilon, Zeta, Kappa (12-15.02.2021)"
@@ -596,12 +596,12 @@
   "ship_cyborg_design_cyborg-firestar": {
    "tur": "ship",
    "etkinlik": "goal_rush",
-   "yollar": [
+   "paths": [
     {
      "yol": "harita",
      "etkinlik": "goal_rush",
      "kutu": "FOOTBALL_BOX",
-     "agirlik": 1
+     "weight": 1
     }
    ],
    "kaynak": "– | EVENT Spacecup: Key Exchange 5 Battle Keys; exchange limit 0/1"
@@ -609,7 +609,7 @@
   "ship_cyborg_design_cyborg-frost": {
    "tur": "ship",
    "etkinlik": "labirent",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "labirent",
@@ -622,7 +622,7 @@
   "ship_cyborg_design_cyborg-inferno": {
    "tur": "ship",
    "etkinlik": "protegit",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "protegit",
@@ -635,12 +635,12 @@
   "ship_cyborg_design_cyborg-infinite": {
    "tur": "ship",
    "etkinlik": "obsidian_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
-     "agirlik": 0.319
+     "weight": 0.319
     }
    ],
    "kaynak": "–"
@@ -648,12 +648,12 @@
   "ship_cyborg_design_cyborg-maelstrom": {
    "tur": "ship",
    "etkinlik": "goal_rush",
-   "yollar": [
+   "paths": [
     {
      "yol": "harita",
      "etkinlik": "goal_rush",
      "kutu": "FOOTBALL_BOX",
-     "agirlik": 1
+     "weight": 1
     }
    ],
    "kaynak": "– | EVENT Spacecup: Key Exchange 5 Battle Keys; exchange limit 0/1"
@@ -661,7 +661,7 @@
   "ship_cyborg_design_cyborg-neikos": {
    "tur": "ship",
    "etkinlik": "galactic_strife",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "galactic_strife",
@@ -674,12 +674,12 @@
   "ship_cyborg_design_cyborg-ocean": {
    "tur": "ship",
    "etkinlik": "obsidian_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
-     "agirlik": 0.319
+     "weight": 0.319
     }
    ],
    "kaynak": "–"
@@ -687,7 +687,7 @@
   "ship_cyborg_design_cyborg-osiris": {
    "tur": "ship",
    "etkinlik": "gg_hafta_sonu",
-   "yollar": [
+   "paths": [
     {
      "yol": "kapi",
      "etkinlik": "gg_hafta_sonu",
@@ -695,7 +695,7 @@
       "zeta",
       "kappa"
      ],
-     "olasilik": 0.5
+     "probability": 0.5
     }
    ],
    "kaynak": "Gates: Delta, Epsilon, Zeta, Kappa (12-15.02.2021)"
@@ -703,12 +703,12 @@
   "ship_cyborg_design_cyborg-poison": {
    "tur": "ship",
    "etkinlik": "obsidian_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
-     "agirlik": 0.319
+     "weight": 0.319
     }
    ],
    "kaynak": "–"
@@ -716,7 +716,7 @@
   "ship_cyborg_design_cyborg-smite": {
    "tur": "ship",
    "etkinlik": "gg_hafta_sonu",
-   "yollar": [
+   "paths": [
     {
      "yol": "kapi",
      "etkinlik": "gg_hafta_sonu",
@@ -724,7 +724,7 @@
       "zeta",
       "kappa"
      ],
-     "olasilik": 0.5
+     "probability": 0.5
     }
    ],
    "kaynak": "Gates: Delta, Epsilon, Zeta, Kappa (12-15.02.2021)"
@@ -732,12 +732,12 @@
   "ship_cyborg_design_cyborg-starscream": {
    "tur": "ship",
    "etkinlik": "goal_rush",
-   "yollar": [
+   "paths": [
     {
      "yol": "harita",
      "etkinlik": "goal_rush",
      "kutu": "FOOTBALL_BOX",
-     "agirlik": 1
+     "weight": 1
     }
    ],
    "kaynak": "– | EVENT Spacecup: Battle Pass Boxes - CONTENTS 0.4%"
@@ -745,12 +745,12 @@
   "ship_cyborg_design_cyborg-sunstorm": {
    "tur": "ship",
    "etkinlik": "goal_rush",
-   "yollar": [
+   "paths": [
     {
      "yol": "harita",
      "etkinlik": "goal_rush",
      "kutu": "FOOTBALL_BOX",
-     "agirlik": 1
+     "weight": 1
     }
    ],
    "kaynak": "– | EVENT Spacecup: Key Exchange 5 Battle Keys; exchange limit 0/1"
@@ -758,12 +758,12 @@
   "ship_cyborg_design_ship-cyborg-argon": {
    "tur": "ship",
    "etkinlik": "prometheus",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "prometheus",
      "kutu": "PROMETHEUS_BOOTY_BOX",
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "EVENT Prometheus Day: Prometheus Box - RARE SHIP DESIGNS (12%) 25% within group"
@@ -771,12 +771,12 @@
   "ship_diminisher_design_diminisher-argon": {
    "tur": "ship",
    "etkinlik": "obsidian_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
-     "agirlik": 0.319
+     "weight": 0.319
     }
    ],
    "kaynak": "BOXES | BOXES"
@@ -784,7 +784,7 @@
   "ship_diminisher_design_diminisher-arios": {
    "tur": "ship",
    "etkinlik": "galactic_strife",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "galactic_strife",
@@ -797,12 +797,12 @@
   "ship_diminisher_design_diminisher-blaze": {
    "tur": "ship",
    "etkinlik": "prometheus",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "prometheus",
      "kutu": "PROMETHEUS_BOOTY_BOX",
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "BOXES | EVENT Prometheus Day: Prometheus Box - RARE SHIP DESIGNS (12%) 25% within group"
@@ -810,12 +810,12 @@
   "ship_diminisher_design_diminisher-empyrian": {
    "tur": "ship",
    "etkinlik": "empyrian",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "empyrian",
      "kutu": "EMPYRIAN_BOOTY_BOX",
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "EMPYRIAN MARCH EVENT 2024"
@@ -823,18 +823,18 @@
   "ship_diminisher_design_diminisher-inferno": {
    "tur": "ship",
    "etkinlik": "prometheus",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "prometheus",
      "kutu": "PROMETHEUS_BOOTY_BOX",
-     "agirlik": 0.5
+     "weight": 0.5
     },
     {
      "yol": "kutu",
      "etkinlik": "empyrian",
      "kutu": "EMPYRIAN_BOOTY_BOX",
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "Prometheus Day Event (2020) / SHOP PAYMENTS / Astral Discovery Event (2022) | EVENT Astral Discovery: Galaxy Gate special additional reward for completing Alpha, Beta, Gamma gates (drop table of ship "
@@ -842,13 +842,13 @@
   "ship_diminisher_design_diminisher-lava": {
    "tur": "ship",
    "etkinlik": "prometheus",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "prometheus",
      "kutu": "PROMETHEUS_BOOTY_BOX",
      "tablo": true,
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "BOXES | Lava Diminisher"
@@ -856,7 +856,7 @@
   "ship_diminisher_design_diminisher-neikos": {
    "tur": "ship",
    "etkinlik": "galactic_strife",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "galactic_strife",
@@ -869,7 +869,7 @@
   "ship_diminisher_design_ship-diminisher-dusklight": {
    "tur": "ship",
    "etkinlik": "halloween",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "halloween",
@@ -882,7 +882,7 @@
   "ship_disruptor_design_disruptor-arios": {
    "tur": "ship",
    "etkinlik": "galactic_strife",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "galactic_strife",
@@ -895,7 +895,7 @@
   "ship_disruptor_design_disruptor-frost": {
    "tur": "ship",
    "etkinlik": "gg_hafta_sonu",
-   "yollar": [
+   "paths": [
     {
      "yol": "kapi",
      "etkinlik": "gg_hafta_sonu",
@@ -903,7 +903,7 @@
       "zeta",
       "kappa"
      ],
-     "olasilik": 0.5
+     "probability": 0.5
     }
    ],
    "kaynak": "Gate: Delta, Epsilon, Zeta, Kappa (13-15.12.2019)"
@@ -911,7 +911,7 @@
   "ship_disruptor_design_disruptor-neikos": {
    "tur": "ship",
    "etkinlik": "galactic_strife",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "galactic_strife",
@@ -924,12 +924,12 @@
   "ship_disruptor_design_disruptor-prometheus": {
    "tur": "ship",
    "etkinlik": "prometheus",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "prometheus",
      "kutu": "PROMETHEUS_BOOTY_BOX",
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "Prometheus Day Event (2020)"
@@ -937,13 +937,13 @@
   "ship_g-champion_design_g-champion-argon": {
    "tur": "ship",
    "etkinlik": "empyrian",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "empyrian",
      "kutu": "EMPYRIAN_BOOTY_BOX",
      "tablo": true,
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "SHOP PAYMENTS | EVENT Empyrian March: Empyrian Box - EPIC DESIGNS PACKAGE (0.1%) package 1 of 4 (25% each); package contents: Argon G-Champion Ship Design; Argon Diminisher P.E.T. Design; Argon Sentin"
@@ -951,7 +951,7 @@
   "ship_g-champion_design_g-champion-dusklight": {
    "tur": "ship",
    "etkinlik": "halloween",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "halloween",
@@ -964,7 +964,7 @@
   "ship_g-surgeon_design_g-surgeon-cicada": {
    "tur": "ship",
    "etkinlik": "gg_hafta_sonu",
-   "yollar": [
+   "paths": [
     {
      "yol": "kapi",
      "etkinlik": "gg_hafta_sonu",
@@ -972,7 +972,7 @@
       "zeta",
       "kappa"
      ],
-     "olasilik": 0.5
+     "probability": 0.5
     }
    ],
    "kaynak": "ASSEMBLY (Saimon Mutiny Event):"
@@ -980,7 +980,7 @@
   "ship_g-surgeon_design_g-surgeon-devolarium": {
    "tur": "ship",
    "etkinlik": "gg_hafta_sonu",
-   "yollar": [
+   "paths": [
     {
      "yol": "kapi",
      "etkinlik": "gg_hafta_sonu",
@@ -988,7 +988,7 @@
       "zeta",
       "kappa"
      ],
-     "olasilik": 0.5
+     "probability": 0.5
     }
    ],
    "kaynak": "–"
@@ -996,7 +996,7 @@
   "ship_g-surgeon_design_g-surgeon-locust": {
    "tur": "ship",
    "etkinlik": "gg_hafta_sonu",
-   "yollar": [
+   "paths": [
     {
      "yol": "kapi",
      "etkinlik": "gg_hafta_sonu",
@@ -1004,7 +1004,7 @@
       "zeta",
       "kappa"
      ],
-     "olasilik": 0.5
+     "probability": 0.5
     }
    ],
    "kaynak": "–"
@@ -1012,7 +1012,7 @@
   "ship_g-surgeon_design_g-surgeon-saimon": {
    "tur": "ship",
    "etkinlik": "gg_hafta_sonu",
-   "yollar": [
+   "paths": [
     {
      "yol": "kapi",
      "etkinlik": "gg_hafta_sonu",
@@ -1020,7 +1020,7 @@
       "zeta",
       "kappa"
      ],
-     "olasilik": 0.5
+     "probability": 0.5
     }
    ],
    "kaynak": "–"
@@ -1028,7 +1028,7 @@
   "ship_g-surgeon_design_g-surgeon-sibelonit": {
    "tur": "ship",
    "etkinlik": "gg_hafta_sonu",
-   "yollar": [
+   "paths": [
     {
      "yol": "kapi",
      "etkinlik": "gg_hafta_sonu",
@@ -1036,7 +1036,7 @@
       "zeta",
       "kappa"
      ],
-     "olasilik": 0.5
+     "probability": 0.5
     }
    ],
    "kaynak": "–"
@@ -1044,7 +1044,7 @@
   "ship_goliath-plus_design_goliath-plus-arios": {
    "tur": "ship",
    "etkinlik": "galactic_strife",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "galactic_strife",
@@ -1057,7 +1057,7 @@
   "ship_goliath-plus_design_goliath-plus-arisen": {
    "tur": "ship",
    "etkinlik": "sezon",
-   "yollar": [
+   "paths": [
     {
      "yol": "sezon",
      "etkinlik": "sezon"
@@ -1068,12 +1068,12 @@
   "ship_goliath-plus_design_goliath-plus-bdayriot": {
    "tur": "ship",
    "etkinlik": "kis",
-   "yollar": [
+   "paths": [
     {
      "yol": "harita",
      "etkinlik": "kis",
      "kutu": "GIFT_BOXES",
-     "agirlik": 0.25
+     "weight": 0.25
     }
    ],
    "kaynak": "–"
@@ -1081,12 +1081,12 @@
   "ship_goliath-plus_design_goliath-plus-blaze": {
    "tur": "ship",
    "etkinlik": "obsidian_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
-     "agirlik": 0.319
+     "weight": 0.319
     }
    ],
    "kaynak": "BOXES"
@@ -1094,7 +1094,7 @@
   "ship_goliath-plus_design_goliath-plus-epion": {
    "tur": "ship",
    "etkinlik": "hitac",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "hitac",
@@ -1107,7 +1107,7 @@
   "ship_goliath-plus_design_goliath-plus-neikos": {
    "tur": "ship",
    "etkinlik": "galactic_strife",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "galactic_strife",
@@ -1120,7 +1120,7 @@
   "ship_goliath-plus_design_goliath-plus-nobilis": {
    "tur": "ship",
    "etkinlik": "plutus",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "plutus",
@@ -1133,12 +1133,12 @@
   "ship_goliath-plus_design_goliath-plus-prosperous": {
    "tur": "ship",
    "etkinlik": "prosperous",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "prosperous",
      "kutu": "PROSPEROUS_BOOTY_BOX",
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "PROSPEROUS EVENT 2023"
@@ -1146,12 +1146,12 @@
   "ship_goliath-x_design_goliath-x-lava": {
    "tur": "ship",
    "etkinlik": "obsidian_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
-     "agirlik": 0.319
+     "weight": 0.319
     }
    ],
    "kaynak": "–"
@@ -1159,12 +1159,12 @@
   "ship_goliath-x_design_goliath-x-legend": {
    "tur": "ship",
    "etkinlik": "obsidian_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
-     "agirlik": 0.319
+     "weight": 0.319
     }
    ],
    "kaynak": "–"
@@ -1172,7 +1172,7 @@
   "ship_goliath_design_bronze": {
    "tur": "ship",
    "etkinlik": "galactic_strife",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "galactic_strife",
@@ -1185,7 +1185,7 @@
   "ship_goliath_design_gold": {
    "tur": "ship",
    "etkinlik": "galactic_strife",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "galactic_strife",
@@ -1198,7 +1198,7 @@
   "ship_goliath_design_silver": {
    "tur": "ship",
    "etkinlik": "galactic_strife",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "galactic_strife",
@@ -1211,7 +1211,7 @@
   "ship_hammerclaw-plus_design_hammerclaw-plus-arios": {
    "tur": "ship",
    "etkinlik": "galactic_strife",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "galactic_strife",
@@ -1224,12 +1224,12 @@
   "ship_hammerclaw-plus_design_hammerclaw-plus-empyrian": {
    "tur": "ship",
    "etkinlik": "empyrian",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "empyrian",
      "kutu": "EMPYRIAN_BOOTY_BOX",
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "EMPYRIAN MARCH 2026"
@@ -1237,7 +1237,7 @@
   "ship_hammerclaw-plus_design_hammerclaw-plus-neikos": {
    "tur": "ship",
    "etkinlik": "galactic_strife",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "galactic_strife",
@@ -1250,12 +1250,12 @@
   "ship_hammerclaw-plus_design_hammerclaw-plus-prometheus": {
    "tur": "ship",
    "etkinlik": "prometheus",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "prometheus",
      "kutu": "PROMETHEUS_BOOTY_BOX",
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "BOXES | EVENT Prometheus Day: Prometheus Box - LEGEND SHIP DESIGNS (3.9%) 9.09% within group (page prints '9.09')"
@@ -1263,12 +1263,12 @@
   "ship_hammerclaw_design_hammerclaw-carbonite": {
    "tur": "ship",
    "etkinlik": "obsidian_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
-     "agirlik": 0.319
+     "weight": 0.319
     }
    ],
    "kaynak": "–"
@@ -1276,7 +1276,7 @@
   "ship_hammerclaw_design_hammerclaw-frozen": {
    "tur": "ship",
    "etkinlik": "labirent",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "labirent",
@@ -1289,7 +1289,7 @@
   "ship_hammerclaw_design_hammerclaw-inferno": {
    "tur": "ship",
    "etkinlik": "protegit",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "protegit",
@@ -1302,12 +1302,12 @@
   "ship_hammerclaw_design_hammerclaw-lava": {
    "tur": "ship",
    "etkinlik": "obsidian_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
-     "agirlik": 0.319
+     "weight": 0.319
     }
    ],
    "kaynak": "–"
@@ -1315,12 +1315,12 @@
   "ship_hammerclaw_design_hammerclaw-prometheus": {
    "tur": "ship",
    "etkinlik": "prometheus",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "prometheus",
      "kutu": "PROMETHEUS_BOOTY_BOX",
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "Prometheus Day Event (2019)"
@@ -1328,12 +1328,12 @@
   "ship_hammerclaw_design_hammerclaw-prosperous": {
    "tur": "ship",
    "etkinlik": "prosperous",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "prosperous",
      "kutu": "PROSPEROUS_BOOTY_BOX",
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "–"
@@ -1341,7 +1341,7 @@
   "ship_hammerclaw_design_hammerclaw-tyrannos": {
    "tur": "ship",
    "etkinlik": "mimesis_mutiny",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "mimesis_mutiny",
@@ -1354,7 +1354,7 @@
   "ship_hecate-plus_design_hecate-plus-arios": {
    "tur": "ship",
    "etkinlik": "galactic_strife",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "galactic_strife",
@@ -1367,7 +1367,7 @@
   "ship_hecate-plus_design_hecate-plus-asimov": {
    "tur": "ship",
    "etkinlik": "mimesis_mutiny",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "mimesis_mutiny",
@@ -1380,12 +1380,12 @@
   "ship_hecate-plus_design_hecate-plus-empyrian": {
    "tur": "ship",
    "etkinlik": "empyrian",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "empyrian",
      "kutu": "EMPYRIAN_BOOTY_BOX",
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "EMPYRIAN BOX | EVENT Empyrian March: Galaxy Gate 'Empyrian Reward Package' (5% per Alpha/Beta/Gamma completion; not available via Dispatch) 15% within package"
@@ -1393,7 +1393,7 @@
   "ship_hecate-plus_design_hecate-plus-neikos": {
    "tur": "ship",
    "etkinlik": "galactic_strife",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "galactic_strife",
@@ -1406,7 +1406,7 @@
   "ship_hecate_design_hecate-carbonite": {
    "tur": "ship",
    "etkinlik": "gg_hafta_sonu",
-   "yollar": [
+   "paths": [
     {
      "yol": "kapi",
      "etkinlik": "gg_hafta_sonu",
@@ -1414,7 +1414,7 @@
       "zeta",
       "kappa"
      ],
-     "olasilik": 0.5
+     "probability": 0.5
     }
    ],
    "kaynak": "Galacy Gate: Delta, Epsilon, Zeta, Kappa (18-21.10.2019)"
@@ -1422,12 +1422,12 @@
   "ship_hecate_design_hecate-frost": {
    "tur": "ship",
    "etkinlik": "obsidian_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
-     "agirlik": 0.319
+     "weight": 0.319
     }
    ],
    "kaynak": "OBSIDIAN BOX"
@@ -1435,7 +1435,7 @@
   "ship_hecate_design_hecate-inferno": {
    "tur": "ship",
    "etkinlik": "protegit",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "protegit",
@@ -1448,7 +1448,7 @@
   "ship_hecate_design_hecate-lava": {
    "tur": "ship",
    "etkinlik": "gg_hafta_sonu",
-   "yollar": [
+   "paths": [
     {
      "yol": "kapi",
      "etkinlik": "gg_hafta_sonu",
@@ -1456,7 +1456,7 @@
       "zeta",
       "kappa"
      ],
-     "olasilik": 0.5
+     "probability": 0.5
     }
    ],
    "kaynak": "Galacy Gate: Delta, Epsilon, Zeta, Kappa (18-21.10.2019)"
@@ -1464,12 +1464,12 @@
   "ship_hecate_design_hecate-ocean": {
    "tur": "ship",
    "etkinlik": "obsidian_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
-     "agirlik": 0.319
+     "weight": 0.319
     }
    ],
    "kaynak": "OBSIDIAN BOX"
@@ -1477,7 +1477,7 @@
   "ship_hecate_design_hecate-poison": {
    "tur": "ship",
    "etkinlik": "gg_hafta_sonu",
-   "yollar": [
+   "paths": [
     {
      "yol": "kapi",
      "etkinlik": "gg_hafta_sonu",
@@ -1485,7 +1485,7 @@
       "zeta",
       "kappa"
      ],
-     "olasilik": 0.5
+     "probability": 0.5
     }
    ],
    "kaynak": "Galacy Gate: Delta, Epsilon, Zeta, Kappa (18-21.10.2019)"
@@ -1493,12 +1493,12 @@
   "ship_keres_design_keres-contagion": {
    "tur": "ship",
    "etkinlik": "prosperous",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "prosperous",
      "kutu": "PROSPEROUS_BOOTY_BOX",
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "Plague Mutation Event (2020)"
@@ -1506,7 +1506,7 @@
   "ship_keres_design_keres-frost": {
    "tur": "ship",
    "etkinlik": "gg_hafta_sonu",
-   "yollar": [
+   "paths": [
     {
      "yol": "kapi",
      "etkinlik": "gg_hafta_sonu",
@@ -1514,7 +1514,7 @@
       "zeta",
       "kappa"
      ],
-     "olasilik": 0.5
+     "probability": 0.5
     }
    ],
    "kaynak": "GALAXY GATE: Delta, Epsilon, Zeta, Kappa (29-31.12.2020) / SHOP PAYMENTS"
@@ -1522,12 +1522,12 @@
   "ship_keres_design_keres-prometheus": {
    "tur": "ship",
    "etkinlik": "prometheus",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "prometheus",
      "kutu": "PROMETHEUS_BOOTY_BOX",
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "BOXES"
@@ -1535,12 +1535,12 @@
   "ship_mimesis_design_mimesis-argon": {
    "tur": "ship",
    "etkinlik": "obsidian_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
-     "agirlik": 0.319
+     "weight": 0.319
     }
    ],
    "kaynak": "–"
@@ -1548,12 +1548,12 @@
   "ship_mimesis_design_mimesis-carbonite": {
    "tur": "ship",
    "etkinlik": "obsidian_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
-     "agirlik": 0.319
+     "weight": 0.319
     }
    ],
    "kaynak": "BOXES"
@@ -1561,7 +1561,7 @@
   "ship_mimesis_design_mimesis-epion": {
    "tur": "ship",
    "etkinlik": "gg_hafta_sonu",
-   "yollar": [
+   "paths": [
     {
      "yol": "kapi",
      "etkinlik": "gg_hafta_sonu",
@@ -1569,7 +1569,7 @@
       "zeta",
       "kappa"
      ],
-     "olasilik": 0.5
+     "probability": 0.5
     }
    ],
    "kaynak": "Galaxy Gate: Delta, Epsilon, Zeta, Kappa (23-26.08.2019)"
@@ -1577,12 +1577,12 @@
   "ship_mimesis_design_mimesis-frost": {
    "tur": "ship",
    "etkinlik": "kis",
-   "yollar": [
+   "paths": [
     {
      "yol": "harita",
      "etkinlik": "kis",
      "kutu": "GIFT_BOXES",
-     "agirlik": 0.25
+     "weight": 0.25
     }
    ],
    "kaynak": "Winter Calendar 2022"
@@ -1590,7 +1590,7 @@
   "ship_mimesis_design_mimesis-inferno": {
    "tur": "ship",
    "etkinlik": "protegit",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "protegit",
@@ -1603,12 +1603,12 @@
   "ship_mimesis_design_mimesis-mint": {
    "tur": "ship",
    "etkinlik": "obsidian_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
-     "agirlik": 0.319
+     "weight": 0.319
     }
    ],
    "kaynak": "–"
@@ -1616,7 +1616,7 @@
   "ship_mimesis_design_mimesis-osiris": {
    "tur": "ship",
    "etkinlik": "gg_hafta_sonu",
-   "yollar": [
+   "paths": [
     {
      "yol": "kapi",
      "etkinlik": "gg_hafta_sonu",
@@ -1624,7 +1624,7 @@
       "zeta",
       "kappa"
      ],
-     "olasilik": 0.5
+     "probability": 0.5
     }
    ],
    "kaynak": "Galaxy Gate: Delta, Epsilon, Zeta, Kappa (23-26.08.2019)"
@@ -1632,7 +1632,7 @@
   "ship_mimesis_design_mimesis-phantasm": {
    "tur": "ship",
    "etkinlik": "halloween",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "halloween",
@@ -1645,7 +1645,7 @@
   "ship_mimesis_design_mimesis-smite": {
    "tur": "ship",
    "etkinlik": "gg_hafta_sonu",
-   "yollar": [
+   "paths": [
     {
      "yol": "kapi",
      "etkinlik": "gg_hafta_sonu",
@@ -1653,7 +1653,7 @@
       "zeta",
       "kappa"
      ],
-     "olasilik": 0.5
+     "probability": 0.5
     }
    ],
    "kaynak": "Galaxy Gate: Delta, Epsilon, Zeta, Kappa (23-26.08.2019)"
@@ -1661,12 +1661,12 @@
   "ship_n-ambassador_design_n-ambassador-inferno": {
    "tur": "ship",
    "etkinlik": "obsidian_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
-     "agirlik": 0.319
+     "weight": 0.319
     }
    ],
    "kaynak": "OBSIDIAN BOX"
@@ -1674,12 +1674,12 @@
   "ship_nostromo_design_nostromo-razer": {
    "tur": "ship",
    "etkinlik": "obsidian_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
-     "agirlik": 0.319
+     "weight": 0.319
     }
    ],
    "kaynak": "Week of Razer Challenges (2014)"
@@ -1687,7 +1687,7 @@
   "ship_orcus_design_orcus-arios": {
    "tur": "ship",
    "etkinlik": "galactic_strife",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "galactic_strife",
@@ -1700,12 +1700,12 @@
   "ship_orcus_design_orcus-blaze": {
    "tur": "ship",
    "etkinlik": "obsidian_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
-     "agirlik": 0.319
+     "weight": 0.319
     }
    ],
    "kaynak": "–"
@@ -1713,12 +1713,12 @@
   "ship_orcus_design_orcus-celestial": {
    "tur": "ship",
    "etkinlik": "goal_rush",
-   "yollar": [
+   "paths": [
     {
      "yol": "harita",
      "etkinlik": "goal_rush",
      "kutu": "FOOTBALL_BOX",
-     "agirlik": 1
+     "weight": 1
     }
    ],
    "kaynak": "–"
@@ -1726,7 +1726,7 @@
   "ship_orcus_design_orcus-dusklight": {
    "tur": "ship",
    "etkinlik": "halloween",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "halloween",
@@ -1739,12 +1739,12 @@
   "ship_orcus_design_orcus-empyrian": {
    "tur": "ship",
    "etkinlik": "empyrian",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "empyrian",
      "kutu": "EMPYRIAN_BOOTY_BOX",
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "EMPYRIAN BOX | EVENT Empyrian March: Galaxy Gate 'Empyrian Reward Package' (5% per Alpha/Beta/Gamma completion; not available via Dispatch) 5% within package"
@@ -1752,12 +1752,12 @@
   "ship_orcus_design_orcus-firestar": {
    "tur": "ship",
    "etkinlik": "goal_rush",
-   "yollar": [
+   "paths": [
     {
      "yol": "harita",
      "etkinlik": "goal_rush",
      "kutu": "FOOTBALL_BOX",
-     "agirlik": 1
+     "weight": 1
     }
    ],
    "kaynak": "–"
@@ -1765,7 +1765,7 @@
   "ship_orcus_design_orcus-frost": {
    "tur": "ship",
    "etkinlik": "labirent",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "labirent",
@@ -1778,7 +1778,7 @@
   "ship_orcus_design_orcus-guardian": {
    "tur": "ship",
    "etkinlik": "mimesis_mutiny",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "mimesis_mutiny",
@@ -1791,7 +1791,7 @@
   "ship_orcus_design_orcus-hellspire": {
    "tur": "ship",
    "etkinlik": "sezon",
-   "yollar": [
+   "paths": [
     {
      "yol": "sezon",
      "etkinlik": "sezon"
@@ -1802,12 +1802,12 @@
   "ship_orcus_design_orcus-maelstrom": {
    "tur": "ship",
    "etkinlik": "goal_rush",
-   "yollar": [
+   "paths": [
     {
      "yol": "harita",
      "etkinlik": "goal_rush",
      "kutu": "FOOTBALL_BOX",
-     "agirlik": 1
+     "weight": 1
     }
    ],
    "kaynak": "–"
@@ -1815,7 +1815,7 @@
   "ship_orcus_design_orcus-neikos": {
    "tur": "ship",
    "etkinlik": "galactic_strife",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "galactic_strife",
@@ -1828,7 +1828,7 @@
   "ship_orcus_design_orcus-nobilis": {
    "tur": "ship",
    "etkinlik": "plutus",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "plutus",
@@ -1841,12 +1841,12 @@
   "ship_orcus_design_orcus-starscream": {
    "tur": "ship",
    "etkinlik": "goal_rush",
-   "yollar": [
+   "paths": [
     {
      "yol": "harita",
      "etkinlik": "goal_rush",
      "kutu": "FOOTBALL_BOX",
-     "agirlik": 1
+     "weight": 1
     }
    ],
    "kaynak": "–"
@@ -1854,7 +1854,7 @@
   "ship_orcus_design_orcus-strife": {
    "tur": "ship",
    "etkinlik": "galactic_strife",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "galactic_strife",
@@ -1867,12 +1867,12 @@
   "ship_orcus_design_orcus-sunstorm": {
    "tur": "ship",
    "etkinlik": "goal_rush",
-   "yollar": [
+   "paths": [
     {
      "yol": "harita",
      "etkinlik": "goal_rush",
      "kutu": "FOOTBALL_BOX",
-     "agirlik": 1
+     "weight": 1
     }
    ],
    "kaynak": "–"
@@ -1880,7 +1880,7 @@
   "ship_orcus_design_orcus-wildfire": {
    "tur": "ship",
    "etkinlik": "galactic_strife",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "galactic_strife",
@@ -1893,7 +1893,7 @@
   "ship_paladin_design_paladin-dusklight": {
    "tur": "ship",
    "etkinlik": "halloween",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "halloween",
@@ -1906,12 +1906,12 @@
   "ship_paladin_design_paladin-empyrian": {
    "tur": "ship",
    "etkinlik": "empyrian",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "empyrian",
      "kutu": "EMPYRIAN_BOOTY_BOX",
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "BOXES"
@@ -1919,7 +1919,7 @@
   "ship_paladin_design_paladin-frost": {
    "tur": "ship",
    "etkinlik": "labirent",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "labirent",
@@ -1932,7 +1932,7 @@
   "ship_paladin_design_paladin-guardian": {
    "tur": "ship",
    "etkinlik": "mimesis_mutiny",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "mimesis_mutiny",
@@ -1945,12 +1945,12 @@
   "ship_paladin_design_paladin-legend": {
    "tur": "ship",
    "etkinlik": "obsidian_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
-     "agirlik": 0.319
+     "weight": 0.319
     }
    ],
    "kaynak": "BOXES"
@@ -1958,7 +1958,7 @@
   "ship_paladin_design_paladin-nobilis": {
    "tur": "ship",
    "etkinlik": "plutus",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "plutus",
@@ -1971,7 +1971,7 @@
   "ship_pusat-plus_design_pusat-plus-arios": {
    "tur": "ship",
    "etkinlik": "galactic_strife",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "galactic_strife",
@@ -1984,7 +1984,7 @@
   "ship_pusat-plus_design_pusat-plus-dusklight": {
    "tur": "ship",
    "etkinlik": "halloween",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "halloween",
@@ -1997,12 +1997,12 @@
   "ship_pusat-plus_design_pusat-plus-empyrian": {
    "tur": "ship",
    "etkinlik": "empyrian",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "empyrian",
      "kutu": "EMPYRIAN_BOOTY_BOX",
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "Empyrian March Event 2023"
@@ -2010,7 +2010,7 @@
   "ship_pusat-plus_design_pusat-plus-neikos": {
    "tur": "ship",
    "etkinlik": "galactic_strife",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "galactic_strife",
@@ -2023,7 +2023,7 @@
   "ship_pusat-plus_design_pusat-plus-smite": {
    "tur": "ship",
    "etkinlik": "hitac",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "hitac",
@@ -2036,12 +2036,12 @@
   "ship_retiarus-plus_design_retiarus-plus-empyrian": {
    "tur": "ship",
    "etkinlik": "empyrian",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "empyrian",
      "kutu": "EMPYRIAN_BOOTY_BOX",
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "EMPYRIAN MARCH 2026"
@@ -2049,7 +2049,7 @@
   "ship_retiarus-plus_design_retiarus-plus-inferno": {
    "tur": "ship",
    "etkinlik": "protegit",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "protegit",
@@ -2062,7 +2062,7 @@
   "ship_retiarus_design_retiarus-arios": {
    "tur": "ship",
    "etkinlik": "galactic_strife",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "galactic_strife",
@@ -2075,7 +2075,7 @@
   "ship_retiarus_design_retiarus-frost": {
    "tur": "ship",
    "etkinlik": "gg_hafta_sonu",
-   "yollar": [
+   "paths": [
     {
      "yol": "kapi",
      "etkinlik": "gg_hafta_sonu",
@@ -2083,7 +2083,7 @@
       "zeta",
       "kappa"
      ],
-     "olasilik": 0.5
+     "probability": 0.5
     }
    ],
    "kaynak": "GALAXY GATE: Delta, Epsilon, Zeta, Kappa (29-31.12.2020) / SHOP PAYMENTS"
@@ -2091,7 +2091,7 @@
   "ship_retiarus_design_retiarus-neikos": {
    "tur": "ship",
    "etkinlik": "galactic_strife",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "galactic_strife",
@@ -2104,7 +2104,7 @@
   "ship_sentinel_design_sentinel-arios": {
    "tur": "ship",
    "etkinlik": "galactic_strife",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "galactic_strife",
@@ -2117,12 +2117,12 @@
   "ship_sentinel_design_sentinel-contagion": {
    "tur": "ship",
    "etkinlik": "prosperous",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "prosperous",
      "kutu": "PROSPEROUS_BOOTY_BOX",
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "Plague Mutation Event (2020)"
@@ -2130,12 +2130,12 @@
   "ship_sentinel_design_sentinel-elysium": {
    "tur": "ship",
    "etkinlik": "obsidian_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
-     "agirlik": 0.319
+     "weight": 0.319
     }
    ],
    "kaynak": "BOXES"
@@ -2143,12 +2143,12 @@
   "ship_sentinel_design_sentinel-empyrian": {
    "tur": "ship",
    "etkinlik": "empyrian",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "empyrian",
      "kutu": "EMPYRIAN_BOOTY_BOX",
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "EMPYRIAN MARCH EVENT 2023"
@@ -2156,25 +2156,25 @@
   "ship_sentinel_design_sentinel-inferno": {
    "tur": "ship",
    "etkinlik": "obsidian_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
-     "agirlik": 0.319
+     "weight": 0.319
     },
     {
      "yol": "kutu",
      "etkinlik": "empyrian",
      "kutu": "EMPYRIAN_BOOTY_BOX",
-     "agirlik": 0.5
+     "weight": 0.5
     },
     {
      "yol": "kutu",
      "etkinlik": "prosperous",
      "kutu": "PROSPEROUS_BOOTY_BOX",
      "tablo": true,
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "OBSIDIAN BOX / Astral Discovery Event (2022) | EVENT Prosperous Mutation Event: Prosperous Box - EPIC DESIGNS (0.1%) package 2 of 4 (25% each); package contents: Inferno Orcus Ship Design; Inferno Sen"
@@ -2182,19 +2182,19 @@
   "ship_sentinel_design_sentinel-lava": {
    "tur": "ship",
    "etkinlik": "obsidian_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
-     "agirlik": 0.319
+     "weight": 0.319
     },
     {
      "yol": "kutu",
      "etkinlik": "empyrian",
      "kutu": "EMPYRIAN_BOOTY_BOX",
      "tablo": true,
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "OBSIDIAN BOX | EVENT Empyrian March: Empyrian Box - EPIC DESIGNS PACKAGE (0.1%) package 2 of 4 (25% each); package contents: Lava Sentinel Ship Design; Lava Cyborg P.E.T. Design; 2x Inferno Drone Desi"
@@ -2202,12 +2202,12 @@
   "ship_sentinel_design_sentinel-legend": {
    "tur": "ship",
    "etkinlik": "obsidian_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
-     "agirlik": 0.319
+     "weight": 0.319
     }
    ],
    "kaynak": "OBSIDIAN BOX"
@@ -2215,7 +2215,7 @@
   "ship_sentinel_design_sentinel-neikos": {
    "tur": "ship",
    "etkinlik": "galactic_strife",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "galactic_strife",
@@ -2228,7 +2228,7 @@
   "ship_solace-plus_design_solace-plus-arios": {
    "tur": "ship",
    "etkinlik": "galactic_strife",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "galactic_strife",
@@ -2241,7 +2241,7 @@
   "ship_solace-plus_design_solace-plus-atlantis": {
    "tur": "ship",
    "etkinlik": "sezon",
-   "yollar": [
+   "paths": [
     {
      "yol": "sezon",
      "etkinlik": "sezon"
@@ -2252,12 +2252,12 @@
   "ship_solace-plus_design_solace-plus-empyrian": {
    "tur": "ship",
    "etkinlik": "empyrian",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "empyrian",
      "kutu": "EMPYRIAN_BOOTY_BOX",
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "EMPYRIAN MARCH 2025"
@@ -2265,7 +2265,7 @@
   "ship_solace-plus_design_solace-plus-epion": {
    "tur": "ship",
    "etkinlik": "hitac",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "hitac",
@@ -2278,7 +2278,7 @@
   "ship_solace-plus_design_solace-plus-inferno": {
    "tur": "ship",
    "etkinlik": "protegit",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "protegit",
@@ -2291,7 +2291,7 @@
   "ship_solace-plus_design_solace-plus-neikos": {
    "tur": "ship",
    "etkinlik": "galactic_strife",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "galactic_strife",
@@ -2304,7 +2304,7 @@
   "ship_solace-plus_design_solace-plus-phantasm": {
    "tur": "ship",
    "etkinlik": "halloween",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "halloween",
@@ -2317,12 +2317,12 @@
   "ship_solace-plus_design_solace-plus-prometheus": {
    "tur": "ship",
    "etkinlik": "prometheus",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "prometheus",
      "kutu": "PROMETHEUS_BOOTY_BOX",
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "BOXES | EVENT Prometheus Day: Prometheus Box - LEGEND SHIP DESIGNS (3.9%) 9.09% within group (page prints '9.09')"
@@ -2330,12 +2330,12 @@
   "ship_solace_design_solace-argon": {
    "tur": "ship",
    "etkinlik": "obsidian_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
-     "agirlik": 0.319
+     "weight": 0.319
     }
    ],
    "kaynak": "OBSIDIAN BOX"
@@ -2343,12 +2343,12 @@
   "ship_solace_design_solace-blaze": {
    "tur": "ship",
    "etkinlik": "obsidian_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
-     "agirlik": 0.319
+     "weight": 0.319
     }
    ],
    "kaynak": "OBSIDIAN BOX"
@@ -2356,12 +2356,12 @@
   "ship_solace_design_solace-borealis": {
    "tur": "ship",
    "etkinlik": "obsidian_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
-     "agirlik": 0.319
+     "weight": 0.319
     }
    ],
    "kaynak": "OBSIDIAN BOX"
@@ -2369,12 +2369,12 @@
   "ship_solace_design_solace-frost": {
    "tur": "ship",
    "etkinlik": "kis",
-   "yollar": [
+   "paths": [
     {
      "yol": "harita",
      "etkinlik": "kis",
      "kutu": "GIFT_BOXES",
-     "agirlik": 0.25
+     "weight": 0.25
     }
    ],
    "kaynak": "WINTER CALENDAR 2019"
@@ -2382,12 +2382,12 @@
   "ship_solace_design_solace-inferno": {
    "tur": "ship",
    "etkinlik": "empyrian",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "empyrian",
      "kutu": "EMPYRIAN_BOOTY_BOX",
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "EVENT Empyrian March: Galaxy Gate 'Empyrian Reward Package' (5% per Alpha/Beta/Gamma completion; not available via Dispatch) 25% within package"
@@ -2395,7 +2395,7 @@
   "ship_solace_design_solace-nobilis": {
    "tur": "ship",
    "etkinlik": "plutus",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "plutus",
@@ -2408,12 +2408,12 @@
   "ship_solace_design_solace-ocean": {
    "tur": "ship",
    "etkinlik": "obsidian_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
-     "agirlik": 0.319
+     "weight": 0.319
     }
    ],
    "kaynak": "OBSIDIAN BOX"
@@ -2421,12 +2421,12 @@
   "ship_solace_design_solace-poison": {
    "tur": "ship",
    "etkinlik": "obsidian_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
-     "agirlik": 0.319
+     "weight": 0.319
     }
    ],
    "kaynak": "OBSIDIAN BOX"
@@ -2434,12 +2434,12 @@
   "ship_solace_design_solace-prometheus": {
    "tur": "ship",
    "etkinlik": "prometheus",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "prometheus",
      "kutu": "PROMETHEUS_BOOTY_BOX",
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "Prometheus Day Event (2020)"
@@ -2447,12 +2447,12 @@
   "ship_solace_design_solace-prosperous": {
    "tur": "ship",
    "etkinlik": "prosperous",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "prosperous",
      "kutu": "PROSPEROUS_BOOTY_BOX",
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "–"
@@ -2460,7 +2460,7 @@
   "ship_solaris-plus_design_solaris-plus-arios": {
    "tur": "ship",
    "etkinlik": "galactic_strife",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "galactic_strife",
@@ -2473,7 +2473,7 @@
   "ship_solaris-plus_design_solaris-plus-asimov": {
    "tur": "ship",
    "etkinlik": "mimesis_mutiny",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "mimesis_mutiny",
@@ -2486,12 +2486,12 @@
   "ship_solaris-plus_design_solaris-plus-elysium": {
    "tur": "ship",
    "etkinlik": "obsidian_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
-     "agirlik": 0.319
+     "weight": 0.319
     }
    ],
    "kaynak": "BOXES"
@@ -2499,12 +2499,12 @@
   "ship_solaris-plus_design_solaris-plus-empyrian": {
    "tur": "ship",
    "etkinlik": "empyrian",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "empyrian",
      "kutu": "EMPYRIAN_BOOTY_BOX",
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "Empyrian March Event 2024"
@@ -2512,7 +2512,7 @@
   "ship_solaris-plus_design_solaris-plus-epion": {
    "tur": "ship",
    "etkinlik": "hitac",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "hitac",
@@ -2525,12 +2525,12 @@
   "ship_solaris-plus_design_solaris-plus-legend": {
    "tur": "ship",
    "etkinlik": "obsidian_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
-     "agirlik": 0.319
+     "weight": 0.319
     }
    ],
    "kaynak": "BOXES"
@@ -2538,7 +2538,7 @@
   "ship_solaris-plus_design_solaris-plus-neikos": {
    "tur": "ship",
    "etkinlik": "galactic_strife",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "galactic_strife",
@@ -2551,7 +2551,7 @@
   "ship_solaris-plus_design_solaris-plus-nobilis": {
    "tur": "ship",
    "etkinlik": "plutus",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "plutus",
@@ -2564,7 +2564,7 @@
   "ship_solaris-plus_design_solaris-plus-phantasm": {
    "tur": "ship",
    "etkinlik": "halloween",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "halloween",
@@ -2577,7 +2577,7 @@
   "ship_solaris_design_solaris-asimov": {
    "tur": "ship",
    "etkinlik": "mimesis_mutiny",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "mimesis_mutiny",
@@ -2590,7 +2590,7 @@
   "ship_solaris_design_solaris-frost": {
    "tur": "ship",
    "etkinlik": "gg_hafta_sonu",
-   "yollar": [
+   "paths": [
     {
      "yol": "kapi",
      "etkinlik": "gg_hafta_sonu",
@@ -2598,7 +2598,7 @@
       "zeta",
       "kappa"
      ],
-     "olasilik": 0.5
+     "probability": 0.5
     }
    ],
    "kaynak": "GALAXY GATE: Delta, Epsilon, Zeta, Kappa (29-31.12.2020) / SHOP PAYMENTS"
@@ -2606,7 +2606,7 @@
   "ship_spearhead-plus_design_spearhead-plus-arios": {
    "tur": "ship",
    "etkinlik": "galactic_strife",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "galactic_strife",
@@ -2619,12 +2619,12 @@
   "ship_spearhead-plus_design_spearhead-plus-blaze": {
    "tur": "ship",
    "etkinlik": "obsidian_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
-     "agirlik": 0.319
+     "weight": 0.319
     }
    ],
    "kaynak": "BOXES"
@@ -2632,12 +2632,12 @@
   "ship_spearhead-plus_design_spearhead-plus-empyrian": {
    "tur": "ship",
    "etkinlik": "empyrian",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "empyrian",
      "kutu": "EMPYRIAN_BOOTY_BOX",
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "EMPYRIAN MARCH EVENT 2024"
@@ -2645,7 +2645,7 @@
   "ship_spearhead-plus_design_spearhead-plus-neikos": {
    "tur": "ship",
    "etkinlik": "galactic_strife",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "galactic_strife",
@@ -2658,12 +2658,12 @@
   "ship_spearhead-plus_design_spearhead-plus-sandstorm": {
    "tur": "ship",
    "etkinlik": "obsidian_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
-     "agirlik": 0.319
+     "weight": 0.319
     }
    ],
    "kaynak": "BOXES"
@@ -2671,7 +2671,7 @@
   "ship_spearhead_design_spearhead-epion": {
    "tur": "ship",
    "etkinlik": "gg_hafta_sonu",
-   "yollar": [
+   "paths": [
     {
      "yol": "kapi",
      "etkinlik": "gg_hafta_sonu",
@@ -2679,7 +2679,7 @@
       "zeta",
       "kappa"
      ],
-     "olasilik": 0.5
+     "probability": 0.5
     }
    ],
    "kaynak": "–"
@@ -2687,7 +2687,7 @@
   "ship_spearhead_design_spearhead-osiris": {
    "tur": "ship",
    "etkinlik": "gg_hafta_sonu",
-   "yollar": [
+   "paths": [
     {
      "yol": "kapi",
      "etkinlik": "gg_hafta_sonu",
@@ -2695,7 +2695,7 @@
       "zeta",
       "kappa"
      ],
-     "olasilik": 0.5
+     "probability": 0.5
     }
    ],
    "kaynak": "–"
@@ -2703,7 +2703,7 @@
   "ship_spearhead_design_spearhead-smite": {
    "tur": "ship",
    "etkinlik": "gg_hafta_sonu",
-   "yollar": [
+   "paths": [
     {
      "yol": "kapi",
      "etkinlik": "gg_hafta_sonu",
@@ -2711,7 +2711,7 @@
       "zeta",
       "kappa"
      ],
-     "olasilik": 0.5
+     "probability": 0.5
     }
    ],
    "kaynak": "–"
@@ -2719,7 +2719,7 @@
   "ship_spectrum-plus_design_spectrum-plus-arios": {
    "tur": "ship",
    "etkinlik": "galactic_strife",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "galactic_strife",
@@ -2732,7 +2732,7 @@
   "ship_spectrum-plus_design_spectrum-plus-asimov": {
    "tur": "ship",
    "etkinlik": "mimesis_mutiny",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "mimesis_mutiny",
@@ -2745,12 +2745,12 @@
   "ship_spectrum-plus_design_spectrum-plus-empyrian": {
    "tur": "ship",
    "etkinlik": "empyrian",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "empyrian",
      "kutu": "EMPYRIAN_BOOTY_BOX",
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "BOXES"
@@ -2758,7 +2758,7 @@
   "ship_spectrum-plus_design_spectrum-plus-inferno": {
    "tur": "ship",
    "etkinlik": "protegit",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "protegit",
@@ -2771,7 +2771,7 @@
   "ship_spectrum-plus_design_spectrum-plus-neikos": {
    "tur": "ship",
    "etkinlik": "galactic_strife",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "galactic_strife",
@@ -2784,12 +2784,12 @@
   "ship_spectrum_design_spectrum-ace": {
    "tur": "ship",
    "etkinlik": "obsidian_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
-     "agirlik": 0.319
+     "weight": 0.319
     }
    ],
    "kaynak": "Reward for special mission “Over 5.000!” (19-26.08.2020)"
@@ -2797,12 +2797,12 @@
   "ship_spectrum_design_spectrum-argon": {
    "tur": "ship",
    "etkinlik": "obsidian_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
-     "agirlik": 0.319
+     "weight": 0.319
     }
    ],
    "kaynak": "BOXES"
@@ -2810,12 +2810,12 @@
   "ship_spectrum_design_spectrum-empyrian": {
    "tur": "ship",
    "etkinlik": "empyrian",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "empyrian",
      "kutu": "EMPYRIAN_BOOTY_BOX",
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "BOXES / Empyrian March Event (2023)"
@@ -2823,19 +2823,19 @@
   "ship_spectrum_design_spectrum-inferno": {
    "tur": "ship",
    "etkinlik": "prosperous",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "prosperous",
      "kutu": "PROSPEROUS_BOOTY_BOX",
-     "agirlik": 0.5
+     "weight": 0.5
     },
     {
      "yol": "kutu",
      "etkinlik": "prometheus",
      "kutu": "PROMETHEUS_BOOTY_BOX",
      "tablo": true,
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "BOXES | EVENT Prosperous Mutation Event: Galaxy Gate SPECIAL REWARD CHANCE (Alpha, Beta, Gamma gates) 10%; each item rolled individually per gate"
@@ -2843,12 +2843,12 @@
   "ship_spectrum_design_spectrum-prometheus": {
    "tur": "ship",
    "etkinlik": "prometheus",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "prometheus",
      "kutu": "PROMETHEUS_BOOTY_BOX",
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "BOXES / Prometheus Day Event (2022)"
@@ -2856,12 +2856,12 @@
   "ship_tartarus-plus_design_tartarus-plus-carbonite": {
    "tur": "ship",
    "etkinlik": "prometheus",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "prometheus",
      "kutu": "PROMETHEUS_BOOTY_BOX",
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "BOXES | EVENT Prometheus Day: Prometheus Box - EPIC DESIGNS (0.1%) package 3 of 4 (25% each); package contents: Carbonite Tartarus Plus Ship Design; Carbonite Orcus P.E.T. Design; Carbonite Enigma Dro"
@@ -2869,12 +2869,12 @@
   "ship_tartarus-plus_design_tartarus-plus-elysium": {
    "tur": "ship",
    "etkinlik": "obsidian_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
-     "agirlik": 0.319
+     "weight": 0.319
     }
    ],
    "kaynak": "BOXES"
@@ -2882,12 +2882,12 @@
   "ship_tartarus-plus_design_tartarus-plus-empyrian": {
    "tur": "ship",
    "etkinlik": "empyrian",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "empyrian",
      "kutu": "EMPYRIAN_BOOTY_BOX",
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "EMPRYRIAN MARCH EVENT 2024"
@@ -2895,7 +2895,7 @@
   "ship_tartarus_design_tartarus-dusklight": {
    "tur": "ship",
    "etkinlik": "halloween",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "halloween",
@@ -2908,7 +2908,7 @@
   "ship_tartarus_design_tartarus-epion": {
    "tur": "ship",
    "etkinlik": "gg_hafta_sonu",
-   "yollar": [
+   "paths": [
     {
      "yol": "kapi",
      "etkinlik": "gg_hafta_sonu",
@@ -2916,7 +2916,7 @@
       "zeta",
       "kappa"
      ],
-     "olasilik": 0.5
+     "probability": 0.5
     }
    ],
    "kaynak": "–"
@@ -2924,12 +2924,12 @@
   "ship_tartarus_design_tartarus-frost": {
    "tur": "ship",
    "etkinlik": "kis",
-   "yollar": [
+   "paths": [
     {
      "yol": "harita",
      "etkinlik": "kis",
      "kutu": "GIFT_BOXES",
-     "agirlik": 0.25
+     "weight": 0.25
     }
    ],
    "kaynak": "WINTER CALENDAR 2020"
@@ -2937,12 +2937,12 @@
   "ship_tartarus_design_tartarus-lava": {
    "tur": "ship",
    "etkinlik": "obsidian_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
-     "agirlik": 0.319
+     "weight": 0.319
     }
    ],
    "kaynak": "–"
@@ -2950,7 +2950,7 @@
   "ship_tartarus_design_tartarus-osiris": {
    "tur": "ship",
    "etkinlik": "gg_hafta_sonu",
-   "yollar": [
+   "paths": [
     {
      "yol": "kapi",
      "etkinlik": "gg_hafta_sonu",
@@ -2958,7 +2958,7 @@
       "zeta",
       "kappa"
      ],
-     "olasilik": 0.5
+     "probability": 0.5
     }
    ],
    "kaynak": "–"
@@ -2966,7 +2966,7 @@
   "ship_tartarus_design_tartarus-smite": {
    "tur": "ship",
    "etkinlik": "gg_hafta_sonu",
-   "yollar": [
+   "paths": [
     {
      "yol": "kapi",
      "etkinlik": "gg_hafta_sonu",
@@ -2974,7 +2974,7 @@
       "zeta",
       "kappa"
      ],
-     "olasilik": 0.5
+     "probability": 0.5
     }
    ],
    "kaynak": "–"
@@ -2982,7 +2982,7 @@
   "ship_v-lightning_design_v-lightning-inferno": {
    "tur": "ship",
    "etkinlik": "protegit",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "protegit",
@@ -2995,7 +2995,7 @@
   "ship_venom_design_venom-arios": {
    "tur": "ship",
    "etkinlik": "galactic_strife",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "galactic_strife",
@@ -3008,12 +3008,12 @@
   "ship_venom_design_venom-empyrian": {
    "tur": "ship",
    "etkinlik": "empyrian",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "empyrian",
      "kutu": "EMPYRIAN_BOOTY_BOX",
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "Empyrian March Event 2023"
@@ -3021,7 +3021,7 @@
   "ship_venom_design_venom-epion": {
    "tur": "ship",
    "etkinlik": "hitac",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "hitac",
@@ -3034,12 +3034,12 @@
   "ship_venom_design_venom-inferno": {
    "tur": "ship",
    "etkinlik": "prometheus",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "prometheus",
      "kutu": "PROMETHEUS_BOOTY_BOX",
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "BOXES | EVENT Prometheus Day: Prometheus Box - EPIC DESIGNS (0.1%) package 1 of 4 (25% each); package contents: Inferno Venom Ship Design; Inferno Sentinel P.E.T. Design; 2 Inferno Drone Design"
@@ -3047,7 +3047,7 @@
   "ship_venom_design_venom-neikos": {
    "tur": "ship",
    "etkinlik": "galactic_strife",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "galactic_strife",
@@ -3060,12 +3060,12 @@
   "ship_venom_design_venom-ocean": {
    "tur": "ship",
    "etkinlik": "obsidian_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
-     "agirlik": 0.319
+     "weight": 0.319
     }
    ],
    "kaynak": "BOXES"
@@ -3073,12 +3073,12 @@
   "ship_venom_design_venom-poison": {
    "tur": "ship",
    "etkinlik": "obsidian_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
-     "agirlik": 0.319
+     "weight": 0.319
     }
    ],
    "kaynak": "BOXES"
@@ -3086,12 +3086,12 @@
   "ship_zephyr_design_zephyr-empyrian": {
    "tur": "ship",
    "etkinlik": "empyrian",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "empyrian",
      "kutu": "EMPYRIAN_BOOTY_BOX",
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "Empyrian March Event"
@@ -3099,7 +3099,7 @@
   "ship_zephyr_design_zephyr-frost": {
    "tur": "ship",
    "etkinlik": "labirent",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "labirent",
@@ -3112,12 +3112,12 @@
   "drone_designs_beacon": {
    "tur": "drone",
    "etkinlik": "apocalypse_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "apocalypse_booty",
      "kutu": "MASQUE_BOOTY_BOX",
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "–"
@@ -3125,12 +3125,12 @@
   "drone_designs_drone-berserker-ace": {
    "tur": "drone",
    "etkinlik": "apocalypse_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "apocalypse_booty",
      "kutu": "MASQUE_BOOTY_BOX",
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "EVENTS"
@@ -3138,12 +3138,12 @@
   "drone_designs_drone-berserker-argon": {
    "tur": "drone",
    "etkinlik": "prometheus",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "prometheus",
      "kutu": "PROMETHEUS_BOOTY_BOX",
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "EVENT Prometheus Day: Prometheus Box - EPIC DESIGNS (0.1%) package 2 of 4 (25% each); package contents: Argon Sentinel Ship Design; Argon Chimera P.E.T. Design; Argon Cyborg Drone Design; Argon Berser"
@@ -3151,12 +3151,12 @@
   "drone_designs_drone-berserker-blaze": {
    "tur": "drone",
    "etkinlik": "apocalypse_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "apocalypse_booty",
      "kutu": "MASQUE_BOOTY_BOX",
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "BOXES"
@@ -3164,12 +3164,12 @@
   "drone_designs_drone-berserker-lava": {
    "tur": "drone",
    "etkinlik": "apocalypse_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "apocalypse_booty",
      "kutu": "MASQUE_BOOTY_BOX",
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "BOXES"
@@ -3177,12 +3177,12 @@
   "drone_designs_drone-berserker-legend": {
    "tur": "drone",
    "etkinlik": "apocalypse_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "apocalypse_booty",
      "kutu": "MASQUE_BOOTY_BOX",
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "BOXES"
@@ -3190,12 +3190,12 @@
   "drone_designs_drone-berserker-sandstorm": {
    "tur": "drone",
    "etkinlik": "apocalypse_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "apocalypse_booty",
      "kutu": "MASQUE_BOOTY_BOX",
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "–"
@@ -3203,12 +3203,12 @@
   "drone_designs_drone-centurion-carbonite": {
    "tur": "drone",
    "etkinlik": "apocalypse_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "apocalypse_booty",
      "kutu": "MASQUE_BOOTY_BOX",
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "BOXES"
@@ -3216,7 +3216,7 @@
   "drone_designs_drone-centurion-dusklight": {
    "tur": "drone",
    "etkinlik": "halloween",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "halloween",
@@ -3229,12 +3229,12 @@
   "drone_designs_drone-centurion-lava": {
    "tur": "drone",
    "etkinlik": "apocalypse_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "apocalypse_booty",
      "kutu": "MASQUE_BOOTY_BOX",
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "BOXES"
@@ -3242,13 +3242,13 @@
   "drone_designs_drone-champion-eostrana": {
    "tur": "drone",
    "etkinlik": "bahar",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "bahar",
      "kutu": "LUCENT_ALIEN_EGG_BOOTY_BOX",
      "tablo": true,
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "–"
@@ -3256,12 +3256,12 @@
   "drone_designs_drone-champion-eostrax": {
    "tur": "drone",
    "etkinlik": "bahar",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "bahar",
      "kutu": "LUCENT_ALIEN_EGG_BOOTY_BOX",
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "–"
@@ -3269,7 +3269,7 @@
   "drone_designs_drone-citadel-samurai": {
    "tur": "drone",
    "etkinlik": "sezon",
-   "yollar": [
+   "paths": [
     {
      "yol": "sezon",
      "etkinlik": "sezon"
@@ -3286,7 +3286,7 @@
   "drone_designs_drone-citadel-viking": {
    "tur": "drone",
    "etkinlik": "sezon",
-   "yollar": [
+   "paths": [
     {
      "yol": "sezon",
      "etkinlik": "sezon"
@@ -3297,12 +3297,12 @@
   "drone_designs_drone-cyborg": {
    "tur": "drone",
    "etkinlik": "apocalypse_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "apocalypse_booty",
      "kutu": "MASQUE_BOOTY_BOX",
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "ASSEMBLY: / 450 / 20 / 15 / 30"
@@ -3310,12 +3310,12 @@
   "drone_designs_drone-cyborg-argon": {
    "tur": "drone",
    "etkinlik": "prometheus",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "prometheus",
      "kutu": "PROMETHEUS_BOOTY_BOX",
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "BOXES | EVENT Prometheus Day: Prometheus Box - EPIC DESIGNS (0.1%) package 2 of 4 (25% each); package contents: Argon Sentinel Ship Design; Argon Chimera P.E.T. Design; Argon Cyborg Drone Design; Argo"
@@ -3323,27 +3323,27 @@
   "drone_designs_drone-cyborg-carbonite": {
    "tur": "drone",
    "etkinlik": "prosperous",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "prosperous",
      "kutu": "PROSPEROUS_BOOTY_BOX",
      "tablo": true,
-     "agirlik": 0.5
+     "weight": 0.5
     },
     {
      "yol": "kutu",
      "etkinlik": "empyrian",
      "kutu": "EMPYRIAN_BOOTY_BOX",
      "tablo": true,
-     "agirlik": 0.5
+     "weight": 0.5
     },
     {
      "yol": "kutu",
      "etkinlik": "prometheus",
      "kutu": "PROMETHEUS_BOOTY_BOX",
      "tablo": true,
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "– | EVENT Prosperous Mutation Event: Prosperous Box - EPIC DESIGNS (0.1%) package 3 of 4 (25% each); package contents: Carbonite Cyborg Ship Design; Carbonite Goliath-X Drone Design; Carbonite Cyborg "
@@ -3351,7 +3351,7 @@
   "drone_designs_drone-cyborg-dusklight": {
    "tur": "drone",
    "etkinlik": "halloween",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "halloween",
@@ -3364,7 +3364,7 @@
   "drone_designs_drone-cyborg-horus": {
    "tur": "drone",
    "etkinlik": "sezon",
-   "yollar": [
+   "paths": [
     {
      "yol": "sezon",
      "etkinlik": "sezon"
@@ -3375,7 +3375,7 @@
   "drone_designs_drone-cyborg-inferno": {
    "tur": "drone",
    "etkinlik": "protegit",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "protegit",
@@ -3388,12 +3388,12 @@
   "drone_designs_drone-cyborg-lava": {
    "tur": "drone",
    "etkinlik": "apocalypse_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "apocalypse_booty",
      "kutu": "MASQUE_BOOTY_BOX",
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "BOXES"
@@ -3401,12 +3401,12 @@
   "drone_designs_drone-cyborg-legend": {
    "tur": "drone",
    "etkinlik": "apocalypse_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "apocalypse_booty",
      "kutu": "MASQUE_BOOTY_BOX",
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "BOXES"
@@ -3414,13 +3414,13 @@
   "drone_designs_drone-cyborg-sandstorm": {
    "tur": "drone",
    "etkinlik": "empyrian",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "empyrian",
      "kutu": "EMPYRIAN_BOOTY_BOX",
      "tablo": true,
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "BOXES | BOX Empyrian Box: EPIC DESIGNS PACKAGE (0.1%) / package 3 (25%)"
@@ -3428,13 +3428,13 @@
   "drone_designs_drone-diminisher-argon": {
    "tur": "drone",
    "etkinlik": "empyrian",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "empyrian",
      "kutu": "EMPYRIAN_BOOTY_BOX",
      "tablo": true,
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "BOXES | BOXES"
@@ -3442,7 +3442,7 @@
   "drone_designs_drone-diminisher-dusklight": {
    "tur": "drone",
    "etkinlik": "halloween",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "halloween",
@@ -3455,18 +3455,18 @@
   "drone_designs_drone-diminisher-inferno": {
    "tur": "drone",
    "etkinlik": "prometheus",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "prometheus",
      "kutu": "PROMETHEUS_BOOTY_BOX",
-     "agirlik": 0.5
+     "weight": 0.5
     },
     {
      "yol": "kutu",
      "etkinlik": "empyrian",
      "kutu": "EMPYRIAN_BOOTY_BOX",
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "Prometheus Day Event (2020) / SHOP PAYMENTS / Astral Discovery Event (2022)"
@@ -3474,12 +3474,12 @@
   "drone_designs_drone-g-champion-silver": {
    "tur": "drone",
    "etkinlik": "apocalypse_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "apocalypse_booty",
      "kutu": "MASQUE_BOOTY_BOX",
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "BOXES"
@@ -3487,7 +3487,7 @@
   "drone_designs_drone-goliath-dogma": {
    "tur": "drone",
    "etkinlik": "sezon",
-   "yollar": [
+   "paths": [
     {
      "yol": "sezon",
      "etkinlik": "sezon"
@@ -3504,12 +3504,12 @@
   "drone_designs_drone-goliath-x-argon": {
    "tur": "drone",
    "etkinlik": "apocalypse_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "apocalypse_booty",
      "kutu": "MASQUE_BOOTY_BOX",
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "BOXES"
@@ -3517,7 +3517,7 @@
   "drone_designs_drone-goliath-x-dusklight": {
    "tur": "drone",
    "etkinlik": "halloween",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "halloween",
@@ -3530,13 +3530,13 @@
   "drone_designs_drone-goliath-x-lava": {
    "tur": "drone",
    "etkinlik": "prometheus",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "prometheus",
      "kutu": "PROMETHEUS_BOOTY_BOX",
      "tablo": true,
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "– | EVENT Prometheus Day: Prometheus Box - EPIC DESIGNS (0.1%) package 4 of 4 (25% each); package contents: Lava Cyborg Ship Design; Lava Chimera P.E.T. Design; Lava Diminisher Drone Design; Lava Goli"
@@ -3544,12 +3544,12 @@
   "drone_designs_drone-goliath-x-legend": {
    "tur": "drone",
    "etkinlik": "apocalypse_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "apocalypse_booty",
      "kutu": "MASQUE_BOOTY_BOX",
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "–"
@@ -3557,12 +3557,12 @@
   "drone_designs_drone-hammerclaw": {
    "tur": "drone",
    "etkinlik": "apocalypse_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "apocalypse_booty",
      "kutu": "MASQUE_BOOTY_BOX",
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "ASSEMBLY: / 450 / 30 / 20 / 15"
@@ -3570,12 +3570,12 @@
   "drone_designs_drone-hammerclaw-argon": {
    "tur": "drone",
    "etkinlik": "apocalypse_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "apocalypse_booty",
      "kutu": "MASQUE_BOOTY_BOX",
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "BOXES"
@@ -3583,13 +3583,13 @@
   "drone_designs_drone-hammerclaw-carbonite": {
    "tur": "drone",
    "etkinlik": "prometheus",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "prometheus",
      "kutu": "PROMETHEUS_BOOTY_BOX",
      "tablo": true,
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "– | BOX Prometheus Box: EPIC DESIGNS (0.1%)"
@@ -3597,7 +3597,7 @@
   "drone_designs_drone-hammerclaw-dusklight": {
    "tur": "drone",
    "etkinlik": "halloween",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "halloween",
@@ -3610,12 +3610,12 @@
   "drone_designs_drone-hammerclaw-lava": {
    "tur": "drone",
    "etkinlik": "apocalypse_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "apocalypse_booty",
      "kutu": "MASQUE_BOOTY_BOX",
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "–"
@@ -3623,12 +3623,12 @@
   "drone_designs_drone-hammerclaw-legend": {
    "tur": "drone",
    "etkinlik": "apocalypse_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "apocalypse_booty",
      "kutu": "MASQUE_BOOTY_BOX",
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "BOXES"
@@ -3636,12 +3636,12 @@
   "drone_designs_drone-hammerclaw-sandstorm": {
    "tur": "drone",
    "etkinlik": "apocalypse_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "apocalypse_booty",
      "kutu": "MASQUE_BOOTY_BOX",
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "BOXES"
@@ -3649,20 +3649,20 @@
   "drone_designs_drone-inferno": {
    "tur": "drone",
    "etkinlik": "prosperous",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "prosperous",
      "kutu": "PROSPEROUS_BOOTY_BOX",
      "tablo": true,
-     "agirlik": 0.5
+     "weight": 0.5
     },
     {
      "yol": "kutu",
      "etkinlik": "empyrian",
      "kutu": "EMPYRIAN_BOOTY_BOX",
      "tablo": true,
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "BOXES | EVENT Prosperous Mutation Event: Prosperous Box - EPIC DESIGNS (0.1%) package 2 of 4 (25% each); package contents: Inferno Orcus Ship Design; Inferno Sentinel Ship Design; Inferno Drone Design"
@@ -3670,7 +3670,7 @@
   "drone_designs_drone-orcus-thornspire": {
    "tur": "drone",
    "etkinlik": "sezon",
-   "yollar": [
+   "paths": [
     {
      "yol": "sezon",
      "etkinlik": "sezon"
@@ -3681,7 +3681,7 @@
   "drone_designs_drone-orcus-viking": {
    "tur": "drone",
    "etkinlik": "sezon",
-   "yollar": [
+   "paths": [
     {
      "yol": "sezon",
      "etkinlik": "sezon"
@@ -3692,7 +3692,7 @@
   "drone_designs_drone-paladin-khepri": {
    "tur": "drone",
    "etkinlik": "sezon",
-   "yollar": [
+   "paths": [
     {
      "yol": "sezon",
      "etkinlik": "sezon"
@@ -3703,12 +3703,12 @@
   "drone_designs_drone-pusat-argon": {
    "tur": "drone",
    "etkinlik": "apocalypse_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "apocalypse_booty",
      "kutu": "MASQUE_BOOTY_BOX",
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "BOXES"
@@ -3716,7 +3716,7 @@
   "drone_designs_drone-pusat-dusklight": {
    "tur": "drone",
    "etkinlik": "halloween",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "halloween",
@@ -3729,12 +3729,12 @@
   "drone_designs_drone-pusat-legend": {
    "tur": "drone",
    "etkinlik": "apocalypse_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "apocalypse_booty",
      "kutu": "MASQUE_BOOTY_BOX",
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "BOXES"
@@ -3742,12 +3742,12 @@
   "drone_designs_drone-pusat-ocean": {
    "tur": "drone",
    "etkinlik": "apocalypse_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "apocalypse_booty",
      "kutu": "MASQUE_BOOTY_BOX",
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "Saimon Rebellion Event"
@@ -3755,7 +3755,7 @@
   "drone_designs_drone-retiarus-wyvern": {
    "tur": "drone",
    "etkinlik": "sezon",
-   "yollar": [
+   "paths": [
     {
      "yol": "sezon",
      "etkinlik": "sezon"
@@ -3766,19 +3766,19 @@
   "drone_designs_drone-sentinel-argon": {
    "tur": "drone",
    "etkinlik": "obsidian_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
-     "agirlik": 0.319
+     "weight": 0.319
     },
     {
      "yol": "kutu",
      "etkinlik": "empyrian",
      "kutu": "EMPYRIAN_BOOTY_BOX",
      "tablo": true,
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "OBSIDIAN BOX | EVENT Empyrian March: Empyrian Box - EPIC DESIGNS PACKAGE (0.1%) package 1 of 4 (25% each); package contents: Argon G-Champion Ship Design; Argon Diminisher P.E.T. Design; Argon Sentine"
@@ -3786,7 +3786,7 @@
   "drone_designs_drone-sentinel-dusklight": {
    "tur": "drone",
    "etkinlik": "halloween",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "halloween",
@@ -3799,18 +3799,18 @@
   "drone_designs_drone-sentinel-inferno": {
    "tur": "drone",
    "etkinlik": "obsidian_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
-     "agirlik": 0.319
+     "weight": 0.319
     },
     {
      "yol": "kutu",
      "etkinlik": "empyrian",
      "kutu": "EMPYRIAN_BOOTY_BOX",
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "OBSIDIAN BOX / Astral Discovery Event (2022)"
@@ -3818,12 +3818,12 @@
   "drone_designs_drone-sentinel-lava": {
    "tur": "drone",
    "etkinlik": "obsidian_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
-     "agirlik": 0.319
+     "weight": 0.319
     }
    ],
    "kaynak": "OBSIDIAN BOX"
@@ -3831,12 +3831,12 @@
   "drone_designs_drone-sentinel-legend": {
    "tur": "drone",
    "etkinlik": "obsidian_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
-     "agirlik": 0.319
+     "weight": 0.319
     }
    ],
    "kaynak": "OBSIDIAN BOX"
@@ -3844,7 +3844,7 @@
   "drone_designs_drone-sentinel-mobius": {
    "tur": "drone",
    "etkinlik": "sezon",
-   "yollar": [
+   "paths": [
     {
      "yol": "sezon",
      "etkinlik": "sezon"
@@ -3855,7 +3855,7 @@
   "drone_designs_drone-solace-enigma": {
    "tur": "drone",
    "etkinlik": "sezon",
-   "yollar": [
+   "paths": [
     {
      "yol": "sezon",
      "etkinlik": "sezon"
@@ -3872,7 +3872,7 @@
   "drone_designs_drone-solace-striker": {
    "tur": "drone",
    "etkinlik": "sezon",
-   "yollar": [
+   "paths": [
     {
      "yol": "sezon",
      "etkinlik": "sezon"
@@ -3883,13 +3883,13 @@
   "drone_designs_drone-spectrum-ocean": {
    "tur": "drone",
    "etkinlik": "prometheus",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "prometheus",
      "kutu": "PROMETHEUS_BOOTY_BOX",
      "tablo": true,
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "Saimon Rebellion Event | EVENT Prometheus Day: Prometheus Box - STANDARD DRONE DESIGNS (24%) 16.6% within group"
@@ -3897,12 +3897,12 @@
   "drone_designs_drone-spectrum-sandstorm": {
    "tur": "drone",
    "etkinlik": "apocalypse_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "apocalypse_booty",
      "kutu": "MASQUE_BOOTY_BOX",
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "Project Nano Event"
@@ -3910,13 +3910,13 @@
   "drone_designs_enigma-argon": {
    "tur": "drone",
    "etkinlik": "prosperous",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "prosperous",
      "kutu": "PROSPEROUS_BOOTY_BOX",
      "tablo": true,
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "BOXES | EVENT Prosperous Mutation Event: Prosperous Box - EPIC DESIGNS (0.1%) package 1 of 4 (25% each); package contents: Argon Venom Ship Design; Argon Berserker P.E.T. Design; Argon Enigma Drone De"
@@ -3924,12 +3924,12 @@
   "drone_designs_enigma-lava": {
    "tur": "drone",
    "etkinlik": "apocalypse_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "apocalypse_booty",
      "kutu": "MASQUE_BOOTY_BOX",
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "BOXES"
@@ -3937,12 +3937,12 @@
   "drone_designs_enigma-poison": {
    "tur": "drone",
    "etkinlik": "apocalypse_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "apocalypse_booty",
      "kutu": "MASQUE_BOOTY_BOX",
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "BOXES"
@@ -3950,12 +3950,12 @@
   "drone_designs_phantom-lava": {
    "tur": "drone",
    "etkinlik": "prometheus",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "prometheus",
      "kutu": "PROMETHEUS_BOOTY_BOX",
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "BOXES / (PROMETHEUS DAY EVENT)"
@@ -3963,7 +3963,7 @@
   "drone_designs_skull-dreadwing": {
    "tur": "drone",
    "etkinlik": "sezon",
-   "yollar": [
+   "paths": [
     {
      "yol": "sezon",
      "etkinlik": "sezon"
@@ -3974,18 +3974,18 @@
   "pet_designs_berserker-ace": {
    "tur": "pet",
    "etkinlik": "rb_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "rb_booty",
      "kutu": "PIRATE_BOOTY_RED",
-     "agirlik": 0.469
+     "weight": 0.469
     },
     {
      "yol": "kutu",
      "etkinlik": "rb_booty",
      "kutu": "PIRATE_BOOTY_BLUE",
-     "agirlik": 0.469
+     "weight": 0.469
     }
    ],
    "kaynak": "Berserker Ace | DAILY REWARD 2021"
@@ -3993,12 +3993,12 @@
   "pet_designs_chimera-lava": {
    "tur": "pet",
    "etkinlik": "prometheus",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "prometheus",
      "kutu": "PROMETHEUS_BOOTY_BOX",
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "SHOP PAYMENTS | EVENT Prometheus Day: Prometheus Box - EPIC DESIGNS (0.1%) package 4 of 4 (25% each); package contents: Lava Cyborg Ship Design; Lava Chimera P.E.T. Design; Lava Diminisher Drone Desig"
@@ -4006,18 +4006,18 @@
   "pet_designs_cyborg-argon": {
    "tur": "pet",
    "etkinlik": "rb_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "rb_booty",
      "kutu": "PIRATE_BOOTY_RED",
-     "agirlik": 0.469
+     "weight": 0.469
     },
     {
      "yol": "kutu",
      "etkinlik": "rb_booty",
      "kutu": "PIRATE_BOOTY_BLUE",
-     "agirlik": 0.469
+     "weight": 0.469
     }
    ],
    "kaynak": "BOXES"
@@ -4025,7 +4025,7 @@
   "pet_designs_diminisher-dusklight": {
    "tur": "pet",
    "etkinlik": "halloween",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "halloween",
@@ -4038,7 +4038,7 @@
   "pet_designs_frozen": {
    "tur": "pet",
    "etkinlik": "labirent",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "labirent",
@@ -4051,18 +4051,18 @@
   "pet_designs_hammerclaw-argon": {
    "tur": "pet",
    "etkinlik": "rb_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "rb_booty",
      "kutu": "PIRATE_BOOTY_RED",
-     "agirlik": 0.469
+     "weight": 0.469
     },
     {
      "yol": "kutu",
      "etkinlik": "rb_booty",
      "kutu": "PIRATE_BOOTY_BLUE",
-     "agirlik": 0.469
+     "weight": 0.469
     }
    ],
    "kaynak": "Hammerclaw Argon | BOXES"
@@ -4070,7 +4070,7 @@
   "pet_designs_hammerclaw-dusklight": {
    "tur": "pet",
    "etkinlik": "halloween",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "halloween",
@@ -4083,20 +4083,20 @@
   "pet_designs_mirage-carbonite": {
    "tur": "pet",
    "etkinlik": "prosperous",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "prosperous",
      "kutu": "PROSPEROUS_BOOTY_BOX",
      "tablo": true,
-     "agirlik": 0.5
+     "weight": 0.5
     },
     {
      "yol": "kutu",
      "etkinlik": "prometheus",
      "kutu": "PROMETHEUS_BOOTY_BOX",
      "tablo": true,
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "Mirage Carbonite | SHOP PAYMENTS"
@@ -4104,12 +4104,12 @@
   "pet_designs_pet-a-elite-empyrian": {
    "tur": "pet",
    "etkinlik": "empyrian",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "empyrian",
      "kutu": "EMPYRIAN_BOOTY_BOX",
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "Empyrian March Event 2022"
@@ -4117,7 +4117,7 @@
   "pet_designs_pet-a-elite-nobilis": {
    "tur": "pet",
    "etkinlik": "plutus",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "plutus",
@@ -4130,13 +4130,13 @@
   "pet_designs_pet-berserker-argon": {
    "tur": "pet",
    "etkinlik": "prosperous",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "prosperous",
      "kutu": "PROSPEROUS_BOOTY_BOX",
      "tablo": true,
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "EVENT Prosperous Mutation Event: Prosperous Box - EPIC DESIGNS (0.1%) package 1 of 4 (25% each); package contents: Argon Venom Ship Design; Argon Berserker P.E.T. Design; Argon Enigma Drone Design | B"
@@ -4144,18 +4144,18 @@
   "pet_designs_pet-berserker-blaze": {
    "tur": "pet",
    "etkinlik": "rb_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "rb_booty",
      "kutu": "PIRATE_BOOTY_RED",
-     "agirlik": 0.469
+     "weight": 0.469
     },
     {
      "yol": "kutu",
      "etkinlik": "rb_booty",
      "kutu": "PIRATE_BOOTY_BLUE",
-     "agirlik": 0.469
+     "weight": 0.469
     }
    ],
    "kaynak": "BOXES"
@@ -4163,18 +4163,18 @@
   "pet_designs_pet-berserker-borealis": {
    "tur": "pet",
    "etkinlik": "rb_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "rb_booty",
      "kutu": "PIRATE_BOOTY_RED",
-     "agirlik": 0.469
+     "weight": 0.469
     },
     {
      "yol": "kutu",
      "etkinlik": "rb_booty",
      "kutu": "PIRATE_BOOTY_BLUE",
-     "agirlik": 0.469
+     "weight": 0.469
     }
    ],
    "kaynak": "Berserker Borealis | BOXES"
@@ -4182,7 +4182,7 @@
   "pet_designs_pet-berserker-nobilis": {
    "tur": "pet",
    "etkinlik": "plutus",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "plutus",
@@ -4195,7 +4195,7 @@
   "pet_designs_pet-centurion-dusklight": {
    "tur": "pet",
    "etkinlik": "halloween",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "halloween",
@@ -4208,18 +4208,18 @@
   "pet_designs_pet-centurion-lava": {
    "tur": "pet",
    "etkinlik": "rb_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "rb_booty",
      "kutu": "PIRATE_BOOTY_RED",
-     "agirlik": 0.469
+     "weight": 0.469
     },
     {
      "yol": "kutu",
      "etkinlik": "rb_booty",
      "kutu": "PIRATE_BOOTY_BLUE",
-     "agirlik": 0.469
+     "weight": 0.469
     }
    ],
    "kaynak": "BOXES"
@@ -4227,7 +4227,7 @@
   "pet_designs_pet-centurion-nobilis": {
    "tur": "pet",
    "etkinlik": "plutus",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "plutus",
@@ -4240,7 +4240,7 @@
   "pet_designs_pet-citadel-samurai": {
    "tur": "pet",
    "etkinlik": "sezon",
-   "yollar": [
+   "paths": [
     {
      "yol": "sezon",
      "etkinlik": "sezon"
@@ -4257,7 +4257,7 @@
   "pet_designs_pet-citadel-viking": {
    "tur": "pet",
    "etkinlik": "sezon",
-   "yollar": [
+   "paths": [
     {
      "yol": "sezon",
      "etkinlik": "sezon"
@@ -4268,7 +4268,7 @@
   "pet_designs_pet-cyborg-dusklight": {
    "tur": "pet",
    "etkinlik": "halloween",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "halloween",
@@ -4281,7 +4281,7 @@
   "pet_designs_pet-cyborg-horus": {
    "tur": "pet",
    "etkinlik": "sezon",
-   "yollar": [
+   "paths": [
     {
      "yol": "sezon",
      "etkinlik": "sezon"
@@ -4292,7 +4292,7 @@
   "pet_designs_pet-cyborg-inferno": {
    "tur": "pet",
    "etkinlik": "protegit",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "protegit",
@@ -4305,13 +4305,13 @@
   "pet_designs_pet-cyborg-lava": {
    "tur": "pet",
    "etkinlik": "empyrian",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "empyrian",
      "kutu": "EMPYRIAN_BOOTY_BOX",
      "tablo": true,
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "Cyborg Lava | BOXES"
@@ -4319,13 +4319,13 @@
   "pet_designs_pet-diminisher-argon": {
    "tur": "pet",
    "etkinlik": "empyrian",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "empyrian",
      "kutu": "EMPYRIAN_BOOTY_BOX",
      "tablo": true,
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "BOXES | EVENT Empyrian March: Empyrian Box - EPIC DESIGNS PACKAGE (0.1%) package 1 of 4 (25% each); package contents: Argon G-Champion Ship Design; Argon Diminisher P.E.T. Design; Argon Sentinel Drone"
@@ -4333,13 +4333,13 @@
   "pet_designs_pet-diminisher-carbonite": {
    "tur": "pet",
    "etkinlik": "empyrian",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "empyrian",
      "kutu": "EMPYRIAN_BOOTY_BOX",
      "tablo": true,
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "BOXES | EVENT Empyrian March: Empyrian Box - EPIC DESIGNS PACKAGE (0.1%) package 4 of 4 (25% each); package contents: Carbonite Cyborg Plus Ship Design; Carbonite Diminisher P.E.T. Design; Carbonite E"
@@ -4347,13 +4347,13 @@
   "pet_designs_pet-diminisher-lava": {
    "tur": "pet",
    "etkinlik": "prometheus",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "prometheus",
      "kutu": "PROMETHEUS_BOOTY_BOX",
      "tablo": true,
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "Diminisher Lava | BOXES"
@@ -4361,20 +4361,20 @@
   "pet_designs_pet-diminisher-legend": {
    "tur": "pet",
    "etkinlik": "rb_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "rb_booty",
      "kutu": "PIRATE_BOOTY_RED",
      "tablo": true,
-     "agirlik": 0.469
+     "weight": 0.469
     },
     {
      "yol": "kutu",
      "etkinlik": "rb_booty",
      "kutu": "PIRATE_BOOTY_BLUE",
      "tablo": true,
-     "agirlik": 0.469
+     "weight": 0.469
     }
    ],
    "kaynak": "BOXES"
@@ -4382,7 +4382,7 @@
   "pet_designs_pet-diminisher-mobius": {
    "tur": "pet",
    "etkinlik": "sezon",
-   "yollar": [
+   "paths": [
     {
      "yol": "sezon",
      "etkinlik": "sezon"
@@ -4393,7 +4393,7 @@
   "pet_designs_pet-diminisher-nobilis": {
    "tur": "pet",
    "etkinlik": "plutus",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "plutus",
@@ -4406,7 +4406,7 @@
   "pet_designs_pet-diminisher-phantasm": {
    "tur": "pet",
    "etkinlik": "halloween",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "halloween",
@@ -4419,18 +4419,18 @@
   "pet_designs_pet-g-champion-argon": {
    "tur": "pet",
    "etkinlik": "rb_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "rb_booty",
      "kutu": "PIRATE_BOOTY_RED",
-     "agirlik": 0.469
+     "weight": 0.469
     },
     {
      "yol": "kutu",
      "etkinlik": "rb_booty",
      "kutu": "PIRATE_BOOTY_BLUE",
-     "agirlik": 0.469
+     "weight": 0.469
     }
    ],
    "kaynak": "BOXES"
@@ -4438,7 +4438,7 @@
   "pet_designs_pet-g-champion-dusklight": {
    "tur": "pet",
    "etkinlik": "halloween",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "halloween",
@@ -4451,18 +4451,18 @@
   "pet_designs_pet-g-champion-legend": {
    "tur": "pet",
    "etkinlik": "rb_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "rb_booty",
      "kutu": "PIRATE_BOOTY_RED",
-     "agirlik": 0.469
+     "weight": 0.469
     },
     {
      "yol": "kutu",
      "etkinlik": "rb_booty",
      "kutu": "PIRATE_BOOTY_BLUE",
-     "agirlik": 0.469
+     "weight": 0.469
     }
    ],
    "kaynak": "BOXES"
@@ -4470,7 +4470,7 @@
   "pet_designs_pet-g-champion-nobilis": {
    "tur": "pet",
    "etkinlik": "plutus",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "plutus",
@@ -4483,7 +4483,7 @@
   "pet_designs_pet-goliath-dogma": {
    "tur": "pet",
    "etkinlik": "sezon",
-   "yollar": [
+   "paths": [
     {
      "yol": "sezon",
      "etkinlik": "sezon"
@@ -4500,7 +4500,7 @@
   "pet_designs_pet-goliath-dreadwing": {
    "tur": "pet",
    "etkinlik": "sezon",
-   "yollar": [
+   "paths": [
     {
      "yol": "sezon",
      "etkinlik": "sezon"
@@ -4511,18 +4511,18 @@
   "pet_designs_pet-goliath-x-argon": {
    "tur": "pet",
    "etkinlik": "rb_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "rb_booty",
      "kutu": "PIRATE_BOOTY_RED",
-     "agirlik": 0.469
+     "weight": 0.469
     },
     {
      "yol": "kutu",
      "etkinlik": "rb_booty",
      "kutu": "PIRATE_BOOTY_BLUE",
-     "agirlik": 0.469
+     "weight": 0.469
     }
    ],
    "kaynak": "BOXES"
@@ -4530,7 +4530,7 @@
   "pet_designs_pet-goliath-x-dusklight": {
    "tur": "pet",
    "etkinlik": "halloween",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "halloween",
@@ -4543,18 +4543,18 @@
   "pet_designs_pet-goliath-x-lava": {
    "tur": "pet",
    "etkinlik": "rb_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "rb_booty",
      "kutu": "PIRATE_BOOTY_RED",
-     "agirlik": 0.469
+     "weight": 0.469
     },
     {
      "yol": "kutu",
      "etkinlik": "rb_booty",
      "kutu": "PIRATE_BOOTY_BLUE",
-     "agirlik": 0.469
+     "weight": 0.469
     }
    ],
    "kaynak": "Goliath-X Lava | BOXES"
@@ -4562,18 +4562,18 @@
   "pet_designs_pet-hammerclaw": {
    "tur": "pet",
    "etkinlik": "rb_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "rb_booty",
      "kutu": "PIRATE_BOOTY_RED",
-     "agirlik": 0.469
+     "weight": 0.469
     },
     {
      "yol": "kutu",
      "etkinlik": "rb_booty",
      "kutu": "PIRATE_BOOTY_BLUE",
-     "agirlik": 0.469
+     "weight": 0.469
     }
    ],
    "kaynak": "ASSEMBLY: / 450 / 30 / 20 / 15"
@@ -4581,18 +4581,18 @@
   "pet_designs_pet-hammerclaw-carbonite": {
    "tur": "pet",
    "etkinlik": "rb_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "rb_booty",
      "kutu": "PIRATE_BOOTY_RED",
-     "agirlik": 0.469
+     "weight": 0.469
     },
     {
      "yol": "kutu",
      "etkinlik": "rb_booty",
      "kutu": "PIRATE_BOOTY_BLUE",
-     "agirlik": 0.469
+     "weight": 0.469
     }
    ],
    "kaynak": "BOXES"
@@ -4600,7 +4600,7 @@
   "pet_designs_pet-hammerclaw-frost": {
    "tur": "pet",
    "etkinlik": "labirent",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "labirent",
@@ -4613,13 +4613,13 @@
   "pet_designs_pet-hammerclaw-inferno": {
    "tur": "pet",
    "etkinlik": "prometheus",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "prometheus",
      "kutu": "PROMETHEUS_BOOTY_BOX",
      "tablo": true,
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "Hammerclaw Inferno | BOXES"
@@ -4627,18 +4627,18 @@
   "pet_designs_pet-hammerclaw-legend": {
    "tur": "pet",
    "etkinlik": "rb_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "rb_booty",
      "kutu": "PIRATE_BOOTY_RED",
-     "agirlik": 0.469
+     "weight": 0.469
     },
     {
      "yol": "kutu",
      "etkinlik": "rb_booty",
      "kutu": "PIRATE_BOOTY_BLUE",
-     "agirlik": 0.469
+     "weight": 0.469
     }
    ],
    "kaynak": "BOXES"
@@ -4646,7 +4646,7 @@
   "pet_designs_pet-hammerclaw-nobilis": {
    "tur": "pet",
    "etkinlik": "plutus",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "plutus",
@@ -4659,20 +4659,20 @@
   "pet_designs_pet-hammerclaw-poison": {
    "tur": "pet",
    "etkinlik": "rb_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "rb_booty",
      "kutu": "PIRATE_BOOTY_RED",
      "tablo": true,
-     "agirlik": 0.469
+     "weight": 0.469
     },
     {
      "yol": "kutu",
      "etkinlik": "rb_booty",
      "kutu": "PIRATE_BOOTY_BLUE",
      "tablo": true,
-     "agirlik": 0.469
+     "weight": 0.469
     }
    ],
    "kaynak": "BOXES"
@@ -4680,13 +4680,13 @@
   "pet_designs_pet-inferno": {
    "tur": "pet",
    "etkinlik": "prosperous",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "prosperous",
      "kutu": "PROSPEROUS_BOOTY_BOX",
      "tablo": true,
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "P.E.T. Infeno | BOXES"
@@ -4694,18 +4694,18 @@
   "pet_designs_pet-mirage-poison": {
    "tur": "pet",
    "etkinlik": "rb_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "rb_booty",
      "kutu": "PIRATE_BOOTY_RED",
-     "agirlik": 0.469
+     "weight": 0.469
     },
     {
      "yol": "kutu",
      "etkinlik": "rb_booty",
      "kutu": "PIRATE_BOOTY_BLUE",
-     "agirlik": 0.469
+     "weight": 0.469
     }
    ],
    "kaynak": "Mirage Poison | BOXES"
@@ -4713,12 +4713,12 @@
   "pet_designs_pet-orcus-carbonite": {
    "tur": "pet",
    "etkinlik": "prometheus",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "prometheus",
      "kutu": "PROMETHEUS_BOOTY_BOX",
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "BOXES | EVENT Prometheus Day: Prometheus Box - EPIC DESIGNS (0.1%) package 3 of 4 (25% each); package contents: Carbonite Tartarus Plus Ship Design; Carbonite Orcus P.E.T. Design; Carbonite Enigma Dro"
@@ -4726,18 +4726,18 @@
   "pet_designs_pet-orcus-legend": {
    "tur": "pet",
    "etkinlik": "rb_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "rb_booty",
      "kutu": "PIRATE_BOOTY_RED",
-     "agirlik": 0.469
+     "weight": 0.469
     },
     {
      "yol": "kutu",
      "etkinlik": "rb_booty",
      "kutu": "PIRATE_BOOTY_BLUE",
-     "agirlik": 0.469
+     "weight": 0.469
     }
    ],
    "kaynak": "BOXES"
@@ -4745,7 +4745,7 @@
   "pet_designs_pet-orcus-thornspire": {
    "tur": "pet",
    "etkinlik": "sezon",
-   "yollar": [
+   "paths": [
     {
      "yol": "sezon",
      "etkinlik": "sezon"
@@ -4756,7 +4756,7 @@
   "pet_designs_pet-orcus-viking": {
    "tur": "pet",
    "etkinlik": "sezon",
-   "yollar": [
+   "paths": [
     {
      "yol": "sezon",
      "etkinlik": "sezon"
@@ -4767,7 +4767,7 @@
   "pet_designs_pet-paladin-khepri": {
    "tur": "pet",
    "etkinlik": "sezon",
-   "yollar": [
+   "paths": [
     {
      "yol": "sezon",
      "etkinlik": "sezon"
@@ -4778,7 +4778,7 @@
   "pet_designs_pet-phoenix": {
    "tur": "pet",
    "etkinlik": "gg_hafta_sonu",
-   "yollar": [
+   "paths": [
     {
      "yol": "kapi",
      "etkinlik": "gg_hafta_sonu",
@@ -4786,7 +4786,7 @@
       "zeta",
       "kappa"
      ],
-     "olasilik": 0.5
+     "probability": 0.5
     }
    ],
    "kaynak": "EVENTS / GALAXY GATES"
@@ -4794,7 +4794,7 @@
   "pet_designs_pet-pusat-inferno": {
    "tur": "pet",
    "etkinlik": "protegit",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "protegit",
@@ -4807,18 +4807,18 @@
   "pet_designs_pet-pusat-lava": {
    "tur": "pet",
    "etkinlik": "rb_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "rb_booty",
      "kutu": "PIRATE_BOOTY_RED",
-     "agirlik": 0.469
+     "weight": 0.469
     },
     {
      "yol": "kutu",
      "etkinlik": "rb_booty",
      "kutu": "PIRATE_BOOTY_BLUE",
-     "agirlik": 0.469
+     "weight": 0.469
     }
    ],
    "kaynak": "Nano Project Event"
@@ -4826,7 +4826,7 @@
   "pet_designs_pet-pusat-phantasm": {
    "tur": "pet",
    "etkinlik": "halloween",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "halloween",
@@ -4839,18 +4839,18 @@
   "pet_designs_pet-pusat-poison": {
    "tur": "pet",
    "etkinlik": "rb_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "rb_booty",
      "kutu": "PIRATE_BOOTY_RED",
-     "agirlik": 0.469
+     "weight": 0.469
     },
     {
      "yol": "kutu",
      "etkinlik": "rb_booty",
      "kutu": "PIRATE_BOOTY_BLUE",
-     "agirlik": 0.469
+     "weight": 0.469
     }
    ],
    "kaynak": "BOXES"
@@ -4858,7 +4858,7 @@
   "pet_designs_pet-retiarus-wyvern": {
    "tur": "pet",
    "etkinlik": "sezon",
-   "yollar": [
+   "paths": [
     {
      "yol": "sezon",
      "etkinlik": "sezon"
@@ -4869,7 +4869,7 @@
   "pet_designs_pet-sentinel-dusklight": {
    "tur": "pet",
    "etkinlik": "halloween",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "halloween",
@@ -4882,12 +4882,12 @@
   "pet_designs_pet-sentinel-inferno": {
    "tur": "pet",
    "etkinlik": "prometheus",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "prometheus",
      "kutu": "PROMETHEUS_BOOTY_BOX",
-     "agirlik": 0.5
+     "weight": 0.5
     }
    ],
    "kaynak": "BOXES | EVENT Prometheus Day: Prometheus Box - EPIC DESIGNS (0.1%) package 1 of 4 (25% each); package contents: Inferno Venom Ship Design; Inferno Sentinel P.E.T. Design; 2 Inferno Drone Design"
@@ -4895,7 +4895,7 @@
   "pet_designs_pet-sentinel-lava": {
    "tur": "pet",
    "etkinlik": "gg_hafta_sonu",
-   "yollar": [
+   "paths": [
     {
      "yol": "kapi",
      "etkinlik": "gg_hafta_sonu",
@@ -4903,7 +4903,7 @@
       "zeta",
       "kappa"
      ],
-     "olasilik": 0.5
+     "probability": 0.5
     }
    ],
    "kaynak": "Lava Sentinel | GALAXY GATES"
@@ -4911,12 +4911,12 @@
   "pet_designs_pet-sentinel-legend": {
    "tur": "pet",
    "etkinlik": "obsidian_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
-     "agirlik": 0.319
+     "weight": 0.319
     }
    ],
    "kaynak": "OBSIDIAN BOX"
@@ -4924,7 +4924,7 @@
   "pet_designs_pet-sentinel-nobilis": {
    "tur": "pet",
    "etkinlik": "plutus",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "plutus",
@@ -4937,7 +4937,7 @@
   "pet_designs_pet-sentinel-phantasm": {
    "tur": "pet",
    "etkinlik": "halloween",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "halloween",
@@ -4950,7 +4950,7 @@
   "pet_designs_pet-solace-enigma": {
    "tur": "pet",
    "etkinlik": "sezon",
-   "yollar": [
+   "paths": [
     {
      "yol": "sezon",
      "etkinlik": "sezon"
@@ -4967,7 +4967,7 @@
   "pet_designs_pet-solace-striker": {
    "tur": "pet",
    "etkinlik": "sezon",
-   "yollar": [
+   "paths": [
     {
      "yol": "sezon",
      "etkinlik": "sezon"
@@ -4978,7 +4978,7 @@
   "pet_designs_pet-spectrum-phantasm": {
    "tur": "pet",
    "etkinlik": "halloween",
-   "yollar": [
+   "paths": [
     {
      "yol": "degisim",
      "etkinlik": "halloween",
@@ -4991,26 +4991,26 @@
   "pet_designs_pet-spectrum-poison": {
    "tur": "pet",
    "etkinlik": "rb_booty",
-   "yollar": [
+   "paths": [
     {
      "yol": "kutu",
      "etkinlik": "rb_booty",
      "kutu": "PIRATE_BOOTY_RED",
      "tablo": true,
-     "agirlik": 0.469
+     "weight": 0.469
     },
     {
      "yol": "kutu",
      "etkinlik": "rb_booty",
      "kutu": "PIRATE_BOOTY_BLUE",
      "tablo": true,
-     "agirlik": 0.469
+     "weight": 0.469
     }
    ],
    "kaynak": "BOXES"
   }
  },
- "kutu_ek": {
+ "box_extra": {
   "PIRATE_BOOTY_RED": [
    [
     "pet_designs_pet-a-elite-blaze",

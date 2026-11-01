@@ -30,9 +30,9 @@ from legacy_protocol import stm
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 D = json.load(open(os.path.join(HERE, 'data', 'new_systems.json'), encoding='utf8'))['nova']
-PERKS = D['yetenekler']
-CHIP, CALLING = D['cip'], D['cagri_cipi']
-MAX_E, REGEN = D['azami_enerji'], D['dinlenme_sn']
+PERKS = D['skills']
+CHIP, CALLING = D['chip'], D['calling_chip']
+MAX_E, REGEN = D['max_energy'], D['rest_sec']
 REQUESTS = {'CaptainActionRequest'}
 
 
@@ -44,7 +44,7 @@ def mod(_cls, **f):
 def value(kind, base, level):
     """Yeteneğin değeri (%): taban kademe + seviye başına artış."""
     t = PERKS[kind]
-    return round(t['taban'][base - 1] + t['artis'] * (level - 1), 2)
+    return round(t['taban'][base - 1] + t['increase'] * (level - 1), 2)
 
 
 def where(map_id):
@@ -60,7 +60,7 @@ class Nova:
         self.at_station = lambda: True             # oturum bağlar: oyuncu istasyonda mı
         self.lock = threading.RLock()              # enerji: profil.mods() profilin kilidi tutulurken de çağrılır (o kilit yeniden girilmez)
         with profile.lock:
-            self.d = profile.d.setdefault('nova', {'kadro': [], 'aktif': 0, 'sonraki': 1})
+            self.d = profile.d.setdefault('nova', {'kadro': [], 'aktif': 0, 'next': 1})
         self.resume()
 
     # ------------------------------------------------------------ enerji
@@ -71,7 +71,7 @@ class Nova:
             c['t'] = now or time.time()
 
     def drain(self, c):
-        return sum(PERKS[y['tur']]['harcama'] for y in c['yetenekler'])
+        return sum(PERKS[y['tur']]['spending'] for y in c['skills'])
 
     def update(self, c, now=None):
         now = now or time.time()
@@ -105,8 +105,8 @@ class Nova:
         if not c:
             return {}
         here, out = where(map_id), {}
-        for y in c['yetenekler']:
-            key, place = D['etkiler'].get(y['tur'], (None, None))
+        for y in c['skills']:
+            key, place = D['effects'].get(y['tur'], (None, None))
             if key and (place == 'hepsi' or place == here or (place == 'kapi' and here == 'abg')):
                 out[key] = out.get(key, 0) + value(y['tur'], y['taban'], y['seviye']) / 100.0
         return out
@@ -128,23 +128,23 @@ class Nova:
 
     # ------------------------------------------------------------ edinme
     def new_captain(self, section, rng=random):
-        info = D['bolumler'][section]
-        pool = dict(info['yetenekler'])
+        info = D['sections'][section]
+        pool = dict(info['skills'])
         perks = [rng.choices(list(pool), list(pool.values()))[0]]
-        rest = {k: v for k, v in (pool if len(pool) > 1 else D['bolumler']['captain_captain-gen1-neo']['yetenekler']).items()
+        rest = {k: v for k, v in (pool if len(pool) > 1 else D['sections']['captain_captain-gen1-neo']['skills']).items()
                 if k not in perks}
-        while len(perks) < D['yetenek_sayisi'] and rest:
+        while len(perks) < D['perk_count'] and rest:
             k = rng.choices(list(rest), list(rest.values()))[0]
             perks.append(k)
             rest.pop(k)
         with self.p.lock:
-            cid = self.d['sonraki']
-            self.d['sonraki'] = cid + 1
-            c = {'id': cid, 'section': section, 'aile': rng.choice(info['aileler']), 'ad': rng.choice(D['adlar']), 'enerji': float(MAX_E),
-                 't': time.time(), 'yetenekler': []}
+            cid = self.d['next']
+            self.d['next'] = cid + 1
+            c = {'id': cid, 'section': section, 'aile': rng.choice(info['families']), 'ad': rng.choice(D['adlar']), 'enerji': float(MAX_E),
+                 't': time.time(), 'skills': []}
             for i, k in enumerate(perks):
-                tier = rng.choices(range(1, 7), D['taban_agirlik'])[0]
-                c['yetenekler'].append({'id': cid * 10 + i + 1, 'tur': k, 'taban': tier, 'seviye': 1})
+                tier = rng.choices(range(1, 7), D['base_weight'])[0]
+                c['skills'].append({'id': cid * 10 + i + 1, 'tur': k, 'taban': tier, 'seviye': 1})
             self.d['kadro'].append(c)
             self.p.dirty = True
         return c
@@ -157,15 +157,15 @@ class Nova:
             if loot in D['genel']:
                 w = D['genel'][loot]
                 section = rng.choices(list(w), list(w.values()))[0]
-            if section not in D['bolumler']:
+            if section not in D['sections']:
                 self.log('   N.O.V.A.: bilinmeyen bölüm %s' % loot)
                 continue
-            if len(self.d['kadro']) >= D['azami_kadro']:
-                extra += D['fazlasi_uridyum']
+            if len(self.d['kadro']) >= D['max_roster']:
+                extra += D['excess_uridium']
                 continue
             c = self.new_captain(section, rng)
             self.log('   N.O.V.A. alındı: %s %s (%s; %s)' % (c['ad'], c['aile'], section, ', '.join(
-                '%s %.1f%%' % (y['tur'], value(y['tur'], y['taban'], 1)) for y in c['yetenekler'])))
+                '%s %.1f%%' % (y['tur'], value(y['tur'], y['taban'], 1)) for y in c['skills'])))
             msgs.append(stm('captain_received_s'))         # "Recruited: N.O.V.A." (flashres'te yok: CSTM; canlı test H64)
         if extra:
             self.p.gain(uridyum=extra, neden='aktion_system_back')
@@ -178,9 +178,9 @@ class Nova:
         row = next((r for r in D['yukseltme'] if r['seviye'] == level), None)
         if not row:
             return {}
-        need = {'currency_uridium': row['uridyum'], CHIP: row['cip']}
-        if D['bolumler'][c['section']].get('cagri_cipi'):
-            need[CALLING] = row['cagri_cipi']
+        need = {'currency_uridium': row['uridyum'], CHIP: row['chip']}
+        if D['sections'][c['section']].get('calling_chip'):
+            need[CALLING] = row['calling_chip']
         return need
 
     def perk_cmd(self, c, y):
@@ -195,14 +195,14 @@ class Nova:
             levels.append(mod('CaptainPerkUpgradLevelCommand', modifier=float(value(y['tur'], y['taban'], lv)), upgradeLevel=lv,
                               costList=cost))
         return mod('CaptainPerkCommand', perkModifier=float(value(y['tur'], y['taban'], y['seviye'])), perkId=y['id'],
-                   perkTypeId='perk_' + y['tur'], perkDrain=PERKS[y['tur']]['harcama'], levelMax=D['azami_seviye'],
+                   perkTypeId='perk_' + y['tur'], perkDrain=PERKS[y['tur']]['spending'], levelMax=D['azami_seviye'],
                    upgradLevelList=levels, level=y['seviye'])
 
     def captain_cmd(self, c):
         with self.lock:
             e = self.update(c)
-        return mod('CaptainCommand', sellingPrice=D['birakma_cip'], isSelected=c['id'] == self.d['aktif'], sellItemObtained=CHIP,
-                   captainTypeId=c['aile'], captainName=c['ad'], perkList=[self.perk_cmd(c, y) for y in c['yetenekler']],
+        return mod('CaptainCommand', sellingPrice=D['release_chip'], isSelected=c['id'] == self.d['aktif'], sellItemObtained=CHIP,
+                   captainTypeId=c['aile'], captainName=c['ad'], perkList=[self.perk_cmd(c, y) for y in c['skills']],
                    maxEnergy=MAX_E, captainId=c['id'], captainEnergy=int(e))
 
     def roster_cmd(self):
@@ -248,8 +248,8 @@ class Nova:
             with self.p.lock:
                 self.d['kadro'].remove(c)
                 self.p.dirty = True
-            self.p.add_resource(CHIP, D['birakma_cip'])
-            self.log('   N.O.V.A. bırakıldı: %s %s (+%d Evocation Chip)' % (c['ad'], c['aile'], D['birakma_cip']))
+            self.p.add_resource(CHIP, D['release_chip'])
+            self.log('   N.O.V.A. bırakıldı: %s %s (+%d Evocation Chip)' % (c['ad'], c['aile'], D['release_chip']))
             return [('CaptainDismissBackCommand', dict(errorId=None, result=True, captainId=cid)), self.chips_cmd()]
         if cmd == 'upgradePerk':
             return self.upgrade(cid, int(f.get('perkId') or 0), int(f.get('upgradeLevel') or 0))
@@ -259,7 +259,7 @@ class Nova:
     def upgrade(self, cid, pid, target):
         from shop import stack_msg
         c = self.find(cid)
-        y = next((x for x in (c or {}).get('yetenekler', []) if x['id'] == pid), None)
+        y = next((x for x in (c or {}).get('skills', []) if x['id'] == pid), None)
         back = lambda ok, err=None, lv=0: ('CaptainUpgradPerkBackCommand', dict(
             errorId=stack_msg(err) if err else None, level=lv, perkId=pid, captainId=cid, result=ok))
         if not y:
@@ -292,5 +292,5 @@ class Nova:
         "evasion" geçenleri eksiye çevirir). Takılı N.O.V.A. yoksa boş liste."""
         c = self.active()
         rows = [mod('ActivePerkModule', perkTypeId='perk_' + y['tur'], modifierValue=float(value(y['tur'], y['taban'], y['seviye'])))
-                for y in (c['yetenekler'] if c else [])]
+                for y in (c['skills'] if c else [])]
         return 'ActivePerkUpdateCommand', {'activePerkModuleList': rows}

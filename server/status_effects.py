@@ -91,13 +91,13 @@ class Effects:
         now = now or time.time()
         hits = []
         for e in self.get('zehir', now):
-            if now < e.get('sonraki', 0) or e.get('kalan', 1) <= 0:
+            if now < e.get('next', 0) or e.get('kalan', 1) <= 0:
                 continue
             dmg = min(e['deger'], e.get('kalan', e['deger']))
             hits.append(dmg)
             e['kalan'] = e.get('kalan', dmg) - dmg
-            e['deger'] = min(e['deger'] + e.get('artis', 0), e.get('en_cok', e['deger']))
-            e['sonraki'] = e.get('sonraki', now) + 1.0
+            e['deger'] = min(e['deger'] + e.get('increase', 0), e.get('en_cok', e['deger']))
+            e['next'] = e.get('next', now) + 1.0
         return hits
 
     def mods(self, now=None):

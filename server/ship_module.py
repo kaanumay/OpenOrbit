@@ -102,8 +102,8 @@ def roll(loot, rng=random):
     vals = [[main, pick_value(unstable, main, rng)]]
     vals += [[a, rng.randint(1, max(3, unstable['aralik']['buyuk'][1])) / 100.0] for a in rng.sample([a for a in SECONDARY if a != main], rng.choices((0, 1, 2), (6, 3, 1))[0])]
     rng.shuffle(vals)                      # kayıtta ana nitelik ilk olmayabiliyor (DMG-XT10: DMG_NPC sonuncu)
-    pref = list(unstable.get('tercih', []))
-    rest = [s for s in all_ships() if s not in pref and s not in unstable.get('haric', ())]      # serinin çıkmadığı gemiler (forum 162335)
+    pref = list(unstable.get('preference', []))
+    rest = [s for s in all_ships() if s not in pref and s not in unstable.get('exclude', ())]      # serinin çıkmadığı gemiler (forum 162335)
     picks = []
     for _ in range(rng.choice((1, 1, 2, 3))):
         pool = [s for s in (pref if pref and rng.random() < PRIORITY_CHANCE else rest) if s not in picks] or [s for s in rest + pref if s not in picks]
@@ -191,7 +191,7 @@ def mods(p, ship_loot, iids, level=None):
         else:
             if ship_loot not in info['gemiler']:
                 continue
-            eff = dict(info['etkiler'])
+            eff = dict(info['effects'])
             if 'ep' in eff and loot.startswith('equipment_shipupgrade_spc-xp') and (level or 0) >= XP_MAX_LEVEL:
                 eff.pop('ep')                                   # SPC-XP01/02: 16. seviyeye dek
         for k, v in eff.items():
@@ -330,7 +330,7 @@ class Modules:
               'UnstableModuleRecycleRequest': self.recycle}.get(name)
         if name == 'RerollWindowSettingsRequest':
             with self.p.lock:
-                self.p.d['reroll_ayar'] = f.get('rerollWindowSettingsModule') or {}
+                self.p.d['reroll_settings'] = f.get('rerollWindowSettingsModule') or {}
                 self.p.dirty = True
             return []
         return fn(f) if fn else None

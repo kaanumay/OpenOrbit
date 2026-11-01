@@ -41,7 +41,7 @@ def _can_afford(bot, currency, price):
 
 # ------------------------------------------------------------------------------------------------------------ satın alma
 def cosmetic_designs(ship):
-    return sorted(l for l, f in K.prices().items() if l.startswith(ship + '_design_') and l not in K.ITEMS['tasarimlar'])
+    return sorted(l for l, f in K.prices().items() if l.startswith(ship + '_design_') and l not in K.ITEMS['designs'])
 
 
 def drone_count(bot):
@@ -151,9 +151,9 @@ def shopping(bot, now):
         if f and _can_afford(bot, *f) and bot.pay(*f):
             owner.append(ist)
     if ist in owner:
-        bot.k['formasyon'] = ist
-    elif bot.k.get('formasyon') not in owner or drone_count(bot) < MIN_DRONES.get(bot.k.get('formasyon'), 0):
-        bot.k['formasyon'] = 'drone_formation_default'
+        bot.k['formation'] = ist
+    elif bot.k.get('formation') not in owner or drone_count(bot) < MIN_DRONES.get(bot.k.get('formation'), 0):
+        bot.k['formation'] = 'drone_formation_default'
 
 
 # ------------------------------------------------------------------------------------------------------------ görünüş
@@ -195,6 +195,6 @@ def messages(n):
     if drones:
         lv = drone_level(b)
         body = '|'.join('%d|%d|%d|%d' % (K.ITEMS['dronlar'][d]['tur'], lv, t, g) for d, (t, g) in zip(drones, drone_ids(b)))
-        f = FORMATION.get(b.k.get('formasyon') or '', 0)
+        f = FORMATION.get(b.k.get('formation') or '', 0)
         out.append(legacy('0|n|d|%d|%d|%s' % (n.id, f, body)))
     return out

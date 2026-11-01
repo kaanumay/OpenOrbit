@@ -21,7 +21,7 @@ class Farming(Goal):
         return p * (1 - 0.5 * bot.mood['yorgunluk']) * (1 - 0.3 * bot.mood['sikilma'])
 
     def start(self, bot, b):
-        plan = (bot.k.get('niyet') or {}).get('plan') or {}
+        plan = (bot.k.get('intent') or {}).get('plan') or {}
         m = plan.get('harita')
         if not m:
             # ilk üç aday arasından faydaya göre: herkes aynı "en iyi" haritaya yığılmasın

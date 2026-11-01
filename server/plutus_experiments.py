@@ -38,7 +38,7 @@ def _register():
     if not D:
         return
     world_module.CFG['tipler'][BEACON] = {k: v for k, v in D['isaret'].items() if k != 'tur'}
-    for key, r in D['riskler'].items():
+    for key, r in D['risks'].items():
         for i, a in enumerate(r['uzaylilar']):
             world_module.CFG['tipler'][type_name(key, i)] = EKP._tip(a)
 
@@ -53,8 +53,8 @@ def active(now=None):
 def risk_of(world, faction):
     """Bu harita hangi riskin haritası (Low: kendi X-1'lerin, Medium: kendi X-5'lerin, High: 4-4); değilse None."""
     m = int(world.map_id)
-    for key, r in D.get('riskler', {}).items():
-        want = r['harita_sinifi']
+    for key, r in D.get('risks', {}).items():
+        want = r['map_class']
         if (H.name(m) == want) if want == '4-4' else (H.map_class(m) == want and H.company(m) == faction):
             return key
     return None
@@ -62,13 +62,13 @@ def risk_of(world, faction):
 
 def tier(risk, dealt):
     """Uzaylıya verilen hasarın kutu kademesi (alt sınırı geçilen en yüksek; alt sınırın altında kutu yok) ya da None."""
-    got = [t for t in D['riskler'][risk]['kutular'] if dealt >= t['den']]
+    got = [t for t in D['risks'][risk]['kutular'] if dealt >= t['den']]
     return got[-1] if got else None
 
 
 def stage(risk, dealt):
     """Kuleye verilen hasara göre çıkan uzaylının sırası (eşiği geçilen en güçlü)."""
-    return max(i for i, a in enumerate(D['riskler'][risk]['uzaylilar']) if a['esik'] <= dealt)
+    return max(i for i, a in enumerate(D['risks'][risk]['uzaylilar']) if a['threshold'] <= dealt)
 
 
 class PlutusExperiment:
@@ -85,7 +85,7 @@ class PlutusExperiment:
     def cooldown_left(self, risk, now):
         if SET.get('giris_siniri_yok'):                       # panel: günlük/yıllık/bir kez ve bekleme süresi yok
             return 0
-        return max(0.0, self.st['son'].get(risk, 0) + D['riskler'][risk]['bekleme_sn'] - now)
+        return max(0.0, self.st['son'].get(risk, 0) + D['risks'][risk]['bekleme_sn'] - now)
 
     @staticmethod
     def cooldown_msg(left):
@@ -120,7 +120,7 @@ class PlutusExperiment:
         e, self.enc = self.enc, None
         msgs = []
         with w.lock:
-            for i in (e['kule'], e.get('uzayli')):
+            for i in (e['tower'], e.get('uzayli')):
                 n = w.npcs.get(i) if i else None
                 if n:
                     msgs += w.remove_npc(n)
@@ -138,10 +138,10 @@ class PlutusExperiment:
         with self.p.lock:
             self.st['son'][risk] = now
             self.p.dirty = True
-        self.enc = dict(risk=risk, kule=n.id, spawned=now, ilk=None, ipucu=False, uyari=False, uzayli=None)
-        self.log('   Plutus’ Experiments: %s işaret kulesi doğdu (%d, %d)' % (D['riskler'][risk]['ad'], x, y))
+        self.enc = dict(risk=risk, tower=n.id, spawned=now, ilk=None, ipucu=False, uyari=False, uzayli=None)
+        self.log('   Plutus’ Experiments: %s işaret kulesi doğdu (%d, %d)' % (D['risks'][risk]['ad'], x, y))
         return [KAPI.screen('key:msg_npc_spawning_beacon_high_risk_spawn') if risk == 'high'
-                else KAPI.screen('A %s beacon has spawned.' % D['riskler'][risk]['ad'])]
+                else KAPI.screen('A %s beacon has spawned.' % D['risks'][risk]['ad'])]
 
     @staticmethod
     def beacon_hit(n, dmg):
@@ -157,7 +157,7 @@ class PlutusExperiment:
                 if n is None or not n.alive:
                     self.enc = None
                 return msgs
-            b = w.npcs.get(e['kule'])
+            b = w.npcs.get(e['tower'])
             if b is None:
                 self.enc = None
                 return msgs
@@ -165,18 +165,18 @@ class PlutusExperiment:
                 if b.dealt > 0:
                     e['ilk'] = now
                     msgs.append(KAPI.screen('key:msg_npc_spawning_beacon_first_shot'))
-                elif now >= e['spawned'] + D['atis_sn']:       # 2 dakikada atılmadı: kaçar
+                elif now >= e['spawned'] + D['fire_sec']:       # 2 dakikada atılmadı: kaçar
                     msgs += w.remove_npc(b) + [KAPI.screen('key:msg_npc_spawning_beacon_escaped')]
                     self.enc = None
                 return msgs
             t = now - e['ilk']
-            if not e['ipucu'] and t >= D['ipucu_sn']:
+            if not e['ipucu'] and t >= D['hint_sec']:
                 e['ipucu'] = True
                 msgs.append(KAPI.screen('key:msg_npc_spawning_beacon_10_sec'))
-            if not e['uyari'] and t >= D['dalga_sn'] - 10:       # 45 sn'lik sayacın 35. saniyesi (forum 143093)
+            if not e['uyari'] and t >= D['wave_sec'] - 10:       # 45 sn'lik sayacın 35. saniyesi (forum 143093)
                 e['uyari'] = True
                 msgs.append(KAPI.screen('key:msg_npc_spawning_beacon_35_sec'))
-            if t >= D['dalga_sn']:
+            if t >= D['wave_sec']:
                 msgs += self.release(w, b, e)
         return msgs
 
@@ -190,7 +190,7 @@ class PlutusExperiment:
         n.gate, n.hunt, n.dealt = True, True, 0
         n.damage_hook = lambda dmg, n=n: setattr(n, 'dealt', n.dealt + dmg)
         e['uzayli'] = n.id
-        self.log('   Plutus’ Experiments: kule %d hasar aldı -> %s' % (b.dealt, D['riskler'][risk]['uzaylilar'][i]['ad']))
+        self.log('   Plutus’ Experiments: kule %d hasar aldı -> %s' % (b.dealt, D['risks'][risk]['uzaylilar'][i]['ad']))
         return msgs
 
     # ------------------------------------------------------------ ödül
@@ -221,7 +221,7 @@ class PlutusExperiment:
         st = self.st
         with self.p.lock:
             st['pp'] += n
-            due = [r for r in D['puan_takasi'] if st['pp'] >= r['puan'] and r['puan'] not in st['alinan']]
+            due = [r for r in D['point_exchange'] if st['pp'] >= r['puan'] and r['puan'] not in st['alinan']]
             st['alinan'] += [r['puan'] for r in due]
             self.p.dirty = True
         msgs = [KAPI.screen('Progression points: +%d (%d)' % (n, st['pp']))]

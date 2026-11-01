@@ -30,7 +30,7 @@ DXMT = {'ad': 'DXMT 0.80', 'surum': '0.80', 'url': 'https://github.com/3Shain/dx
         'sha256': '8f260e36b5739e68f3bad613381441385c4dc7b85b78ba8de653d5a6a264529d', 'boyut': 18681669, 'kok': 'v0.80'}
 DXMT_ARCHS = ('x86_64-unix', 'x86_64-windows', 'i386-windows')
 MIN_MACOS = (14, 0)                # DXMT: macOS 14 Sonoma
-INSTALL_MARKER = 'kurulum.json'                  # kurulumun bittiğini ve sürümlerini söyler
+INSTALL_MARKER = 'install.json'                  # kurulumun bittiğini ve sürümlerini söyler
 
 
 @functools.lru_cache(maxsize=1)
@@ -44,7 +44,7 @@ def apple_silicon():
         return platform.machine() == 'arm64'
 
 
-_rosetta = {'var': False, 'zaman': 0.0}
+_rosetta = {'var': False, 'time': 0.0}
 
 
 def has_rosetta():
@@ -52,13 +52,13 @@ def has_rosetta():
     birkaç saniyede bir yeniden denenir."""
     if not apple_silicon() or _rosetta['var']:
         return True
-    if time.monotonic() - _rosetta['zaman'] < 3:
+    if time.monotonic() - _rosetta['time'] < 3:
         return False
     try:
         var = subprocess.run(['/usr/bin/arch', '-x86_64', '/usr/bin/true'], capture_output=True, timeout=10).returncode == 0
     except (OSError, subprocess.SubprocessError):
         var = False
-    _rosetta.update(var=var, zaman=time.monotonic())
+    _rosetta.update(var=var, time=time.monotonic())
     return var
 
 
@@ -134,7 +134,7 @@ def _extract(tf, root, target):
 
 class WineEngine:
     def __init__(self, save_dir, log=print, opener=None):
-        self.root = os.path.join(save_dir, 'wine_motoru')
+        self.root = os.path.join(save_dir, 'wine_engine')
         self.log, self.opener = log, opener
         self.lock = threading.Lock()
         self.stop = threading.Event()
@@ -173,7 +173,7 @@ class WineEngine:
             d['durum'] = 'kurulu'
         d.update(yol=installed, ad=self.name(), boyut=ENGINE['boyut'] + DXMT['boyut'], klasor=self.folder(),
                  rosetta=dict(ros, gerekli=apple_silicon(), var=has_rosetta()),
-                 macos=platform.mac_ver()[0] if MAC else None, macos_eski=MAC and macos_version() < MIN_MACOS)
+                 macos=platform.mac_ver()[0] if MAC else None, macos_old=MAC and macos_version() < MIN_MACOS)
         return d
 
     def running(self):
@@ -253,7 +253,7 @@ class WineEngine:
             if not os.path.isfile(os.path.join(engine, 'bin', 'wine')):
                 raise DownloadError(_('Wine motorunda bin/wine yok.'))
             with open(os.path.join(engine, INSTALL_MARKER), 'w', encoding='utf8') as fh:
-                json.dump({'motor': ENGINE['sha256'], 'dxmt': DXMT['sha256'], 'ad': self.name(), 'zaman': time.strftime('%Y-%m-%d %H:%M:%S')},
+                json.dump({'motor': ENGINE['sha256'], 'dxmt': DXMT['sha256'], 'ad': self.name(), 'time': time.strftime('%Y-%m-%d %H:%M:%S')},
                           fh, indent=1)
             target = self.folder()
             if os.path.isdir(target):

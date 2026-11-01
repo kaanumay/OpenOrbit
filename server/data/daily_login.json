@@ -1,6 +1,6 @@
 {
- "_kaynak": "İstemcinin rewards.xml'i (günlük giriş takvimi; tools/gunluk_giris.py). Her ay 25 ödül; her gerçek gün bir tane alınır (gün = o ay alınan ödül sayısı), ay değişince baştan. Premium ödül tek oyunculu oyunda da verilir (istemci PREMIUM gösteriyor). Booster ödüllerinde adet saat (wiki: günlük ödül boosterları 5 saat gibi), süresi oyundayken işler.",
- "aylar": {
+ "_kaynak": "İstemcinin rewards.xml'i (günlük giriş takvimi; tools/daily_login.py). Her ay 25 ödül; her gerçek gün bir tane alınır (gün = o ay alınan ödül sayısı), ay değişince baştan. Premium ödül tek oyunculu oyunda da verilir (istemci PREMIUM gösteriyor). Booster ödüllerinde adet saat (wiki: günlük ödül boosterları 5 saat gibi), süresi oyundayken işler.",
+ "months": {
   "1": [
    {
     "esya": "resource_high-frequency-cable",

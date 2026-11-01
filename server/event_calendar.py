@@ -33,16 +33,16 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 D = DATA.load('events.json')       # Dünya Editörü: dönemler, harita bölümü, dünyadaki durum (dunya_durum)
 EVENTS = D['etkinlikler']
 EG.apply(EVENTS)                        # etkinlik görünümleri: GG hafta sonu kapılarının ve harita kutularının tasarımları
-ALWAYS = D['surekli']['turler']
+ALWAYS = D['continuous']['kinds']
 COUNTED_AS = {}                            # etkinlik -> yerine de sayılan etkinlikler ('sayilir': Şükran Günü'nde gg_cift_odul)
 for _k, _e in EVENTS.items():
-    if _e.get('sayilir'):
-        COUNTED_AS.setdefault(_e['sayilir'], []).append(_k)
+    if _e.get('counts_as'):
+        COUNTED_AS.setdefault(_e['counts_as'], []).append(_k)
 FORCED, MODE = set(), 'takvim'          # takvim | hepsi | yok (yıllıklar için)
 # hafta döngüleri ('hafta_dongu') bu pazartesiden sayılır; ISO hafta paritesi 53 haftalık yılda (2026) üç haftalık ara bırakıyordu
 WEEK_START = datetime.date(2024, 1, 8)
 DAY, CYCLE = datetime.timedelta(days=1), datetime.timedelta(weeks=52)
-KNOWN = datetime.datetime.strptime(D['takvim_bilinen'], '%Y-%m-%d') + DAY     # bilinen son günün sonu (yıla özgü dönemler)
+KNOWN = datetime.datetime.strptime(D['known_calendar'], '%Y-%m-%d') + DAY     # bilinen son günün sonu (yıla özgü dönemler)
 # Çin Yeni Yılı (ay takvimi; tablo dışındaki yıllarda o dönem yok)
 CNY = {2020: (1, 25), 2021: (2, 12), 2022: (2, 1), 2023: (1, 22), 2024: (2, 10), 2025: (1, 29), 2026: (2, 17), 2027: (2, 6),
        2028: (1, 26), 2029: (2, 13), 2030: (2, 3), 2031: (1, 23), 2032: (2, 11), 2033: (1, 31), 2034: (2, 19), 2035: (2, 8),
@@ -61,11 +61,11 @@ def _pass_run(key, t):
 def _tags(e):
     """Etkinliğin tek başına olabilen özellikleri: Battle Pass (kaydın tek pass'i), harita süsü (EventActivationState türü başına
     bir süs), uzaylı kargo kutusunun görünümü (CandyCargo / kargo_tur: kutu tek görünümde)."""
-    out = {'pass'} if 'BattlePass' in e.get('turler', []) else set()
-    if 'sus' in e:
-        out.add('sus:%s' % e['sus']['tur'])
+    out = {'pass'} if 'BattlePass' in e.get('kinds', []) else set()
+    if 'decor' in e:
+        out.add('sus:%s' % e['decor']['tur'])
     secs = ([e['harita']] if isinstance(e.get('harita'), dict) else []) + e.get('harita_ek', [])
-    if 'CandyCargo' in e.get('turler', []) or any(s.get('kargo_tur') for s in secs):
+    if 'CandyCargo' in e.get('kinds', []) or any(s.get('cargo_kind') for s in secs):
         out.add('kargo')
     return out
 
@@ -190,7 +190,7 @@ def _span_at(entries, t):
 
 def _week_day(e, d):
     """Haftalık etkinlik bu gün var mı ('gunler', 'ay_haftasi', 'hafta_dongu')."""
-    if d.weekday() not in e.get('gunler', range(7)) or (e.get('ay_haftasi') and (d.day - 1) // 7 + 1 not in e['ay_haftasi']):
+    if d.weekday() not in e.get('days', range(7)) or (e.get('nth_of_month') and (d.day - 1) // 7 + 1 not in e['nth_of_month']):
         return False
     n, i = e.get('hafta_dongu', (1, 0))
     return (d.date() - WEEK_START).days // 7 % n == i
@@ -199,7 +199,7 @@ def _week_day(e, d):
 def period(key, now=None):
     """Etkinliğin şu anki (ya da yoksa None) dönemi: (başlangıç, bitiş) zaman damgası; bitiş hariç."""
     e, t = EVENTS[key], _dt(now)
-    if e.get('birlikte') and not any(_on(k, now) for k in e['birlikte']):       # yalnız bu etkinliklerden biri sürerken (Fever)
+    if e.get('together') and not any(_on(k, now) for k in e['together']):       # yalnız bu etkinliklerden biri sürerken (Fever)
         return None
     if 'donemler' in e:
         p = _span_at(e['donemler'], t)
@@ -218,7 +218,7 @@ def window(s, now=None):
         return False
     if 'saatler' not in s or SET.get('seans_hep_acik'):
         return True
-    return _hours(t, lambda d: s.get('saatler_hafta_sonu', s['saatler']) if d.weekday() >= 5 else s['saatler']) is not None
+    return _hours(t, lambda d: s.get('hours_weekend', s['saatler']) if d.weekday() >= 5 else s['saatler']) is not None
 
 
 def upcoming(key, now=None, days=366):
@@ -300,8 +300,8 @@ def intervals(key, a, b):
     else:
         iv = _daily(a, b, lambda d: e.get('saatler', [[0, 24]]) if _week_day(e, d) else [])
     iv = _merge(iv + [x for k in COUNTED_AS.get(key, ()) for x in intervals(k, a, b)])      # 'sayilir': yerine sayılan etkinlikler
-    if e.get('birlikte'):
-        iv = _intersect(iv, _merge([x for k in e['birlikte'] for x in intervals(k, a, b)]))
+    if e.get('together'):
+        iv = _intersect(iv, _merge([x for k in e['together'] for x in intervals(k, a, b)]))
     return iv
 
 
@@ -309,7 +309,7 @@ def section_intervals(s, a, b, always_open=False):
     """Harita bölümünün [a, b) içindeki açık aralıkları (window ile aynı kural; hep_acik: panelin seans_hep_acik ayarı)."""
     iv = _span_windows(s['donemler'], a, b) if 'donemler' in s else [[a, b]]
     if 'saatler' in s and not always_open:
-        iv = _intersect(iv, _daily(a, b, lambda d: s.get('saatler_hafta_sonu', s['saatler']) if d.weekday() >= 5 else s['saatler']))
+        iv = _intersect(iv, _daily(a, b, lambda d: s.get('hours_weekend', s['saatler']) if d.weekday() >= 5 else s['saatler']))
     return iv
 
 
@@ -396,7 +396,7 @@ def active(now=None):
 
 def has_type(t, now=None):
     """Etkinlik türü (EventModule.type, ör. CandyCargo) şu an etkin mi."""
-    return t in ALWAYS or any(t in EVENTS[k].get('turler', []) for k in active(now))
+    return t in ALWAYS or any(t in EVENTS[k].get('kinds', []) for k in active(now))
 
 
 def time_left(key, now=None):
@@ -464,7 +464,7 @@ def event_cmd(now=None):
         seen.add(t)
     for k in sorted(active(now)):
         left = time_left(k, now)
-        for t in EVENTS[k].get('turler', []) + ['BE_' + n for n in news(k, now)]:      # BE_<kimlik>: Command Center haberi
+        for t in EVENTS[k].get('kinds', []) + ['BE_' + n for n in news(k, now)]:      # BE_<kimlik>: Command Center haberi
             if t not in seen:
                 seen.add(t)
                 mods.append(dict(_='EventModule', type=t, timeLeft=left, id=_id(t), lang='all'))
@@ -474,7 +474,7 @@ def event_cmd(now=None):
 
 def moods(keys):
     """Etkinliklerin harita süsleri {istemcinin EventType'ı: 'sus'} (Prometheus hologramı, buzdağları, Paskalya, Carnival, Breach)."""
-    return {EVENTS[k]['sus']['tur']: EVENTS[k]['sus'] for k in sorted(keys) if 'sus' in EVENTS[k]}
+    return {EVENTS[k]['decor']['tur']: EVENTS[k]['decor'] for k in sorted(keys) if 'decor' in EVENTS[k]}
 
 
 def mood_cmds(keys, before=None):

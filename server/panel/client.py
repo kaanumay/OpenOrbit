@@ -21,7 +21,7 @@ ROOT = os.path.dirname(SERVER)
 EXE = 'DarkOrbit.exe'
 DATA_DIR = 'DarkOrbit_Data'
 SUPPORTED = '1.1.116'          # etkin protokolün sürümü yoksa (server/data/protokol/surum.txt; protokol_guncelle.py yazar)
-VERSION_FILE = os.path.join(SERVER, 'data', 'protokol', 'surum.txt')
+VERSION_FILE = os.path.join(SERVER, 'data', 'protocols', 'version.txt')
 
 
 def supported():
@@ -151,17 +151,17 @@ def args(cfg, log_file, session=None, window=False):
     """Unity başlatma argümanları (panel ayarlarından). oturum: çoklu istemcinin ek istemcisi (web.py giriş sayfası ?oturum= ile
     kaydını bulur); pencere: ayardan bağımsız pencere kipi (ek istemciler)."""
     a = [LOGIN_URL.replace('/#', '/?oturum=%s#' % session) if session else LOGIN_URL]
-    mode = 'pencere' if window else cfg.get('pencere_modu')
+    mode = 'pencere' if window else cfg.get('window_mode')
     if mode == 'tam_ekran':
         a += ['-screen-fullscreen', '1', '-window-mode', 'exclusive']
     elif mode == 'kenarliksiz':                       # kenarlıksız tam ekran pencere (Unity 2019.3+)
         a += ['-screen-fullscreen', '1', '-window-mode', 'borderless']
     else:
         a += ['-screen-fullscreen', '0']
-    a += ['-screen-width', str(cfg.get('genislik')), '-screen-height', str(cfg.get('yukseklik'))]
+    a += ['-screen-width', str(cfg.get('width')), '-screen-height', str(cfg.get('height'))]
     if cfg.get('monitor'):
         a += ['-monitor', str(cfg.get('monitor'))]
-    extra = (cfg.get('ek_argumanlar') or '').strip()
+    extra = (cfg.get('extra_args') or '').strip()
     if extra:
         import shlex
         a += shlex.split(extra, posix=False)

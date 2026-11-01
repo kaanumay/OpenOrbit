@@ -2856,5 +2856,6 @@
 "{0} / {1} yuva": "{0} / {1} slotów",
 "{0} paketi · {1}. bot": "Pakiet {0} · bot nr {1}",
 "Özellikler": "Cechy",
-"Şu anki duyguları: zamanla dengeye döner. Öfkeli bot intikam peşine düşer, yorgun bot erken çıkar.": "Bieżące emocje: z czasem wracają do równowagi. Zły bot szuka zemsty, zmęczony wylogowuje się wcześniej."
+"Şu anki duyguları: zamanla dengeye döner. Öfkeli bot intikam peşine düşer, yorgun bot erken çıkar.": "Bieżące emocje: z czasem wracają do równowagi. Zły bot szuka zemsty, zmęczony wylogowuje się wcześniej.",
+"Kayıtlar yeni biçime taşınamadı (%s). Eski kayıtların yedeği server/save altında (v1_backup_*.zip); sunucular başlatılmaz.": "Nie udało się przenieść zapisów do nowego formatu (%s). Kopia starych zapisów jest w server/save (v1_backup_*.zip); serwery nie zostaną uruchomione."
 }

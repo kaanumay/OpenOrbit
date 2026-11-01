@@ -28,7 +28,7 @@ def _candidates(bot):
     e = bot.k['ekip']
     shield_share = bot.shield_share()
     base_values = K.values(e, shield_share)
-    base = base_values['guc']
+    base = base_values['power']
     slot = K.outfit(e, shield_share)
     out = []
 
@@ -46,7 +46,7 @@ def _candidates(bot):
         if filler:                                        # dronun boş yuvaları sonra alınacak lazerle dolar
             y['lazer'][filler[0]] = y['lazer'].get(filler[0], 0) + filler[1]
         new_values = K.values(y, shield_share)
-        increase = new_values['guc'] - base + 0.02 * (new_values['hiz'] - base_values['hiz']) * (0.5 + bot.o('risk'))    # hız güçte yok: kaçmaya, avlanmaya yarar
+        increase = new_values['power'] - base + 0.02 * (new_values['hiz'] - base_values['hiz']) * (0.5 + bot.o('risk'))    # hız güçte yok: kaçmaya, avlanmaya yarar
         if loot.startswith('ship_'):                     # zevk: sevdiği gemi ailesine yakınlık (herkes aynı gemiye yakınsamasın)
             increase *= 1.35 if PS.taste(bot.k['kisilik']) in loot else 0.9
         if filler:                                        # verim lazerlerin parasıyla birlikte (dronun fiyatına düşen pay)
@@ -71,7 +71,7 @@ def _candidates(bot):
     best = max((l for l in e.get('lazer', {}) if l in lasers), key=lasers.get, default=None)
     for loot, d in K.ITEMS['dronlar'].items():
         n = e.get('dron', {}).get(loot, 0)
-        if sum(e.get('dron', {}).values()) < K.ITEMS['dron_azami'] and K.price(loot, n):
+        if sum(e.get('dron', {}).values()) < K.ITEMS['max_drones'] and K.price(loot, n):
             missing = max(0, d.get('yuva', 1) - backup)
             attempt(loot, n, (best, missing) if best and missing else None)
     current = K.ITEMS['gemiler'].get(e['gemi'], {})
@@ -161,7 +161,7 @@ class Shopping(Goal):
 
     def points(self, bot, b):
         increase = b.shopping[0][0]
-        return min(1.6, 0.45 + increase / max(1.0, bot.value()['guc']) * 3 + 0.2 * bot.o('hirs'))
+        return min(1.6, 0.45 + increase / max(1.0, bot.value()['power']) * 3 + 0.2 * bot.o('hirs'))
 
     def start(self, bot, b):
         # bir alışveriş seferinde parası yettikçe sırayla alır (en çok SEFER_ALIM): önceden sefer başına tek eşya alıyordu, 10M
@@ -173,8 +173,8 @@ class Shopping(Goal):
                 break
             bot.add(loot)
             bot.ist('alim')
-            bot.mood.it(moral=0.12 + min(0.3, increase / max(1.0, bot.value()['guc'])))
-            bot.event('alim', esya=loot, fiyat=price, para=currency)
+            bot.mood.it(moral=0.12 + min(0.3, increase / max(1.0, bot.value()['power'])))
+            bot.event('alim', esya=loot, fiyat=price, currency=currency)
             if loot.startswith('ship_'):
                 bot.event('yeni_gemi', esya=loot)
             if bot.k.get('birikim') == loot:

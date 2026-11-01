@@ -134,7 +134,7 @@ class ChatEngine:
             self._lines.append(now)
         self.history.append((now, b.name, channel if not recipient else 'fisilti:' + recipient, text, None if recipient else channel_path(b, channel)))
         del self.history[:-600]               # fısıltı bağlamı kalabalık sohbette hemen silinmesin (güçlü sağlayıcı saatlerce geriye bakar)
-        b.event('dedim', now, kanal=channel, metin=text, alici=recipient)
+        b.event('dedim', now, kanal=channel, metin=text, recipient=recipient)
         if self.chat is None:
             return
         if recipient:
@@ -244,7 +244,7 @@ class ChatEngine:
             import community as TP
             k = TP.find(name=name)
             w = k.world if k is not None else None
-            m = int(k.profile.d['konum'].get('mapId', 0)) if w is not None and now - getattr(w, 'last_hurt', 0) < 90 else None
+            m = int(k.profile.d['position'].get('mapId', 0)) if w is not None and now - getattr(w, 'last_hurt', 0) < 90 else None
         if m is None or int(m) not in K.MAPS:
             return []
         incoming = []
@@ -351,9 +351,9 @@ class ChatEngine:
         talk = b.o('konuskanlik')
         kind = o['tur']
         if kind == 'tanik':
-            if o.get('alt') == 'patron' and o.get('kim') and str(o['kim']).lower() != b.name.lower():
+            if o.get('sub') == 'patron' and o.get('kim') and str(o['kim']).lower() != b.name.lower():
                 self.speak(b, 'firma', SPC.template(b, 'tanik_patron', kim=o['kim']), now=now + b.r.uniform(2, 8))
-            elif o.get('alt') == 'oyuncu_oldu' and o.get('ad'):
+            elif o.get('sub') == 'oyuncu_oldu' and o.get('ad'):
                 self.speak(b, 'firma', SPC.template(b, 'tanik_olum', ad=o['ad']), now=now + b.r.uniform(2, 10))
             return
         if kind == 'diplomasi' and (o.get('kabul') or not o.get('gelen')) and o.get('form') in (0, 1, 3) and b.r.random() < 0.4 + 0.5 * talk:

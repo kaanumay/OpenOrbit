@@ -18,16 +18,16 @@ from legacy_protocol import stm
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 _PATH = os.path.join(HERE, 'data', 'major_content.json')
-D = (json.load(open(_PATH, encoding='utf8')) if os.path.exists(_PATH) else {}).get('mimesis', {}).get('sandik') or {}
+D = (json.load(open(_PATH, encoding='utf8')) if os.path.exists(_PATH) else {}).get('mimesis', {}).get('chest') or {}
 SRC = 'mimesis_sandik'
 
 
 def pick():
     """Çekiliş: %30'da yedi etkiden biri (olasılıklarla ağırlıklı) -> etki satırı ya da None."""
-    rows = D.get('etkiler') or []
-    if not rows or random.random() >= D.get('olasilik', 0.3):
+    rows = D.get('effects') or []
+    if not rows or random.random() >= D.get('probability', 0.3):
         return None
-    return random.choices(rows, [r['olasilik'] for r in rows])[0]
+    return random.choices(rows, [r['probability'] for r in rows])[0]
 
 
 def roll(w, now=None):

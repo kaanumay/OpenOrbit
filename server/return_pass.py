@@ -38,14 +38,14 @@ from legacy_protocol import legacy
 HERE = os.path.dirname(os.path.abspath(__file__))
 R = json.load(open(os.path.join(HERE, 'data', 'tickets.json'), encoding='utf8'))['donus_pass']
 EVENT, SPECIAL, VIP_ITEM = R['takvim'], R['special_id'], R['vip']
-COST, UCOST = R['puan_bedeli'], R['uridyum_bedeli']
+COST, UCOST = R['point_cost'], R['uridium_cost']
 LEVELS = {r[0]: r[1:] for r in R['seviyeler']}               # seviye -> [[free], [return], [vip]]
 MAX_LEVEL = len(COST)
-OFS = R['gorev_kimlik_kaydirma']
+OFS = R['quest_id_offset']
 FREE, RETURN, VIP = 0, 1, 2
 HERO_FALSE, HERO_TRUE, HERO_INVITEE = 1, 2, 4                  # client HeroState: NONE 0, FALSE 1, TRUE 2, INVITER 3, INVITEE 4
 PERIOD = {SE.DAILY: 0, SE.WEEKLY: 1, SE.SEASON: 2}
-REFRESH_U = R['yenileme_uridyum']
+REFRESH_U = R['refresh_uridium']
 
 
 def mod(name, **f):
@@ -65,9 +65,9 @@ def shifted(node):
     return node
 
 
-REAL = {m['tanim']['id']: m for m in R['gorevler']}              # kayıttaki görevler (sourceQuestId: 'kaynak')
-MISSIONS = {**{q + OFS: dict(m, tanim=shifted(m['tanim']), kaynak=q + OFS) for q, m in SE.MISSIONS.items()}, **REAL}
-VERSION = R['gorev_surumu']
+REAL = {m['definition']['id']: m for m in R['gorevler']}              # kayıttaki görevler (sourceQuestId: 'kaynak')
+MISSIONS = {**{q + OFS: dict(m, definition=shifted(m['definition']), kaynak=q + OFS) for q, m in SE.MISSIONS.items()}, **REAL}
+VERSION = R['quest_version']
 
 
 def thresholds():
@@ -247,7 +247,7 @@ class ReturnPass:
             items.append(mod('RecallBattlePassMissionModule', sourceQuestId=MISSIONS[q]['kaynak'], period=p, periodStart=int(spans[p][0]),
                              nextReset=int(spans[p][1]), experience=MISSIONS[q]['puan'],
                              missionStatus=mod('RecallBattlePassMissionStatusModule', type=self.status(q)),
-                             questDefinitionModule=GT.with_state(MISSIONS[q]['tanim'], st['deger'].get(str(q), {}), q in st['tamam'])))
+                             questDefinitionModule=GT.with_state(MISSIONS[q]['definition'], st['deger'].get(str(q), {}), q in st['tamam'])))
         return ('RecallBattlePassMissionInfoCommand', dict(requestId=int(rid), specialId=SPECIAL, missionInfoType=0,
                                                            refreshInfo=self.refresh_info(), missionItems=items))
 
@@ -371,8 +371,8 @@ class ReturnPass:
         for q in st.get('gunluk', []) + st.get('haftalik', []) + st.get('sezonluk', []):
             if q in st['tamam']:
                 continue
-            m, fin = GT.advance(self.p, MISSIONS[q]['tanim']['rootCase'], st['deger'].setdefault(str(q), {}), kind, kw,
-                                self.p.d['konum'].get('mapId'),
+            m, fin = GT.advance(self.p, MISSIONS[q]['definition']['rootCase'], st['deger'].setdefault(str(q), {}), kind, kw,
+                                self.p.d['position'].get('mapId'),
                                 notify=False)
             msgs += m
             if fin:

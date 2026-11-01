@@ -51,10 +51,10 @@ def _num(k):
 class Autopilot:
     def __init__(self, profile, log=print):
         self.p, self.log = profile, log
-        self.laser_range = lambda: D['lazer_menzil']      # oturum bağlar: dünyanın lazer menzili
+        self.laser_range = lambda: D['laser_range']      # oturum bağlar: dünyanın lazer menzili
         self.maps = lambda: (None, {})                    # oturum bağlar: (bulunulan harita, harita -> orada çıkan uzaylıların adları)
         with profile.lock:
-            self.d = profile.d.setdefault('otopilot', {'ayar': '', 'durum': STOP, 'baslangic': 0, 'toplam_sn': 0, 'oturum': 0})
+            self.d = profile.d.setdefault('otopilot', {'ayar': '', 'durum': STOP, 'baslangic': 0, 'total_sec': 0, 'oturum': 0})
             self.d['durum'] = STOP                        # yeni oturum: istemci girişte STOP bildirir
 
     # ------------------------------------------------------------ seçimler
@@ -63,7 +63,7 @@ class Autopilot:
         haritalara göre listelerin birleşimi."""
         s = self.d.get('secim')
         if s is None:
-            s = {'npc': [], 'kutu': [], 'npc_harita': {}}
+            s = {'npc': [], 'kutu': [], 'npc_map': {}}
             try:
                 old = json.loads(self.d.get('ayar') or '{}')
             except ValueError:
@@ -93,8 +93,8 @@ class Autopilot:
                     if k not in have:
                         s[store].append(e)
                         have.add(k)
-                    if store == 'npc' and mid not in s['npc_harita'].setdefault(k, []):
-                        s['npc_harita'][k].append(mid)
+                    if store == 'npc' and mid not in s['npc_map'].setdefault(k, []):
+                        s['npc_map'][k].append(mid)
 
     def info_json(self, cur=None, names=None):
         """İstemciye gidecek ayarlar: kaydedilenler, seçim listeleri her haritanın anahtarıyla (bulunulan harita cur, sonra seçim
@@ -109,7 +109,7 @@ class Autopilot:
         except ValueError:
             base = {}
         base = base if isinstance(base, dict) else {}
-        mine = {m for ms in s['npc_harita'].values() for m in ms}           # seçim yapılan haritalar önce
+        mine = {m for ms in s['npc_map'].values() for m in ms}           # seçim yapılan haritalar önce
         rest = set(names) | set(_maps(base.get(NPC_LIST))) | set(_maps(base.get(BOX_LIST)))
         order = ([cur] if cur else []) + sorted(mine - {cur}, key=_num) + sorted(rest - mine - {cur}, key=_num)
         npcs, boxes = {}, {}
@@ -117,7 +117,7 @@ class Autopilot:
         size = len(json.dumps(base, separators=(',', ':')))
         box_cost = len(json.dumps(s['kutu'], separators=(',', ':')))
         for mid in order:
-            seen = set(names.get(mid, ())) | {k for k, ms in s['npc_harita'].items() if mid in ms}
+            seen = set(names.get(mid, ())) | {k for k, ms in s['npc_map'].items() if mid in ms}
             row = [e for e in s['npc'] if _npc_key(e) in seen]
             cost = len(json.dumps(row, separators=(',', ':'))) + box_cost + 2 * len(mid) + 8
             if size + cost > LIMIT and mid != cur:
@@ -136,7 +136,7 @@ class Autopilot:
             if text != (self.d.get('ayar') or ''):
                 self.d['ayar'] = text                     # istemcinin elindeki: sonraki kayıt bununla karşılaştırılır
                 self.p.dirty = True
-        return 'AutopilotInfoCommand', dict(remainingSeconds=D['premium_sn'] if premium else 0, laserRange=int(self.laser_range()),
+        return 'AutopilotInfoCommand', dict(remainingSeconds=D['premium_sec'] if premium else 0, laserRange=int(self.laser_range()),
                                             result=premium, autopilotInfos=text)
 
     def handle(self, name, f, now=None):
@@ -172,7 +172,7 @@ class Autopilot:
                     self.log('   otomatik pilot başladı')
                 elif st == STOP and self.d['durum'] == START:
                     dt = max(0, int(now - self.d.get('baslangic', now)))
-                    self.d.update(durum=STOP, toplam_sn=self.d.get('toplam_sn', 0) + dt)
+                    self.d.update(durum=STOP, total_sec=self.d.get('total_sec', 0) + dt)
                     self.log('   otomatik pilot durdu (%d sn)' % dt)
                 self.p.dirty = True
             return []

@@ -34,16 +34,16 @@ def call(y, bot, ad, arg=None):
     """Aracı çalıştır -> {'ok', 'mesaj'}. Bilinmeyen araç, kapalı izin ya da hatalı argüman hata döner (bot bir şey yapmaz)."""
     a = TOOLS.get(str(ad or ''))
     if a is None:
-        return {'ok': False, 'mesaj': 'bilinmeyen araç'}
+        return {'ok': False, 'message': 'bilinmeyen araç'}
     if a['izin'] and y is not None and not y.permission(a['izin']):
-        return {'ok': False, 'mesaj': 'izin kapalı'}
+        return {'ok': False, 'message': 'izin kapalı'}
     try:
         r = a['fn'](y, bot, **{k: v for k, v in (arg or {}).items() if k in a['parametreler']})
     except (TypeError, ValueError, KeyError) as e:
-        return {'ok': False, 'mesaj': 'hatalı argüman: %s' % e}
+        return {'ok': False, 'message': 'hatalı argüman: %s' % e}
     except Exception as e:                                  # araç içi hata (AttributeError…) sohbet tikinin kalanını düşürmesin
-        return {'ok': False, 'mesaj': 'araç hatası: %r' % e}
-    bot.event('arac', y.now if y is not None else None, ad=ad, sonuc=r.get('ok'))
+        return {'ok': False, 'message': 'araç hatası: %r' % e}
+    bot.event('arac', y.now if y is not None else None, ad=ad, result=r.get('ok'))
     return r
 
 
@@ -57,11 +57,11 @@ def _game_map(ad):
 
 
 def _ok(m=''):
-    return {'ok': True, 'mesaj': m}
+    return {'ok': True, 'message': m}
 
 
 def _error(m):
-    return {'ok': False, 'mesaj': m}
+    return {'ok': False, 'message': m}
 
 
 # ------------------------------------------------------------------------------------------------------------ hedefler
@@ -94,7 +94,7 @@ def go_shopping(y, bot):
         return _error('alınacak bir şey yok ya da para yetmiyor')
     if bot.pay(c[1], c[2]):
         bot.add(c[3])
-        bot.event('alim', y.now if y else None, esya=c[3], fiyat=c[2], para=c[1])
+        bot.event('alim', y.now if y else None, esya=c[3], fiyat=c[2], currency=c[1])
         if c[3].startswith('ship_'):
             bot.event('yeni_gemi', y.now if y else None, esya=c[3])
         return _ok(c[3])
@@ -114,7 +114,7 @@ def go_help(y, bot, harita=None, ad=''):
     if m is None and ad:
         import community as TP
         k = TP.find(name=ad)
-        m = int(k.profile.d['konum'].get('mapId', 0)) if k is not None else None
+        m = int(k.profile.d['position'].get('mapId', 0)) if k is not None else None
     if m is None or m not in K.MAPS or not K.can_enter(m, bot.firma, bot.level) or not K.route(bot.game_map, m, bot.firma, bot.level):
         return _error('oraya gidemez')
     B.force(bot, 'yardim', plan={'harita': m, 'ad': ad}, pay=1.2, duration=900, now=y.now if y else None)
@@ -220,7 +220,7 @@ def follow(y, bot, ad=''):
     k = TP.find(name=ad)
     if k is None:
         return _error('böyle biri yok')
-    return hunt_npcs(y, bot, harita=H.name(int(k.profile.d['konum'].get('mapId', bot.game_map))))
+    return hunt_npcs(y, bot, harita=H.name(int(k.profile.d['position'].get('mapId', bot.game_map))))
 
 
 @tool('klana_basvur', 'Bir klana başvur.', {'klan': 'string: klanın adı ya da etiketi'}, izin='klan')
@@ -403,9 +403,9 @@ def diplomacy_reply(y, bot, klan='', kabul=False):
         return _error('klanın yok')
     s = str(klan).lower()
     r = None
-    for x in k.get('diplo_istek', []):
+    for x in k.get('diplomacy_requests', []):
         o = KL.CLANS.get(x['kimden']) or {}
-        if x['kime'] == k['id'] and s in (str(o.get('ad', '')).lower(), str(o.get('etiket', '')).lower()):
+        if x['to'] == k['id'] and s in (str(o.get('ad', '')).lower(), str(o.get('etiket', '')).lower()):
             r = x
             break
     if r is None:
@@ -445,7 +445,7 @@ def buy_item(y, bot, esya=''):
         return _error('para yetmedi')
     bot.add(c[3])
     bot.ist('alim')
-    bot.event('alim', y.now if y else None, esya=c[3], fiyat=c[2], para=c[1])
+    bot.event('alim', y.now if y else None, esya=c[3], fiyat=c[2], currency=c[1])
     if c[3].startswith('ship_'):
         bot.event('yeni_gemi', y.now if y else None, esya=c[3])
     if bot.k.get('birikim') == c[3]:
@@ -477,7 +477,7 @@ def pick_quest(y, bot, gorev=''):
     s = str(gorev or '').strip().lower().lstrip('#')
     for qid, q in QU.eligible(bot):
         if s in (str(qid), str(q.get('ad', '')).lower()):
-            bot.k['gorev'] = dict(id=qid, kosullar={})
+            bot.k['gorev'] = dict(id=qid, conditions={})
             if not (QU.next_up(bot) or (None, None))[1]:
                 bot.k['gorev'] = None
                 return _error('bu görevin yeri şu an gidilebilir değil')

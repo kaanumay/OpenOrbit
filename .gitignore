@@ -10,13 +10,19 @@ server/logs/
 server/data/giris.json
 server/data/haritalar.json
 server/data/yanitlar.json
+server/data/login.json
+server/data/maps.json
+server/data/responses.json
+server/data/v1_backup_*.zip
 
 # Original game client and its unfinished download / Orijinal oyun istemcisi ve yarım indirmesi
 DarkOrbit_Version*/
 istemci_indiriliyor/
+client_downloading/
 
 # Protocol versions built by the Client page (tools/il2cpp/protocol_update.py) / İstemci sayfasının ürettiği protokol sürümleri
 server/data/protokol/
+server/data/protocols/
 
 # Game images, downloaded from the official CDN when the game first asks for them / Oyunun görselleri, oyun ilk istediğinde resmî CDN'den iner
 server/cdn/do_img/

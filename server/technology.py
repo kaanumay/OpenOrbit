@@ -49,7 +49,7 @@ def add(p, item, n=1):
 
 
 def state(p):
-    return p.d.setdefault('teknoloji_durum', {})
+    return p.d.setdefault('technology_state', {})
 
 
 def is_active(p, item, now=None):
@@ -60,9 +60,9 @@ def timer_fields(p, item, now=None):
     now = now or time.time()
     s = state(p).get(item, {})
     if now < s.get('bitis', 0):
-        return dict(activatable=False, timerState=ACTIVE, maxTime=s.get('sure_ms', 0), time=int((s['bitis'] - now) * 1000))
+        return dict(activatable=False, timerState=ACTIVE, maxTime=s.get('duration_ms', 0), time=int((s['bitis'] - now) * 1000))
     if now < s.get('hazir', 0):
-        return dict(activatable=False, timerState=COOLING, maxTime=s.get('bekleme_ms', 0), time=int((s['hazir'] - now) * 1000))
+        return dict(activatable=False, timerState=COOLING, maxTime=s.get('cooldown_ms', 0), time=int((s['hazir'] - now) * 1000))
     return dict(activatable=True, timerState=READY, maxTime=0, time=0)
 
 
@@ -80,9 +80,9 @@ def menu_status(p, item, st):
     if n <= 0:
         st.update(visible=False, available=False, activatable=False, counterValue=0)
         return st
-    maps = ITEMS[item].get('yalniz_harita')
-    usable = not maps or str(p.d['konum'].get('mapId', 0)) in map(str, maps)        # Versus Laser Overdrive: yalnız Vortex of Greed haritasında
-    usable = usable and not echoes_map(p.d['konum'].get('mapId', 0))              # forum 177095: Yankılar'da teknoloji yok
+    maps = ITEMS[item].get('map_only')
+    usable = not maps or str(p.d['position'].get('mapId', 0)) in map(str, maps)        # Versus Laser Overdrive: yalnız Vortex of Greed haritasında
+    usable = usable and not echoes_map(p.d['position'].get('mapId', 0))              # forum 177095: Yankılar'da teknoloji yok
     lines = [{'_': 'MessageKeyListWildcardModule', 'baseKey': item, 'baseKeyType': {'_': 'ReplacementTypeModule', 'typeValue': 3},
               'textStyle': 0, 'wildCardReplacements': []},
              {'_': 'MessageKeyListWildcardModule', 'baseKey': 'ttip_count', 'baseKeyType': {'_': 'ReplacementTypeModule', 'typeValue': 5},
@@ -99,7 +99,7 @@ def menu_status(p, item, st):
 def echoes_map(map_id):
     """Uzayın Derinliklerindeki Yankılar haritaları ve salonu: teknoloji eşyaları kullanılamaz (resmî forum 177095)."""
     import echoes as EC
-    return int(map_id or 0) in set(EC.D['haritalar']) | {EC.D['salon']}
+    return int(map_id or 0) in set(EC.D['haritalar']) | {EC.D['hall']}
 
 
 class Technology:
@@ -114,7 +114,7 @@ class Technology:
         self.started = False
         now = time.time()
         for item, s in state(self.p).items():
-            maps = ITEMS.get(item, {}).get('yalniz_harita')
+            maps = ITEMS.get(item, {}).get('map_only')
             if maps and now < s.get('bitis', 0) and str(world.map_id) not in map(str, maps):
                 s['bitis'] = now                       # Versus Laser Overdrive: gemi Vortex of Greed'den ayrılınca etki silinir (bekleme sürer)
                 self.p.dirty = True
@@ -124,7 +124,7 @@ class Technology:
                     c = ITEMS[item]
                     start, total = s['bitis'] - c['sure_sn'], int(c['sure_sn'] // c['aralik_sn'])
                     done = min(total, max(0, int((now - start) // c['aralik_sn'])))
-                    self.nuke = dict(sonraki=start + (done + 1) * c['aralik_sn'], kalan=total - done)
+                    self.nuke = dict(next=start + (done + 1) * c['aralik_sn'], kalan=total - done)
             elif now < s.get('hazir', 0):
                 self.waiting[item] = s['hazir']
 
@@ -157,16 +157,16 @@ class Technology:
 
     def laser_bonus(self, now=None):
         """Versus Laser Overdrive: etkinken her lazerin taban hasarına eklenen düz hasar (yoksa 0)."""
-        return ITEMS['tech_versus-laser-overdrive']['taban_lazer'] if self.active('tech_versus-laser-overdrive', now) else 0
+        return ITEMS['tech_versus-laser-overdrive']['base_laser'] if self.active('tech_versus-laser-overdrive', now) else 0
 
     def leech(self, ammo, dmg):
         """Energy Leech: sıradan lazer cephanesiyle verilen hasarın %10'u cana."""
-        if dmg <= 0 or ammo not in T['cephaneler'] or not self.active('tech_energy-leech'):
+        if dmg <= 0 or ammo not in T['ammo_types'] or not self.active('tech_energy-leech'):
             return
         g = self.p.d['gemi']
         if g.get('hitPoints', 0) >= g.get('hitMax', 0):
             return
-        self.p.set_hull(hp=g.get('hitPoints', 0) + dmg * ITEMS['tech_energy-leech']['lazer_can'])
+        self.p.set_hull(hp=g.get('hitPoints', 0) + dmg * ITEMS['tech_energy-leech']['laser_hp'])
         self.send([self.w.hp_msg()])
 
     # ------------------------------------------------------------ etkinleştirme
@@ -175,7 +175,7 @@ class Technology:
         w, p = self.w, self.p
         now = now or time.time()
         c = ITEMS.get(item)
-        if not c or count(p, item) <= 0 or w.hero_dead or w.jumping or echoes_map(w.map_id) or                 (c.get('yalniz_harita') and str(w.map_id) not in map(str, c['yalniz_harita'])):
+        if not c or count(p, item) <= 0 or w.hero_dead or w.jumping or echoes_map(w.map_id) or                 (c.get('map_only') and str(w.map_id) not in map(str, c['map_only'])):
             w.log('   teknoloji kullanılamaz: %s' % item)
             return False
         if is_active(p, item, now) or now < state(p).get(item, {}).get('hazir', 0):
@@ -190,7 +190,7 @@ class Technology:
         p.ach('spend', loot=item, adet=1)           # Quests/Pass "use an item": counted with or without infinite tech
         sec, cd = c.get('sure_sn', 0), c.get('bekleme_sn', 0) * SET.multiplier('yetenek_bekleme', 'teknoloji')      # panel
         with p.lock:
-            state(p)[item] = dict(bitis=now + sec, hazir=now + sec + cd, sure_ms=int(sec * 1000), bekleme_ms=int(cd * 1000))
+            state(p)[item] = dict(bitis=now + sec, hazir=now + sec + cd, duration_ms=int(sec * 1000), cooldown_ms=int(cd * 1000))
             p.dirty = True
         if sec:
             self.ending[item] = now + sec
@@ -230,7 +230,7 @@ class Technology:
         if item == 'tech_npc-nuke':
             # istemci: "burst of damage to NPCs in an area around your ship once every 10 seconds": hedef gerekmez, gemi çevresindeki
             # bütün uzaylılara sure_sn / aralik_sn vuruş (nuke_tick)
-            self.nuke = dict(sonraki=now + c['aralik_sn'], kalan=int(c['sure_sn'] // c['aralik_sn']))
+            self.nuke = dict(next=now + c['aralik_sn'], kalan=int(c['sure_sn'] // c['aralik_sn']))
             return [used_msg('NNK')]
         if item == 'tech_speed-burst':
             w.hero_effect('hizlanma', c['sure_sn'], c['hiz'], source=item)
@@ -265,11 +265,11 @@ class Technology:
         g = p.d['gemi']
         if 'can_sn' in c and not w.hero_dead:
             hp0, sh0 = g.get('hitPoints', 0), g.get('shield', 0)
-            p.set_hull(hp=hp0 + c['can_sn'], shield=sh0 + c.get('kalkan_sn', 0))
+            p.set_hull(hp=hp0 + c['can_sn'], shield=sh0 + c.get('shield_per_sec', 0))
             msgs = [w.hp_msg()]
-            if c.get('kalkan_sn'):
+            if c.get('shield_per_sec'):
                 msgs.append(('AttributeShieldUpdateCommand', {'shieldNow': int(g['shield']), 'shieldMax': g.get('shieldMax', 0)}))
-            self.send(msgs + w.heal_msgs(hp0, sh0 if c.get('kalkan_sn') else None))
+            self.send(msgs + w.heal_msgs(hp0, sh0 if c.get('shield_per_sec') else None))
         if item == 'tech_frost-field':
             hx, hy = w.hero_pos(now)
             for n in list(w.npcs.values()):
@@ -292,7 +292,7 @@ class Technology:
                 self.charges.remove(ch)
                 continue
             n = next((n for n in w.npcs.values() if n.alive
-                      and math.hypot(n.mover.pos(now)[0] - ch['x'], n.mover.pos(now)[1] - ch['y']) <= c['tetik']), None)
+                      and math.hypot(n.mover.pos(now)[0] - ch['x'], n.mover.pos(now)[1] - ch['y']) <= c['trigger']), None)
             if n:
                 self.charges.remove(ch)
                 self.send([legacy('0|n|BT|%d' % n.id)])
@@ -305,8 +305,8 @@ class Technology:
         if not nk:
             return
         w, c = self.w, ITEMS['tech_npc-nuke']
-        while nk['kalan'] > 0 and now >= nk['sonraki']:
-            nk['sonraki'] += c['aralik_sn']
+        while nk['kalan'] > 0 and now >= nk['next']:
+            nk['next'] += c['aralik_sn']
             nk['kalan'] -= 1
             hx, hy = w.hero_pos(now)
             hits = [n.id for n in w.npcs.values()
@@ -342,7 +342,7 @@ class Technology:
         now = time.time()
         for item in list(self.ending):
             s = state(self.p).get(item, {})
-            sec = s.get('sure_ms', 0) / 1000.0
+            sec = s.get('duration_ms', 0) / 1000.0
             frac = 1 - (s.get('bitis', now) - now) / sec if sec else 1.0
             left = s.get('bitis', now) - now
             with self.p.lock:

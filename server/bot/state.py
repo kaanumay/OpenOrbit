@@ -37,7 +37,7 @@ class Bot:
         k.setdefault('ruh', {})
         k.setdefault('hafiza', {})
         k.setdefault('klan', None)
-        k.setdefault('arkadaslar', [])
+        k.setdefault('friends', [])
         k.setdefault('istat', {})
         if 'npc_puan' not in k['istat']:       # eski kayıt: öldürmelerin türü yok; uzaylı başına sıradan uzaylıların ortalaması (3,7),
             k['istat']['npc_puan'] = round(k['istat'].get('npc', 0) * 3.7)       # oyuncu gemisi başına kendi gemisinin puanı
@@ -47,13 +47,13 @@ class Bot:
         k.setdefault('kargo', {})
         k.setdefault('stok', {'ammunition_laser_lcb-10': 1000, 'ammunition_rocket_r-310': 20})     # yeni oyuncunun cephanesi
         k.setdefault('hedef', None)
-        k.setdefault('niyet', None)
-        if k.get('onur', 0) < 0 and not k.get('_onur_duzeltme'):
+        k.setdefault('intent', None)
+        if k.get('onur', 0) < 0 and not k.get('_honor_fix'):
             k['onur'] = 0              # eski kayıt: kargo kutusu cezasıyla eksiye düşen onur bir kez sıfırlanır (govde.calar_mi)
-        k['_onur_duzeltme'] = 1
+        k['_honor_fix'] = 1
         k['hafiza'].pop('', None)      # eski kayıt: saldıran bot gemisi adsız hatırlanıyordu (govde._ad)
-        k['kisilik']['_ad'] = k['ad']                     # saat dilimi ve zevk adından (kişilik kadrodan her açılışta yeniden gelir)
-        self.mood = PS.Mood(k['ruh'], k.get('ruh_t'))
+        k['kisilik']['_name'] = k['ad']                     # saat dilimi ve zevk adından (kişilik kadrodan her açılışta yeniden gelir)
+        self.mood = PS.Mood(k['ruh'], k.get('mood_time'))
         self.memory = PS.Memory(k['hafiza'])
         self.r = random.Random('%s|%s|%s' % (k['ad'], k['no'], k['istat'].get('sure_sn', 0)))     # belirlenimci (benzetim)
         # geçici
@@ -91,7 +91,7 @@ class Bot:
     @property
     def saved(self):
         """Sunucuya kayıt oldu mu (progressive'de pilotlar sırayla katılır; eski kayıtlarda alan yok: kayıtlı)."""
-        return self.k.get('kayitli', True)
+        return self.k.get('registered', True)
 
     @property
     def firma(self):
@@ -218,13 +218,13 @@ class Bot:
             e['hiz'][loot] = e['hiz'].get(loot, 0) + n
         elif loot in K.ITEMS['dronlar']:
             e['dron'][loot] = e['dron'].get(loot, 0) + n
-        elif loot in K.ITEMS['savas_esyalari']['fircatici']['turler']:
+        elif loot in K.ITEMS['savas_esyalari']['fircatici']['kinds']:
             e['fircatici'] = loot                       # roket fırlatıcısı (teknoloji.py)
         elif loot in K.ITEMS['ekstralar'] or loot in K.ITEMS['onarim_robotlari']:
             from . import extras as EX
             EX.equip(self, loot)                          # CPU ve onarım robotu ekstra yuvasına (ekstra.py)
             return True
-        elif loot in K.ITEMS['lazer_cephane'] or loot in K.ITEMS['roketler'] or loot in K.ITEMS['savas_esyalari']['fircatici_cephane'] \
+        elif loot in K.ITEMS['lazer_cephane'] or loot in K.ITEMS['roketler'] or loot in K.ITEMS['savas_esyalari']['launcher_ammo'] \
                 or loot.startswith('tech_') or loot.startswith('ammunition_'):
             from . import weapons as WP
             WP.add(self, loot, n)                      # cephane ve roket stoğa (silah.py)
@@ -268,7 +268,7 @@ class Bot:
                 kredi += price[int(t)] * cargo.pop(t)
             elif int(t) in K.CARGO_ORE:              # rafineride satılmayan (Palladium: 5-2'deki tüccarda kapı enerjisine) depoya
                 from . import weapons as WP
-                name = K.ITEMS['cevherler']['turler'].get(str(t), 'resource_ore_%s' % t)
+                name = K.ITEMS['cevherler']['kinds'].get(str(t), 'resource_ore_%s' % t)
                 WP.stock(self)[name] = WP.stock(self).get(name, 0) + cargo.pop(t)
         if kredi:
             self.earn(kredi=kredi)
@@ -283,7 +283,7 @@ class Bot:
 
     def save(self):
         self.k['ruh'] = self.mood.save()
-        self.k['ruh_t'] = self.mood.t
+        self.k['mood_time'] = self.mood.t
         return self.k
 
     def summary(self):
@@ -291,6 +291,6 @@ class Bot:
         d = self.value()
         return dict(no=self.k['no'], ad=self.name, firma=self.firma, arketip=self.archetype, seviye=self.level, ep=self.k['ep'],
                     kredi=self.k['kredi'], uridyum=self.k['uridyum'], onur=self.k['onur'], gemi=self.k['ekip']['gemi'],
-                    guc=round(d['guc'], 1), harita=K.H.name(self.game_map), cevrimici=self.online, klan=self.k['klan'],
-                    hedef=self.k['hedef'], concrete=self.body is not None, istat=dict(self.k['istat']), kayitli=self.saved,
+                    power=round(d['power'], 1), harita=K.H.name(self.game_map), cevrimici=self.online, klan=self.k['klan'],
+                    hedef=self.k['hedef'], concrete=self.body is not None, istat=dict(self.k['istat']), registered=self.saved,
                     kargo=round(self.cargo_fill(), 2))

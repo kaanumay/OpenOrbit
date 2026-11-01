@@ -70,7 +70,7 @@ class BotError(ValueError):
 
 
 def folder():
-    return os.path.join(PTH.SAVE, 'botlar')
+    return os.path.join(PTH.SAVE, 'bots')
 
 
 def _route(pid):
@@ -81,7 +81,7 @@ def _route(pid):
 
 def state_path(pid):
     _route(pid)                                         # kimlik denetimi: '..' gibi bir kimlik paket klasörünün dışına çıkamaz
-    return os.path.join(folder(), pid, 'durum.json')
+    return os.path.join(folder(), pid, 'state.json')
 
 
 def file_path(pid):
@@ -165,16 +165,16 @@ def clean_settings(a, old=None):
     from bot import game_settings as GS
     import settings as SET
     if not isinstance(game_settings, dict) or game_settings.get('profil') not in GS.PROFILES:
-        game_settings = {'profil': 'standart', 'degerler': {}}
+        game_settings = {'profil': 'standart', 'values': {}}
     value = {}
-    for k, v in (game_settings.get('degerler') or {}).items():
+    for k, v in (game_settings.get('values') or {}).items():
         s = SET.BY_KEY.get(k)
         if k in GS.FIELDS and s:
             try:
                 value[k] = round(max(s.get('min', 0.0), min(s.get('max', 50.0), float(v))), 3)
             except (TypeError, ValueError):
                 pass
-    out['oyun_ayari'] = {'profil': game_settings['profil'], 'degerler': value}
+    out['oyun_ayari'] = {'profil': game_settings['profil'], 'values': value}
     bh = a.get('basit_haritalar', out.get('basit_haritalar'))
     if isinstance(bh, dict):
         out['basit_haritalar'] = {s: max(0, min(20, int(bh.get(s, 0) or 0))) for s in SIMPLE_CLASSES}
@@ -212,13 +212,13 @@ def generate_roster(seed, count, distribution, lang, existing=(), name_lang=None
     """d: paket; ad kaynağı DOStats ise adlar gerçek oyunculardan, adlardaki klan etiketleri d['klan_etiketleri']."""
     from bot import personality as PS
     pool = None
-    if d is not None and d.get('ad_kaynagi') == 'dostats':
+    if d is not None and d.get('name_source') == 'dostats':
         from bot import dostats as DS
         try:
             pool = DS.names([name_lang] if name_lang in LANGUAGES[1:] else list(DS.SERVERS))
         except OSError:
             raise BotError(_("DOStats'a ulaşılamadı. Ad kaynağını Üretilen yap ya da sonra yeniden dene."))
-        d['klan_etiketleri'] = DS.tags(pool)[:300]
+        d['clan_tags'] = DS.tags(pool)[:300]
     return PS.generate_roster(seed, count, company_distribution=distribution, lang=lang if lang in LANGUAGES else 'karisik', existing=existing,
                          name_lang=name_lang if name_lang in LANGUAGES else None, special=special, pool=pool)
 
@@ -267,27 +267,27 @@ def parse_custom(text, used=()):
 
 def _custom_lang(d, summary):
     """Dahili dil modeli yalnız İngilizce: Gelişmiş kipte özel botun dili de İngilizce (bot/llm.py)."""
-    if d.get('kip') == 'gelismis' and not PRV.multilingual():
+    if d.get('mode') == 'gelismis' and not PRV.multilingual():
         return [dict(o, dil='en') if o.get('dil') else o for o in summary]
     return summary
 
 
 def name_lang(d):
     """Paketin ad dili (eski paketlerde ad ve sohbet tek ayardı)."""
-    return d.get('ad_dili') or d.get('dil') or 'karisik'
+    return d.get('name_lang') or d.get('dil') or 'karisik'
 
 
 def apply_chat_lang(d):
     """Sohbet dili değişti: var olan botlar da yeni dilde konuşur (karışık: her bot adının dilinde). Adlar değişmez."""
     for x in d['kadro']:
         k = x['kisilik']
-        k.setdefault('ad_dili', k.get('dil'))
-        k['dil'] = d['dil'] if d['dil'] in LANGUAGES[1:] else (k.get('ad_dili') or k.get('dil') or 'en')
+        k.setdefault('name_lang', k.get('dil'))
+        k['dil'] = d['dil'] if d['dil'] in LANGUAGES[1:] else (k.get('name_lang') or k.get('dil') or 'en')
 
 
 def _count(d):
     """Basit kipte kadro harita yerlerinin sayısı kadar."""
-    if d.get('kip') == 'basit':
+    if d.get('mode') == 'basit':
         from bot import simple
         return max(1, simple.slot_count(d['ayarlar'].get('basit_haritalar') or simple.DEFAULT_MAPS))
     return None
@@ -304,14 +304,14 @@ def create(name, description='', world=None, mode='normal', progression='progres
         pid = _new_id(name)
         if mode == 'gelismis' and not PRV.multilingual():
             lang = 'en'                         # dahili dil modeli yalnız İngilizce (bot/llm.py; başka sağlayıcıda serbest)
-        d = {'ad': name, 'aciklama': str(description or '')[:DESCRIPTION_LENGTH], 'dunya': None, 'kip': mode,
-             'gelisim': progression if progression in PROGRESSIONS else 'progressive', 'tohum': random.randrange(1, 2 ** 31),
-             'dil': lang if lang in LANGUAGES else 'karisik', 'ad_dili': name_lang_ if name_lang_ in LANGUAGES else 'karisik',
-             'firma_dagilimi': _distribution(company_distribution), 'ad_kaynagi': name_source if name_source in NAME_SOURCES else 'uretim',
-             'ayarlar': clean_settings(settings or {}), 'olusturma': _now()}
+        d = {'ad': name, 'aciklama': str(description or '')[:DESCRIPTION_LENGTH], 'dunya': None, 'mode': mode,
+             'progression': progression if progression in PROGRESSIONS else 'progressive', 'seed': random.randrange(1, 2 ** 31),
+             'dil': lang if lang in LANGUAGES else 'karisik', 'name_lang': name_lang_ if name_lang_ in LANGUAGES else 'karisik',
+             'company_distribution': _distribution(company_distribution), 'name_source': name_source if name_source in NAME_SOURCES else 'uretim',
+             'ayarlar': clean_settings(settings or {}), 'created': _now()}
         summary = _custom_lang(d, parse_custom(special, players))
         n = max(len(summary), _count(d) or max(COUNT_MIN, min(COUNT_MAX, int(count or 60))))
-        d['kadro'] = generate_roster(d['tohum'], n, d['firma_dagilimi'], d['dil'], players, d['ad_dili'], summary, d)
+        d['kadro'] = generate_roster(d['seed'], n, d['company_distribution'], d['dil'], players, d['name_lang'], summary, d)
         _save(pid, d)
     if world:
         assign(pid, world)
@@ -325,17 +325,17 @@ def update(pid, name=None, description=None, mode=None, progression=None, settin
             d['ad'] = _clean_name(name)
         if description is not None:
             d['aciklama'] = str(description)[:DESCRIPTION_LENGTH]
-        old_mode = d['kip']
+        old_mode = d['mode']
         if mode is not None:
             if mode not in MODES:
                 raise BotError(_('Bilinmeyen bot kipi.'))
-            d['kip'] = mode
+            d['mode'] = mode
         if progression is not None and progression in PROGRESSIONS:
-            d['gelisim'] = progression
+            d['progression'] = progression
         if settings is not None:
             d['ayarlar'] = clean_settings(settings, d.get('ayarlar'))
         n = _count(d)
-        if n is not None and (n != len(d['kadro']) or old_mode != d['kip']):
+        if n is not None and (n != len(d['kadro']) or old_mode != d['mode']):
             d['kadro'] = _resize(d, n)
         _save(pid, d)
 
@@ -344,7 +344,7 @@ def _resize(d, n, players=()):
     """Kadro n bota: fazlası sondan çıkar, eksik yeni botlarla (aynı tohumdan devam; var olanların adı ve kişiliği değişmez)."""
     k = d['kadro'][:n]
     if len(k) < n:
-        extra = generate_roster(d['tohum'] + len(k) * 7919, n - len(k), d['firma_dagilimi'], d.get('dil', 'karisik'),
+        extra = generate_roster(d['seed'] + len(k) * 7919, n - len(k), d['company_distribution'], d.get('dil', 'karisik'),
                         [x['ad'] for x in k] + list(players), name_lang(d), d=d)
         last = max([x['no'] for x in k], default=0)
         for i, x in enumerate(extra, 1):
@@ -360,24 +360,24 @@ def roster(pid, count=None, lang=None, company_distribution=None, regenerate=Fal
     with _LOCK:
         d = read(pid)
         if name_lang_ in LANGUAGES:
-            d['ad_dili'] = name_lang_
-        elif not d.get('ad_dili'):
-            d['ad_dili'] = d.get('dil') or 'karisik'
+            d['name_lang'] = name_lang_
+        elif not d.get('name_lang'):
+            d['name_lang'] = d.get('dil') or 'karisik'
         if name_source in NAME_SOURCES:
-            d['ad_kaynagi'] = name_source           # yeni eklenen botlara ve baştan üretime (var olanların adı değişmez)
-        if d.get('kip') == 'gelismis' and not PRV.multilingual():
+            d['name_source'] = name_source           # yeni eklenen botlara ve baştan üretime (var olanların adı değişmez)
+        if d.get('mode') == 'gelismis' and not PRV.multilingual():
             lang = 'en'                         # dahili dil modeli yalnız İngilizce (bot/llm.py; başka sağlayıcıda serbest)
         if lang in LANGUAGES and lang != d.get('dil'):
             d['dil'] = lang
             apply_chat_lang(d)
         if company_distribution is not None:
-            d['firma_dagilimi'] = _distribution(company_distribution)
+            d['company_distribution'] = _distribution(company_distribution)
         n = _count(d) or max(COUNT_MIN, min(COUNT_MAX, int(count or len(d['kadro']))))
         old_backups = [x['ad'] for x in d['kadro']]
         summary = _custom_lang(d, parse_custom(special, players))
         if regenerate:
-            d['tohum'] = random.randrange(1, 2 ** 31)
-            d['kadro'] = generate_roster(d['tohum'], max(n, len(summary)), d['firma_dagilimi'], d['dil'], players, d['ad_dili'], summary, d)
+            d['seed'] = random.randrange(1, 2 ** 31)
+            d['kadro'] = generate_roster(d['seed'], max(n, len(summary)), d['company_distribution'], d['dil'], players, d['name_lang'], summary, d)
             outgoing = old_backups                              # baştan üretim: eski pilotların hepsi gider
         else:
             d['kadro'] = _resize(d, n, players)
@@ -385,7 +385,7 @@ def roster(pid, count=None, lang=None, company_distribution=None, regenerate=Fal
             var = {x['ad'].lower() for x in d['kadro']}
             new_ = [o for o in summary if o['ad'].lower() not in var]
             if new_:                                     # eklenen özel botlar sona (var olanlar değişmez)
-                extra = generate_roster(d['tohum'] + len(d['kadro']) * 7919, len(new_), d['firma_dagilimi'], d['dil'],
+                extra = generate_roster(d['seed'] + len(d['kadro']) * 7919, len(new_), d['company_distribution'], d['dil'],
                                 list(var) + list(players), name_lang(d), new_, d)
                 last = max([x['no'] for x in d['kadro']], default=0)
                 for i, x in enumerate(extra, 1):
@@ -492,7 +492,7 @@ def reset(pid, event=True):
     if event:
         NL.add([{'tur': 'klan_cik', 'ad': x['ad']} for x in read(pid)['kadro']])
     p = state_path(pid)
-    for f in (p, os.path.join(os.path.dirname(p), 'klanlar.json')):
+    for f in (p, os.path.join(os.path.dirname(p), 'clans.json')):
         if os.path.isfile(f):
             os.remove(f)
 
@@ -503,7 +503,7 @@ def remove(pid):
     if not os.path.isfile(p):
         raise BotError(_('Bot paketi bulunamadı.'))
     NL.add([{'tur': 'sil', 'ad': x['ad']} for x in read(pid)['kadro']])
-    target = os.path.join(folder(), '_silinenler')
+    target = os.path.join(folder(), '_trash')
     os.makedirs(target, exist_ok=True)
     timestamp = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
     os.replace(p, os.path.join(target, '%s_%s.json' % (pid, timestamp)))
@@ -560,8 +560,8 @@ def summary(pid):
     t, c = live(pid)
     companies = [sum(1 for x in d['kadro'] if x['firma'] == f) for f in (1, 2, 3)]
     levels = [c[x['no']].get('seviye', 1) for x in d['kadro'] if x['no'] in c]
-    return {'id': pid, 'ad': d['ad'], 'aciklama': d.get('aciklama', ''), 'dunya': d.get('dunya'), 'kip': d['kip'],
-            'gelisim': d.get('gelisim'), 'adet': len(d['kadro']), 'firmalar': companies, 'guncelleme': d.get('guncelleme'),
+    return {'id': pid, 'ad': d['ad'], 'aciklama': d.get('aciklama', ''), 'dunya': d.get('dunya'), 'mode': d['mode'],
+            'progression': d.get('progression'), 'adet': len(d['kadro']), 'companies': companies, 'guncelleme': d.get('guncelleme'),
             'last_played': t, 'level_avg': round(sum(levels) / len(levels), 1) if levels else None,
             'level_max': max(levels) if levels else None}
 
@@ -582,7 +582,7 @@ def _memory(s):
     anıları -> yoksa None."""
     memories = s.get('memories') or []
     out = {'defter': [x['metin'] for x in s.get('defter') or [] if not x.get('bitti')],
-           'bekleyen': [{'kim': a['kim'], 'amac': a['takip']['amac'], 'ozet': a['ozet'], 'due': a['takip'].get('due')}
+           'pending': [{'kim': a['kim'], 'amac': a['takip']['amac'], 'ozet': a['ozet'], 'due': a['takip'].get('due')}
                         for a in memories if a.get('takip') and not a['takip'].get('bitti')],
            'izlenim': [{'kim': v.get('ad'), 'metin': v.get('metin')} for v in (s.get('izlenim') or {}).values()],
            'memories': [{'kim': a['kim'], 'ozet': a['ozet'], 't': a['t'], 'n': a.get('n', 1)} for a in sorted(memories, key=lambda a: -a['t'])[:8]],
@@ -603,7 +603,7 @@ def _station_name(aid):
 def clans(pid):
     """Paketin botlarının klanları (sunucunun son kaydı: durum.json'un yanındaki klanlar.json): logo (OP-017), lider, üyeler, kasa,
     vergi, bütçe, istasyonlar ve yarış (bot/clan_stations.py), son haberler. Kalabalık önce."""
-    d = _read_file(os.path.join(os.path.dirname(state_path(pid)), 'klanlar.json')) or {}
+    d = _read_file(os.path.join(os.path.dirname(state_path(pid)), 'clans.json')) or {}
     names = {x['ad'].lower() for x in read(pid)['kadro']}
     out = []
     for k in (d.get('klanlar') or {}).values():
@@ -617,7 +617,7 @@ def clans(pid):
                     'uye': len(members), 'bot': bot, 'kasa': k.get('kasa', 0), 'vergi': k.get('vergi', 0), 'butce': k.get('butce'),
                     'kurulus': k.get('kurulus'), 'aciklama': k.get('aciklama', ''),
                     'rutbeler': [r.get('ad') for r in k.get('rutbeler') or []],
-                    'istasyonlar': [_station_name(a) for a, x in (s.get('gordu') or {}).items() if x == 'kurulu'],
+                    'stations': [_station_name(a) for a, x in (s.get('seen') or {}).items() if x == 'kurulu'],
                     'yaris': _station_name(s['hedef']) if s.get('hedef') else None,
                     'diplomasi': [{'tur': x.get('tur'), 'ad': x.get('ad') or ((d.get('klanlar') or {}).get(str(x.get('klan'))) or {}).get('ad', '')}
                                   for x in k.get('diplomasi') or []],
@@ -636,19 +636,19 @@ def detail(pid):
         s = c.get(x['no'], {})
         e = s.get('ekip') or {}
         rows.append({'no': x['no'], 'ad': x['ad'], 'firma': x['firma'], 'arketip': x['kisilik']['arketip'],
-                     'aliskanlik': x['kisilik'].get('aliskanlik'), 'dil': x['kisilik'].get('dil'),
-                     'ad_dili': x['kisilik'].get('ad_dili') or x['kisilik'].get('dil'),
+                     'habit': x['kisilik'].get('habit'), 'dil': x['kisilik'].get('dil'),
+                     'name_lang': x['kisilik'].get('name_lang') or x['kisilik'].get('dil'),
                      'ozellik': x['kisilik']['ozellik'], 'seviye': s.get('seviye', 1), 'gemi': e.get('gemi', 'ship_phoenix'),
                      'harita': s.get('harita'), 'harita_ad': H.name(s['harita']) if s.get('harita') else '', 'klan': s.get('klan'), 'hedef': s.get('hedef'), 'istat': s.get('istat') or {},
                      'kredi': s.get('kredi', 0), 'uridyum': s.get('uridyum', 0), 'onur': s.get('onur', 0),
                      'ep': s.get('ep', 0), 'rutbe': s.get('rutbe') or 1, 'ozel': bool(x.get('ozel')),
-                     'kapi': {g: v.get('en_iyi') for g, v in (s.get('gate_times') or {}).items()},
+                     'kapi': {g: v.get('best') for g, v in (s.get('gate_times') or {}).items()},
                      'ajan': (s.get('ajan') or [])[-6:],                    # ajanın son adımları (bot/ajan.py; güçlü sağlayıcı)
                      'hafiza': _memory(s)})
     out = dict(summary(pid), ayarlar=clean_settings({}, d['ayarlar']),          # eski paketlerde yeni ayarlar varsayılanla
-               llm_usage=live_llm(pid), dil=d.get('dil'), ad_dili=name_lang(d), ad_kaynagi=d.get('ad_kaynagi', 'uretim'), diller=list(LANGUAGES),
-               firma_dagilimi=d.get('firma_dagilimi'), kadro=rows, klanlar=clans(pid),
-               durum_var=bool(c))
+               llm_usage=live_llm(pid), dil=d.get('dil'), name_lang=name_lang(d), name_source=d.get('name_source', 'uretim'), languages=list(LANGUAGES),
+               company_distribution=d.get('company_distribution'), kadro=rows, klanlar=clans(pid),
+               has_state=bool(c))
     return out
 
 

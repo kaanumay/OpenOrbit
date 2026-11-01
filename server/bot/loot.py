@@ -17,9 +17,9 @@ from . import catalog as K
 EXCHANGE_RATE = 100
 import loot as LOOT                                   # noqa: E402  (oyunun ganimet modülü: kutular, haritalar, takvim)
 
-RECIPES = json.load(open(os.path.join(K.HERE, 'data', 'recipes.json'), encoding='utf8'))['tarifler']
+RECIPES = json.load(open(os.path.join(K.HERE, 'data', 'recipes.json'), encoding='utf8'))['recipes']
 BOOSTER = K.ITEMS['boosterlar']
-ORE_LOOT = {v: int(k) for k, v in K.ITEMS['cevherler']['turler'].items()}     # resource_ore_* -> kargo cevheri
+ORE_LOOT = {v: int(k) for k, v in K.ITEMS['cevherler']['kinds'].items()}     # resource_ore_* -> kargo cevheri
 CURRENCY = {'currency_credits': 'kredi', 'currency_uridium': 'uridyum', 'currency_experience': 'ep', 'currency_honour': 'onur'}
 _ev = {}
 
@@ -84,10 +84,10 @@ def booster(bot, loot):
     """Booster 10 saat: k['booster'] {tür: [değer, bitiş]} (aynı türden ikincisi süreyi uzatır)."""
     b = bot.k.setdefault('booster', {})
     now = bot.hour()
-    for kind, v in (BOOSTER['turler'].get(loot) or {}).items():
+    for kind, v in (BOOSTER['kinds'].get(loot) or {}).items():
         e = b.get(kind)
         end_time = max(now, e[1] if e else now) + BOOSTER['sure_sn']
-        b[kind] = [min(BOOSTER['tavan'].get(kind, v), v), end_time]
+        b[kind] = [min(BOOSTER['cap'].get(kind, v), v), end_time]
     bot.loadout_changed()
 
 
@@ -229,11 +229,11 @@ def assembly(bot):
         if not all(p in s or p.startswith('equipment_') for p in need):
             continue
         r = RECIPES[key]
-        if r['kullanim'] == 'USABLE_ONCE' and crafted.get(key):
+        if r['usage'] == 'USABLE_ONCE' and crafted.get(key):
             continue
         if not _yeter(bot, r['parcalar']):
             continue
-        earnings = sum(value(l, n) for l, n in r['sonuc'].items())
+        earnings = sum(value(l, n) for l, n in r['result'].items())
         cost = sum(value(p, n) for p, n in r['parcalar'].items() if not p.startswith('resource_collectable'))
         if earnings - cost > best_score:
             en, best_score = key, earnings - cost
@@ -241,7 +241,7 @@ def assembly(bot):
         return None
     r = RECIPES[en]
     _spend(bot, r['parcalar'])
-    for loot, n in r['sonuc'].items():
+    for loot, n in r['result'].items():
         give(bot, loot, n)
     crafted[en] = crafted.get(en, 0) + 1
     bot.ist('assembly')

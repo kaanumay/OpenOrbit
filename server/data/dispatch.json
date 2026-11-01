@@ -1,37 +1,37 @@
 {
- "toplayicilar": {
+ "collectors": {
   "1": {
    "ad": "dispatch_retriever_a01",
-   "kod": "A-01",
-   "seri": "ammo",
+   "code": "A-01",
+   "series": "ammo",
    "kademe": 1,
    "aciklama": "dispatch_label_description_retriever_a01",
    "sure_sn": 10800,
    "ucret": {
     "currency_credits": 200000
    },
-   "aninda": {
+   "instant": {
     "resource_collectable_quickcoupon": 1
    }
   },
   "2": {
    "ad": "dispatch_retriever_a02",
-   "kod": "A-02",
-   "seri": "ammo",
+   "code": "A-02",
+   "series": "ammo",
    "kademe": 2,
    "aciklama": "dispatch_label_description_retriever_a02",
    "sure_sn": 21600,
    "ucret": {
     "currency_uridium": 2000
    },
-   "aninda": {
+   "instant": {
     "resource_collectable_quickcoupon": 1
    }
   },
   "3": {
    "ad": "dispatch_retriever_a03",
-   "kod": "A-03",
-   "seri": "ammo",
+   "code": "A-03",
+   "series": "ammo",
    "kademe": 3,
    "aciklama": "dispatch_label_description_retriever_a03",
    "sure_sn": 21600,
@@ -39,14 +39,14 @@
     "currency_uridium": 2000,
     "resource_collectable_permit": 1
    },
-   "aninda": {
+   "instant": {
     "resource_collectable_quickcoupon": 1
    }
   },
   "4": {
    "ad": "dispatch_retriever_a04",
-   "kod": "A-04",
-   "seri": "ammo",
+   "code": "A-04",
+   "series": "ammo",
    "kademe": 4,
    "aciklama": "dispatch_label_description_retriever_a04",
    "sure_sn": 32400,
@@ -54,14 +54,14 @@
     "currency_uridium": 5000,
     "resource_collectable_permit": 1
    },
-   "aninda": {
+   "instant": {
     "resource_collectable_quickcoupon": 1
    }
   },
   "5": {
    "ad": "dispatch_retriever_a05",
-   "kod": "A-05",
-   "seri": "ammo",
+   "code": "A-05",
+   "series": "ammo",
    "kademe": 5,
    "aciklama": "dispatch_label_description_retriever_a05",
    "sure_sn": 43200,
@@ -69,14 +69,14 @@
     "currency_uridium": 10000,
     "resource_collectable_permit": 1
    },
-   "aninda": {
+   "instant": {
     "resource_collectable_quickcoupon": 1
    }
   },
   "6": {
    "ad": "dispatch_retriever_a06",
-   "kod": "A-06",
-   "seri": "ammo",
+   "code": "A-06",
+   "series": "ammo",
    "kademe": 6,
    "aciklama": "dispatch_label_description_retriever_a06",
    "sure_sn": 43200,
@@ -84,42 +84,42 @@
     "currency_uridium": 10000,
     "resource_collectable_permit-plus": 1
    },
-   "aninda": {
+   "instant": {
     "resource_collectable_quickcoupon": 1
    }
   },
   "7": {
    "ad": "dispatch_retriever_b01",
-   "kod": "B-01",
-   "seri": "basic",
+   "code": "B-01",
+   "series": "basic",
    "kademe": 1,
    "aciklama": "dispatch_label_description_retriever_b01",
    "sure_sn": 10800,
    "ucret": {
     "currency_credits": 200000
    },
-   "aninda": {
+   "instant": {
     "resource_collectable_quickcoupon": 1
    }
   },
   "8": {
    "ad": "dispatch_retriever_b02",
-   "kod": "B-02",
-   "seri": "basic",
+   "code": "B-02",
+   "series": "basic",
    "kademe": 2,
    "aciklama": "dispatch_label_description_retriever_b02",
    "sure_sn": 21600,
    "ucret": {
     "currency_uridium": 2000
    },
-   "aninda": {
+   "instant": {
     "resource_collectable_quickcoupon": 1
    }
   },
   "9": {
    "ad": "dispatch_retriever_b03",
-   "kod": "B-03",
-   "seri": "basic",
+   "code": "B-03",
+   "series": "basic",
    "kademe": 3,
    "aciklama": "dispatch_label_description_retriever_b03",
    "sure_sn": 21600,
@@ -127,14 +127,14 @@
     "currency_uridium": 2000,
     "resource_collectable_permit": 1
    },
-   "aninda": {
+   "instant": {
     "resource_collectable_quickcoupon": 1
    }
   },
   "10": {
    "ad": "dispatch_retriever_b04",
-   "kod": "B-04",
-   "seri": "basic",
+   "code": "B-04",
+   "series": "basic",
    "kademe": 4,
    "aciklama": "dispatch_label_description_retriever_b04",
    "sure_sn": 32400,
@@ -142,14 +142,14 @@
     "currency_uridium": 5000,
     "resource_collectable_permit": 1
    },
-   "aninda": {
+   "instant": {
     "resource_collectable_quickcoupon": 1
    }
   },
   "11": {
    "ad": "dispatch_retriever_b05",
-   "kod": "B-05",
-   "seri": "basic",
+   "code": "B-05",
+   "series": "basic",
    "kademe": 5,
    "aciklama": "dispatch_label_description_retriever_b05",
    "sure_sn": 43200,
@@ -157,14 +157,14 @@
     "currency_uridium": 10000,
     "resource_collectable_permit": 1
    },
-   "aninda": {
+   "instant": {
     "resource_collectable_quickcoupon": 1
    }
   },
   "12": {
    "ad": "dispatch_retriever_b06",
-   "kod": "B-06",
-   "seri": "basic",
+   "code": "B-06",
+   "series": "basic",
    "kademe": 6,
    "aciklama": "dispatch_label_description_retriever_b06",
    "sure_sn": 43200,
@@ -172,14 +172,14 @@
     "currency_uridium": 10000,
     "resource_collectable_permit-plus": 1
    },
-   "aninda": {
+   "instant": {
     "resource_collectable_quickcoupon": 1
    }
   },
   "19": {
    "ad": "dispatch_retriever_h03",
-   "kod": "H-03",
-   "seri": "hitac",
+   "code": "H-03",
+   "series": "hitac",
    "kademe": 3,
    "aciklama": "dispatch_label_description_retriever_h03",
    "sure_sn": 18000,
@@ -187,14 +187,14 @@
     "currency_uridium": 5000,
     "resource_collectable_permit": 1
    },
-   "aninda": {
+   "instant": {
     "resource_collectable_quickcoupon": 1
    }
   },
   "20": {
    "ad": "dispatch_retriever_h04",
-   "kod": "H-04",
-   "seri": "hitac",
+   "code": "H-04",
+   "series": "hitac",
    "kademe": 4,
    "aciklama": "dispatch_label_description_retriever_h04",
    "sure_sn": 25200,
@@ -202,14 +202,14 @@
     "currency_uridium": 10000,
     "resource_collectable_permit": 1
    },
-   "aninda": {
+   "instant": {
     "resource_collectable_quickcoupon": 1
    }
   },
   "21": {
    "ad": "dispatch_retriever_h05",
-   "kod": "H-05",
-   "seri": "hitac",
+   "code": "H-05",
+   "series": "hitac",
    "kademe": 5,
    "aciklama": "dispatch_label_description_retriever_h05",
    "sure_sn": 32400,
@@ -217,42 +217,42 @@
     "currency_uridium": 15000,
     "resource_collectable_permit": 1
    },
-   "aninda": {
+   "instant": {
     "resource_collectable_quickcoupon": 1
    }
   },
   "13": {
    "ad": "dispatch_retriever_r01",
-   "kod": "R-01",
-   "seri": "resource",
+   "code": "R-01",
+   "series": "resource",
    "kademe": 1,
    "aciklama": "dispatch_label_description_retriever_r01",
    "sure_sn": 10800,
    "ucret": {
     "currency_credits": 200000
    },
-   "aninda": {
+   "instant": {
     "resource_collectable_quickcoupon": 1
    }
   },
   "14": {
    "ad": "dispatch_retriever_r02",
-   "kod": "R-02",
-   "seri": "resource",
+   "code": "R-02",
+   "series": "resource",
    "kademe": 2,
    "aciklama": "dispatch_label_description_retriever_r02",
    "sure_sn": 21600,
    "ucret": {
     "currency_uridium": 2000
    },
-   "aninda": {
+   "instant": {
     "resource_collectable_quickcoupon": 1
    }
   },
   "15": {
    "ad": "dispatch_retriever_r03",
-   "kod": "R-03",
-   "seri": "resource",
+   "code": "R-03",
+   "series": "resource",
    "kademe": 3,
    "aciklama": "dispatch_label_description_retriever_r03",
    "sure_sn": 21600,
@@ -260,14 +260,14 @@
     "currency_uridium": 2000,
     "resource_collectable_permit": 1
    },
-   "aninda": {
+   "instant": {
     "resource_collectable_quickcoupon": 1
    }
   },
   "16": {
    "ad": "dispatch_retriever_r04",
-   "kod": "R-04",
-   "seri": "resource",
+   "code": "R-04",
+   "series": "resource",
    "kademe": 4,
    "aciklama": "dispatch_label_description_retriever_r04",
    "sure_sn": 32400,
@@ -275,14 +275,14 @@
     "currency_uridium": 5000,
     "resource_collectable_permit": 1
    },
-   "aninda": {
+   "instant": {
     "resource_collectable_quickcoupon": 1
    }
   },
   "17": {
    "ad": "dispatch_retriever_r05",
-   "kod": "R-05",
-   "seri": "resource",
+   "code": "R-05",
+   "series": "resource",
    "kademe": 5,
    "aciklama": "dispatch_label_description_retriever_r05",
    "sure_sn": 43200,
@@ -290,14 +290,14 @@
     "currency_uridium": 10000,
     "resource_collectable_permit": 1
    },
-   "aninda": {
+   "instant": {
     "resource_collectable_quickcoupon": 1
    }
   },
   "18": {
    "ad": "dispatch_retriever_r06",
-   "kod": "R-06",
-   "seri": "resource",
+   "code": "R-06",
+   "series": "resource",
    "kademe": 6,
    "aciklama": "dispatch_label_description_retriever_r06",
    "sure_sn": 43200,
@@ -305,12 +305,12 @@
     "currency_uridium": 10000,
     "resource_collectable_permit-plus": 1
    },
-   "aninda": {
+   "instant": {
     "resource_collectable_quickcoupon": 1
    }
   }
  },
- "_toplayicilar": "İstemcinin kodundan (DarkOrbit.DispatchRetrieverDefinition$$InitList): ad/aciklama istemcinin metin anahtarları, seri (ammo/basic/resource/hitac), kademe, sure_sn, ucret (gönderme), aninda (anında bitirme).",
+ "_retrievers": "İstemcinin kodundan (DarkOrbit.DispatchRetrieverDefinition$$InitList): ad/aciklama istemcinin metin anahtarları, seri (ammo/basic/resource/hitac), kademe, sure_sn, ucret (gönderme), aninda (anında bitirme).",
  "oduller": {
   "A-01": [
    "resource_collectable_permit",
@@ -646,7 +646,7 @@
    "resource_collectable_mucosum"
   ]
  },
- "taban_adet": {
+ "base_count": {
   "resource_collectable_permit": 1,
   "resource_collectable_permit-plus": 1,
   "ammunition_laser_lcb-10": 2000,
@@ -679,7 +679,7 @@
   "resource_collectable_axion-beam-regulator": 5,
   "resource_collectable_indoctrineoil": 1
  },
- "tekil": [
+ "single": [
   "resource_collectable_indoctrineoil",
   "resource_collectable_permit",
   "resource_collectable_permit-plus",
@@ -688,9 +688,9 @@
   "resource_logfile",
   "resource_repairvoucher"
  ],
- "odul_sayisi": 4,
- "kademe_artisi": 0.5,
- "seyrek": {
+ "reward_count": 4,
+ "tier_increase": 0.5,
+ "sparse": {
   "resource_collectable_permit": 0.3,
   "resource_collectable_permit-plus": 0.15,
   "resource_collectable_quickcoupon": 0.3,
@@ -721,7 +721,7 @@
   0,
   4
  ],
- "dispatch_gunu_carpani": 1.5,
+ "dispatch_day_multiplier": 1.5,
  "kapi": {
   "ggeu": "resource_collectable_ggeu",
   "sure_sn": 3600
@@ -743,8 +743,8 @@
    "currency_experience": 10000
   }
  },
- "_sabit": "Her dönüşün sabit kalemleri, seri başına (gerçek kayıt 20261025_152841_gercek satır 936 ve 1097: iki R-01 dönüşünün ilk iki kalemi Solidus x2 ve currency_experience 10000). Ammunition serisinin havuzunda Solidus yok: yalnız EXP. Adetler toplayıcının kademe çarpanıyla artar; öteki serilerin (B, H, A) sabitleri kayıtta yok: R-01 biçimi uyarlama.",
- "etkinlik_oduller": {
+ "_stable_hash": "Her dönüşün sabit kalemleri, seri başına (gerçek kayıt 20261025_152841_gercek satır 936 ve 1097: iki R-01 dönüşünün ilk iki kalemi Solidus x2 ve currency_experience 10000). Ammunition serisinin havuzunda Solidus yok: yalnız EXP. Adetler toplayıcının kademe çarpanıyla artar; öteki serilerin (B, H, A) sabitleri kayıtta yok: R-01 biçimi uyarlama.",
+ "event_rewards": {
   "chaos_omen": {
    "resource_collectable_chaos-fragment": {
     "R-01": [
@@ -811,8 +811,8 @@
   }
  },
  "_etkinlik_oduller": "Etkinlik sürerken dönüşe eklenen kalem (takvim.py etkinlik anahtarı -> lootId -> toplayıcı kodu: [en az, en çok]). darkorbitwiki events/chaos-omen: Chaos Fragment Retriever Dispatch'ten (R-01 5-10, R-02 10-20, R-03 15-25, R-04 20-30, R-05 35-50, R-06 65-80) ve Gate Dispatch'ten gelir; kapı için sayı verilmiyor: 'kapi' R-01 aralığı (uyarlama). Protegit Pandemonium'da da sürer (ETKINLIKLER-27); adetler Dispatch Day çarpanından etkilenmez.",
- "_kaynak": "Ödül listeleri, yuva fiyatları, Dispatch Day (pazartesi, cuma) ve kapı gönderimi (1 GGEU, dalga 1'deki kurulu kapı) wiki'den (darkorbitwiki.com/dispatch-retriever, /dispatch-gate; belgeler/arastirma/sistemler_modlar.md 1.15). Uyarlama (wiki adet ve olasılık vermiyor): her gönderimde listeden odul_sayisi farklı ödül; adet taban_adet x (1 + kademe_artisi x (kademe-1)), tekil olanlar 1; seyrek olanların seçilme ağırlığı düşük; Dispatch Day'de adetler x1,5; kapı gönderimi 1 saat. Gerçek sunucu kaydına göre (20261025_152841_gercek): dönüş başına 4 farklı rastgele kalem ve sabit kalemler (sabit); kademe 1 adetleri kayıttan (Scrap 2, Mucosum 8, Tetrathrin 1, Bifenon 4, Polychromium 6, her alloy 1); kayıtta olmayan kalemlerin adetleri uyarlama. Etkinlik ödülleri: etkinlik_oduller.",
- "kademe_adet": {
+ "_kaynak": "Ödül listeleri, yuva fiyatları, Dispatch Day (pazartesi, cuma) ve kapı gönderimi (1 GGEU, dalga 1'deki kurulu kapı) wiki'den (darkorbitwiki.com/dispatch-retriever, /dispatch-gate; belgeler/arastirma/sistemler_modlar.md 1.15). Uyarlama (wiki adet ve olasılık vermiyor): her gönderimde listeden reward_count farklı ödül; adet base_count x (1 + tier_increase x (kademe-1)), tekil olanlar 1; seyrek olanların seçilme ağırlığı düşük; Dispatch Day'de adetler x1,5; kapı gönderimi 1 saat. Gerçek sunucu kaydına göre (20261025_152841_gercek): dönüş başına 4 farklı rastgele kalem ve sabit kalemler (sabit); kademe 1 adetleri kayıttan (Scrap 2, Mucosum 8, Tetrathrin 1, Bifenon 4, Polychromium 6, her alloy 1); kayıtta olmayan kalemlerin adetleri uyarlama. Etkinlik ödülleri: event_rewards.",
+ "tier_count": {
   "resource_collectable_mucosum": [
    6,
    22,
@@ -1006,7 +1006,7 @@
    50
   ]
  },
- "sabit_kademe": {
+ "fixed_tier": {
   "ammo": {
    "currency_experience": [
     10000,
@@ -1096,5 +1096,5 @@
    ]
   }
  },
- "_kademe_adet": "Resmî Türk forumu 160334 'Toplayıcılar ve Kapı Sevkiyatı': 91 oyun içi dönüş penceresi (belgeler/forum_tr/gorseller/160334/toplayici_ornekleri.json). Sabit Solidus R 2/6/12/30/100, B 3/9/15/40/100, H-03..05 18/40/55; A serisinde Solidus yok, A-01/A-02 her dönüşte LCB-10 ve PLT-2026, A-03..A-05 MCB-25. Garantili TP kademe 1-2 10.000, 3-4 50.000, 5 100.000 (forum). Yan kalemlerin adedi kalem x kademe tablosundan (örnekler arasında ara değer; örnek olmayan kademe ve 6. kademe uyarlama); tabloda olmayan kalem eski doğrusal kademe_artisi ile. Dispatch Day x1,5 hepsine."
+ "_kademe_adet": "Resmî Türk forumu 160334 'Toplayıcılar ve Kapı Sevkiyatı': 91 oyun içi dönüş penceresi (belgeler/forum_tr/gorseller/160334/toplayici_ornekleri.json). Sabit Solidus R 2/6/12/30/100, B 3/9/15/40/100, H-03..05 18/40/55; A serisinde Solidus yok, A-01/A-02 her dönüşte LCB-10 ve PLT-2026, A-03..A-05 MCB-25. Garantili TP kademe 1-2 10.000, 3-4 50.000, 5 100.000 (forum). Yan kalemlerin adedi kalem x kademe tablosundan (örnekler arasında ara değer; örnek olmayan kademe ve 6. kademe uyarlama); tabloda olmayan kalem eski doğrusal tier_increase ile. Dispatch Day x1,5 hepsine."
 }

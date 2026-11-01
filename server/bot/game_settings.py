@@ -19,9 +19,9 @@ class Profile:
         setting = setting if isinstance(setting, dict) else {}
         self.name = setting.get('profil') if setting.get('profil') in PROFILES else 'standart'
         if self.name == 'ozel':
-            self.d = {k: float(v) for k, v in (setting.get('degerler') or {}).items() if k in SET.DEFAULTS}
+            self.d = {k: float(v) for k, v in (setting.get('values') or {}).items() if k in SET.DEFAULTS}
         elif self.name in SET.PRESETS:
-            self.d = dict(SET.PRESETS[self.name]['degerler'])
+            self.d = dict(SET.PRESETS[self.name]['values'])
         else:
             self.d = {}
 

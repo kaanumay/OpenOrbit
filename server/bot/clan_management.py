@@ -66,7 +66,7 @@ def raw(b, state):
 
 
 def save(k):
-    return k.setdefault('yonetim', {})
+    return k.setdefault('management', {})
 
 
 def is_due(k, job, now, interval=None):
@@ -121,13 +121,13 @@ def info_summary(k, who=None):
     d = [diplo.get(x['tur'], '?') + ' with ' + str((KL.CLANS.get(x['klan']) or {}).get('ad', x.get('ad', '?'))) for x in k['diplomasi']]
     if d:
         row.append('Diplomacy: %s.' % ', '.join(d))
-    incoming = [r for r in k.get('diplo_istek', []) if r['kime'] == k['id']]
+    incoming = [r for r in k.get('diplomacy_requests', []) if r['to'] == k['id']]
     if incoming:
         row.append('Diplomacy offers waiting for your answer: %s.' % ', '.join('%s from %s' % (
             {0: 'peace', 1: 'alliance', 2: 'non-aggression'}.get(r['tur'], '?'), (KL.CLANS.get(r['kimden']) or {}).get('ad', '?'))
             for r in incoming))
-    if k.get('basvurular'):
-        row.append('Applications: %s.' % ', '.join(str(x.get('ad')) for x in k['basvurular'][:8]))
+    if k.get('applications'):
+        row.append('Applications: %s.' % ', '.join(str(x.get('ad')) for x in k['applications'][:8]))
     row.append('Description: %s' % (' '.join(str(k.get('aciklama') or '').split())[:200] or '(empty)'))
     return '\n'.join(row)
 
@@ -205,7 +205,7 @@ def write_description(b, k, kl, now, force=False):
     full = len(k['uyeler']) >= KL.MAX_MEMBERS - 2
     signature = [pvp, bool(cbs), full]
     y = save(k)
-    if not force and y.get('aciklama_imza') == signature and now - y.get('aciklama_t', 0) < b.r.uniform(4, 9) * DAY:
+    if not force and y.get('description_signature') == signature and now - y.get('description_time', 0) < b.r.uniform(4, 9) * DAY:
         return False
     avg = sum(int(u.get('seviye', 1)) for u in k['uyeler'].values()) / max(1, len(k['uyeler']))
     parts = [SPC.template(b, 'klan_aciklama_odak_pvp' if pvp else 'klan_aciklama_odak_pve', klan=k['ad'], etiket=k['etiket'])]
@@ -217,7 +217,7 @@ def write_description(b, k, kl, now, force=False):
     text = '\n'.join(p for p in parts if p)
     if not text or not is_successful(kl.handle('ChangeClanDescriptionRequest', {'desc': text[:2000]})):
         return False
-    y.update(aciklama_imza=signature, aciklama_t=now)
+    y.update(description_signature=signature, description_time=now)
     b.event('klan_aciklama', now)
     return True
 

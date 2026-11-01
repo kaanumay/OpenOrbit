@@ -32,10 +32,10 @@ RANK_TYPE = 12                                     # RankRewardRequest.RankType.
 WINDOWS = [tuple(w) for w in D.get('saatler', [[7, 9], [12, 14], [18, 20], [22, 24]])]
 MAPS = D.get('haritalar', ['X-2', 'X-3', 'X-4', 'X-5', 'X-6', 'X-7', 'X-8'])
 TITLE_KEY = D.get('unvan', 'title_titlefrenzy_event2026')
-REWARD_TITLE = D.get('odul_unvani', 'title_titlefrenzy-aug2026-reward')
+REWARD_TITLE = D.get('reward_title', 'title_titlefrenzy-aug2026-reward')
 COUNT = D.get('adet', 4)
-HOLD_MAX = D.get('azami_tutma_sn', 1800)
-CARRIER = D.get('tasiyici', 'etk_hitac_underling_')
+HOLD_MAX = D.get('max_hold_sec', 1800)
+CARRIER = D.get('carrier', 'etk_hitac_underling_')
 TITLE_ID_BASE = 1500                               # gemi üstündeki unvanın kimliği (istemci anahtarı gösterir)
 if D.get('tablo'):
     RK.TABLES[RANK_TYPE] = D['tablo']
@@ -114,7 +114,7 @@ class TitleHunt:
 
     def info_cmd(self, now=None):
         return ('TitleFrenzyInfoCommand', dict(schedule=self.schedule_cmd(now), timeToEventEnd=CAL.time_left(EVENT, now),
-                                               titleKey=TITLE_KEY, rankRewards=RK.ranges(RANK_TYPE), npcIds=D.get('npc_kimlikleri', [299])))
+                                               titleKey=TITLE_KEY, rankRewards=RK.ranges(RANK_TYPE), npcIds=D.get('npc_ids', [299])))
 
     def ranking(self):
         """Oyuncu, sunucunun öteki oyuncuları ve sanal rakipler, puana göre."""
@@ -172,7 +172,7 @@ class TitleHunt:
     def to_npc(self, tid, avoid=None, now=None):
         """Unvan rastgele bir haritadaki Underling'e geçer."""
         cls = random.choice([m for m in MAPS if m != avoid] or MAPS)
-        name = D.get('tasiyici_ad', 'Hitac-Underling')
+        name = D.get('carrier_name', 'Hitac-Underling')
         with self.p.lock:
             self.st['unvanlar'][str(tid)] = {'sahip': 'npc', 'harita': map_id(cls, self.faction()), 'sinif': cls, 'ad': name,
                                              'bas': time.time() if now is None else now}
@@ -288,10 +288,10 @@ class TitleHunt:
                     self.st['rakipler'][t['ad']] = self.st['rakipler'].get(t['ad'], 0.0) + (now - t['bas']) / 60.0
                     self.p.dirty = True
                 msgs += self.to_npc(tid, avoid=t.get('sinif'), now=now)
-            elif t['sahip'] == 'npc' and random.random() < D.get('rakip_kapma', 0.08):
-                name = '%s%s' % (random.choice(MZ.R['adlar']), random.choice(MZ.R['ekler']))
+            elif t['sahip'] == 'npc' and random.random() < D.get('rival_capture', 0.08):
+                name = '%s%s' % (random.choice(MZ.R['adlar']), random.choice(MZ.R['attachments']))
                 with self.p.lock:
-                    self.st['unvanlar'][tid] = dict(t, sahip='rakip', ad=name, bas=now, sure=random.randint(*D.get('rakip_sure', [300, 1500])))
+                    self.st['unvanlar'][tid] = dict(t, sahip='rakip', ad=name, bas=now, sure=random.randint(*D.get('rival_duration', [300, 1500])))
                     self.p.dirty = True
                 msgs.append(self.owner_one(tid))
         return msgs
@@ -329,7 +329,7 @@ class TitleHunt:
         msgs = self.drop('etkinlik bitti', now)
         rank = next(i + 1 for i, r in enumerate(self.ranking()) if r[2])
         t = RK.TABLES.get(RANK_TYPE) or {}
-        r = next((r for r in t.get('araliklar', []) if r['den'] <= rank <= r['e']), None)
+        r = next((r for r in t.get('ranges', []) if r['den'] <= rank <= r['e']), None)
         if r and self.st['puan'] > 0:
             for loot, n in r['esyalar']:
                 msgs += self.m.prize(loot, n)

@@ -1,7 +1,7 @@
 {
- "kod": "pl",
+ "code": "pl",
  "ad": "Polski",
- "agirlik": 8,
+ "weight": 8,
  "adlar": {
   "parcalar": {
    "isim": ["Kuba", "Bartek", "Kacper", "Szymon", "Mateusz", "Michal", "Piotrek", "Tomek", "Krzysiek", "Adrian", "Pawel", "Dawid", "Filip", "Marcin", "Wojtek", "Ola", "Kasia", "Gosia", "Zuza", "Grzesiek", "Seba", "Damian"],
@@ -12,7 +12,7 @@
    "ayrac": ["", "_", "."],
    "sayi": ["1", "7", "13", "69", "77", "99", "1410", "1920", "1944", "2000", "2003", "2137", "997", "112", "666", "21", "05", "44"]
   },
-  "desenler": [[22, "{isim}{sayi}"], [18, "{sifat}{soz}"], [12, "{soz}{sayi}"], [10, "{isim_k}{ayrac}{soz_k}"], [12, "{tek}"], [10, "{soz}{ek}"], [6, "xX{soz}Xx"], [6, "{leet:tek|soz}"]]
+  "patterns": [[22, "{isim}{sayi}"], [18, "{sifat}{soz}"], [12, "{soz}{sayi}"], [10, "{isim_k}{ayrac}{soz_k}"], [12, "{tek}"], [10, "{soz}{ek}"], [6, "xX{soz}Xx"], [6, "{leet:tek|soz}"]]
  },
  "kaliplar": {
   "laf_oldurdum": ["{ad} wraca do bazy xd", "{ad} moja babcia lata lepiej", "ktos jeszcze? {ad} juz dostal", "{ad} odinstaluj", "{ad} wyfarmiony na {harita}, nastepny", "dzieki za honor {ad}"],
@@ -119,10 +119,10 @@
   "klan_posta_ksi_konu": ["Stacja atakowana: {istasyon}"],
   "klan_posta_ksi": ["nasza stacja {istasyon} na {harita} jest atakowana. wszyscy online przylatujcie teraz"]
  },
- "kisaltma": [["dzieki", "dzk"], ["nie wiem", "nw"], ["prosze", "pls"], ["wiadomosc", "wiad"], ["teraz", "teraz"], ["nara", "nara"]],
+ "abbreviation": [["dzieki", "dzk"], ["nie wiem", "nw"], ["prosze", "pls"], ["wiadomosc", "wiad"], ["teraz", "teraz"], ["nara", "nara"]],
  "ascii": {"ą": "a", "ć": "c", "ę": "e", "ł": "l", "ń": "n", "ó": "o", "ś": "s", "ź": "z", "ż": "z"},
- "ascii_oran": 0.7,
- "niyet": {
+ "ascii_ratio": 0.7,
+ "intent": {
   "selam": ["siema", "elo", "czesc", "cześć", "siemka", "hej ludzie"],
   "yardim": ["pomocy", "pomoc", "pomozcie", "pomóżcie"],
   "grup": ["grupa", "grupe", "grupę", "razem"],
@@ -137,7 +137,7 @@
   "tesekkur": ["dzieki", "dzięki", "dzk", "dziekuje", "dziękuję"],
   "pvp": ["atakuja", "atakują", "wrog", "wróg", "wrogowie", "gracz", "gracze"]
  },
- "tepki": {
+ "reaction": {
   "kutlama": ["gratulacje", "gratki", "brawo"],
   "veda": ["nara", "dobranoc", "do zobaczenia", "spadam", "na razie"],
   "donus": ["wróciłem", "jestem z powrotem", "już jestem"],
@@ -145,7 +145,7 @@
   "oyun": ["mapa", "statek", "laser", "misja", "zadanie", "tarcza", "poziom", "klan", "uridium", "kredyty", "farmić", "dron", "boss"]
  },
  "zararli": ["zabij się", "powieś się", "zdechnij", "umrzyj", "samobójstwo", "dziwka", "pedał", "ciota", "czarnuch", "upośledzony", "gwałt\\w*", "nazista", "hitler"],
- "diyaloglar": [
+ "dialogues": [
   [
    ["najpierw tarcze czy lasery?", "co ulepszać najpierw, tarcze czy lasery?"],
    ["lasery, potem tarcze", "ja bym brał lasery", "najpierw tarcze, umieranie kosztuje"],

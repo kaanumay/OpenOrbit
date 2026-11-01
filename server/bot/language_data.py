@@ -25,7 +25,7 @@ def _load():
         if f.endswith('.json'):
             with open(os.path.join(FOLDER, f), encoding='utf8') as h:
                 d = json.load(h)
-            out[d['kod']] = d
+            out[d['code']] = d
     return out
 
 
@@ -35,4 +35,4 @@ CODES = tuple(k for k in ORDER if k in LANGUAGES) + tuple(sorted(k for k in LANG
 
 def pick_mixed(r):
     """'Karışık' kadroda bir dil: dosyaların ağırlığına göre."""
-    return r.choices(CODES, weights=[LANGUAGES[k].get('agirlik', 5) for k in CODES])[0]
+    return r.choices(CODES, weights=[LANGUAGES[k].get('weight', 5) for k in CODES])[0]

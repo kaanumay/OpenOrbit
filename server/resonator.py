@@ -17,8 +17,8 @@ import json, os, random
 HERE = os.path.dirname(os.path.abspath(__file__))
 D = json.load(open(os.path.join(HERE, 'data', 'items_o6.json'), encoding='utf8'))['rezonator']
 ITEMS, SOURCES, ATTR = D['esyalar'], D['kaynaklar'], D['nitelikler']
-RECIPES = {r['hedef']: r for r in D['tarifler']}
-INPUTS = {r['girdi'] for r in D['tarifler'] if r.get('girdi')}
+RECIPES = {r['hedef']: r for r in D['recipes']}
+INPUTS = {r['girdi'] for r in D['recipes'] if r.get('girdi')}
 STATE = 'rezonatorler'                  # profil: itemId -> {'nitelik': [[ad, değer], …]}
 
 
@@ -32,7 +32,7 @@ def is_item(loot):
 
 
 def exclusive(names, cand):
-    return any(cand in pair and any(o in names for o in pair if o != cand) for pair in D['dislanan'])
+    return any(cand in pair and any(o in names for o in pair if o != cand) for pair in D['excluded'])
 
 
 def roll(kind, name, quality, rng=random):
@@ -64,7 +64,7 @@ def ensure(p, iid, rng=random):
     if st is None and loot in ITEMS:
         e = ITEMS[loot]
         with p.lock:
-            st = p.d.setdefault(STATE, {})[str(iid)] = {'nitelik': fill(e['tur'], e['kalite'], [], e['nitelik_sayisi'], rng)}
+            st = p.d.setdefault(STATE, {})[str(iid)] = {'nitelik': fill(e['tur'], e['kalite'], [], e['attribute_count'], rng)}
             p.dirty = True
     return st
 
@@ -112,11 +112,11 @@ def source_for(p, kind):
 # ---------------------------------------------------------------- Synthesis sekmesi
 def modules(p, table_key):
     out = {}
-    for r in D['tarifler']:
+    for r in D['recipes']:
         if r.get('girdi'):
             costs = [mod('SynthesisCostLootCommand', lootId=r['girdi'], amount=1, star=0, certain=True)] * r['adet']
         else:
-            costs = [mod('SynthesisCostLootCommand', lootId=source_for(p, r['tur']), amount=r['kaynak_adet'], star=0, certain=False)]
+            costs = [mod('SynthesisCostLootCommand', lootId=source_for(p, r['tur']), amount=r['source_amount'], star=0, certain=False)]
         costs.append(mod('SynthesisCostLootCommand', lootId='currency_uridium', amount=r['uridyum'], star=0, certain=False))
         out.setdefault(r['tur'], []).append(mod('SynthesisModuleCommand', lootId=r['hedef'], star=0, moduleGroupType=table_key[r['tur']],
                                                 costs=costs, affectedShip=0))
@@ -126,7 +126,7 @@ def modules(p, table_key):
 def group_cmd(p):
     s = D['synthesis']
     mods = modules(p, s['tablolar'])
-    return mod('SynthesisGroupCommand', button=s['dugme'], group=s['grup'], moduleList=[
+    return mod('SynthesisGroupCommand', button=s['button'], group=s['grup'], moduleList=[
         mod('SynthesisModuleListCommand', moduleListGroupType=s['tablolar'][t], modules=mods.get(t, [])) for t in ('strike', 'aegis')])
 
 
@@ -156,13 +156,13 @@ def synth(sy, loot, ids, rng=random):
                 p.d.get(STATE, {}).pop(str(i), None)
             p.dirty = True
         removed = ids
-        attrs = fill(e['tur'], e['kalite'], main, e['nitelik_sayisi'], rng)
+        attrs = fill(e['tur'], e['kalite'], main, e['attribute_count'], rng)
     else:
         src = source_for(p, e['tur'])
-        cost = {src: r['kaynak_adet'], 'currency_uridium': r['uridyum']}
+        cost = {src: r['source_amount'], 'currency_uridium': r['uridyum']}
         if not src or INV.spend(p, cost, 'buy_SPECIAL', 'resonator') is None:
             return sy.fail('bedel yetmiyor (%s)' % cost)
-        attrs = fill(e['tur'], e['kalite'], [SOURCES[src]['nitelik']], e['nitelik_sayisi'], rng)
+        attrs = fill(e['tur'], e['kalite'], [SOURCES[src]['nitelik']], e['attribute_count'], rng)
     new = create(p, loot, attrs)
     msgs = [('InventoryItemRemovedCommand', {'itemId': i}) for i in removed] + INV.update_msgs(sy.m, p, list(cost))
     if sy.m:

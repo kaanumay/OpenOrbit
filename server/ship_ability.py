@@ -20,7 +20,7 @@ import map_links as H
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 D = json.load(open(os.path.join(HERE, 'data', 'ship_abilities.json'), encoding='utf8'))
-ABILITIES = D['yetenekler']
+ABILITIES = D['skills']
 SHIPS = D['gemiler']
 READY, ACTIVE, COOLING = 0, 1, 2           # istemcinin TimerState'i
 VISUAL_HOLD = 1.0                          # anlık yeteneklerin görseli bu kadar sonra kaldırılır
@@ -32,7 +32,7 @@ def mod(name, **f):
 
 
 def state(p):
-    return p.d.setdefault('gemi_yetenekleri', {})
+    return p.d.setdefault('ship_abilities', {})
 
 
 def sd_msg(op, effect, persistent, activator, target=None):
@@ -48,7 +48,7 @@ def row(p):
 
 
 def ship_items(p):
-    return row(p).get('yetenekler', [])
+    return row(p).get('skills', [])
 
 
 def factor(p, item, key):
@@ -83,7 +83,7 @@ def is_active(p, item, now=None):
     if item not in ABILITIES:
         return False
     s = state(p).get(item, {})
-    if ABILITIES[item].get('ac_kapa'):
+    if ABILITIES[item].get('toggle'):
         return bool(s.get('acik'))
     return (now or time.time()) < s.get('bitis', 0)
 
@@ -114,10 +114,10 @@ def mods(p, now=None):
             out['lazer'] = out.get('lazer', 0) + max(0.0, lost) * e['ofke_can']
         y = e.get('yuk')
         if y:                                     # Momentum, Stockpile, Volt Discharge: etkinleşirken harcanan yük kadar
-            n = state(p).get(i, {}).get('harcanan', 0)
+            n = state(p).get(i, {}).get('spent', 0)
             for k, v in y.get('mods', {}).items():
                 out[k] = out.get(k, 0) + v * n
-            for k, v in y.get('artan', {}).items():           # Stockpile: her yük bir öncekinden %0,2 fazla
+            for k, v in y.get('ramp', {}).items():           # Stockpile: her yük bir öncekinden %0,2 fazla
                 out[k] = out.get(k, 0) + v * n * (n + 1) / 2.0
             if 'azami_hiz' in y:
                 out['azami_hiz'] = min(out.get('azami_hiz', y['azami_hiz']), y['azami_hiz'])
@@ -151,10 +151,10 @@ def range_bonus(p, now=None):
 def take(p, key):
     """Bir sonraki atışa bir kez işleyen etki (Quantum Amplifier: Singularity Drive +%10) -> değer ya da 0."""
     for i in ship_items(p):
-        if key in effect_def(p, i) and state(p).get(i, {}).get('bekleyen'):
+        if key in effect_def(p, i) and state(p).get(i, {}).get('pending'):
             with p.lock:
                 p.dirty = True
-                return state(p)[i].pop('bekleyen')
+                return state(p)[i].pop('pending')
     return 0
 
 
@@ -162,15 +162,15 @@ def timer_fields(p, item, now=None):
     now = now or time.time()
     s = state(p).get(item, {})
     if is_active(p, item, now):
-        if ABILITIES[item].get('ac_kapa'):
+        if ABILITIES[item].get('toggle'):
             return dict(activatable=now >= s.get('hazir', 0), timerState=ACTIVE, maxTime=0, time=0)
-        return dict(activatable=False, timerState=ACTIVE, maxTime=s.get('sure_ms', 0), time=max(0, int((s['bitis'] - now) * 1000)))
+        return dict(activatable=False, timerState=ACTIVE, maxTime=s.get('duration_ms', 0), time=max(0, int((s['bitis'] - now) * 1000)))
     if now < s.get('hazir', 0):
-        return dict(activatable=False, timerState=COOLING, maxTime=s.get('bekleme_ms', 0), time=int((s['hazir'] - now) * 1000))
+        return dict(activatable=False, timerState=COOLING, maxTime=s.get('cooldown_ms', 0), time=int((s['hazir'] - now) * 1000))
     return dict(activatable=True, timerState=READY, maxTime=0, time=0)
 
 
-HECATE_BEAM = {k: dict(sure_sn=5, ilk=8050, artis=6000, yavas=0.1, npc=('deney_isaret',))      # forum 143093 (Plutus Deneyleri)
+HECATE_BEAM = {k: dict(sure_sn=5, ilk=8050, increase=6000, yavas=0.1, npc=('deney_isaret',))      # forum 143093 (Plutus Deneyleri)
                for k in ('ability_hecate_particle-beam', 'ability_hecate-plus_particle-beam-plus')}
 GROUP_RANGE = 1000          # grup yeteneklerinin menzili (kaynakta yok: uyarlama)
 PVP_SLOW = 0.4             # forum 160373: Hyperion Çapa oyuncuyu %40 yavaşlatır
@@ -231,7 +231,7 @@ class Engine:
         now = time.time()
         for i in ship_items(self.p):
             s = state(self.p).get(i, {})
-            if not ABILITIES[i].get('ac_kapa') and now < s.get('bitis', 0):
+            if not ABILITIES[i].get('toggle') and now < s.get('bitis', 0):
                 self.ending[i] = s['bitis']
             elif now < s.get('hazir', 0):
                 self.waiting.add(i)
@@ -265,22 +265,22 @@ class Engine:
         if 'gorunum' in g:                        # gemi görünümü (istemcinin VisualModifier'ı: 8 FORTIFY zırh, 9 PROTECT_OWNER halka)
             return [('VisualModifierCommand', dict(userId=self.w.hid, modifier=g['gorunum'], attribute=0, additionalAttribute='',
                                                    count=0, activated=True))]
-        if 'varlik' in g:                         # haritaya konan nesne (Aegis Repair Pod: HEALING_POD 33), etki boyunca yerinde
+        if 'entity' in g:                         # haritaya konan nesne (Aegis Repair Pod: HEALING_POD 33), etki boyunca yerinde
             hx, hy = self.w.hero_pos()
             self.pods[item] = POD_UID[0] = POD_UID[0] + 1
             return [('AssetCreateCommand', dict(designId=0, clanId=0, showBubble=False, userName='', assetId=self.pods[item],
-                                                expansionStage=0, modifier=[], type={'_': 'AssetTypeModule', 'typeValue': g['varlik']},
+                                                expansionStage=0, modifier=[], type={'_': 'AssetTypeModule', 'typeValue': g['entity']},
                                                 detectedByWarnRadar=False, invisible=False, posX=int(hx), posY=int(hy),
                                                 clanRelation={'_': 'ClanRelationModule', 'type': 0}, clanTag='',
                                                 factionId=self.p.d['pilot'].get('factionId', 0), visibleOnWarnRadar=False))]
         if 'etki' in g:
-            persistent = duration(self.p, item) > 0 or bool(ABILITIES[item].get('ac_kapa'))
+            persistent = duration(self.p, item) > 0 or bool(ABILITIES[item].get('toggle'))
             if g['etki'] != 1:                    # istemci ikili komutu yalnız Solace'a çiziyor; 2-6 eski "SD" metniyle (EventAssemblySkills)
                 return [sd_msg('A', g['etki'], int(persistent), self.w.hid, target)]
             return [('AbilityEffectActivationCommand', dict(selectedAbilityId=g['etki'], activatorId=self.w.hid,
                                                             isPersistent=persistent, targetIds=[target or self.w.hid]))]
-        if 'baslat' in g:
-            return [('AbilityStartCommand', dict(selectedAbilityId=g['baslat'], activatorId=self.w.hid, noStopCommand=False))]
+        if 'launch' in g:
+            return [('AbilityStartCommand', dict(selectedAbilityId=g['launch'], activatorId=self.w.hid, noStopCommand=False))]
         return []
 
     def visual_off(self, item, target):
@@ -288,16 +288,16 @@ class Engine:
         if 'gorunum' in g:
             return [('VisualModifierCommand', dict(userId=self.w.hid, modifier=g['gorunum'], attribute=0, additionalAttribute='',
                                                    count=0, activated=False))]
-        if 'varlik' in g:
+        if 'entity' in g:
             uid = self.pods.pop(item, None)
-            return [('AssetRemoveCommand', {'assetType': {'_': 'AssetTypeModule', 'typeValue': g['varlik']}, 'uid': uid})] if uid else []
+            return [('AssetRemoveCommand', {'assetType': {'_': 'AssetTypeModule', 'typeValue': g['entity']}, 'uid': uid})] if uid else []
         if 'etki' in g:
             if g['etki'] != 1:
                 return [sd_msg('D', g['etki'], 0, self.w.hid, target)]
             return [('AbilityEffectDeActivationCommand', dict(selectedAbilityId=g['etki'], activatorId=self.w.hid,
                                                               targetIds=[target or self.w.hid]))]
-        if 'baslat' in g:
-            return [('AbilityStopCommand', dict(selectedAbilityId=g['baslat'], activatorId=self.w.hid, targetIds=[target or self.w.hid]))]
+        if 'launch' in g:
+            return [('AbilityStopCommand', dict(selectedAbilityId=g['launch'], activatorId=self.w.hid, targetIds=[target or self.w.hid]))]
         return []
 
     def mates(self, now, radius=GROUP_RANGE):
@@ -373,7 +373,7 @@ class Engine:
             if effect_def(p, i).get('son_direnis') and s.get('kurulu') and now >= s.get('hazir', 0):
                 cd = cooldown(p, i)
                 with p.lock:
-                    state(p).setdefault(i, {}).update(bitis=now, hazir=now + cd, bekleme_ms=int(cd * 1000), kurulu=False)
+                    state(p).setdefault(i, {}).update(bitis=now, hazir=now + cd, cooldown_ms=int(cd * 1000), kurulu=False)
                     p.dirty = True
                 self.waiting.add(i)
                 self.send([timer_msg(p, i, now), stm('msg_last_stand_stopped')] + [('MenuItemStatusCommand', x) for x in
@@ -420,7 +420,7 @@ class Engine:
             self.end_now(item, now)
             w.log('   yetenek erken bitirildi: %s' % item)
             return True
-        if w.hero_dead or w.jumping or (not a.get('ac_kapa') and is_active(p, item, now)) or now < st.get('hazir', 0):
+        if w.hero_dead or w.jumping or (not a.get('toggle') and is_active(p, item, now)) or now < st.get('hazir', 0):
             self.send([timer_msg(p, item, now)])
             w.log('   yetenek kullanılamaz: %s (bekliyor ya da etkin)' % item)
             return False
@@ -431,7 +431,7 @@ class Engine:
             self.send([timer_msg(p, item, now)])
             w.log('   yetenek için yük yok: %s' % item)
             return False
-        if e.get('isinla') and (w.gate or H.name(w.map_id).startswith('5-')):     # Phase Out: kapıda ve korsan haritasında çalışmaz
+        if e.get('phase_out') and (w.gate or H.name(w.map_id).startswith('5-')):     # Phase Out: kapıda ve korsan haritasında çalışmaz
             self.send([timer_msg(p, item, now)])
             w.log('   yetenek bu haritada çalışmaz: %s' % item)
             return False
@@ -440,17 +440,17 @@ class Engine:
             n = w.npcs.get(w.target)
             hx, hy = w.hero_pos(now)
             if not n or not n.alive or (math.hypot(*(c - h for c, h in zip(n.mover.pos(now), (hx, hy)))) > self.range
-                                        and not e.get('hedefe_isinla')):         # Sleight: seçili hedefe menzil sınırı olmadan ışınlanır
+                                        and not e.get('teleport_to_target')):         # Sleight: seçili hedefe menzil sınırı olmadan ışınlanır
                 self.send([timer_msg(p, item, now)])
                 w.log('   yetenek için menzilde hedef yok: %s' % item)
                 return False
             target = n
-        if a.get('ac_kapa'):                     # Speed Boost: aç/kapa, iki basış arası bekleme
+        if a.get('toggle'):                     # Speed Boost: aç/kapa, iki basış arası bekleme
             with p.lock:
                 st = state(p).setdefault(item, {})
                 st['acik'] = not st.get('acik')
                 cd = cooldown(p, item)
-                st.update(hazir=now + cd, bekleme_ms=int(cd * 1000))
+                st.update(hazir=now + cd, cooldown_ms=int(cd * 1000))
                 p.dirty = True
             self.refresh(now)
             msgs = (self.visual_on(item, None) if st['acik'] else self.visual_off(item, None)) + [timer_msg(p, item, now)] +                 line(item, stop=not st['acik'])
@@ -466,28 +466,28 @@ class Engine:
         stop, cd = duration(p, item), cooldown(p, item)
         with p.lock:
             st = state(p).setdefault(item, {})
-            st.update(bitis=now + stop, hazir=now + stop + cd, sure_ms=int(stop * 1000), bekleme_ms=int(cd * 1000), hedef=target.id if target else None)
+            st.update(bitis=now + stop, hazir=now + stop + cd, duration_ms=int(stop * 1000), cooldown_ms=int(cd * 1000), hedef=target.id if target else None)
             if e.get('yuk'):
-                st['harcanan'], st['yuk'] = st.get('yuk', 0), 0       # menzil ilk değerine, yükler sıfıra
+                st['spent'], st['yuk'] = st.get('yuk', 0), 0       # menzil ilk değerine, yükler sıfıra
             if 'sonraki_gsp' in e:
-                st['bekleyen'] = e['sonraki_gsp']
+                st['pending'] = e['sonraki_gsp']
             p.dirty = True
         msgs = self.visual_on(item, target.id if target else None) + [timer_msg(p, item, now)] + line(item)
         g = p.d['gemi']
-        if 'can_yuzde' in e:                      # Solace: anında azami canın %35'i
+        if 'hp_percent' in e:                      # Solace: anında azami canın %35'i
             hp0 = g.get('hitPoints', 0)
-            p.set_hull(hp=hp0 + g.get('hitMax', 0) * e['can_yuzde'] * factor(p, item, 'etki'))
+            p.set_hull(hp=hp0 + g.get('hitMax', 0) * e['hp_percent'] * factor(p, item, 'etki'))
             msgs += [w.hp_msg()] + w.heal_msgs(hp0)
             for o in self.mates(now):            # forum 160373: Nano-Cluster grup üyelerini de onarır
                 other_ship = o.p.d['gemi']
                 h0 = other_ship.get('hitPoints', 0)
-                o.p.set_hull(hp=h0 + other_ship.get('hitMax', 0) * e['can_yuzde'] * factor(p, item, 'etki'))
+                o.p.set_hull(hp=h0 + other_ship.get('hitMax', 0) * e['hp_percent'] * factor(p, item, 'etki'))
                 o.send([o.hp_msg()] + o.heal_msgs(h0))
             for n in self.mate_bots(now):
-                self.heal_bot(n, hp=n.d['hp'] * e['can_yuzde'] * factor(p, item, 'etki'))
-        if 'hedef_kalkan_hasari' in e:            # Diminisher Weaken Shields: süre boyunca hedefin kalkanına giden hasar artar (dunya.hit_npc)
-            target.effect.add('kalkan_hasari', stop, e['hedef_kalkan_hasari'], item, now)
-        if e.get('hedefe_isinla'):                # Keres Sleight: hedefin konumuna ışınlan (Phase Out'taki anlık MoveCommand yolu), ardından hedef yavaşlar
+                self.heal_bot(n, hp=n.d['hp'] * e['hp_percent'] * factor(p, item, 'etki'))
+        if 'target_shield_damage' in e:            # Diminisher Weaken Shields: süre boyunca hedefin kalkanına giden hasar artar (dunya.hit_npc)
+            target.effect.add('kalkan_hasari', stop, e['target_shield_damage'], item, now)
+        if e.get('teleport_to_target'):                # Keres Sleight: hedefin konumuna ışınlan (Phase Out'taki anlık MoveCommand yolu), ardından hedef yavaşlar
             x, y = (int(c) for c in target.mover.pos(now))
             w.hero = type(w.hero)(x, y)
             msgs.append(('MoveCommand', dict(userId=w.hid, x=x, y=y, timeToTarget=0)))
@@ -495,26 +495,26 @@ class Engine:
             st['shut_off'] = int(target.shield * e['hedef_kalkan_kapat'])
             target.shield -= st['shut_off']
             msgs.append(w.selection(target))
-        if 'hedef_atis_araligi' in e:             # DDoL: hedefin lazer beklemesi 3-5 sn
-            target.effect.add('atis_bozuk', stop, 0, item, now, aralik=e['hedef_atis_araligi'])
+        if 'target_fire_interval' in e:             # DDoL: hedefin lazer beklemesi 3-5 sn
+            target.effect.add('atis_bozuk', stop, 0, item, now, aralik=e['target_fire_interval'])
         if 'zehir' in e:                          # Venom: saniyede bir gövdeye
             z = e['zehir']
-            target.effect.add('zehir', stop + 1, z['ilk'], item, now, artis=z['artis'], en_cok=z['en_cok'], kalan=z['toplam'],
-                            sonraki=now)
-        if 'hedef_hasar' in e:
-            target.effect.add('hasar_bonus', stop, e['hedef_hasar'], item, now)
-        if 'ates_cek' in e:                       # Draw Fire: menzildeki uzaylılar saldırır
+            target.effect.add('zehir', stop + 1, z['ilk'], item, now, increase=z['increase'], en_cok=z['en_cok'], kalan=z['toplam'],
+                            next=now)
+        if 'target_damage' in e:
+            target.effect.add('hasar_bonus', stop, e['target_damage'], item, now)
+        if 'draw_fire' in e:                       # Draw Fire: menzildeki uzaylılar saldırır
             hx, hy = w.hero_pos(now)
             for n in w.npcs.values():
                 nx, ny = n.mover.pos(now)
-                if n.alive and n.d['hasar'] > 0 and math.hypot(nx - hx, ny - hy) <= e['ates_cek']:
+                if n.alive and n.d['hasar'] > 0 and math.hypot(nx - hx, ny - hy) <= e['draw_fire']:
                     n.engaged, n.next_think = True, now
         if e.get('gizlen'):                       # Ultimate Cloaking: kovalayanlar bırakır
             for n in w.npcs.values():
                 if n.engaged:
                     w.disengage(n, now)
         if item in HECATE_BEAM and w.target is not None:     # forum 143093: ışın 5 sn, oyunculara ve işaret kulelerine
-            self.beams[item] = dict(hedef=w.target, basla=now, son=now)
+            self.beams[item] = dict(hedef=w.target, start=now, son=now)
         if 'dolum' in e:                          # Retiarus Charge Shot: süre boyunca dolar (tick), sonra vurur
             self.charging[item] = [target.id, now]
         if 'hedef_dondur' in e:                   # Goliath-X Frozen Claw
@@ -537,7 +537,7 @@ class Engine:
                 hit.append(cur.id)
                 cur.effect.add('donuk', 1.0, 1.0, item, now)
                 w.hit_npc(cur.id, int(dmg), 1)
-                dmg *= 1 + z.get('artis', 0)
+                dmg *= 1 + z.get('increase', 0)
                 cx, cy = cur.mover.pos(now)
                 rest = [(math.hypot(n.mover.pos(now)[0] - cx, n.mover.pos(now)[1] - cy), n) for n in w.npcs.values()
                         if n.alive and n.id not in hit]
@@ -547,7 +547,7 @@ class Engine:
         if 'ucgen_patlama' in e:                  # Zephyr Triple Barrage: hedefin arkasında üçgen üç patlama, kesişen alan toplanır
             u, (hx, hy), (tx, ty) = e['ucgen_patlama'], w.hero_pos(now), target.mover.pos(now)
             d = math.hypot(tx - hx, ty - hy) or 1.0
-            ux, uy, gap = (tx - hx) / d, (ty - hy) / d, u['uzaklik']
+            ux, uy, gap = (tx - hx) / d, (ty - hy) / d, u['distance']
             for cx, cy in ((tx + ux * gap, ty + uy * gap), (tx + 2 * ux * gap - uy * gap, ty + 2 * uy * gap + ux * gap),
                            (tx + 2 * ux * gap + uy * gap, ty + 2 * uy * gap - ux * gap)):
                 for n in self.near(u['yaricap'], now, (cx, cy)):
@@ -575,9 +575,9 @@ class Engine:
         s = state(p).get(item, {})
         e = effect_def(p, item)
         msgs = []
-        if 'isinla' in e and not (w.hero_dead or w.jumping):     # Phase Out: solan gemi rastgele yönde belirir (anlık MoveCommand)
+        if 'phase_out' in e and not (w.hero_dead or w.jumping):     # Phase Out: solan gemi rastgele yönde belirir (anlık MoveCommand)
             (x, y), a = w.hero_pos(now), random.uniform(0, 2 * math.pi)
-            x, y = int(min(max(0, x + e['isinla'] * math.cos(a)), w.map_w)), int(min(max(0, y + e['isinla'] * math.sin(a)), w.map_h))
+            x, y = int(min(max(0, x + e['phase_out'] * math.cos(a)), w.map_w)), int(min(max(0, y + e['phase_out'] * math.sin(a)), w.map_h))
             w.hero = type(w.hero)(x, y)
             msgs.append(('MoveCommand', dict(userId=w.hid, x=x, y=y, timeToTarget=0)))
         msgs += self.visual_off(item, s.get('hedef'))
@@ -589,9 +589,9 @@ class Engine:
             n.shield = min(max(n.d.get('kalkan', 0), n.shield), n.shield + back)
             if w.target == n.id:
                 msgs.append(w.selection(n))
-        if 'kalkan_kaybi' in e and not w.hero_dead:      # Weaken Shields: etki bitince KENDİ kalkanının %30'u gider
+        if 'shield_loss' in e and not w.hero_dead:      # Weaken Shields: etki bitince KENDİ kalkanının %30'u gider
             g = p.d['gemi']
-            p.set_hull(shield=g.get('shield', 0) * (1 - e['kalkan_kaybi']))
+            p.set_hull(shield=g.get('shield', 0) * (1 - e['shield_loss']))
             msgs.append(('AttributeShieldUpdateCommand', {'shieldNow': int(g['shield']), 'shieldMax': g.get('shieldMax', 0)}))
         n = w.npcs.get(s.get('hedef'))
         if n:
@@ -608,10 +608,10 @@ class Engine:
         """Charge Shot: dolan hasar hedefe (Plus'ta hedefin çevresindekilere bölünür)."""
         tid, start = self.charging.pop(item)
         d, n = effect_def(self.p, item)['dolum'], self.w.npcs.get(tid)
-        dmg = min(d['azami'], d['saniyede'] * (now - start))
+        dmg = min(d['azami'], d['per_second'] * (now - start))
         if not n or not n.alive or dmg <= 0:
             return
-        hit = [n] + ([m for m in self.near(d['bol_yaricap'], now, n.mover.pos(now)) if m is not n] if d.get('bol_yaricap') else [])
+        hit = [n] + ([m for m in self.near(d['split_radius'], now, n.mover.pos(now)) if m is not n] if d.get('split_radius') else [])
         for m in hit:
             self.w.hit_npc(m.id, int(dmg / len(hit)), 1)
         self.w.log('   Charge Shot: %d hasar, %d hedef' % (dmg, len(hit)))
@@ -658,9 +658,9 @@ class Engine:
             for i in active_items(p, now):
                 e = effect_def(p, i)
                 stop = max(duration(p, i), 1)
-                if 'alan_hasar' in e and 'saniyede' in e['alan_hasar'] and not w.hero_dead:     # Solaris, Paladin Ripper
+                if 'alan_hasar' in e and 'per_second' in e['alan_hasar'] and not w.hero_dead:     # Solaris, Paladin Ripper
                     a = e['alan_hasar']
-                    dmg = a['saniyede'] + (w.laser_damage(None)[0] * a['lazer_payi'] if a.get('lazer_payi') else 0)
+                    dmg = a['per_second'] + (w.laser_damage(None)[0] * a['laser_share'] if a.get('laser_share') else 0)
                     for n in self.near(a['yaricap'], now):
                         w.hit_npc(n.id, int(dmg), 1)
                     for o in self.foes(now, None, a['yaricap']):     # forum 160373: Ripper/Incinerate oyunculara da
@@ -675,13 +675,13 @@ class Engine:
                     sh = max(0, g.get('shield', 0) - g.get('shieldMax', 0) * e['kalkan_erit'])
                     p.set_hull(shield=sh)
                     self.send([('AttributeShieldUpdateCommand', {'shieldNow': int(g['shield']), 'shieldMax': g.get('shieldMax', 0)})])
-                    if sh <= 0 and e.get('sifirda_kapan'):
+                    if sh <= 0 and e.get('close_at_zero'):
                         self.end_now(i, now)               # Scramble: kalkan biterse kapanır
                 if 'dolum' in e and i in self.charging:     # Charge Shot: hedef menzilden çıkınca ya da dolunca vurur
                     tid, start = self.charging[i]
                     n = w.npcs.get(tid)
                     hx, hy = w.hero_pos(now)
-                    full = e['dolum']['saniyede'] * (now - start) >= e['dolum']['azami']
+                    full = e['dolum']['per_second'] * (now - start) >= e['dolum']['azami']
                     if full or not n or not n.alive or math.hypot(*(c - h for c, h in zip(n.mover.pos(now), (hx, hy)))) > self.range:
                         self.end_now(i, now)
                 if 'kalkan_onar' in e and not w.hero_dead:
@@ -692,13 +692,13 @@ class Engine:
                     self.heal_mates(i, 'kalkan_onar', stop, now)
         for i, b in list(self.beams.items()):          # Hecate: saniyede 8.050 + 6.000 x geçen sn (forum 143093)
             h = HECATE_BEAM[i]
-            if now - b['basla'] > h['sure_sn'] or w.hero_dead:
+            if now - b['start'] > h['sure_sn'] or w.hero_dead:
                 del self.beams[i]
                 continue
             if now - b['son'] < 1:
                 continue
             b['son'] = now
-            dmg = int(h['ilk'] + h['artis'] * int(now - b['basla']))
+            dmg = int(h['ilk'] + h['increase'] * int(now - b['start']))
             n = w.npcs.get(b['hedef'])
             if n and n.alive and n.tip in h['npc']:
                 w.hit_npc(n.id, dmg, 1)

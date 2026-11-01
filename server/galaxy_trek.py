@@ -28,7 +28,7 @@ D = (json.load(open(_PATH, encoding='utf8')) if os.path.exists(_PATH) else {}).g
 EVENT = 'galaxy_trek'
 KEY = D.get('anahtar', 'resource_ftl-key')
 PLANETS = D.get('gezegen', 40)
-QUEST_BY_ID = {q['tanim']['id']: q for q in D.get('gorevler', [])}
+QUEST_BY_ID = {q['definition']['id']: q for q in D.get('gorevler', [])}
 
 
 def active(now=None):
@@ -37,7 +37,7 @@ def active(now=None):
 
 def all_events():
     """[(olay kimliği, tür kaydı)]."""
-    return [(i, e) for e in D.get('olaylar', []) for i in e['kimlikler']]
+    return [(i, e) for e in D.get('events', []) for i in e['ids']]
 
 
 # ------------------------------------------------------------ web (web.py)
@@ -45,7 +45,7 @@ def planets_xml():
     ev = []
     for i, e in all_events():
         rewards = ''.join('<reward lootId=%s amount="%d"/>' % (quoteattr(l), n) for l, n in e['sabit'])
-        ev.append('<event eventId="%d" resKey=%s degree=%s>%s</event>' % (i, quoteattr(e['metin'] % i), quoteattr(e['derece']), rewards))
+        ev.append('<event eventId="%d" resKey=%s degree=%s>%s</event>' % (i, quoteattr(e['metin'] % i), quoteattr(e['grade']), rewards))
     planets = ''.join('<planet planetId="%d" resKey="SS_planet_name_%d"/>' % (i, i) for i in range(1, PLANETS + 1))
     return '<?xml version="1.0" encoding="UTF-8"?><spaceSearch><planets>%s</planets><planetEvents>%s</planetEvents></spaceSearch>' % (
         planets, ''.join(ev))
@@ -109,8 +109,8 @@ class GalaxyTrek:
         st = self.st
         if st.get('gun') == day and st['gorevler']:
             return
-        fixed = [q['tanim']['id'] for q in D.get('gorevler', []) if q.get('sabit')]
-        rest = [q['tanim']['id'] for q in D.get('gorevler', []) if not q.get('sabit')]
+        fixed = [q['definition']['id'] for q in D.get('gorevler', []) if q.get('sabit')]
+        rest = [q['definition']['id'] for q in D.get('gorevler', []) if not q.get('sabit')]
         pick = fixed + random.sample(rest, max(0, min(len(rest), D.get('gunluk', 10) - len(fixed))))
         with self.p.lock:
             st.update(gun=day, gorevler=pick, deger={}, biten=[])
@@ -140,7 +140,7 @@ class GalaxyTrek:
             q = QUEST_BY_ID.get(qid)
             if q:
                 done = qid in st['biten']
-                out.append(mod('EventQuestDefinitionModule', module=GT.with_state(q['tanim'], st['deger'].get(str(qid), {}), done),
+                out.append(mod('EventQuestDefinitionModule', module=GT.with_state(q['definition'], st['deger'].get(str(qid), {}), done),
                                completed=done, claimed=done))
         return ('SpaceSearchMissionListCommand', {'missions': out})
 
@@ -204,17 +204,17 @@ class GalaxyTrek:
             return [self.info_cmd(), self.key_cmd()]
         self.p.add_resource(KEY, -count * D.get('maliyet', 1))
         events, planets, got = [], [], {}
-        kinds = D.get('olaylar', [])
+        kinds = D.get('events', [])
         for _ in range(count):
             if st['tamam'] >= PLANETS:
                 break
             e = random.choices(kinds, [k['sans'] for k in kinds])[0]
-            eid = random.choice(e['kimlikler'])
+            eid = random.choice(e['ids'])
             planet = st['gezegen']
             events.append(mod('EventCommand', eventId=eid, planetId=planet))
             for l, n in e['sabit']:
                 got[l] = got.get(l, 0) + n
-            for rows in e['cekilis']:
+            for rows in e['spin']:
                 l, n, _ = random.choices(rows, [r[2] for r in rows])[0]
                 got[l] = got.get(l, 0) + n
             with self.p.lock:
@@ -270,12 +270,12 @@ class GalaxyTrek:
             if not q or qid in st['biten']:
                 continue
             vals = st['deger'].setdefault(str(qid), {})
-            _, done = GT.advance(self.p, q['tanim']['rootCase'], vals, kind, kw, map_id=self.p.d['konum'].get('mapId'), notify=False)
+            _, done = GT.advance(self.p, q['definition']['rootCase'], vals, kind, kw, map_id=self.p.d['position'].get('mapId'), notify=False)
             if done:
                 with self.p.lock:
                     st['biten'].append(qid)
                     self.p.dirty = True
-                for r in q['tanim']['rewards']:
+                for r in q['definition']['rewards']:
                     msgs += self.m.prize(r['lootId'], r['amount'])
                 self.log('   Galaxy Trek görevi bitti: %s' % q['ad'])
         if msgs:

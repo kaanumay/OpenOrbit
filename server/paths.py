@@ -16,15 +16,24 @@ import json, os
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 SAVE = os.environ.get('OO_SAVE_DIR') or os.path.join(HERE, 'save')      # testler geçici klasör verir
-SAVES = os.path.join(SAVE, 'kayitlar')
-TRASH = os.path.join(SAVE, 'silinenler')
+SAVES = os.path.join(SAVE, 'slots')
+TRASH = os.path.join(SAVE, 'trash')
 PANEL = os.path.join(SAVE, 'panel.json')
-SETTINGS = os.path.join(SAVE, 'ayarlar.json')
-LEGACY_PROFILE = os.path.join(SAVE, 'profil.json')
+SETTINGS = os.path.join(SAVE, 'settings.json')
+LEGACY_PROFILE = os.path.join(SAVE, 'profile.json')
 LOGS = os.environ.get('OO_LOG_DIR') or os.path.join(HERE, 'logs')
 DATA = os.path.join(HERE, 'data')
-TEMPLATES = ('giris.json', 'haritalar.json', 'yanitlar.json')
+TEMPLATES = ('login.json', 'maps.json', 'responses.json')
 DEFAULT_TEMPLATE = os.path.join(DATA, 'defaults')
+
+# Save format v1 (Turkish names) -> v2, once, before anything reads the saves (save_migration.py: backup, lock, resumable).
+# A failure is kept here instead of raised: the panel shows it and does not start the servers; game.py / web.py exit with it.
+MIGRATION_ERROR = None
+try:
+    import save_migration as _SM
+    _SM.ensure(SAVE, DATA, log=lambda m: None)
+except Exception as _e:                                    # disk full, permissions, a broken file: never half-start on v1 data
+    MIGRATION_ERROR = '%s: %s' % (type(_e).__name__, _e)
 
 
 def template(name):
@@ -57,11 +66,11 @@ def active_slot(path=PANEL):
 def profile_path(slot=None):
     """Yuvanın (verilmezse etkin yuvanın) profil dosyası; yuva yoksa eski save/profil.json."""
     slot = slot or active_slot()
-    return os.path.join(slot_dir(slot), 'profil.json') if slot else LEGACY_PROFILE
+    return os.path.join(slot_dir(slot), 'profile.json') if slot else LEGACY_PROFILE
 
 
 def settings_path(slot=None):
     """Yuvanın (verilmezse etkin yuvanın) oyun ayarları (kayda özgü; panel ilk açılışta oluşturur); yoksa eski save/ayarlar.json."""
     slot = slot or active_slot()
-    p = os.path.join(slot_dir(slot), 'ayarlar.json') if slot else None
+    p = os.path.join(slot_dir(slot), 'settings.json') if slot else None
     return p if p and os.path.isfile(p) else SETTINGS

@@ -14,7 +14,7 @@ import game_data as DATA
 HERE = os.path.dirname(os.path.abspath(__file__))
 _D = DATA.load('map_layout.json')
 MAPS = {int(k): v for k, v in _D['haritalar'].items()}
-_WALLS = {m: [tuple(e[1:5]) for e in d.get('engeller', [])] for m, d in MAPS.items()}
+_WALLS = {m: [tuple(e[1:5]) for e in d.get('obstacles', [])] for m, d in MAPS.items()}
 MINE = _D['mayin']
 NO_ACCESS, SHIELD_DAMAGE, MINES = 5, 3, 10     # POIType (resmî sunucu kaydı: Palladium alanı "ShieldDamage", mayın alanı "Mines1")
 POLYGON, RECTANGLE = 1, 2                       # istemcinin ShapeType'ı (CIRCLE 0, POLYGON 1, RECTANGLE 2)
@@ -46,17 +46,17 @@ def poi_msgs(map_id):
     """Haritanın hazır demetindeki bölgeler: engeller (çokgenler olduğu gibi), Palladium alanı, mayın alanları ve öteki bölgeler
     (5-2 istasyonunun Equippable Zone'u) (harita.map_world)."""
     d = of(map_id)
-    out = [_poi(e[0], NO_ACCESS, e[5], e[1:5], *((POLYGON, e[6]) if len(e) > 6 else ())) for e in d.get('engeller', [])]
+    out = [_poi(e[0], NO_ACCESS, e[5], e[1:5], *((POLYGON, e[6]) if len(e) > 6 else ())) for e in d.get('obstacles', [])]
     if 'palladium' in d:
         out.append(_poi(d['palladium']['id'], SHIELD_DAMAGE, NEBULA, d['palladium']['alan']))
-    out += [_poi('Mines%d' % (i + 1), MINES, 0, r) for i, r in enumerate(d.get('mayin_alanlari', []))]
-    out += [_poi(pid, t, design, (0, 0, 0, 0), shape, coords) for pid, t, shape, design, coords in d.get('bolgeler', [])]
+    out += [_poi('Mines%d' % (i + 1), MINES, 0, r) for i, r in enumerate(d.get('mine_fields', []))]
+    out += [_poi(pid, t, design, (0, 0, 0, 0), shape, coords) for pid, t, shape, design, coords in d.get('zones', [])]
     return out
 
 
 def gate_pos(map_id, key):
     """Portalın düzendeki yeri ya da None (harita.GATES yüklenirken)."""
-    p = of(map_id).get('portallar', {}).get(str(key))
+    p = of(map_id).get('portals', {}).get(str(key))
     return tuple(p) if p else None
 
 
@@ -68,12 +68,12 @@ def arrival(map_id, key):
 
 def one_way_gates(map_id):
     """Haritanın tek yönlü varış portalları [(x, y, firma)] (5-X: tasarım 52; harita.map_world)."""
-    return [tuple(v) for v in of(map_id).get('varis_portallari', [])]
+    return [tuple(v) for v in of(map_id).get('arrival_portals', [])]
 
 
 def design_pos(map_id, design):
     """Kapı ya da mod portalının bu haritadaki yeri (tasarıma göre; resmî sunucu kaydı: 2-1, 2-8) ya da None (dunya.fit_gate)."""
-    p = of(map_id).get('tasarim_yeri', {}).get(str(design))
+    p = of(map_id).get('design_spot', {}).get(str(design))
     return tuple(p) if p else None
 
 
@@ -85,12 +85,12 @@ def structure_pos(map_id):
 def structure_asset(map_id):
     """Yapının varlığının (5-2'nin ticaret noktası) yeri ve yaklaşma bölgesinin yarıçapı -> ((x, y) ya da None, yarıçap ya da None)."""
     d = of(map_id)
-    return (tuple(d['yapi_varlik']) if 'yapi_varlik' in d else None), d.get('yapi_yaricap')
+    return (tuple(d['structure_asset']) if 'structure_asset' in d else None), d.get('structure_radius')
 
 
 def lairs(map_id):
     """Türün sabit doğma noktaları (inler): {tür: [[x, y], …]}."""
-    return of(map_id).get('inler', {})
+    return of(map_id).get('lairs', {})
 
 
 def safe_zones(map_id):
@@ -98,7 +98,7 @@ def safe_zones(map_id):
 
 
 def gate_peace_radius(map_id, default):
-    return of(map_id).get('portal_guvenli', default)
+    return of(map_id).get('portal_safe', default)
 
 
 def in_safe(map_id, x, y, margin=0):
@@ -145,7 +145,7 @@ def free_spot(map_id, rect, pad=SHIP_PAD, tries=40):
 
 
 def navigates(map_id):
-    return bool(of(map_id).get('dolasma'))
+    return bool(of(map_id).get('roaming'))
 
 
 _GRIDS = {}
@@ -230,10 +230,10 @@ def waypoint(map_id, w, h, ax, ay, bx, by):
 def mine_spots(map_id, gates, n=None):
     """Mayın alanlarına dağılan mayınların yerleri: engellerin ve portalların dışında (alan başına mayin.adet)."""
     out = []
-    for rect in of(map_id).get('mayin_alanlari', []):
+    for rect in of(map_id).get('mine_fields', []):
         for _ in range(MINE['adet'] if n is None else n):
             p = free_spot(map_id, _in_map(map_id, rect), pad=100)
-            if p and all(math.hypot(p[0] - g['x'], p[1] - g['y']) > MINE['portal_uzak'] for g in gates):
+            if p and all(math.hypot(p[0] - g['x'], p[1] - g['y']) > MINE['portal_far'] for g in gates):
                 out.append(p)
     return out
 
@@ -247,5 +247,5 @@ def _in_map(map_id, r):
 
 def mine_field_of(map_id, x, y):
     """(x, y)'yi içeren mayın alanının harita içindeki kısmı ya da None (patlayan mayının yenisi aynı alanda)."""
-    r = next((r for r in of(map_id).get('mayin_alanlari', []) if r[0] <= x <= r[2] and r[1] <= y <= r[3]), None)
+    r = next((r for r in of(map_id).get('mine_fields', []) if r[0] <= x <= r[2] and r[1] <= y <= r[3]), None)
     return r and _in_map(map_id, r)

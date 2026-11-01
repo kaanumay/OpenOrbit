@@ -2856,5 +2856,6 @@
 "{0} / {1} yuva": "{0} / {1} ranuras",
 "{0} paketi · {1}. bot": "Paquete {0} · bot n.º {1}",
 "Özellikler": "Rasgos",
-"Şu anki duyguları: zamanla dengeye döner. Öfkeli bot intikam peşine düşer, yorgun bot erken çıkar.": "Sus emociones actuales: vuelven al equilibrio con el tiempo. Un bot enfadado busca venganza, uno cansado se desconecta pronto."
+"Şu anki duyguları: zamanla dengeye döner. Öfkeli bot intikam peşine düşer, yorgun bot erken çıkar.": "Sus emociones actuales: vuelven al equilibrio con el tiempo. Un bot enfadado busca venganza, uno cansado se desconecta pronto.",
+"Kayıtlar yeni biçime taşınamadı (%s). Eski kayıtların yedeği server/save altında (v1_backup_*.zip); sunucular başlatılmaz.": "No se pudieron pasar tus partidas al nuevo formato (%s). La copia de seguridad de las partidas antiguas está en server/save (v1_backup_*.zip); los servidores no se iniciarán."
 }

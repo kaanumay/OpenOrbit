@@ -13,9 +13,9 @@ TEMPLATES = {}
 for _code, _d in LANGUAGES.items():
     for _state, _lines in _d.get('kaliplar', {}).items():
         TEMPLATES.setdefault(_state, {})[_code] = _lines
-DIALOGUE = {k: d.get('diyaloglar', []) for k, d in LANGUAGES.items()}   # dil -> [konuşma]; konuşma = [tur]; tur = [alternatif satırlar]
-ABBREVIATIONS = {k: [tuple(x) for x in d.get('kisaltma', ())] for k, d in LANGUAGES.items()}
-ASCII = {k: (str.maketrans(d['ascii']) if d.get('ascii') else None, d.get('ascii_oran', 0.0)) for k, d in LANGUAGES.items()}
+DIALOGUE = {k: d.get('dialogues', []) for k, d in LANGUAGES.items()}   # dil -> [konuşma]; konuşma = [tur]; tur = [alternatif satırlar]
+ABBREVIATIONS = {k: [tuple(x) for x in d.get('abbreviation', ())] for k, d in LANGUAGES.items()}
+ASCII = {k: (str.maketrans(d['ascii']) if d.get('ascii') else None, d.get('ascii_ratio', 0.0)) for k, d in LANGUAGES.items()}
 EMOJI = (':D', ':)', 'xD', '^^', ':P', ';)', 'xd')
 
 
@@ -55,19 +55,19 @@ def dialogue_line(bot, kind, **f):
 
 def apply_style(text, u, r=random, d='tr'):
     """Botun yazım üslubu: kısaltmalar, Türkçe karakter düşürme, küçük/BÜYÜK harf, noktalama, emoji, yazım hatası."""
-    if r.random() < u.get('kisaltma', 0.4):
+    if r.random() < u.get('abbreviation', 0.4):
         for a, b in ABBREVIATIONS.get(d, ()):
             text = re.sub(r'\b%s\b' % re.escape(a), b, text)
     table, ratio = ASCII.get(d, (None, 0.0))
     if table and r.random() < ratio:
         text = text.translate(table)             # çoğu oyuncu aksanlı harf yazmaz (Türkçe karakter, umlaut ...)
-    if r.random() < u.get('kucuk_harf', 0.6):
+    if r.random() < u.get('lowercase', 0.6):
         text = text.lower().replace('i̇', 'i')     # "İ".lower() noktalı i'ye (i + birleşen nokta) dönüyordu
     elif text and r.random() < 0.5:
         text = text[0].upper() + text[1:]
-    if r.random() < u.get('buyuk_harf', 0.05) * 0.25:      # BAĞIRAN satır çok nadir (kullanıcı bildirimi 2026-10-29)
+    if r.random() < u.get('uppercase', 0.05) * 0.25:      # BAĞIRAN satır çok nadir (kullanıcı bildirimi 2026-10-29)
         text = text.upper()
-    if r.random() < u.get('noktalama', 0.3) and text[-1:].isalnum():
+    if r.random() < u.get('punctuation', 0.3) and text[-1:].isalnum():
         text += r.choice(('.', '!', '...'))
     if r.random() < u.get('emoji', 0.3) * 0.6 and not text.endswith(EMOJI):
         text += ' ' + r.choice(EMOJI)
@@ -112,7 +112,7 @@ MAP_RE = re.compile(r'\b([1-5])\s*[-xX/]\s*([1-8]|bl)(?![\d])', re.I)     # Tür
 
 
 def _lang_expr(name):
-    promises = sorted({w for d in LANGUAGES.values() for w in d.get('niyet', {}).get(name, ())}, key=len, reverse=True)
+    promises = sorted({w for d in LANGUAGES.values() for w in d.get('intent', {}).get(name, ())}, key=len, reverse=True)
     return re.compile(r'(?<!\w)(%s)(?!\w)' % '|'.join(re.escape(w) for w in promises), re.I) if promises else None
 
 
@@ -149,4 +149,4 @@ def intent(text):
 
 def typing_time(text, bot):
     """İnsanın okuyup yazma süresi (sn): tepki + harf başına."""
-    return bot.k['kisilik']['tepki_sn'] * bot.r.uniform(2.0, 5.0) + len(text) / bot.r.uniform(3.5, 7.0)
+    return bot.k['kisilik']['reaction_sec'] * bot.r.uniform(2.0, 5.0) + len(text) / bot.r.uniform(3.5, 7.0)

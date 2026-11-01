@@ -9,31 +9,31 @@ import lang as D
 
 DEFAULTS = {
     'dil': None,                    # dil.DILLER'den bir kod; None: henüz seçilmedi (kurulum sihirbazı dil seçimiyle açılır)
-    'kurulum_tamam': False,         # ilk açılış sihirbazı bitti (ya da atlandı)
+    'setup_done': False,         # ilk açılış sihirbazı bitti (ya da atlandı)
     'aktif_kayit': None,            # save/kayitlar/<kimlik>
     'istemci_klasoru': None,        # None: kendiliğinden (proje kökündeki en yeni DarkOrbit_Version* klasörü)
-    'pencere_modu': 'pencere',      # pencere | tam_ekran | kenarliksiz
-    'genislik': 1440,
-    'yukseklik': 900,
+    'window_mode': 'pencere',      # pencere | tam_ekran | kenarliksiz
+    'width': 1440,
+    'height': 900,
     'monitor': 0,                   # 0: Unity'nin seçtiği; 1..: -monitor N
-    'ek_argumanlar': '',            # istemciye eklenecek başka Unity argümanları
-    'yedek_acilista': True,         # Oyna'da etkin yuvanın otomatik yedeği
-    'yedek_sayisi': 10,             # saklanan otomatik yedek (elle alınanlar silinmez)
-    'yedek_aralik_dk': 30,          # oyun açıkken otomatik yedek aralığı (0: kapalı)
+    'extra_args': '',            # istemciye eklenecek başka Unity argümanları
+    'backup_on_launch': True,         # Oyna'da etkin yuvanın otomatik yedeği
+    'backup_count': 10,             # saklanan otomatik yedek (elle alınanlar silinmez)
+    'backup_interval_min': 30,          # oyun açıkken otomatik yedek aralığı (0: kapalı)
     'istemci_kapaninca': 'kapat',   # kapat: panelin açtığı sunucular kapanır | acik: açık kalır
-    'gunluk_dondur': True,          # büyük günlükler başlatmada .1, .2 … olarak kayar
+    'rotate_logs': True,          # büyük günlükler başlatmada .1, .2 … olarak kayar
     'pencere_kapaninca': 'bekle',   # panel penceresi kapanınca: bekle (oyun sürüyorsa bitince kapanır) | kapat (her şeyi kapatır)
     'guncelleme': 'otomatik',       # GitHub'daki yeni sürüm (guncelleme.py): otomatik kur | bildir (yalnız haber ver) | kapali
-    'hizli_indirme': True,          # istemci indirmesi BAGLANTI bağlantıyla (indirme.py); kapalıyken tek bağlantı
-    'arkadas_sifre': '',            # Arkadaşlarınla Oyna > Host: katılma şifresi (boş: şifresiz)
-    'arkadas_en_cok': 4,            # Host: en çok misafir
-    'arkadas_dunya': '',            # Host: sunucunun dünyası (Dünya Editörü; boş: etkin kaydın varsayılan dünyası)
-    'arkadas_son_adres': '',        # Join: son katılınan adres
-    'coklu_istemci': True,          # çoklu istemci: en az iki kayıt varsa OYNA sunucuyu çok oturumlu açar (coklu.py)
-    'coklu_en_cok': 3,              # en çok ek istemci (her istemci ~600 MB bellek)
-    'calistirici': 'otomatik',      # Linux ve macOS: istemciyi açan otomatik | motor | wine | proton | ozel (calistirici.py)
-    'calistirici_yolu': '',         # wine programı, Proton klasörü ya da özel komut (boş: kendiliğinden)
-    'wine_onek': '',                # Wine öneki / Proton veri klasörü (boş: save/wine ya da save/proton)
+    'fast_download': True,          # istemci indirmesi BAGLANTI bağlantıyla (indirme.py); kapalıyken tek bağlantı
+    'friend_password': '',            # Arkadaşlarınla Oyna > Host: katılma şifresi (boş: şifresiz)
+    'friend_max': 4,            # Host: en çok misafir
+    'friend_world': '',            # Host: sunucunun dünyası (Dünya Editörü; boş: etkin kaydın varsayılan dünyası)
+    'friend_last_address': '',        # Join: son katılınan adres
+    'multi_client': True,          # çoklu istemci: en az iki kayıt varsa OYNA sunucuyu çok oturumlu açar (coklu.py)
+    'multi_client_max': 3,              # en çok ek istemci (her istemci ~600 MB bellek)
+    'runner': 'otomatik',      # Linux ve macOS: istemciyi açan otomatik | motor | wine | proton | ozel (calistirici.py)
+    'runner_path': '',         # wine programı, Proton klasörü ya da özel komut (boş: kendiliğinden)
+    'wine_prefix': '',                # Wine öneki / Proton veri klasörü (boş: save/wine ya da save/proton)
     'discord_rp': True,             # Discord Rich Presence (discord_rp.py); rp_*: profilde görünenler
     'rp_pilot': False,              # pilot adı (gizlilik: varsayılan kapalı)
     'rp_klan': True,
@@ -47,11 +47,11 @@ DEFAULTS = {
     'rp_butonlar': True,            # Discord sunucusu ve GitHub düğmeleri
     'rp_panelde': True,             # oyun kapalıyken de (panelde)
 }
-CHOICES = {'pencere_modu': ('pencere', 'tam_ekran', 'kenarliksiz'), 'istemci_kapaninca': ('kapat', 'acik'),
+CHOICES = {'window_mode': ('pencere', 'tam_ekran', 'kenarliksiz'), 'istemci_kapaninca': ('kapat', 'acik'),
            'pencere_kapaninca': ('bekle', 'kapat'), 'guncelleme': ('otomatik', 'bildir', 'kapali'),
-           'calistirici': ('otomatik', 'motor', 'wine', 'proton', 'ozel')}
-LIMITS = {'genislik': (640, 7680), 'yukseklik': (480, 4320), 'monitor': (0, 8), 'yedek_sayisi': (1, 200), 'yedek_aralik_dk': (0, 600),
-          'arkadas_en_cok': (1, 16), 'coklu_en_cok': (1, 8)}
+           'runner': ('otomatik', 'motor', 'wine', 'proton', 'ozel')}
+LIMITS = {'width': (640, 7680), 'height': (480, 4320), 'monitor': (0, 8), 'backup_count': (1, 200), 'backup_interval_min': (0, 600),
+          'friend_max': (1, 16), 'multi_client_max': (1, 8)}
 
 
 def clean(key, v):

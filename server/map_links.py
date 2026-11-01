@@ -179,7 +179,7 @@ def map_world(map_id, tpl):
     gs = gates(map_id)
     gate_msgs = [dict(jumpgate_create(g, PLAYER_FACTION)[1], _m='JumpgateCreateCommand') for g in GATES.get(int(map_id), [])] + \
                 [dict(jumpgate_create(dict(gateId=ONE_WAY_GATE_BASE + int(map_id) * 10 + f, x=x, y=y, designId=ONE_WAY_DESIGN,
-                                           decorations=[f], gorunmez=True))[1], _m='JumpgateCreateCommand')
+                                           decorations=[f], invisible=True))[1], _m='JumpgateCreateCommand')
                  for x, y, f in ML.one_way_gates(map_id)]
     fac = STATION_MAPS.get(int(map_id))
     if not fac or not tpl:
@@ -302,7 +302,7 @@ def arrival(src_map, dst_map, faction=None):
     if back:
         return back['x'], back['y']
     w, h = map_size(dst_map)          # tek yönlü giriş (5-1, 5-3, 4-4): haritanın gerçek ortası (büyük haritalar)
-    return center(dst_map) if ML.of(dst_map).get('merkez') else (w // 2, h // 2)
+    return center(dst_map) if ML.of(dst_map).get('center') else (w // 2, h // 2)
 
 
 def random_arrival(map_id):
@@ -377,7 +377,7 @@ def asset_available(asset_id, tip, near, wild=()):
 
 def jumpgate_create(g, faction=None):
     """faction: oyuncunun firması; 5-X'te başka firmanın portalı görünmez gider (resmî sunucu kaydı: mini haritada yok, balonsuz)."""
-    hidden = g.get('gorunmez') or (g.get('yalniz_firma') and faction not in (None, g['yalniz_firma']))
+    hidden = g.get('invisible') or (g.get('yalniz_firma') and faction not in (None, g['yalniz_firma']))
     return ('JumpgateCreateCommand', dict(gateId=g['gateId'], factionId=0, designId=g.get('designId', g.get('tasarim', 1)), x=g['x'],
                                           y=g['y'], isVisibleOnMinimap=not (hidden or g.get('gizli')),   # 4-5'teki gizli solucan deliği
                                           showBubble=not hidden, decoratorAssetTypes=g.get('decorations', [])))
@@ -448,4 +448,4 @@ def parked(map_id):
 def center(map_id):
     """Haritanın ortası; ortası engelliyse düzenin 'merkez'i (DSE 3: iniş, dost gemi, salona dönüş portalı)."""
     w, h = map_size(map_id)
-    return tuple(ML.of(map_id).get('merkez') or (w // 2, h // 2))
+    return tuple(ML.of(map_id).get('center') or (w // 2, h // 2))

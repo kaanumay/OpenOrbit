@@ -41,7 +41,7 @@ def sec(y):
 
 
 def _registry(y, name):
-    return y.__dict__.setdefault('mod_record', {}).setdefault(str(name).lower(), {'uyari': 0, 'warning_time': 0, 'susturma': 0, 'bitis': 0,
+    return y.__dict__.setdefault('mod_record', {}).setdefault(str(name).lower(), {'uyari': 0, 'warning_time': 0, 'mutes': 0, 'bitis': 0,
                                                                                'yasak': False, 'son': []})
 
 
@@ -97,10 +97,10 @@ def moderate(y, name, msg, channel, now, rol='chatter'):
         y.speak(m, channel, SPC.template(m, 'mod_uyari_' + rule, ad=name), now=now + delay, priority=True)
         return 'uyari'
     k['uyari'] = 0
-    k['susturma'] += 1
-    if k['susturma'] >= int(y.setting('yasak_esik', 3) or 3):
+    k['mutes'] += 1
+    if k['mutes'] >= int(y.setting('yasak_esik', 3) or 3):
         hour = int(y.setting('yasak_saat', 24) or 24)
-        k['bitis'], k['yasak'], k['susturma'] = now + hour * 3600, True, 0
+        k['bitis'], k['yasak'], k['mutes'] = now + hour * 3600, True, 0
         y.speak(m, channel, SPC.template(m, 'mod_yasak', ad=name, saat=hour), now=now + delay, priority=True)
         return 'yasak'
     minutes = int(y.setting('sustur_dk', 10) or 10)

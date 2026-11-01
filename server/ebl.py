@@ -76,7 +76,7 @@ class Ebl:
         """X-BL kapısına atlandı: koşu yoksa başlar, varsa kaldığı odaya -> (hedef, mesajlar)."""
         if not self.run:
             with self.p.lock:
-                self.st['kosu'] = dict(dalga=0, puan=0, secenek=[], agirlik={}, aktif={}, uridyum=0, bas=time.time())
+                self.st['kosu'] = dict(dalga=0, puan=0, option=[], weight={}, aktif={}, uridyum=0, bas=time.time())
                 self.st['kapi'] = False
                 self.p.dirty = True
             self.log('   Eternal Black Light: koşu başladı')
@@ -90,25 +90,25 @@ class Ebl:
 
     def room_map(self):
         w, lap = self.wave_in_lap()
-        room = D['dalgalar'][w - 1]['oda']
+        room = D['waves'][w - 1]['oda']
         return D['haritalar'][room - 1]
 
     def waves(self):
         """Bu odanın kalan dalgaları (koşu sırası: tamamlanan sayısından)."""
         w, lap = self.wave_in_lap(self.start_done)
-        room = D['dalgalar'][w - 1]['oda']
-        return [x for x in D['dalgalar'] if x['oda'] == room and int(x['ad']) >= w]
+        room = D['waves'][w - 1]['oda']
+        return [x for x in D['waves'] if x['oda'] == room and int(x['ad']) >= w]
 
     def wave_count(self):
         return len(self.waves())
 
     def scale(self, n, i, wave):
         w, lap = self.wave_in_lap(self.start_done + i)
-        f = D['carpan_tur'] ** (lap - 1)
+        f = D['kind_multiplier'] ** (lap - 1)
         k = wave.get('carpan', 1.0)
         PS.scale_npc(n, f * k, f * k, f * k)
         r = self.run
-        if r['uridyum'] >= D['uridyum_siniri']:
+        if r['uridyum'] >= D['uridium_limit']:
             n.d['odul']['uridyum'] = 0                  # koşunun uridyum sınırı
         else:
             r['uridyum'] += n.d['odul']['uridyum']
@@ -139,9 +139,9 @@ class Ebl:
         with self.p.lock:
             r['dalga'] += 1
             done = r['dalga']
-            record = done > self.st.get('en_iyi', 0)
+            record = done > self.st.get('best', 0)
             if record:
-                self.st['en_iyi'] = done
+                self.st['best'] = done
                 self.st['best_at'] = int(time.time() * 1000)
             self.p.dirty = True
         self.p.ach('gate_wave', tur='ETERNAL_GATE', dalga=done)       # başarım: "Eternal Gate'te N. dalgaya ulaş"
@@ -155,7 +155,7 @@ class Ebl:
         with self.p.lock:
             r['puan'] += pts
             self.p.dirty = True
-        if not r['secenek']:
+        if not r['option']:
             self.roll()
         self.checkpoint(done, pts)
         return 'dur'
@@ -183,7 +183,7 @@ class Ebl:
         if not r:
             return 0
         done = r['dalga']
-        tier = next((t for t in D['olum_odulu'] if t['en_az'] <= done <= t['en_cok']), None)
+        tier = next((t for t in D['death_reward'] if t['en_az'] <= done <= t['en_cok']), None)
         msgs = []
         if tier and done:
             msgs += self.m.prize(D['parca'], tier['parca'])
@@ -208,27 +208,27 @@ class Ebl:
         pool = list(D['boosterlar'])
         out = []
         for _ in range(3):
-            weights = [r['agirlik'].get(str(b['tur']), 1.0) for b in pool]
+            weights = [r['weight'].get(str(b['tur']), 1.0) for b in pool]
             b = random.choices(pool, weights)[0]
             pool.remove(b)
-            vals = b['degerler']
-            tier = random.choices(range(len(vals)), D['booster_kademe'][:len(vals)])[0]
+            vals = b['values']
+            tier = random.choices(range(len(vals)), D['booster_tier'][:len(vals)])[0]
             out.append([b['tur'], vals[tier]])
-        r['secenek'] = out
+        r['option'] = out
 
     def choose(self, f):
         """EternalBlacklightChooseOptionRequest {choosenOption} -> mesajlar."""
         r = self.run
-        if not r or r['puan'] <= 0 or not r['secenek']:
+        if not r or r['puan'] <= 0 or not r['option']:
             return [self.booster_cmd()]
         i = int(f.get('choosenOption') or 0)
         i = i - 1 if 1 <= i <= 3 else i               # istemci 0-2 ya da 1-3 gönderebilir
-        if not 0 <= i < len(r['secenek']):
+        if not 0 <= i < len(r['option']):
             return [self.booster_cmd()]
-        t, v = r['secenek'][i]
+        t, v = r['option'][i]
         with self.p.lock:
             r['aktif'][str(t)] = r['aktif'].get(str(t), 0) + v
-            r['agirlik'][str(t)] = r['agirlik'].get(str(t), 1.0) * D['booster_azalma']
+            r['weight'][str(t)] = r['weight'].get(str(t), 1.0) * D['booster_decay']
             r['puan'] -= 1
             self.roll()
             self.p.dirty = True
@@ -246,11 +246,11 @@ class Ebl:
     # ------------------------------------------------------------ göstergeler
     def wave_info(self):
         r = self.run or {}
-        return dict(furthestWave=int(self.st.get('en_iyi', 0)), currentWave=int(r.get('dalga', 0)))
+        return dict(furthestWave=int(self.st.get('best', 0)), currentWave=int(r.get('dalga', 0)))
 
     def booster_cmd(self):
         r = self.run or {}
-        opts = (r.get('secenek') or []) + [[0, 0]] * 3
+        opts = (r.get('option') or []) + [[0, 0]] * 3
         b = lambda t, v: mod('EternalBlacklightBoosterCommand', value=int(v), boosterType=int(t))
         return ('EternalBlacklightBoosterInfoCommand', dict(
             option1=b(*opts[0]), option2=b(*opts[1]), option3=b(*opts[2]),
@@ -276,7 +276,7 @@ class Ebl:
         import community as TP
         row = lambda r: mod('EternalBlacklightRankModule', waves=int(r[2]), name=r[1].d['pilot'].get('userName', ''), rank=r[0],
                             lastUpdateTime=self.when() if r[1] is self.p else '')
-        top, me = TP.ranking(self.p, lambda x: int(((x.d.get('pve') or {}).get('ebl') or {}).get('en_iyi', 0)))
+        top, me = TP.ranking(self.p, lambda x: int(((x.d.get('pve') or {}).get('ebl') or {}).get('best', 0)))
         info = mod('EternalBlacklightRankInfoCommand', topRankers=[row(r) for r in top], myRank=row(me))
         # Rank sekmesi yalnız etkinlik sarmalını tanıyor (Astral'ın RogueLiteRankEventInfoCommand'ı gibi); isEventEnabled olmadan
         # "No ranking boards are available at the moment." (canlı test H76)

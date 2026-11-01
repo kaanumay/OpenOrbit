@@ -50,7 +50,7 @@ class PveModes:
         for ids in self.trinity.D['haritalar'].values():
             self.maps.update({m: self.trinity for m in ids})
         self.maps.update({m: self.astral for m in AS.D['haritalar']})
-        self.maps.update({m: self.echoes for m in [EC.D['salon']] + EC.D['haritalar']})
+        self.maps.update({m: self.echoes for m in [EC.D['hall']] + EC.D['haritalar']})
         if self.ebl:
             self.maps.update({m: self.ebl for m in self.ebl.maps()})
 
@@ -77,7 +77,7 @@ class PveModes:
         mode = self.maps.get(int(world.map_id))
         if mode:
             mode.attach(world)
-            if mode is self.echoes and int(world.map_id) == EC.D['salon']:
+            if mode is self.echoes and int(world.map_id) == EC.D['hall']:
                 jump = self.echoes.jump_info_cmd()
                 world.send([self.echoes.info_cmd()] + ([jump] if jump[1]['levels'] else []))
         return mode
@@ -111,16 +111,16 @@ class PveModes:
         Quarantine Zone, tek can; Subglacial CPU: X-1'de Permafrost Fissure). Kapı açıkken CPU yalnız cpu_can varsa kullanılır: o kadar
         can ekler (Subglacial +2; istemci metni "If it is already open, adds 2 lives")."""
         g, G, item = EKP.GATES[key], self.k.gate(key), EKP.GATES[key]['kural']['cpu']
-        if not self.k.here(g['giris'], w.map_id) or (G.get('hazir') and not g['kural'].get('cpu_can')):
+        if not self.k.here(g['giris'], w.map_id) or (G.get('hazir') and not g['kural'].get('cpu_hp')):
             return None
         if self.p.use_ammo(item) is None:
             return None
         if G.get('hazir'):
             with self.p.lock:
-                G['can'] += g['kural']['cpu_can']
+                G['can'] += g['kural']['cpu_hp']
                 self.p.dirty = True
-            self.log('   %s: +%d can (%d)' % (g['ad'], g['kural']['cpu_can'], G['can']))
-            return [KAPI.screen('%s: %d lives added.' % (g['ad'], g['kural']['cpu_can']), big=True)]
+            self.log('   %s: +%d can (%d)' % (g['ad'], g['kural']['cpu_hp'], G['can']))
+            return [KAPI.screen('%s: %d lives added.' % (g['ad'], g['kural']['cpu_hp']), big=True)]
         self.k.enter(key)
         for x in self.k.entry_portals(w.map_id, w.station):
             if x['kapi'] == key:

@@ -20,8 +20,8 @@ COMBAT = NPC['savas']
 
 # botların dolaştığı haritalar: X-1..X-8, 4-1..4-5 (korsan haritaları anahtar, kapılar ve mod haritaları bilet ister)
 MAPS = tuple(range(1, 30))
-LASER_INTERVAL = COMBAT['lazer_aralik_sn']
-NPC_INTERVAL = COMBAT['npc_saldiri_aralik_sn']
+LASER_INTERVAL = COMBAT['laser_interval_sec']
+NPC_INTERVAL = COMBAT['npc_attack_interval_sec']
 SEARCH_SEC = 9.0             # iki uzaylı arasında hedef arama ve yaklaşma (gözlem: 1-x'te 6-12 sn)
 JUMP_SEC = 45.0           # portaldan portala uçuş + atlama (harita başına ortalama)
 REPAIR_RATE = 0.012        # savaş dışında saniyede yenilenen can+kalkan payı (kalkan yenilenmesi + onarım robotu, kabaca)
@@ -35,19 +35,19 @@ def prices():
     global _price
     if _price is None:
         import shop as SHP
-        p = PTH.template('yanitlar.json') if 'yanitlar.json' in PTH.TEMPLATES else os.path.join(HERE, 'data', 'yanitlar.json')
+        p = PTH.template('responses.json') if 'responses.json' in PTH.TEMPLATES else os.path.join(HERE, 'data', 'responses.json')
         y = {}
         if p and os.path.exists(p):
             with open(p, encoding='utf8') as f:
                 y = json.load(f)
-        out = {i['lootId']: (i['para'], i['fiyat']) for c in SHP.catalog(y).values() for i in c}
+        out = {i['lootId']: (i['currency'], i['fiyat']) for c in SHP.catalog(y).values() for i in c}
         for loot, w in SHP.WORLD_SHOP.items():
             if w.get('on_sale') is False:
                 out.pop(loot, None)
             elif w.get('fiyat') is not None and loot in out:
-                out[loot] = (w.get('para') or out[loot][0], w['fiyat'])
+                out[loot] = (w.get('currency') or out[loot][0], w['fiyat'])
         for loot, v in ITEMS['dronlar'].items():
-            out[loot] = ('C' if v['para'] == 'credits' else 'U', v['fiyatlar'][0])
+            out[loot] = ('C' if v['currency'] == 'credits' else 'U', v['fiyatlar'][0])
         _price = out
     return _price
 
@@ -58,7 +58,7 @@ def price(loot, owner=0):
     if d:
         if d.get('tek') and owner:
             return None
-        return ('C' if d['para'] == 'credits' else 'U'), d['fiyatlar'][min(owner, len(d['fiyatlar']) - 1)]
+        return ('C' if d['currency'] == 'credits' else 'U'), d['fiyatlar'][min(owner, len(d['fiyatlar']) - 1)]
     return prices().get(loot)
 
 
@@ -106,7 +106,7 @@ def drone_set(gear):
     """Bütün dronlar aynı bonuslu tasarımdaysa (Havoc, Hercules …) takım bonusu (profil.design_mods ile aynı kural), yoksa {}."""
     n = sum(gear.get('dron', {}).values())
     t = ((gear.get('dron_tasarim') or {}).get('tasarim') or [])[:n]
-    return ITEMS['dron_tasarimlari'].get(t[0], {}).get('takim', {}) if n and len(t) == n and t[0] and len(set(t)) == 1 else {}
+    return ITEMS['dron_tasarimlari'].get(t[0], {}).get('set_bonus', {}) if n and len(t) == n and t[0] and len(set(t)) == 1 else {}
 
 
 def values(gear, shield_share=0.6):
@@ -122,8 +122,8 @@ def values(gear, shield_share=0.6):
     absorb = (sum(k * e for k, e in y['kalkan']) / shield) if shield else 0.0
     hp = y['gemi']['hp'] * (1 + set_bonus.get('can', 0))               # Hercules takımı: +%20 can
     ehp = hp + shield * 2.5 * min(1.0, absorb + 0.2)         # kalkan hasarın çoğunu emer ve hedefler arasında dolar
-    speed = y['gemi']['temel_hiz'] + sum(y['hiz'])
-    return dict(dps=dps, can=hp, kalkan=shield, emme=absorb, ehp=ehp, hiz=speed, guc=power_score(dps, ehp),
+    speed = y['gemi']['base_speed'] + sum(y['hiz'])
+    return dict(dps=dps, can=hp, kalkan=shield, emme=absorb, ehp=ehp, hiz=speed, power=power_score(dps, ehp),
                 lazer=len(y['lazer']), laser_slots=y['laser_slots'], jen=len(y['kalkan']) + len(y['hiz']), gen_slot=y['gen_slot'])
 
 
@@ -144,7 +144,7 @@ def npc_value(tip):
     t = NPC['tipler'].get(tip)
     v = None if not t else dict(
         tip=tip, ad=t['ad'], ehp=t['hp'] + t['kalkan'], dps=t['hasar'] * t.get('isabet', COMBAT['npc_isabet'])
-        / t.get('atis_aralik_sn', NPC_INTERVAL), saldirgan=bool(t.get('saldirgan')), odul=t['odul'], hiz=t['hiz'],
+        / t.get('shot_interval_sec', NPC_INTERVAL), saldirgan=bool(t.get('saldirgan')), odul=t['odul'], hiz=t['hiz'],
         kimlik=t.get('npc_kimlik', 0))
     _npc_cache[tip] = v
     return v

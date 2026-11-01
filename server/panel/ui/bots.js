@@ -16,7 +16,7 @@ Object.assign(ICONS, {
   list: '<line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><circle cx="3.5" cy="6" r="1"/><circle cx="3.5" cy="12" r="1"/><circle cx="3.5" cy="18" r="1"/>',
 });
 
-const BT = { liste: null, pid: null, d: null, sekme: 'genel', timer: null, bekleyen: {} };
+const BT = { liste: null, pid: null, d: null, sekme: 'genel', timer: null, pending: {} };
 const BT_MODES = {
   basit: { ad: N('Basit'), ic: 'bot', ozet: N('Haritalarda NPC gibi dolaşan, harita değiştirmeyen botlar. Uzaylı keser; düşmansa seni görünce gücüne göre saldırır ya da kaçar.') },
   normal: { ad: N('Normal'), ic: 'users', ozet: N('Gerçek oyuncu gibi: üssünde başlar, görev yapar, kasar, gemi ve lazer alır, PvP yapar, klan kurar, arkadaş edinir, sohbet eder. Her botun kişiliği ve kararları kendine.') },
@@ -87,12 +87,12 @@ function btCompanyBar(f) {
 function btLibrary() {
   const r = BT.liste;
   const card = p => h('div', { class: 'bt-card', onclick: e => { if (!e.target.closest('button')) btOpen(p.id); } },
-    h('div', { class: 'bt-card-top k-' + p.kip }, btArt('bot_kip_' + p.kip, 'dron_editor', 'bt-card-art'),
-      h('div', null, h('b', null, p.ad), h('div', { class: 'small muted' }, T(BT_MODES[p.kip].ad) + ' · ' + T('{0} bot', p.adet)))),
+    h('div', { class: 'bt-card-top k-' + p.mode }, btArt('bot_kip_' + p.mode, 'dron_editor', 'bt-card-art'),
+      h('div', null, h('b', null, p.ad), h('div', { class: 'small muted' }, T(BT_MODES[p.mode].ad) + ' · ' + T('{0} bot', p.adet)))),
     h('div', { class: 'bt-card-body' },
       h('div', { class: 'row wrap', style: { gap: '6px' } }, p.dunya ? badge([icon('globe'), btWorldName(p.dunya)], 'info') : badge(T('Dünyaya atanmadı'), 'warn'),
-        p.kip !== 'basit' ? badge(p.gelisim === 'jumpstart' ? 'Jumpstart' : 'Progressive', '') : null),
-      btCompanyBar(p.firmalar),
+        p.mode !== 'basit' ? badge(p.progression === 'jumpstart' ? 'Jumpstart' : 'Progressive', '') : null),
+      btCompanyBar(p.companies),
       h('div', { class: 'small muted' }, p.level_avg != null ? T('Ortalama seviye {0} · en yüksek {1}', p.level_avg, p.level_max)
         : T('Henüz oynanmadı: botlar ilk girişte başlar.')),
       p.aciklama ? h('div', { class: 'small ellipsis' }, p.aciklama) : null),
@@ -136,8 +136,8 @@ async function btAssign(p, did) {
 // ================================================================== SİHİRBAZ
 function btWizard() {
   const r = BT.liste;
-  const w = { ad: '', aciklama: '', dunya: (r.dunyalar.find(d => !r.liste.some(p => p.dunya === d.id)) || r.dunyalar[0] || {}).id || null, kip: 'normal',
-    gelisim: 'progressive', adet: 80, dil: 'karisik', ad_dili: 'karisik', ad_kaynagi: 'uretim', firma_dagilimi: [1, 1, 1], ozel: '', ayarlar: { jumpstart_saat: 60, basit_guc: 1, basit_dost: 0.5,
+  const w = { ad: '', aciklama: '', dunya: (r.dunyalar.find(d => !r.liste.some(p => p.dunya === d.id)) || r.dunyalar[0] || {}).id || null, mode: 'normal',
+    progression: 'progressive', adet: 80, dil: 'karisik', name_lang: 'karisik', name_source: 'uretim', company_distribution: [1, 1, 1], ozel: '', ayarlar: { jumpstart_saat: 60, basit_guc: 1, basit_dost: 0.5,
       basit_haritalar: { 'X-1': 2, 'X-2': 2, 'X-3': 2, 'X-4': 2, '4-X': 3, 'X-5': 1, 'X-6': 1, 'X-7': 1, 'X-8': 1, '4-5': 2 } } };
   let step = 0;
   const body = h('div', { class: 'stack', style: { gap: '14px' } });
@@ -155,7 +155,7 @@ function btWizard() {
       }, 'primary') : btn(T('Oluştur'), async () => {
         const x = await act(() => api('/api/bot/create', w), T('Bot paketi oluşturuldu: {0}', w.ad.trim()));
         if (!x) return;
-        m.close(); BT.liste = x; btOpen(x.yeni, w.kip === 'gelismis' ? 'gelismis' : 'kadro');
+        m.close(); BT.liste = x; btOpen(x.yeni, w.mode === 'gelismis' ? 'gelismis' : 'kadro');
       }, 'primary', 'check'));
   }
   render();
@@ -175,10 +175,10 @@ function btStep1(w) {
 }
 
 function btStep2(w, render) {
-  const card = k => h('button', { type: 'button', class: 'bt-mode' + (w.kip === k ? ' on' : ''), onclick: () => { w.kip = k; render(); } },
+  const card = k => h('button', { type: 'button', class: 'bt-mode' + (w.mode === k ? ' on' : ''), onclick: () => { w.mode = k; render(); } },
     btArt('bot_kip_' + k, 'dron_editor', 'bt-mode-art'), h('b', null, icon(BT_MODES[k].ic), T(BT_MODES[k].ad)), h('div', { class: 'small' }, T(BT_MODES[k].ozet)));
   return h('div', { class: 'stack', style: { gap: '12px' } }, h('div', { class: 'bt-modes' }, ['basit', 'normal', 'gelismis'].map(card)),
-    w.kip === 'gelismis' ? btLlmWarning(true) : null);
+    w.mode === 'gelismis' ? btLlmWarning(true) : null);
 }
 
 function btLlmWarning(wizard = false) {
@@ -234,22 +234,22 @@ function btDistribution(f, onchange) {
 }
 
 function btStep3(w, render) {
-  if (w.kip === 'basit') return btSimpleSettings(w.ayarlar, () => render(), true);
+  if (w.mode === 'basit') return btSimpleSettings(w.ayarlar, () => render(), true);
   return h('div', { class: 'stack', style: { gap: '14px' } },
     field(T('Toplam bot'), btSlider(w.adet, v => { w.adet = v; }, { min: 5, max: 3000, step: 5 }),
       h('div', { class: 'small muted' }, T('Aynı anda hepsi çevrimiçi olmaz: her botun kendi oyun saatleri var. Yüzlerce bot sorun değil; haritanda gemi olarak görünenler sınırlı.'))),
-    field(T('Firma dağılımı (oran)'), btDistribution(w.firma_dagilimi, f => { w.firma_dagilimi = f; })),
-    field(T('Gelişim'), btSeg([['progressive', 'Progressive'], ['jumpstart', 'Jumpstart']], w.gelisim, v => { w.gelisim = v; render(); }),
-      h('div', { class: 'small muted' }, w.gelisim === 'progressive'
+    field(T('Firma dağılımı (oran)'), btDistribution(w.company_distribution, f => { w.company_distribution = f; })),
+    field(T('Gelişim'), btSeg([['progressive', 'Progressive'], ['jumpstart', 'Jumpstart']], w.progression, v => { w.progression = v; render(); }),
+      h('div', { class: 'small muted' }, w.progression === 'progressive'
         ? T('Herkes oyunun başında olduğu gibi 1. seviyede, Phoenix ile kendi üssünde başlar ve gerçek oyuncu gibi gelişir.')
         : T('Kadro gerçekçi bir dağılımla başlar: çok acemi, çok orta seviye, az güçlü oyuncu. Donanımları, paraları ve seviyeleri tutarlı.'))),
-    w.gelisim === 'jumpstart' ? field(T('Ortalama oyun süresi (saat)'), btSlider(w.ayarlar.jumpstart_saat, v => { w.ayarlar.jumpstart_saat = v; }, { min: 5, max: 500, step: 5 })) : null,
-    field(T('Adların dili'), btPickLang(w.ad_dili, v => { w.ad_dili = v; }, T('Karışık')),
+    w.progression === 'jumpstart' ? field(T('Ortalama oyun süresi (saat)'), btSlider(w.ayarlar.jumpstart_saat, v => { w.ayarlar.jumpstart_saat = v; }, { min: 5, max: 500, step: 5 })) : null,
+    field(T('Adların dili'), btPickLang(w.name_lang, v => { w.name_lang = v; }, T('Karışık')),
       h('div', { class: 'small muted' }, T('Botların kullanıcı adları bu dilin oyuncularına benzer.'))),
-    field(T('Ad kaynağı'), btNameSource(w.ad_kaynagi, v => { w.ad_kaynagi = v; }),
+    field(T('Ad kaynağı'), btNameSource(w.name_source, v => { w.name_source = v; }),
       h('div', { class: 'small muted' }, T(BT_NAME_SOURCE_DESCRIPTION))),
-    field(T('Sohbet dili'), btChatLang(w.kip, w.dil, v => { w.dil = v; }),
-      h('div', { class: 'small muted' }, btLangLocked(w.kip) ? T('Gelişmiş kipte botlar yalnız İngilizce konuşur (dil modeli öteki dillerde zayıf).')
+    field(T('Sohbet dili'), btChatLang(w.mode, w.dil, v => { w.dil = v; }),
+      h('div', { class: 'small muted' }, btLangLocked(w.mode) ? T('Gelişmiş kipte botlar yalnız İngilizce konuşur (dil modeli öteki dillerde zayıf).')
         : T('Botların sohbette kullandığı dil. "Her bot adının dilinde" seçilirse adı Almanca olan Almanca konuşur.'))),
     field(T('Kendi botların (isteğe bağlı)'), btCustomField(w.ozel, v => { w.ozel = v; })));
 }
@@ -285,13 +285,13 @@ async function btEditor() {
   const [d] = await Promise.all([act(() => api('/api/bot?id=' + encodeURIComponent(BT.pid))), loadGameImages()]);   // oyunun görselleri: gemi, rütbe
   if (!d || S.page !== 'botlar') return;
   BT.d = d;
-  const tabs = BT_TABS.filter(([k]) => (k !== 'basit' || d.kip === 'basit') && (k !== 'gelismis' || d.kip === 'gelismis')
-    && (d.kip !== 'basit' || !['davranis', 'sohbet'].includes(k)));
+  const tabs = BT_TABS.filter(([k]) => (k !== 'basit' || d.mode === 'basit') && (k !== 'gelismis' || d.mode === 'gelismis')
+    && (d.mode !== 'basit' || !['davranis', 'sohbet'].includes(k)));
   if (!tabs.some(([k]) => k === BT.sekme)) BT.sekme = 'genel';
   btFill($('#content'), h('div', { class: 'stack' },
     h('div', { class: 'card bt-bar' }, btn('', () => { BT.pid = null; renderBots(); }, 'ghost icon', 'arrowL', { title: T('Bot paketleri') }),
-      btArt('bot_kip_' + d.kip, 'dron_editor', 'bt-bar-art'),
-      h('div', { class: 'bt-bar-name' }, h('div', { class: 'row', style: { gap: '8px' } }, h('b', null, d.ad), badge(T(BT_MODES[d.kip].ad), 'orange'),
+      btArt('bot_kip_' + d.mode, 'dron_editor', 'bt-bar-art'),
+      h('div', { class: 'bt-bar-name' }, h('div', { class: 'row', style: { gap: '8px' } }, h('b', null, d.ad), badge(T(BT_MODES[d.mode].ad), 'orange'),
         d.dunya ? badge([icon('globe'), btWorldName(d.dunya)], 'info') : badge(T('Dünyaya atanmadı'), 'warn')),
         h('div', { class: 'muted small ellipsis' }, T('{0} bot', d.adet) + (d.level_avg != null ? ' · ' + T('ortalama seviye {0}', d.level_avg) : ''))),
       h('span', { class: 'spacer' }), h('span', { class: 'we-save-status', id: 'bt-kayit' }),
@@ -314,18 +314,18 @@ function btSaveStatus(state) {
 // değişiklik: 450 ms bekleyip tek istekte (ayarlar birleştirilir)
 function btPatch(fields) {
   for (const [k, v] of Object.entries(fields)) {
-    if (k === 'ayarlar') BT.bekleyen.ayarlar = Object.assign(BT.bekleyen.ayarlar || {}, v);
-    else BT.bekleyen[k] = v;
+    if (k === 'ayarlar') BT.pending.ayarlar = Object.assign(BT.pending.ayarlar || {}, v);
+    else BT.pending[k] = v;
   }
   btSaveStatus('kaydediliyor');
   clearTimeout(BT.timer);
   BT.timer = setTimeout(async () => {
-    const body = Object.assign({ id: BT.pid }, BT.bekleyen); BT.bekleyen = {};
+    const body = Object.assign({ id: BT.pid }, BT.pending); BT.pending = {};
     const x = await act(() => api('/api/bot/update', body));
     if (!x) return btSaveStatus('');
-    const mode = BT.d.kip;
+    const mode = BT.d.mode;
     BT.d = x; btSaveStatus('kaydedildi');
-    if (body.kip && body.kip !== mode || body.ad) btEditor();
+    if (body.mode && body.mode !== mode || body.ad) btEditor();
   }, 450);
 }
 const btSetting = (k, v) => btPatch({ ayarlar: { [k]: v } });
@@ -343,29 +343,29 @@ function btGeneral(d) {
   const name = h('input', { class: 'input', value: d.ad, maxlength: 40, onchange: e => btPatch({ ad: e.target.value }) });
   const is_open = h('input', { class: 'input', value: d.aciklama || '', maxlength: 240, placeholder: T('Açıklama yok.'), onchange: e => btPatch({ aciklama: e.target.value }) });
   const pickMode = async v => {
-    if (v === d.kip) return;
+    if (v === d.mode) return;
     if (v === 'gelismis' && !await confirmBox(T('Gelişmiş kipe geçilsin mi?'), btLlmWarning(), { ok: T('Gelişmiş kipe geç') })) return;
-    if ((v === 'basit') !== (d.kip === 'basit') && !await confirmBox(T('Kip değişsin mi?'),
+    if ((v === 'basit') !== (d.mode === 'basit') && !await confirmBox(T('Kip değişsin mi?'),
       T('Basit kipte kadro haritalara dağıtılır ve sayısı harita ayarlarından gelir; Normal ve Gelişmiş kipte botlar kendi başına gelişir. İlerleme korunur.'))) return;
-    btPatch({ kip: v });
+    btPatch({ mode: v });
   };
   const fg = a.firma_guc || [1, 1, 1];
   return h('div', { class: 'stack' },
     h('div', { class: 'card' }, h('h2', null, icon('edit'), T('Paket')),
       btRow(T('Ad'), null, name), btRow(T('Açıklama'), null, is_open),
-      btRow(T('Kip'), T(BT_MODES[d.kip].ozet), btSeg(['basit', 'normal', 'gelismis'].map(k => [k, T(BT_MODES[k].ad)]), d.kip, pickMode)),
-      d.kip !== 'basit' ? btRow(T('Gelişim'), d.gelisim === 'jumpstart' ? T('Kadro gerçekçi bir dağılımla başlar (ilk açılışta).') : T('Herkes 1. seviyede, kendi üssünde başlar.'),
-        btSeg([['progressive', 'Progressive'], ['jumpstart', 'Jumpstart']], d.gelisim, v => btPatch({ gelisim: v }))) : null,
-      d.kip !== 'basit' && d.gelisim === 'jumpstart' ? btRow(T('Ortalama oyun süresi (saat)'), T('Jumpstart dağılımının ortası: birkaç bot bunun katlarıyla, çoğu altında başlar.'),
+      btRow(T('Kip'), T(BT_MODES[d.mode].ozet), btSeg(['basit', 'normal', 'gelismis'].map(k => [k, T(BT_MODES[k].ad)]), d.mode, pickMode)),
+      d.mode !== 'basit' ? btRow(T('Gelişim'), d.progression === 'jumpstart' ? T('Kadro gerçekçi bir dağılımla başlar (ilk açılışta).') : T('Herkes 1. seviyede, kendi üssünde başlar.'),
+        btSeg([['progressive', 'Progressive'], ['jumpstart', 'Jumpstart']], d.progression, v => btPatch({ progression: v }))) : null,
+      d.mode !== 'basit' && d.progression === 'jumpstart' ? btRow(T('Ortalama oyun süresi (saat)'), T('Jumpstart dağılımının ortası: birkaç bot bunun katlarıyla, çoğu altında başlar.'),
         btNumber(a.jumpstart_saat, v => btSetting('jumpstart_saat', v), { min: 1, max: 2000 })) : null),
-    d.kip !== 'basit' ? h('div', { class: 'card' }, h('h2', null, icon('clock'), T('Zaman ve gelişim')),
+    d.mode !== 'basit' ? h('div', { class: 'card' }, h('h2', null, icon('clock'), T('Zaman ve gelişim')),
       btRow(T('İlerleme hızı'), T('Kazançların çarpanı: 1 gerçek oyuncu temposu.'), btSlider(a.hiz, v => btSetting('hiz', v), { min: 0.1, max: 10, step: 0.1, fmt: v => '×' + v.toFixed(1) })),
       btRow(T('Çevrimiçi olma eğilimi'), T('Botların oyun saatlerine göre çevrimiçi olma isteği; yüksekse aynı anda daha çok bot.'),
         btSlider(a.cevrimici_oran, v => btSetting('cevrimici_oran', v), { min: 0.05, max: 2, step: 0.05, fmt: v => '%' + Math.round(v * 100) })),
       btRow(T('Aynı anda en çok çevrimiçi'), T('0: sınırsız.'), btNumber(a.en_cok_cevrimici, v => btSetting('en_cok_cevrimici', v), { min: 0, max: 3000 })),
       btRow(T('Sen yokken ilerleme (saat)'), T('Oyuna dönünce geçen sürenin en çok bu kadarı benzetilir. 0: botlar yalnız sen oynarken ilerler.'),
         btNumber(a.telafi_saat, v => btSetting('telafi_saat', v), { min: 0, max: 48 })),
-      d.gelisim !== 'jumpstart' ? btRow(T('Yeni pilot kaydı (saniye)'), T('Progressive: her firmaya ortalama bu kadar saniyede bir yeni pilot kayıt olup oyuna başlar (yeni açılmış bir sunucu gibi; hepsi aynı anda doğmaz). 0: hepsi baştan kayıtlı.'),
+      d.progression !== 'jumpstart' ? btRow(T('Yeni pilot kaydı (saniye)'), T('Progressive: her firmaya ortalama bu kadar saniyede bir yeni pilot kayıt olup oyuna başlar (yeni açılmış bir sunucu gibi; hepsi aynı anda doğmaz). 0: hepsi baştan kayıtlı.'),
         btNumber(a.kayit_sn ?? 15, v => btSetting('kayit_sn', v), { min: 0, max: 300 })) : null,
       btRow(T('Firmaların gücü'), T('Firmanın botlarının gelişim çarpanı (1 eşit).'), h('div', { class: 'row', style: { gap: '8px' } }, btCompany.map((x, i) =>
         h('label', { class: 'row', style: { gap: '4px' } }, badge(x, x.toLowerCase()), btNumber(fg[i], v => { fg[i] = v; btSetting('firma_guc', fg); }, { min: 0.2, max: 5, step: 0.1 })))))) : null,
@@ -382,23 +382,23 @@ function btGeneral(d) {
 function btRoster(d) {
   const byArchetype = {};
   d.kadro.forEach(b => { byArchetype[b.arketip] = (byArchetype[b.arketip] || 0) + 1; });
-  const f = d.firma_dagilimi.slice();
-  let count = d.adet, lang = d.dil || 'karisik', nameLang = d.ad_dili || lang, nameSource = d.ad_kaynagi || 'uretim', special = '';
-  const control = d.kip === 'basit' ? h('div', { class: 'alert bilgi' }, icon('info'), h('div', null, T('Basit kipte bot sayısı Basit kip sekmesindeki harita sayılarından gelir.')))
+  const f = d.company_distribution.slice();
+  let count = d.adet, lang = d.dil || 'karisik', nameLang = d.name_lang || lang, nameSource = d.name_source || 'uretim', special = '';
+  const control = d.mode === 'basit' ? h('div', { class: 'alert bilgi' }, icon('info'), h('div', null, T('Basit kipte bot sayısı Basit kip sekmesindeki harita sayılarından gelir.')))
     : h('div', { class: 'stack', style: { gap: '10px' } },
       btRow(T('Bot sayısı'), T('Artırınca yeni botlar eklenir, azaltınca sondakiler çıkar; var olanlar değişmez.'), btNumber(count, v => { count = v; }, { min: 1, max: 3000 })),
       btRow(T('Firma dağılımı (oran)'), T('Yeni eklenen botlara ve baştan üretime uygulanır.'), btDistribution(f, x => { f.splice(0, 3, ...x); })),
       btRow(T('Adların dili'), T('Yeni eklenen botlara ve baştan üretime uygulanır; var olan botların adı değişmez.'),
         btPickLang(nameLang, v => { nameLang = v; }, T('Karışık'))),
       btRow(T('Ad kaynağı'), T(BT_NAME_SOURCE_DESCRIPTION), btNameSource(nameSource, v => { nameSource = v; })),
-      btRow(T('Sohbet dili'), btLangLocked(d.kip) ? T('Gelişmiş kipte botlar yalnız İngilizce konuşur (dil modeli öteki dillerde zayıf).')
-        : T('Uygula ile bütün botlar bu dilde konuşur.'), btChatLang(d.kip, lang, v => { lang = v; })),
+      btRow(T('Sohbet dili'), btLangLocked(d.mode) ? T('Gelişmiş kipte botlar yalnız İngilizce konuşur (dil modeli öteki dillerde zayıf).')
+        : T('Uygula ile bütün botlar bu dilde konuşur.'), btChatLang(d.mode, lang, v => { lang = v; })),
       field(T('Kendi botların'), btCustomField('', v => { special = v; }), h('div', { class: 'small muted' }, T('Uygula: kadroda olmayan adlar yeni bot olarak eklenir. Baştan üret: kadronun başında olurlar.'))),
       h('div', { class: 'row wrap', style: { justifyContent: 'flex-end' } },
-        btn(T('Uygula'), async () => { const x = await act(() => api('/api/bot/kadro', { id: d.id, count, firma_dagilimi: f, lang, ad_dili: nameLang, ad_kaynagi: nameSource, special }), T('Kadro güncellendi.')); if (x) { BT.d = x; btEditor(); } }, 'sm primary', 'check'),
+        btn(T('Uygula'), async () => { const x = await act(() => api('/api/bot/kadro', { id: d.id, count, company_distribution: f, lang, name_lang: nameLang, name_source: nameSource, special }), T('Kadro güncellendi.')); if (x) { BT.d = x; btEditor(); } }, 'sm primary', 'check'),
         btn(T('Baştan üret'), async () => {
           if (!await confirmBox(T('Kadro baştan üretilsin mi?'), T('Bütün botlar yeni adlar ve kişiliklerle yeniden üretilir, ilerlemeleri silinir.'), { ok: T('Baştan üret'), danger: true })) return;
-          const x = await act(() => api('/api/bot/kadro', { id: d.id, count, firma_dagilimi: f, lang, ad_dili: nameLang, ad_kaynagi: nameSource, special, yeniden: true }), T('Kadro yeniden üretildi.')); if (x) { BT.d = x; btEditor(); }
+          const x = await act(() => api('/api/bot/kadro', { id: d.id, count, company_distribution: f, lang, name_lang: nameLang, name_source: nameSource, special, regenerate: true }), T('Kadro yeniden üretildi.')); if (x) { BT.d = x; btEditor(); }
         }, 'sm danger', 'refresh')));
   return h('div', { class: 'stack' },
     h('div', { class: 'card' }, h('h2', null, icon('users'), T('Kadro')),
@@ -514,7 +514,7 @@ function btBehavior(d) {
 
 function btAccess(d) {
   const trace = Object.assign({}, d.ayarlar.izinler);
-  const permissions = (BT.liste?.izinler || Object.keys(BT_PERMS)).filter(k => d.kip !== 'basit' || ['pvp', 'oyuncuya_saldir'].includes(k));
+  const permissions = (BT.liste?.izinler || Object.keys(BT_PERMS)).filter(k => d.mode !== 'basit' || ['pvp', 'oyuncuya_saldir'].includes(k));
   return h('div', { class: 'card' }, h('h2', null, icon('shield'), T('Erişimler')),
     h('p', { class: 'desc' }, T('Botların oyunun hangi bölümlerini kullanacağı. Kapatılan bölümü hiçbir bot kullanmaz.')),
     permissions.map(k => btRow(T(BT_PERMS[k][0]), T(BT_PERMS[k][1]), btKey(trace[k] !== false, v => { trace[k] = v; btSetting('izinler', { [k]: v }); }))));
@@ -528,7 +528,7 @@ function btChat(d) {
     btRow(T('Sohbet'), T(BT_PERMS.sohbet[1]), btKey(a.izinler.sohbet !== false, v => btSetting('izinler', { sohbet: v }))),
     btRow(T('Kanal yoğunluğu'), T('Global ve firma sohbetinde dakikada en çok bot satırı (sohbet sele dönmesin).'),
       btSlider(a.sohbet_dk, v => btSetting('sohbet_dk', v), { min: 0, max: 30, step: 1, fmt: v => T('{0}/dk', v) })),
-    h('div', { class: 'alert bilgi' }, icon('info'), h('div', null, d.kip === 'gelismis'
+    h('div', { class: 'alert bilgi' }, icon('info'), h('div', null, d.mode === 'gelismis'
       ? T('Gelişmiş kipte botlar dil modeliyle konuşur; model yetişemezse kalıp cümlelere döner.')
       : T('Normal kipte botlar duruma ve kişiliklerine göre kalıp cümlelerle konuşur: selamlaşır, seviye atlayınca yazar, yardım çağrılarına ve fısıltına yanıt verir.')))),
     btModeration(d));
@@ -538,7 +538,7 @@ function btChat(d) {
 const BT_DIPLOMACY = { 1: N('ittifak'), 2: N('saldırmazlık'), 3: N('savaş') };
 function btClanLogo(k) {
   if (!k.logo) return h('div', { class: 'bt-clan-logo bos' }, String(k.etiket || '?').slice(0, 4));
-  const im = h('img', { class: 'bt-clan-logo', src: 'images/klan_logo/' + k.logo + '.webp', alt: '' });
+  const im = h('img', { class: 'bt-clan-logo', src: 'images/klan_logo/' + k.logo + '.webp', sub: '' });
   im.onerror = () => im.replaceWith(btClanLogo({ etiket: k.etiket }));
   return im;
 }
@@ -550,7 +550,7 @@ function btClans(d) {
       h('div', { class: 'small muted' }, [T('Lider: {0}', k.lider), T('Kasa: {0} kredi', fmtN(k.kasa)), T('Vergi: %{0}', k.vergi)].join(' · ')),
       k.butce ? h('div', { class: 'small muted' }, T('Bütçe: istasyon %{0}, ödeme %{1}, savaş %{2}', ...['ksi', 'odeme', 'savas'].map(a => Math.round(100 * (k.butce[a] || 0))))) : null,
       k.rutbeler.length ? h('div', { class: 'small muted' }, T('Rütbeler: {0}', k.rutbeler.join(', '))) : null,
-      h('div', { class: 'small' }, k.istasyonlar.length ? T('İstasyon: {0}', k.istasyonlar.join(', ')) : k.yaris ? T('İstasyon yarışında: {0}', k.yaris) : T('İstasyonu yok')),
+      h('div', { class: 'small' }, k.stations.length ? T('İstasyon: {0}', k.stations.join(', ')) : k.yaris ? T('İstasyon yarışında: {0}', k.yaris) : T('İstasyonu yok')),
       k.diplomasi.length ? h('div', { class: 'small muted' }, k.diplomasi.map(x => T(BT_DIPLOMACY[x.tur] || '?') + ': ' + x.ad).join(' · ')) : null,
       k.haberler.length ? h('div', { class: 'small muted bt-clan-news' }, '“' + k.haberler[0] + '”') : null));
   return h('div', { class: 'stack' }, h('div', { class: 'card' }, h('h2', null, icon('star'), T('Klanlar')),
@@ -695,14 +695,14 @@ async function btBotDetail(no, tab = 'profil') {
           h('div', { class: 'se-pilot small' }, p.klan ? h('span', { class: 'se-clan' }, '[' + p.klan + ']') : null, badge(btCompany[v.firma - 1], f),
             v.cevrimici ? badge(T('Çevrimiçi'), 'ok') : null))),
       h('div', { class: 'bt-detail-label' }, h('div', null, h('b', null, T(BT_ARCHETYPE[v.arketip] || v.arketip)),
-        v.aliskanlik ? T(BT_HABIT[v.aliskanlik] || v.aliskanlik) : null), h('div', { class: 'dim' }, btTraitSummary(v.ozellik))),
+        v.habit ? T(BT_HABIT[v.habit] || v.habit) : null), h('div', { class: 'dim' }, btTraitSummary(v.ozellik))),
       v.var ? [
         h('div', { class: 'se-lv sm' }, h('div', { class: 'se-lv-num' }, h('small', null, T('Sv')), h('b', null, p.seviye)),
           h('div', { class: 'grow' }, h('div', { class: 'row between small muted' }, btRank((BT.d.kadro.find(b => b.no === no) || {}).rutbe || 1, 18), h('span', { class: 'mono' }, fmtShort(p.ep) + ' EP')),
             epBar(p.ep, p.base_ep || 0, p.next_ep))),
         h('div', { class: 'se-wallet' }, sell('kredi', p.kredi, T('Kredi')), sell('uridyum', p.uridyum, T('Uridyum')), sell('onur', p.onur, T('Onur'))),
-        h('div', { class: 'se-values' }, stats('zap', fmtShort(v.guc.guc), T('Güç')), stats('crosshair', fmtShort(v.guc.dps), T('Hasar/sn')),
-          stats('heart', fmtShort(v.guc.ehp), T('Etkin can')), stats('box', fmtShort(cargo) + '/' + fmtShort(v.cargo_capacity), T('Kargo')))] : null);
+        h('div', { class: 'se-values' }, stats('zap', fmtShort(v.power.power), T('Güç')), stats('crosshair', fmtShort(v.power.dps), T('Hasar/sn')),
+          stats('heart', fmtShort(v.power.ehp), T('Etkin can')), stats('box', fmtShort(cargo) + '/' + fmtShort(v.cargo_capacity), T('Kargo')))] : null);
   }
   function menu() {
     const n = { hangar: v.var ? BT_GEAR.reduce((a, [k]) => a + Object.keys(v.ekip[k] || {}).length, 0) : 0, memory: v.var ? v.memories.length + v.relations.length : 0,
@@ -729,7 +729,7 @@ async function btBotDetail(no, tab = 'profil') {
     const currency = (key, icon, tag, n, o) => h('div', { class: 'se-currency' }, art('kaynak_' + icon, 'se-currency-icon lg'),
       h('div', { class: 'grow' }, h('label', { class: 'lbl' }, tag), count(get_value(key, n), x => change(key, x), Object.assign({ min: 0, max: 2e12, cls: 'num wide' }, o))));
     const lv = p.next_ep ? T('Seviye {0}; sonraki seviye {1} EP.', p.seviye, fmtN(p.next_ep)) : T('Seviye {0}.', p.seviye);
-    const job = [p.hedef ? T(BT_TARGET[p.hedef] || p.hedef) : '—', p.niyet && p.niyet !== p.hedef ? T('Niyeti: {0}', T(BT_TARGET[p.niyet] || p.niyet)) : null];
+    const job = [p.hedef ? T(BT_TARGET[p.hedef] || p.hedef) : '—', p.intent && p.intent !== p.hedef ? T('Niyeti: {0}', T(BT_TARGET[p.intent] || p.intent)) : null];
     return [nameCard,
       card(T('Seviye ve cüzdan'), 'star', h('div', { class: 'bt-detail-currencies' },
         h('div', null, currency('ep', 'deneyim', T('Deneyim (EP)'), p.ep, { max: 1e12 }), h('div', { class: 'small dim bt-detail-note' }, lv)),
@@ -804,7 +804,7 @@ async function btBotDetail(no, tab = 'profil') {
             h('span', { class: 'chip' }, icon(iconEl), h('b', null, n ?? '?'), name_))),
           field(T('Kullandığı cephane'), h('select', { class: 'input', disabled: lock, onchange: ev => change('cephane', ev.target.value) },
             multiplier.cephane.filter(x => x.loot.includes('_laser_')).map(x => h('option', { value: x.loot, selected: x.loot === get_value('cephane', e.cephane) }, x.ad)))),
-          h('div', { class: 'bt-power' }, [[T('Güç'), v.guc.guc], [T('Hasar/sn'), fmtN(v.guc.dps)], [T('Etkin can'), fmtN(v.guc.ehp)]].map(([k, n]) =>
+          h('div', { class: 'bt-power' }, [[T('Güç'), v.power.power], [T('Hasar/sn'), fmtN(v.power.dps)], [T('Etkin can'), fmtN(v.power.ehp)]].map(([k, n]) =>
             h('div', null, h('span', null, k), h('b', null, n)))),
           value.gemi || value.ekip ? h('div', { class: 'small dim' }, T('Güç kaydedince yeniden hesaplanır.')) : null))),
       card(T('Donanım'), 'layers', ...BT_GEAR.map(category)),
@@ -874,7 +874,7 @@ async function btBotDetail(no, tab = 'profil') {
   // ---- Düşünceler: dil modelinin adımları (yeniden eskiye)
   function thought() {
     const trace = value.ajan_sil ? [] : (v.ajan || []).slice().reverse();
-    const step = x => [h('b', null, x.arac), x.arg && Object.keys(x.arg).length ? ' ' + JSON.stringify(x.arg) : '', x.sonuc ? h('span', { class: 'dim' }, ' → ' + x.sonuc) : null];
+    const step = x => [h('b', null, x.arac), x.arg && Object.keys(x.arg).length ? ' ' + JSON.stringify(x.arg) : '', x.result ? h('span', { class: 'dim' }, ' → ' + x.result) : null];
     return [card(T('Son düşünceleri'), 'chat', h('p', { class: 'desc' }, T('Botun kendi notları; dil modeli İngilizce tutar.')),
       trace.length ? h('ol', { class: 'bt-thoughts' }, trace.map(x => h('li', null, x.dusunce ? h('div', null, x.dusunce) : null, h('div', { class: 'bt-step' }, step(x)))))
         : empty(value.ajan_sil ? T('Kaydedince temizlenecek.') : T('Henüz düşünce yok: Gelişmiş kipte dil modeli karar verdikçe dolar.')),
@@ -892,9 +892,9 @@ async function btBotDetail(no, tab = 'profil') {
       card(T('Bütün sayaçlar'), 'list', remaining.length ? h('div', { class: 'kv bt-kv' }, remaining.map(([k, n]) => h('div', null, BT_STATS[k] ? T(BT_STATS[k]) : k, h('b', null, value(k, n))))) : empty()),
       h('div', { class: 'grid g2' },
         card(T('Kapı süreleri'), 'clock', Object.keys(v.gate_times || {}).length ? h('div', { class: 'kv one' },
-          Object.entries(v.gate_times).map(([g, x]) => h('div', null, g.charAt(0).toUpperCase() + g.slice(1), h('b', null, T('en iyi {0}', seDurationBt(x.en_iyi)) + ' · ' + T('{0} kez', fmtN(x.sayi))))))
+          Object.entries(v.gate_times).map(([g, x]) => h('div', null, g.charAt(0).toUpperCase() + g.slice(1), h('b', null, T('en iyi {0}', seDurationBt(x.best)) + ' · ' + T('{0} kez', fmtN(x.sayi))))))
           : empty()),
-        card(T('Arkadaşları'), 'users', (v.profil.arkadaslar || []).length ? h('div', { class: 'row wrap', style: { gap: '6px' } }, v.profil.arkadaslar.map(a => h('span', { class: 'chip' }, a))) : empty()),
+        card(T('Arkadaşları'), 'users', (v.profil.friends || []).length ? h('div', { class: 'row wrap', style: { gap: '6px' } }, v.profil.friends.map(a => h('span', { class: 'chip' }, a))) : empty()),
         card(T('Yönetici uyarısı'), 'alert', Object.keys(v.uyari || {}).length ? h('div', { class: 'row wrap', style: { gap: '6px' } },
           Object.entries(v.uyari).map(([k, t]) => badge(T(BT_WARNING[k] || k) + ' · ' + T('{0} kaldı', fmtDur(Math.max(0, t - Date.now() / 1000))), 'warn'))) : empty(T('Uyarı yok.'))),
         card(T('Skylab'), 'layers', Object.keys(v.skylab || {}).length ? h('div', { class: 'row wrap', style: { gap: '6px' } }, Object.entries(v.skylab).map(([m, n]) => h('span', { class: 'chip' }, m, h('b', null, n)))) : empty())),
@@ -926,9 +926,9 @@ function btUsage(u) {
   const s = u.saat || {}, pay = s.girdi ? Math.round(100 * (s.onbellek || 0) / s.girdi) : 0;
   return h('div', { class: 'small', style: { textAlign: 'right' } },
     h('div', null, T('{0} istek · {1} girdi tokeni (%{2} önbellekten) · {3} çıktı tokeni', fmtN(s.istek || 0), fmtN(s.girdi || 0), pay, fmtN(s.cikti || 0))),
-    h('div', { class: 'muted' }, [u.saglayici, u.sinir ? T('Saatlik sınır: {0} / {1} istek', fmtN(s.istek || 0), fmtN(u.sinir)) : T('Saatlik sınır yok'),
-      u.sure_dk < 60 ? T('son {0} dakikada', u.sure_dk) : null].filter(Boolean).join(' · ')),
-    u.sinirda ? h('div', { style: { color: 'var(--warn)' } }, T('Sınıra gelindi: botlar şimdilik kalıplarla konuşuyor ve kurallı kararla oynuyor.')) : null);
+    h('div', { class: 'muted' }, [u.provider, u.sinir ? T('Saatlik sınır: {0} / {1} istek', fmtN(s.istek || 0), fmtN(u.sinir)) : T('Saatlik sınır yok'),
+      u.duration_min < 60 ? T('son {0} dakikada', u.duration_min) : null].filter(Boolean).join(' · ')),
+    u.at_limit ? h('div', { style: { color: 'var(--warn)' } }, T('Sınıra gelindi: botlar şimdilik kalıplarla konuşuyor ve kurallı kararla oynuyor.')) : null);
 }
 
 function btAdvanced(d) {
@@ -965,8 +965,8 @@ function btLlmWatch(box, right) {
   // sağlayıcı formu yalnız seçim değişince yeniden çizilir (yoklama yazılanı silmesin); alt kutu dahili modelde kurulum, ötekilerde test
   const render = s => {
     signature = JSON.stringify(s);
-    if (BT.liste) BT.liste.llm_multilingual = s.saglayici.multilingual;
-    if (selected !== s.saglayici.secili || s.new_form) { selected = s.saglayici.secili; btFill(right, btLlmProvider(s.saglayici, x => render(Object.assign(x, { new_form: true })))); }
+    if (BT.liste) BT.liste.llm_multilingual = s.provider.multilingual;
+    if (selected !== s.provider.secili || s.new_form) { selected = s.provider.secili; btFill(right, btLlmProvider(s.provider, x => render(Object.assign(x, { new_form: true })))); }
     btFill(box, selected === 'yerel' ? h('div', { class: 'stack', style: { gap: '10px' } }, btLlmWarning(), btLlmBox(s, render)) : btLlmRemoteBox(s, render));
   };
   api('/api/bot/llm').then(render).catch(e => btFill(box, h('div', { class: 'alert hata' }, icon('alert'), h('div', null, e.message))));
@@ -1012,7 +1012,7 @@ function btLlmProvider(provider, new_) {
 }
 
 function btLlmRemoteBox(s, render) {
-  const t = s.test && s.test.saglayici === s.saglayici.secili ? s.test : {};
+  const t = s.test && s.test.provider === s.provider.secili ? s.test : {};
   return h('div', { class: 'bt-llm-step' }, icon(t.durum === 'ok' ? 'check' : 'play'),
     h('div', null, h('b', null, t.durum === 'ok' ? T('Sağlayıcı çalışıyor') : T('Test et')),
       h('div', { class: 'small muted' }, t.durum === 'calisiyor' ? T('Sağlayıcıya kısa bir soru soruluyor…') : t.durum === 'hata' ? t.hata
@@ -1023,7 +1023,7 @@ function btLlmRemoteBox(s, render) {
 function btLlmBox(s, render) {
   const call = (route, msg) => act(() => api('/api/bot/llm/' + route, {}), msg).then(x => { if (x) render(x); });
   const pct = s.toplam ? Math.floor(100 * s.alinan / s.toplam) : 0;
-  const t = s.test && !s.test.saglayici ? s.test : {};          // uzak sağlayıcının testi değil
+  const t = s.test && !s.test.provider ? s.test : {};          // uzak sağlayıcının testi değil
   const low = s.memory_gb != null && s.memory_gb < s.min_memory_gb;
   const hardware = h('div', { class: 'small muted' }, T('Bu bilgisayar: {0} GB bellek, {1} çekirdek.', s.memory_gb ?? '?', s.cores ?? '?'),
     low ? h('b', { style: { color: 'var(--warn)', marginLeft: '6px' } }, T('Önerilen en az {0} GB.', s.min_memory_gb)) : null);
@@ -1044,7 +1044,7 @@ function btLlmBox(s, render) {
   const step2 = h('div', { class: 'bt-llm-step' }, icon(s.durum === 'hazir' ? 'check' : 'play'),
     h('div', null, h('b', null, s.durum === 'hazir' ? T('Kurulum tamamlandı: model çalışıyor') : T('2. Test et')),
       h('div', { class: 'small muted' }, t.durum === 'calisiyor' ? T('Model açılıyor ve kısa bir soru soruluyor (ilk açılış yarım dakikayı bulabilir)…')
-        : t.durum === 'hata' ? t.hata : t.durum === 'ok' || s.last_test ? T('Açılış {0} sn, yanıt {1} sn: "{2}"', (t.acilis_sn ?? s.last_test?.acilis_sn), (t.sure_sn ?? s.last_test?.sure_sn), (t.yanit ?? s.last_test?.yanit ?? ''))
+        : t.durum === 'hata' ? t.hata : t.durum === 'ok' || s.last_test ? T('Açılış {0} sn, yanıt {1} sn: "{2}"', (t.startup_sec ?? s.last_test?.startup_sec), (t.sure_sn ?? s.last_test?.sure_sn), (t.yanit ?? s.last_test?.yanit ?? ''))
         : T('Model bir kez açılıp kısa bir soruya yanıt verir; yanıt gelirse kurulum tamamdır.'))),
     t.durum === 'calisiyor' ? h('span', { class: 'spin' }) : btn(T('Test et'), () => call('test'), (installed && s.durum !== 'hazir' ? 'primary' : 'ghost') + ' sm', 'play', { disabled: !installed }));
   return h('div', { class: 'stack', style: { gap: '4px' } }, step1, step2,
@@ -1053,7 +1053,7 @@ function btLlmBox(s, render) {
 
 // ------------------------------------------------------------------ botların oyun ayarı profili (bot/game_settings.py)
 function btGameSettingCard(d) {
-  const game_settings = JSON.parse(JSON.stringify(d.ayarlar.oyun_ayari || { profil: 'standart', degerler: {} }));
+  const game_settings = JSON.parse(JSON.stringify(d.ayarlar.oyun_ayari || { profil: 'standart', values: {} }));
   const info = BT.liste?.oyun_ayarlari || { hazir: [], alanlar: [] };
   const options = [['standart', T('Standart (oyunun kendi değerleri)')], ['oyuncu', T('Benim oyun ayarlarım')]]
     .concat(info.hazir.map(x => [x.id, T(x.ad)]), [['ozel', T('Özel')]]);
@@ -1067,7 +1067,7 @@ function btGameSettingCard(d) {
   };
   const description = h('div', { class: 'help' }, describe());
   const renderCustom = () => game_settings.profil !== 'ozel' ? null : info.alanlar.map(a => btRow(T(a.ad), T(a.aciklama),
-    btSlider(game_settings.degerler[a.anahtar] ?? 1, v => { game_settings.degerler[a.anahtar] = v; save(); }, { min: a.en_az, max: a.en_cok, step: 0.05, fmt: v => '×' + v.toFixed(2) })));
+    btSlider(game_settings.values[a.anahtar] ?? 1, v => { game_settings.values[a.anahtar] = v; save(); }, { min: a.en_az, max: a.en_cok, step: 0.05, fmt: v => '×' + v.toFixed(2) })));
   const special = h('div', null, renderCustom());
   return h('div', { class: 'card' }, h('h2', null, icon('sliders'), T('Oyun ayarları')),
     h('p', { class: 'desc' }, T('Botların ödül ve zorluk çarpanları senin oyun ayarlarından ayrı: kendine kolay ayar seçsen de botlar burada seçtiğinle gelişir.')),

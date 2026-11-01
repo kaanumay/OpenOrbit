@@ -140,9 +140,9 @@ def decision(bot, y, now=None):
     current = bot.target
     mood = bot.mood
     mood.update(now)
-    intent = bot.k.get('niyet')
+    intent = bot.k.get('intent')
     if intent and intent.get('bitis', 0) < now:
-        intent = bot.k['niyet'] = None
+        intent = bot.k['intent'] = None
     duration = now - bot.goal_start
     run = current is not None and current.name in ('kapi', 'mod') and not bot.plan.get('bitti')   # niyet koşuyu bölmesin: oradan yol yok
     if current is not None and not current.finished(bot, b) and (run or duration < current.min_sec and not intent):
@@ -187,7 +187,7 @@ def allowed(h, y):
 def force(bot, name, plan=None, pay=1.0, duration=600, now=None):
     """Araç ya da LLM bir hedefi istedi: niyet olarak eklenir (sonraki kararda güçlü pay) ve hemen karar verilir."""
     now = now or time.time()
-    bot.k['niyet'] = dict(hedef=name, pay=pay, bitis=now + duration, plan=plan or {})
+    bot.k['intent'] = dict(hedef=name, pay=pay, bitis=now + duration, plan=plan or {})
     bot.next_decision = now
 
 

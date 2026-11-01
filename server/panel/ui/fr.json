@@ -2856,5 +2856,6 @@
 "{0} / {1} yuva": "{0} / {1} emplacements",
 "{0} paketi · {1}. bot": "Pack {0} · bot n° {1}",
 "Özellikler": "Traits",
-"Şu anki duyguları: zamanla dengeye döner. Öfkeli bot intikam peşine düşer, yorgun bot erken çıkar.": "Ses émotions actuelles : elles reviennent à l'équilibre avec le temps. Un bot en colère cherche vengeance, un bot fatigué se déconnecte tôt."
+"Şu anki duyguları: zamanla dengeye döner. Öfkeli bot intikam peşine düşer, yorgun bot erken çıkar.": "Ses émotions actuelles : elles reviennent à l'équilibre avec le temps. Un bot en colère cherche vengeance, un bot fatigué se déconnecte tôt.",
+"Kayıtlar yeni biçime taşınamadı (%s). Eski kayıtların yedeği server/save altında (v1_backup_*.zip); sunucular başlatılmaz.": "Tes sauvegardes n'ont pas pu être converties au nouveau format (%s). La copie des anciennes sauvegardes est dans server/save (v1_backup_*.zip) ; les serveurs ne démarreront pas."
 }

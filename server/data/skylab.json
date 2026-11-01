@@ -1,16 +1,16 @@
 {
- "_aciklama": "belgeler/wiki/resources_refining.md (darkorbitwiki: Skylab) + kayıttaki başlangıç durumu -> server/data/skylab.json. Üreten: tools/skylab.py.",
+ "_description": "belgeler/wiki/resources_refining.md (darkorbitwiki: Skylab) + kayıttaki başlangıç durumu -> server/data/skylab.json. Üreten: tools/skylab.py.",
  "seviyeler": [
   {
    "enerji": 16,
-   "gunes": 170,
+   "solar": 170,
    "uretim": {
     "ham": 2200,
     "prometid_duranium": 110,
     "promerium": 11,
     "seprom": 1
    },
-   "depo": {
+   "storage": {
     "ham": 105600,
     "prometid_duranium": 5280,
     "promerium": 528,
@@ -19,14 +19,14 @@
   },
   {
    "enerji": 19,
-   "gunes": 210,
+   "solar": 210,
    "uretim": {
     "ham": 7400,
     "prometid_duranium": 370,
     "promerium": 37,
     "seprom": 3
    },
-   "depo": {
+   "storage": {
     "ham": 355195,
     "prometid_duranium": 17760,
     "promerium": 1776,
@@ -35,14 +35,14 @@
   },
   {
    "enerji": 24,
-   "gunes": 270,
+   "solar": 270,
    "uretim": {
     "ham": 15045,
     "prometid_duranium": 752,
     "promerium": 75,
     "seprom": 7
    },
-   "depo": {
+   "storage": {
     "ham": 722148,
     "prometid_duranium": 36107,
     "promerium": 3611,
@@ -51,14 +51,14 @@
   },
   {
    "enerji": 31,
-   "gunes": 350,
+   "solar": 350,
    "uretim": {
     "ham": 24890,
     "prometid_duranium": 1245,
     "promerium": 124,
     "seprom": 11
    },
-   "depo": {
+   "storage": {
     "ham": 1194728,
     "prometid_duranium": 59736,
     "promerium": 5974,
@@ -67,14 +67,14 @@
   },
   {
    "enerji": 40,
-   "gunes": 450,
+   "solar": 450,
    "uretim": {
     "ham": 36781,
     "prometid_duranium": 1839,
     "promerium": 184,
     "seprom": 17
    },
-   "depo": {
+   "storage": {
     "ham": 1765474,
     "prometid_duranium": 88274,
     "promerium": 8827,
@@ -83,14 +83,14 @@
   },
   {
    "enerji": 51,
-   "gunes": 570,
+   "solar": 570,
    "uretim": {
     "ham": 50604,
     "prometid_duranium": 2530,
     "promerium": 253,
     "seprom": 23
    },
-   "depo": {
+   "storage": {
     "ham": 2429006,
     "prometid_duranium": 121450,
     "promerium": 12145,
@@ -99,14 +99,14 @@
   },
   {
    "enerji": 64,
-   "gunes": 710,
+   "solar": 710,
    "uretim": {
     "ham": 66274,
     "prometid_duranium": 3314,
     "promerium": 331,
     "seprom": 30
    },
-   "depo": {
+   "storage": {
     "ham": 3181160,
     "prometid_duranium": 159058,
     "promerium": 15906,
@@ -115,14 +115,14 @@
   },
   {
    "enerji": 79,
-   "gunes": 870,
+   "solar": 870,
    "uretim": {
     "ham": 83720,
     "prometid_duranium": 4186,
     "promerium": 419,
     "seprom": 38
    },
-   "depo": {
+   "storage": {
     "ham": 4018569,
     "prometid_duranium": 200928,
     "promerium": 20093,
@@ -131,14 +131,14 @@
   },
   {
    "enerji": 96,
-   "gunes": 1050,
+   "solar": 1050,
    "uretim": {
     "ham": 102884,
     "prometid_duranium": 5144,
     "promerium": 514,
     "seprom": 47
    },
-   "depo": {
+   "storage": {
     "ham": 4938423,
     "prometid_duranium": 246921,
     "promerium": 24692,
@@ -147,14 +147,14 @@
   },
   {
    "enerji": 115,
-   "gunes": 1250,
+   "solar": 1250,
    "uretim": {
     "ham": 123715,
     "prometid_duranium": 6186,
     "promerium": 619,
     "seprom": 56
    },
-   "depo": {
+   "storage": {
     "ham": 5938324,
     "prometid_duranium": 296916,
     "promerium": 29692,
@@ -163,14 +163,14 @@
   },
   {
    "enerji": 136,
-   "gunes": 1470,
+   "solar": 1470,
    "uretim": {
     "ham": 146171,
     "prometid_duranium": 7309,
     "promerium": 731,
     "seprom": 66
    },
-   "depo": {
+   "storage": {
     "ham": 7016186,
     "prometid_duranium": 350809,
     "promerium": 35081,
@@ -179,14 +179,14 @@
   },
   {
    "enerji": 159,
-   "gunes": 1710,
+   "solar": 1710,
    "uretim": {
     "ham": 170212,
     "prometid_duranium": 8511,
     "promerium": 851,
     "seprom": 77
    },
-   "depo": {
+   "storage": {
     "ham": 8170170,
     "prometid_duranium": 408509,
     "promerium": 40851,
@@ -195,14 +195,14 @@
   },
   {
    "enerji": 184,
-   "gunes": 1970,
+   "solar": 1970,
    "uretim": {
     "ham": 195805,
     "prometid_duranium": 9790,
     "promerium": 979,
     "seprom": 89
    },
-   "depo": {
+   "storage": {
     "ham": 9398635,
     "prometid_duranium": 469932,
     "promerium": 46993,
@@ -211,14 +211,14 @@
   },
   {
    "enerji": 211,
-   "gunes": 2250,
+   "solar": 2250,
    "uretim": {
     "ham": 222919,
     "prometid_duranium": 11146,
     "promerium": 1115,
     "seprom": 101
    },
-   "depo": {
+   "storage": {
     "ham": 10700104,
     "prometid_duranium": 535005,
     "promerium": 53501,
@@ -227,14 +227,14 @@
   },
   {
    "enerji": 240,
-   "gunes": 2550,
+   "solar": 2550,
    "uretim": {
     "ham": 251526,
     "prometid_duranium": 12576,
     "promerium": 1258,
     "seprom": 114
    },
-   "depo": {
+   "storage": {
     "ham": 12073234,
     "prometid_duranium": 603662,
     "promerium": 60366,
@@ -243,14 +243,14 @@
   },
   {
    "enerji": 271,
-   "gunes": 2870,
+   "solar": 2870,
    "uretim": {
     "ham": 281600,
     "prometid_duranium": 14080,
     "promerium": 1408,
     "seprom": 128
    },
-   "depo": {
+   "storage": {
     "ham": 13516800,
     "prometid_duranium": 675840,
     "promerium": 67584,
@@ -259,14 +259,14 @@
   },
   {
    "enerji": 304,
-   "gunes": 3210,
+   "solar": 3210,
    "uretim": {
     "ham": 313118,
     "prometid_duranium": 15656,
     "promerium": 1566,
     "seprom": 142
    },
-   "depo": {
+   "storage": {
     "ham": 15029673,
     "prometid_duranium": 751484,
     "promerium": 75148,
@@ -275,14 +275,14 @@
   },
   {
    "enerji": 339,
-   "gunes": 3570,
+   "solar": 3570,
    "uretim": {
     "ham": 346059,
     "prometid_duranium": 17303,
     "promerium": 1730,
     "seprom": 157
    },
-   "depo": {
+   "storage": {
     "ham": 16610810,
     "prometid_duranium": 830540,
     "promerium": 83054,
@@ -291,14 +291,14 @@
   },
   {
    "enerji": 376,
-   "gunes": 3950,
+   "solar": 3950,
    "uretim": {
     "ham": 380401,
     "prometid_duranium": 19020,
     "promerium": 1902,
     "seprom": 173
    },
-   "depo": {
+   "storage": {
     "ham": 18259241,
     "prometid_duranium": 912962,
     "promerium": 91296,
@@ -307,14 +307,14 @@
   },
   {
    "enerji": 415,
-   "gunes": 4350,
+   "solar": 4350,
    "uretim": {
     "ham": 416126,
     "prometid_duranium": 20806,
     "promerium": 2081,
     "seprom": 189
    },
-   "depo": {
+   "storage": {
     "ham": 19974063,
     "prometid_duranium": 998703,
     "promerium": 99870,
@@ -322,7 +322,7 @@
    }
   }
  ],
- "maliyetler": {
+ "costs": {
   "basicSolarStorage": [
    {
     "sure_sn": 3600,
@@ -1056,7 +1056,7 @@
    }
   ]
  },
- "_yazim_duzeltmeleri": "darkorbitwiki Skylab tablolarındaki yazım hataları tools/skylab.py (WIKI_YAZIM_DUZELTMELERI, DEPO_DUZELTMELERI) ile düzeltilir: fandom Skylab modül tabloları aynı hücrelerde düzeltilmiş değeri veriyor ve sayı dizisi düzgün; depo = 48 x saatlik üretim.",
+ "_spelling_fixes": "darkorbitwiki Skylab tablolarındaki yazım hataları tools/skylab.py (WIKI_YAZIM_DUZELTMELERI, DEPO_DUZELTMELERI) ile düzeltilir: fandom Skylab modül tabloları aynı hücrelerde düzeltilmiş değeri veriyor ve sayı dizisi düzgün; depo = 48 x saatlik üretim.",
  "moduller": {
   "BASE_MODULE": {
    "grup": "basicSolarStorage",
@@ -1138,7 +1138,7 @@
     true
    ]
   },
-  "depo": {
+  "storage": {
    "1": 200,
    "2": 200,
    "3": 200
@@ -1186,13 +1186,13 @@
    7
   ]
  },
- "_cevherler": "Skylab cevher kimliği -> [ad, depo sütunu, istemcinin OreType'ı (kargo)]",
- "toplayicilar": {
+ "_ores": "Skylab cevher kimliği -> [ad, depo sütunu, istemcinin OreType'ı (kargo)]",
+ "collectors": {
   "PROMETIUM_COLLECTOR": "1",
   "ENDURIUM_COLLECTOR": "2",
   "TERBIUM_COLLECTOR": "3"
  },
- "rafineriler": {
+ "refineries": {
   "PROMETID_REFINERY": [
    "11",
    {
@@ -1226,13 +1226,13 @@
    "seprom"
   ]
  },
- "_rafineriler": "ürün, girdiler (birim başına), üretim sütunu. Prometid/Duranium/Promerium tarifleri wiki'nin rafine sayfasından (istemcinin laboratuvar tarifleriyle aynı); Seprom'un girdisi wiki'de yok: 10 Promerium (uyarlama).",
+ "_refineries": "ürün, girdiler (birim başına), üretim sütunu. Prometid/Duranium/Promerium tarifleri wiki'nin rafine sayfasından (istemcinin laboratuvar tarifleriyle aynı); Seprom'un girdisi wiki'de yok: 10 Promerium (uyarlama).",
  "xeno": {
   "cevher": "4",
-  "sutun": "promerium"
+  "column": "promerium"
  },
  "_xeno": "Xeno modülü etkinken Skylab deposuna seviyesinin Promerium üretimi kadar Xenomit sağlar (uyarlama: istemcide gemiden Skylab'a taşıma isteği yok; depo sınırı kayıttaki 528 = Promerium sütunu). Wiki: Xenomit sürekli tüketilir.",
- "robotlar": {
+ "robots": {
   "1": {
    "fiyat": [
     "credits",
@@ -1250,11 +1250,11 @@
   "azami": 12,
   "omur_sn": 172800
  },
- "_robotlar": "wiki: 250 kredi (+%1) ya da 50 uridyum (+%4), toplayıcı başına en çok 12, 48 saat yaşar",
- "tasima": {
-  "hizli_uridyum": 1250,
+ "_robots": "wiki: 250 kredi (+%1) ya da 50 uridyum (+%4), toplayıcı başına en çok 12, 48 saat yaşar",
+ "transport": {
+  "fast_uridium": 1250,
   "birim_sn": 7.2,
   "premium_birim_sn": 3.6
  },
- "_tasima": "anında gönderme (transportMode fast) ve yoldaki taşımayı bitirme (instantFinish) fiyatı kayıttaki SkylabUnifiedReceiptCommand.transportPrice; normal taşıma cevher başına 7,2 sn (Premium 3,6 sn): wikiwiki 輸送モジュール \"資源１個あたり7.2秒（500個で１時間）\""
+ "_transport": "anında gönderme (transportMode fast) ve yoldaki taşımayı bitirme (instantFinish) fiyatı kayıttaki SkylabUnifiedReceiptCommand.transportPrice; normal taşıma cevher başına 7,2 sn (Premium 3,6 sn): wikiwiki 輸送モジュール \"資源１個あたり7.2秒（500個で１時間）\""
 }

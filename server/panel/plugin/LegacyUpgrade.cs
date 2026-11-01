@@ -35,7 +35,7 @@ static class OldUpgrade
 
     internal static void Apply(Harmony h)
     {
-        route = Path.Combine(Paths.BepInExRootPath, "openorbit", "eski_yukseltme.json");
+        route = Path.Combine(Paths.BepInExRootPath, "openorbit", "legacy_upgrade.json");
         Type t = typeof(TargetItemRecipeModel);
         MethodBase recipes = AccessTools.Method(typeof(Upgrade), nameof(Upgrade.Initialize));
         MethodBase ctor = AccessTools.Constructor(t, new[] { typeof(ItemVo), typeof(Il2CppSystem.Collections.Generic.List<ItemVo>), typeof(int), typeof(string) }),

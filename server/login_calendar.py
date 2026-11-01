@@ -23,7 +23,7 @@ class DailyLogin:
         """Profildeki takvim: ay ("YYYY-MM"), alınan gün sayısı, son alınan tarih. Ay değişince baştan."""
         t = self.today()
         with self.p.lock:
-            d = self.p.d.setdefault('gunluk_giris', {'ay': '', 'gun': 0, 'son': ''})
+            d = self.p.d.setdefault('daily_login', {'ay': '', 'gun': 0, 'son': ''})
             if d['ay'] != t.strftime('%Y-%m'):
                 d.update(ay=t.strftime('%Y-%m'), gun=0)
                 self.p.dirty = True
@@ -57,7 +57,7 @@ class DailyLogin:
         if self.claimed_today() or d['gun'] >= DAYS:
             self.log('   günlük giriş: bugün alındı ya da takvim bitti (gün %d)' % d['gun'])
             return [('DailyLoginClaimTodayCommand', dict(err='already_claimed', claimed=False, day=self.today_index()))]
-        reward = DATA['aylar'][str(self.today().month)][d['gun']]
+        reward = DATA['months'][str(self.today().month)][d['gun']]
         with self.p.lock:
             d['gun'] += 1
             d['son'] = self.today().isoformat()

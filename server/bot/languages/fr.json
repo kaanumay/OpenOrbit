@@ -1,7 +1,7 @@
 {
- "kod": "fr",
+ "code": "fr",
  "ad": "Français",
- "agirlik": 8,
+ "weight": 8,
  "adlar": {
   "parcalar": {
    "isim": ["Lucas", "Hugo", "Theo", "Nathan", "Enzo", "Louis", "Maxime", "Antoine", "Kevin", "Julien", "Thomas", "Quentin", "Romain", "Alexis", "Clement", "Manon", "Camille", "Chloe", "Lea", "Jordan", "Dylan", "Mathis"],
@@ -12,7 +12,7 @@
    "ayrac": ["", "_", "."],
    "sayi": ["1", "7", "13", "33", "59", "69", "75", "77", "93", "94", "95", "99", "2000", "2002", "2005", "666", "31", "06", "13"]
   },
-  "desenler": [[22, "{isim}{sayi}"], [16, "{soz}{sifat}"], [12, "{soz}{sayi}"], [10, "{isim_k}{ayrac}{soz_k}"], [10, "{tek}"], [10, "{soz}{ek}"], [8, "Le{soz}"], [6, "xX{soz}Xx"], [6, "{leet:tek|soz}"]]
+  "patterns": [[22, "{isim}{sayi}"], [16, "{soz}{sifat}"], [12, "{soz}{sayi}"], [10, "{isim_k}{ayrac}{soz_k}"], [10, "{tek}"], [10, "{soz}{ek}"], [8, "Le{soz}"], [6, "xX{soz}Xx"], [6, "{leet:tek|soz}"]]
  },
  "kaliplar": {
   "laf_oldurdum": ["{ad} retour a la base mdr", "{ad} ma grand-mere vole mieux", "quelqu'un d'autre? {ad} a eu sa part", "{ad} desinstalle", "farm {ad} sur {harita}, suivant", "merci pour l'honneur {ad}"],
@@ -119,10 +119,10 @@
   "klan_posta_ksi_konu": ["Station attaquée: {istasyon}"],
   "klan_posta_ksi": ["notre station {istasyon} en {harita} est attaquée. tous ceux en ligne, venez maintenant"]
  },
- "kisaltma": [["je sais pas", "jsp"], ["salut", "slt"], ["beaucoup", "bcp"], ["s'il te plait", "stp"], ["pourquoi", "pq"], ["quelqu'un", "qqn"], ["merci", "mrc"]],
+ "abbreviation": [["je sais pas", "jsp"], ["salut", "slt"], ["beaucoup", "bcp"], ["s'il te plait", "stp"], ["pourquoi", "pq"], ["quelqu'un", "qqn"], ["merci", "mrc"]],
  "ascii": {"é": "e", "è": "e", "ê": "e", "à": "a", "ç": "c", "ù": "u", "ô": "o", "î": "i"},
- "ascii_oran": 0.6,
- "niyet": {
+ "ascii_ratio": 0.6,
+ "intent": {
   "selam": ["salut", "bonjour", "slt", "coucou", "bonsoir"],
   "yardim": ["aide", "aidez", "aidez moi", "au secours"],
   "grup": ["groupe", "ensemble", "grouper"],
@@ -137,7 +137,7 @@
   "tesekkur": ["merci", "mrc"],
   "pvp": ["attaque", "attaquent", "ennemi", "ennemis", "joueur", "joueurs"]
  },
- "tepki": {
+ "reaction": {
   "kutlama": ["bravo", "félicitations", "gg"],
   "veda": ["à plus", "a+", "bonne nuit", "je dois y aller", "je me casse", "à demain"],
   "donus": ["de retour", "je suis revenu", "je suis de retour"],
@@ -145,7 +145,7 @@
   "oyun": ["carte", "vaisseau", "laser", "quête", "mission", "bouclier", "niveau", "clan", "uridium", "crédits", "farm", "drone", "boss"]
  },
  "zararli": ["tue toi", "tue-toi", "suicide toi", "suicide-toi", "va mourir", "crève", "pends toi", "pends-toi", "pute", "salope", "pédé", "nègre", "attardé", "viol", "violer", "nazi", "hitler"],
- "diyaloglar": [
+ "dialogues": [
   [
    ["boucliers ou lasers d'abord?", "j'upgrade quoi en premier, boucliers ou lasers?"],
    ["lasers, puis boucliers", "lasers perso", "boucliers d'abord, mourir coute cher"],

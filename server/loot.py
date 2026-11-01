@@ -29,7 +29,7 @@ BL_CACHE = 'UNSTABLE_BLACKLIGHT_CACHE'
 KEYS = {}                                     # anahtar -> onu kullanan ilk kutu türü (HUD kodu için)
 for _k, _b in BOXES.items():
     KEYS.setdefault(_b['anahtar'], _k)
-CODES = {b['kod']: KEYS[b['anahtar']] for b in BOXES.values() if b.get('kod')}   # HUD kodu -> kutu türü (girişteki "0|A|BK…|0" satırları)
+CODES = {b['code']: KEYS[b['anahtar']] for b in BOXES.values() if b.get('code')}   # HUD kodu -> kutu türü (girişteki "0|A|BK…|0" satırları)
 
 
 def active(kind, now=None):
@@ -60,7 +60,7 @@ def respawn_delay(kind):
 def owned(p, loot):
     """Tekil ödüle sahip mi: gemi, gemi tasarımı (gemide ya da depoda), dronlar, dron ve P.E.T. tasarımları (envanterde ya da depoda)."""
     if '_design_' in loot:
-        if any(loot in s.get('tasarimlar', []) for s in p.d['gemiler'].values()):
+        if any(loot in s.get('designs', []) for s in p.d['gemiler'].values()):
             return True
         return p.resource(loot) > 0
     if loot.startswith('ship_'):
@@ -71,7 +71,7 @@ def owned(p, loot):
 
 
 def unique(loot):
-    return loot.startswith(tuple(K['tekil'])) or '_design_' in loot
+    return loot.startswith(tuple(K['single'])) or '_design_' in loot
 
 
 def design(r):
@@ -90,12 +90,12 @@ def pick_all(p, kind, rng=random):
     ve etkinlik görünümleri; wiki tablosunda yok) tasarım çekilişini tablonun tasarımlarıyla paylaşır: tasarımların toplam şansı
     wiki'deki gibi kalır, yalnız aralarında bölüşülür; tablonun öteki satırlarının şansı bozulmaz."""
     box = BOXES[kind]
-    rows = box['odul'] or box.get('odul_etkinlik', {}).get(box_event(kind)) or []
+    rows = box['odul'] or box.get('reward_event', {}).get(box_event(kind)) or []
     if not rows:                             # etkinlik bitmişken toplanan Battle Pass Box: anahtar geri
         return [(box['anahtar'], 1)]
     if kind == BL_CACHE:                     # wiki: tasarım rastgele, zaten varsa 10.000 uridyum
         loot = rng.choice(rows)[0]
-        return [('currency_uridium', K['bl_tekrar_uridyum']) if owned(p, loot) else (loot, 1)]
+        return [('currency_uridium', K['bl_repeat_uridium']) if owned(p, loot) else (loot, 1)]
     pool = [r for r in rows if not gone(p, r)] or [r for r in rows if not design(r)]
     local = [r for r in box['yerel'] if not owned(p, r[0])]
     wd, wl = sum(r[2] for r in pool if design(r)), sum(r[2] for r in local)
@@ -120,4 +120,4 @@ def key_line(p, kind):
     BKP Prosperous, BKPR Prometheus; yeşil BKP gidiyordu, istemci Prosperous yazıyordu: kullanıcı bildirimi 2026-10-24); sayacı olmayan
     anahtarda (Battle Pass Key) None."""
     b = BOXES[kind]
-    return '0|A|%s|%d' % (b['kod'], p.resource(b['anahtar'])) if b.get('kod') else None
+    return '0|A|%s|%d' % (b['code'], p.resource(b['anahtar'])) if b.get('code') else None

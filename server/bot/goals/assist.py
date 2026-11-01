@@ -14,14 +14,14 @@ class Helping(Goal):
     min_sec = 240
 
     def eligible(self, bot, b):
-        n = bot.k.get('niyet') or {}
+        n = bot.k.get('intent') or {}
         return n.get('hedef') == self.name and bool((n.get('plan') or {}).get('harita'))
 
     def points(self, bot, b):
         return 0.3 + 0.5 * bot.o('yardimseverlik')
 
     def start(self, bot, b):
-        plan = (bot.k.get('niyet') or {}).get('plan') or {}
+        plan = (bot.k.get('intent') or {}).get('plan') or {}
         bot.plan.update(plan)
         if not S.go(bot, plan['harita'], b.y, b.now):
             bot.plan['bitti'] = True

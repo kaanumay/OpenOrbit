@@ -15,8 +15,8 @@ import settings as SET
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 D = json.load(open(os.path.join(HERE, 'data', 'event_appearances.json'), encoding='utf8'))
-ITEMS = D['gorunumler']
-SEASONS = D['sezonlar']
+ITEMS = D['looks']
+SEASONS = D['seasons']
 RECORDED = SEASONS[-1]                   # kayıttaki sezon (ödül sıralarında onun tasarımları)
 FIRST = tuple(int(x) for x in SEASONS[0]['sezon'].split('-'))
 
@@ -27,7 +27,7 @@ def in_shop(loot):
 
 
 def paths(kind):
-    return [(loot, y) for loot, x in ITEMS.items() for y in x['yollar'] if y['yol'] == kind]
+    return [(loot, y) for loot, x in ITEMS.items() for y in x['paths'] if y['yol'] == kind]
 
 
 def exchange_id(loot):
@@ -52,25 +52,25 @@ def exchange_rows(event):
 def box_rows(box):
     """Kutunun yerel tasarım satırları [lootId, 1, ağırlık] (ganimet.pick'te tasarım çekilişine katılır): wiki tablosunda olmayan
     görünümler ve kutunun eski Red / Blue P.E.T. havuzu ('kutu_ek'); tablosunda zaten olan tasarım ek satır olmaz ('tablo')."""
-    return [[loot, 1, y['agirlik']] for loot, y in paths('kutu') if y['kutu'] == box and not y.get('tablo')] + \
-           [list(r) for r in D.get('kutu_ek', {}).get(box, [])]
+    return [[loot, 1, y['weight']] for loot, y in paths('kutu') if y['kutu'] == box and not y.get('tablo')] + \
+           [list(r) for r in D.get('box_extra', {}).get(box, [])]
 
 
 def apply(events):
     """takvim'in etkinliklerine (yerinde): kapıların seçimli ödülü ve harita kutularının içeriği."""
     gates = {}
     for loot, y in paths('kapi'):
-        gates.setdefault((y['etkinlik'], tuple(y['kapilar']), y['olasilik']), []).append([loot, 1])
+        gates.setdefault((y['etkinlik'], tuple(y['kapilar']), y['probability']), []).append([loot, 1])
     for (ev, keys, chance), rows in gates.items():
         for k, e in events.items():
             if k.startswith(ev):                               # gg_hafta_sonu_1, _3, _4
-                e.setdefault('kapi_odulu', []).append(dict(kapilar=list(keys), olasilik=chance, secim=rows, yinelenmez=True))
+                e.setdefault('kapi_odulu', []).append(dict(kapilar=list(keys), probability=chance, secim=rows, non_repeating=True))
     for loot, y in paths('harita'):
         e = events[y['etkinlik']]
         for s in ([e['harita']] if 'harita' in e else []) + e.get('harita_ek', []):
             for b in s.get('kutular', []):
                 if b['tur'] == y['kutu']:
-                    b['icerik'].append([loot, 1, y['agirlik']])
+                    b['contents'].append([loot, 1, y['weight']])
 
 
 def season(sid):

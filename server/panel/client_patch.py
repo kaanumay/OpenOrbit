@@ -17,10 +17,13 @@ tutarsa açılır; bitince KAYIT yazılır (yarım kurulum kurulu sayılmaz). Be
 dakika kadar): panel bunu ilk OYNA'da oyundan önce penceresiz bir açılışta yaptırır (isit), sonraki açılışlar hızlı. Kurulamazsa oyun
 düzeltmeler olmadan açılır.
 """
-import hashlib, http.client, io, json, math, os, shutil, subprocess, threading, time, zipfile
+import hashlib, http.client, io, json, math, os, shutil, subprocess, sys, threading, time, zipfile
 from urllib.request import Request, urlopen
 
 import processes as PR
+if os.path.dirname(os.path.dirname(os.path.abspath(__file__))) not in sys.path:
+    sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+import save_migration as SM
 from lang import t as _
 from client_download import CHUNK, TIMEOUT, DownloadError, Cancelled, safe_path
 
@@ -106,7 +109,7 @@ def fingerprint(folder):
 def _registry(folder):
     try:
         with open(route(folder, INSTALL_MARKER), encoding='utf8') as fh:
-            return json.load(fh)
+            return SM.migrate_obj(json.load(fh))         # eski sürümün yazdığı işaret (anahtarlar yeni adlara)
     except (OSError, ValueError):
         return {}
 
@@ -149,7 +152,7 @@ def progress(folder, start, seen):
     percent = (100 if stage == 3 else sub + (99 - sub) * min(1, written / INTEROP_FILES) if stage == 2
              else 10 + 80 * (1 - math.exp(-t / 25)) if stage == 1 else 9 * (1 - math.exp(-t / 4)))
     seen['yuzde'] = max(seen.get('yuzde', 0), int(percent))
-    return {'asama': stage, 'yuzde': seen['yuzde'], 'elapsed_sec': int(now - start)}
+    return {'stage': stage, 'yuzde': seen['yuzde'], 'elapsed_sec': int(now - start)}
 
 
 def warm_up(folder, cmd, env, logs, notify=None, duration=300):
@@ -310,7 +313,7 @@ class Patcher:
             plugin(folder)
             with open(route(folder, INSTALL_MARKER), 'w', encoding='utf8') as fh:
                 json.dump({'bepinex': BEPINEX['sha256'], 'unity': UNITY['sha256'], 'ad': BEPINEX['ad'],
-                           'zaman': time.strftime('%Y-%m-%d %H:%M:%S')}, fh, indent=1)
+                           'time': time.strftime('%Y-%m-%d %H:%M:%S')}, fh, indent=1)
             with self.lock:
                 self.d.update(durum='kurulu', alinan=self.d['toplam'])
             self.log('BepInEx kuruldu: %s (%s)' % (BEPINEX['ad'], folder))

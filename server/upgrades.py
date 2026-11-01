@@ -35,7 +35,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 D = json.load(open(os.path.join(HERE, 'data', 'client_items.json'), encoding='utf8'))
 UP, DIS, ITEMS = D['yukseltmeler'], D['disassembly'], D['esyalar']
 INGREDIENTS = {loot for groups in (UP, DIS) for recipe in groups.values() for level in recipe['seviyeler']
-               for costs in (level.get('maliyet', {}), level.get('atla', {})) for loot in costs}
+               for costs in (level.get('maliyet', {}), level.get('jump_to', {})) for loot in costs}
 UP_OF = {loot: k for k, c in UP.items() for loot in c['esyalar']}
 DIS_OF = {loot: k for k, c in DIS.items() for loot in c['esyalar']}
 HOUR = json.load(open(os.path.join(HERE, 'data', 'items.json'), encoding='utf8'))['yukseltme_saati']
@@ -117,7 +117,7 @@ def drone_level(x):
 
 def bonus_hour(now=None):
     """Upgrade Hour sürüyorsa uridyum indirimi (0,25), yoksa 0 (event_calendar.py: yukseltme_saati, yerel saatle)."""
-    return HOUR['indirim'] if CAL.is_active('yukseltme_saati', now) else 0.0
+    return HOUR['discount'] if CAL.is_active('yukseltme_saati', now) else 0.0
 
 
 class Upgrade:
@@ -294,7 +294,7 @@ class Upgrade:
         frac = min(1.0, max(0.0, (b['bitis'] - now) / total))
         need = {}
         for r in rows:
-            for loot, a in r.get('atla', {}).items():
+            for loot, a in r.get('jump_to', {}).items():
                 need[loot] = need.get(loot, 0) + a
         return {} if SET.get('assembly_ucretsiz') else {loot: max(1, int(a * frac + 0.5)) for loot, a in need.items()}
 

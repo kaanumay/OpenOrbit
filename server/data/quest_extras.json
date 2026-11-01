@@ -1,8 +1,8 @@
 {
- "_aciklama": "server/data/gorev_ekleri.json: görev penceresinin Daily, Weekly, Event ve meydan okuma (Challenge) sekmeleri ile wiki'de olmayan\ngörevler (yol haritası E6). gorev.py bunları gorevler.json'unkilerle birlikte sunar. Üreten: tools/gorev_ekleri.py.",
+ "_description": "server/data/gorev_ekleri.json: görev penceresinin Daily, Weekly, Event ve meydan okuma (Challenge) sekmeleri ile wiki'de olmayan\ngörevler (yol haritası E6). gorev.py bunları gorevler.json'unkilerle birlikte sunar. Üreten: tools/gorev_ekleri.py.",
  "_kaynak": "kayıt (kimlik, tür, seviye, simge, öncelik, önceki görev; günlük ve haftalık seçimin başlangıcı), istemci (başlık, meydan okumaların ve \"Level N\" görevlerinin açıklaması), fandom (Mission list: Tetrathrin ve Kyhalon görevleri; Blacklight missions; görev ve meydan okuma sayfaları), darkorbitwiki (Epic Missions, Blacklight missions, Challenges: koordinat, MISCELLANEOUS, cephane kısıtı, puan, tarif ve Blacklight Trace koşulları; Epic Missions (seviye 22), Elite Missions (100 görev), Daily Missions (seviye havuzları) ve Special Missions (etkinlik görevleri); \"kaynak\" alanı hangisinin kullanıldığını söyler)",
  "_uyarlama": "Etkinlik görevlerinin (501021-501025) koşul ve ödülleri; meydan okumaların sıralamasız sürümü (puan bitirme süresi, ödülsüz: darkorbitwiki da ödül vermez); ENDURANCE süreleri ms (TIMER gibi; doğrulanmadı); \"Level N\" görevleri ödülsüz; koordinat varışı 500 birim yarıçaplı (istemci yalnız gösterir); \"Hurry up!\" gibi sayaç gösterimi (TIMER) yok, süre sınırı HASTE ile gösterilir; X-4 Mission Control istemcide yok, dönüşler herhangi bir görev vereninde; booster_ep-b01 / booster_cd-b01 darkorbitwiki ödül adlarından tahmin; firmaya özgü meydan okumalar (17/186/187, 170/181/182, 190/191/192) yalnız o firmanın pilotuna görünür; Eradication (122006) ödülü resmî Türk forumu 149871'e göre 25.000.000 Şeref (wiki Uridium yazıyordu); elit görevlerin hasar koşulu \"Damage Enemy Players\" kayıtlı DAMAGE_PLAYERS (30) biçimiyle, \"Damage NPCs\" hedefsiz DAMAGE_NPCS ile; silah koşulları (\"using R-310 rockets\", \"with lasers\", \"without using rockets\") ölçülmez (ölüm olayı silahı taşımaz, istemcide ilgili alt koşul yok): bu görevlerde yalnız hedef sayılır; \"Complete Compromising Invasion Galaxy Gate\" etkinlik_kapi.py dosyasının ISTILA_GATE olayına bağlı (istemcinin GalaxyGateType adlarında yok: koşul metni canlıda doğrulanmadı); seviye havuzlu günlüklerde Armory Token yalnız wiki satırında geçenlerde, seviye 3 görevleri oyuncunun firma liderinden; Prosperous görevleri (506641-506644) istemci başlıklarıyla fandom değerlerinde (darkorbitwiki sayfasının New Horizons / Cosmic Crisis / Peace Treaty / Ray Of Hope adlı Prosperous Mutation günlüklerinin istemcide başlığı yok); Winter Birthday #1 506587-506592, #2 516593-516598 (istemcide ikişer kimlik ailesi); Hitac Assault ikiz kimlikleri 510143-510145 eklenmedi; Chaos Omen / Astral Ascension epikleri istemci adlarıyla eşlendi (Going Dark = Cleaning, Survive Death = It’s Getting Dark, Into the Unknown = Unknown, Double Down = Double Effort); Freighter Protection (500483) mimesis.py içindeki günlük uyarlamayla verildiği için görev olarak eklenmedi; Permafrost Fissure görevleri (506233-506235) takvim anahtarsız (kapı CPU ile hep açık), ödülleri fandom değerleriyle. Resmî Türk forumunun eski etkinlik görevleri (506156-506160 Saimon İsyanı, 10. Yıl 506201-506229 / 512210-512216, Epidemi Alarmı 506248-506267 / 512248-512267, Karaşimşek Dalgası 517306-517315): koşul ve ödüller forum tablolarından; \"SG-03/SG-02\" FS-03/FS-02, \"Sunucular Arası Harita\" 4-4, Karaşimşek günlükleri gün sırasız; başarısızlık koşullarından yalnız ölüm ölçülür.",
- "_atlananlar": {
+ "_skipped": {
   "30": "PvP meydan okuması (sıralama ve botlar)",
   "33": "PvP meydan okuması (sıralama ve botlar)",
   "41": "PvP meydan okuması (sıralama ve botlar)",
@@ -17,7 +17,7 @@
  },
  "gunluk": {
   "tarih": "2026-10-15",
-  "secilen": [
+  "selected": [
    306007,
    311007,
    314007
@@ -25,23 +25,23 @@
  },
  "haftalik": {
   "tarih": "2026-10-15",
-  "secilen": [
+  "selected": [
    606002,
    606006,
    606009
   ]
  },
- "en_cok_etkinlik_gorevi": 1,
+ "max_event_quests": 1,
  "gorevler": {
   "306000": {
    "ad": "Track Down Boss Devolarium",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     3
    ],
    "simge": 9,
-   "portre": "questgiver_hull",
+   "portrait": "questgiver_hull",
    "onceki": [],
    "kaynak": "fandom (Mission list)",
    "havuz": {
@@ -103,12 +103,12 @@
   "306001": {
    "ad": "Fight Boss Sibelonit",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     3
    ],
    "simge": 9,
-   "portre": "questgiver_hull",
+   "portrait": "questgiver_hull",
    "onceki": [],
    "kaynak": "fandom (Mission list)",
    "havuz": {
@@ -170,12 +170,12 @@
   "306002": {
    "ad": "Track Down Boss Kristallin",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     3
    ],
    "simge": 9,
-   "portre": "questgiver_hull",
+   "portrait": "questgiver_hull",
    "onceki": [],
    "kaynak": "fandom (Mission list)",
    "havuz": {
@@ -237,12 +237,12 @@
   "306003": {
    "ad": "Snare the Boss StreuneR_",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     3
    ],
    "simge": 9,
-   "portre": "questgiver_hull",
+   "portrait": "questgiver_hull",
    "onceki": [],
    "kaynak": "fandom (Mission list)",
    "havuz": {
@@ -304,12 +304,12 @@
   "306004": {
    "ad": "Attack Protegit",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     3
    ],
    "simge": 9,
-   "portre": "questgiver_hull",
+   "portrait": "questgiver_hull",
    "onceki": [],
    "kaynak": "fandom (Mission list)",
    "havuz": {
@@ -371,12 +371,12 @@
   "306005": {
    "ad": "Raid on Sibelon",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     3
    ],
    "simge": 9,
-   "portre": "questgiver_hull",
+   "portrait": "questgiver_hull",
    "onceki": [],
    "kaynak": "fandom (Mission list)",
    "havuz": {
@@ -438,12 +438,12 @@
   "306006": {
    "ad": "Search for UberMordon",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     3
    ],
    "simge": 9,
-   "portre": "questgiver_hull",
+   "portrait": "questgiver_hull",
    "onceki": [],
    "kaynak": "fandom (Mission list)",
    "havuz": {
@@ -505,12 +505,12 @@
   "306007": {
    "ad": "Snare the UberLordakia",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     3
    ],
    "simge": 9,
-   "portre": "questgiver_hull",
+   "portrait": "questgiver_hull",
    "onceki": [],
    "kaynak": "fandom (Mission list)",
    "havuz": {
@@ -572,12 +572,12 @@
   "306008": {
    "ad": "Search for UberSaimon",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     3
    ],
    "simge": 9,
-   "portre": "questgiver_hull",
+   "portrait": "questgiver_hull",
    "onceki": [],
    "kaynak": "fandom (Mission list)",
    "havuz": {
@@ -639,12 +639,12 @@
   "311000": {
    "ad": "Hunt Down Boss Sibelon",
    "seviye": 11,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     3
    ],
    "simge": 10,
-   "portre": "questgiver_hull",
+   "portrait": "questgiver_hull",
    "onceki": [],
    "kaynak": "fandom (Mission list)",
    "havuz": {
@@ -702,12 +702,12 @@
   "311001": {
    "ad": "Fight Boss Lordakium",
    "seviye": 11,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     3
    ],
    "simge": 10,
-   "portre": "questgiver_hull",
+   "portrait": "questgiver_hull",
    "onceki": [],
    "kaynak": "fandom (Mission list)",
    "havuz": {
@@ -765,12 +765,12 @@
   "311002": {
    "ad": "Snare the Boss Kristallin",
    "seviye": 11,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     3
    ],
    "simge": 10,
-   "portre": "questgiver_hull",
+   "portrait": "questgiver_hull",
    "onceki": [],
    "kaynak": "fandom (Mission list)",
    "havuz": {
@@ -828,12 +828,12 @@
   "311003": {
    "ad": "Battle Kristallon",
    "seviye": 11,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     3
    ],
    "simge": 10,
-   "portre": "questgiver_hull",
+   "portrait": "questgiver_hull",
    "onceki": [],
    "kaynak": "fandom (Mission list)",
    "havuz": {
@@ -891,12 +891,12 @@
   "311004": {
    "ad": "Hunt UberKristallin",
    "seviye": 11,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     3
    ],
    "simge": 10,
-   "portre": "questgiver_hull",
+   "portrait": "questgiver_hull",
    "onceki": [],
    "kaynak": "fandom (Mission list)",
    "havuz": {
@@ -954,12 +954,12 @@
   "311005": {
    "ad": "Attack Barracuda",
    "seviye": 11,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     3
    ],
    "simge": 10,
-   "portre": "questgiver_hull",
+   "portrait": "questgiver_hull",
    "onceki": [],
    "kaynak": "fandom (Mission list)",
    "havuz": {
@@ -1017,12 +1017,12 @@
   "311006": {
    "ad": "Hunt Saboteur",
    "seviye": 11,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     3
    ],
    "simge": 10,
-   "portre": "questgiver_hull",
+   "portrait": "questgiver_hull",
    "onceki": [],
    "kaynak": "fandom (Mission list)",
    "havuz": {
@@ -1080,12 +1080,12 @@
   "311007": {
    "ad": "Hunt Down Boss Kristallon",
    "seviye": 11,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     3
    ],
    "simge": 10,
-   "portre": "questgiver_hull",
+   "portrait": "questgiver_hull",
    "onceki": [],
    "kaynak": "fandom (Mission list)",
    "havuz": {
@@ -1143,12 +1143,12 @@
   "311008": {
    "ad": "Hunt Down UberDevolarium",
    "seviye": 11,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     3
    ],
    "simge": 10,
-   "portre": "questgiver_hull",
+   "portrait": "questgiver_hull",
    "onceki": [],
    "kaynak": "fandom (Mission list)",
    "havuz": {
@@ -1206,12 +1206,12 @@
   "314000": {
    "ad": "Search for Battleray",
    "seviye": 14,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     3
    ],
    "simge": 11,
-   "portre": "questgiver_hull",
+   "portrait": "questgiver_hull",
    "onceki": [],
    "kaynak": "fandom (Mission list)",
    "havuz": {
@@ -1269,12 +1269,12 @@
   "314001": {
    "ad": "Attack Annihilator",
    "seviye": 14,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     3
    ],
    "simge": 11,
-   "portre": "questgiver_hull",
+   "portrait": "questgiver_hull",
    "onceki": [],
    "kaynak": "fandom (Mission list)",
    "havuz": {
@@ -1332,12 +1332,12 @@
   "314002": {
    "ad": "Fight UberKristallon",
    "seviye": 14,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     3
    ],
    "simge": 11,
-   "portre": "questgiver_hull",
+   "portrait": "questgiver_hull",
    "onceki": [],
    "kaynak": "fandom (Mission list)",
    "havuz": {
@@ -1395,12 +1395,12 @@
   "314003": {
    "ad": "Hunt Deadly Battleray",
    "seviye": 14,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     3
    ],
    "simge": 11,
-   "portre": "questgiver_hull",
+   "portrait": "questgiver_hull",
    "onceki": [],
    "kaynak": "fandom (Mission list)",
    "havuz": {
@@ -1458,12 +1458,12 @@
   "314004": {
    "ad": "Raid on UberLordakium",
    "seviye": 14,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     3
    ],
    "simge": 11,
-   "portre": "questgiver_hull",
+   "portrait": "questgiver_hull",
    "onceki": [],
    "kaynak": "fandom (Mission list)",
    "havuz": {
@@ -1521,12 +1521,12 @@
   "314005": {
    "ad": "Track Down UberSibelon",
    "seviye": 14,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     3
    ],
    "simge": 11,
-   "portre": "questgiver_hull",
+   "portrait": "questgiver_hull",
    "onceki": [],
    "kaynak": "fandom (Mission list)",
    "havuz": {
@@ -1584,12 +1584,12 @@
   "314006": {
    "ad": "Snare the UberSibelonit",
    "seviye": 14,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     3
    ],
    "simge": 11,
-   "portre": "questgiver_hull",
+   "portrait": "questgiver_hull",
    "onceki": [],
    "kaynak": "fandom (Mission list)",
    "havuz": {
@@ -1647,12 +1647,12 @@
   "314007": {
    "ad": "Hunt Down Cubikon",
    "seviye": 14,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     3
    ],
    "simge": 11,
-   "portre": "questgiver_hull",
+   "portrait": "questgiver_hull",
    "onceki": [],
    "kaynak": "fandom (Mission list)",
    "havuz": {
@@ -1710,12 +1710,12 @@
   "314008": {
    "ad": "Hunt Down UberKristallin",
    "seviye": 14,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     3
    ],
    "simge": 11,
-   "portre": "questgiver_hull",
+   "portrait": "questgiver_hull",
    "onceki": [],
    "kaynak": "fandom (Mission list)",
    "havuz": {
@@ -1773,12 +1773,12 @@
   "606000": {
    "ad": "Combat in the Alpha Gate",
    "seviye": 10,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     6
    ],
    "simge": 9,
-   "portre": "questgiver_hull",
+   "portrait": "questgiver_hull",
    "onceki": [],
    "kaynak": "fandom (Mission list)",
    "havuz": {
@@ -1838,12 +1838,12 @@
   "606001": {
    "ad": "Battle for the Lambda Gate",
    "seviye": 10,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     6
    ],
    "simge": 9,
-   "portre": "questgiver_hull",
+   "portrait": "questgiver_hull",
    "onceki": [],
    "kaynak": "fandom (Mission list)",
    "havuz": {
@@ -1903,12 +1903,12 @@
   "606002": {
    "ad": "Hunt in the Hades Gate",
    "seviye": 10,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     6
    ],
    "simge": 9,
-   "portre": "questgiver_hull",
+   "portrait": "questgiver_hull",
    "onceki": [],
    "kaynak": "fandom (Mission list)",
    "havuz": {
@@ -1968,12 +1968,12 @@
   "606003": {
    "ad": "Clear the Beta Gate",
    "seviye": 10,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     6
    ],
    "simge": 10,
-   "portre": "questgiver_hull",
+   "portrait": "questgiver_hull",
    "onceki": [],
    "kaynak": "fandom (Mission list)",
    "havuz": {
@@ -2033,12 +2033,12 @@
   "606004": {
    "ad": "Combat in the Gamma Gate",
    "seviye": 10,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     6
    ],
    "simge": 10,
-   "portre": "questgiver_hull",
+   "portrait": "questgiver_hull",
    "onceki": [],
    "kaynak": "fandom (Mission list)",
    "havuz": {
@@ -2098,12 +2098,12 @@
   "606005": {
    "ad": "Raid on the Epsilon Gate",
    "seviye": 10,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     6
    ],
    "simge": 10,
-   "portre": "questgiver_hull",
+   "portrait": "questgiver_hull",
    "onceki": [],
    "kaynak": "fandom (Mission list)",
    "havuz": {
@@ -2163,12 +2163,12 @@
   "606006": {
    "ad": "Clean out the Kuiper Gate",
    "seviye": 10,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     6
    ],
    "simge": 10,
-   "portre": "questgiver_hull",
+   "portrait": "questgiver_hull",
    "onceki": [],
    "kaynak": "fandom (Mission list)",
    "havuz": {
@@ -2228,12 +2228,12 @@
   "606007": {
    "ad": "Battle for the Zeta Gate",
    "seviye": 10,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     6
    ],
    "simge": 11,
-   "portre": "questgiver_hull",
+   "portrait": "questgiver_hull",
    "onceki": [],
    "kaynak": "fandom (Mission list)",
    "havuz": {
@@ -2293,12 +2293,12 @@
   "606008": {
    "ad": "Combat in the Kappa Gate",
    "seviye": 10,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     6
    ],
    "simge": 11,
-   "portre": "questgiver_hull",
+   "portrait": "questgiver_hull",
    "onceki": [],
    "kaynak": "fandom (Mission list)",
    "havuz": {
@@ -2358,12 +2358,12 @@
   "606009": {
    "ad": "Fight for the Delta Gate",
    "seviye": 10,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     6
    ],
    "simge": 11,
-   "portre": "questgiver_hull",
+   "portrait": "questgiver_hull",
    "onceki": [],
    "kaynak": "fandom (Mission list)",
    "havuz": {
@@ -2423,12 +2423,12 @@
   "606010": {
    "ad": "Raid on the Delta Gate",
    "seviye": 10,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     6
    ],
    "simge": 11,
-   "portre": "questgiver_hull",
+   "portrait": "questgiver_hull",
    "onceki": [],
    "kaynak": "fandom (Mission list)",
    "havuz": {
@@ -2488,12 +2488,12 @@
   "501021": {
    "ad": "Gate Runner",
    "seviye": 1,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "uyarlama",
    "pvp": false,
@@ -2565,12 +2565,12 @@
   "501022": {
    "ad": "Start Line",
    "seviye": 1,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "uyarlama",
    "pvp": false,
@@ -2638,12 +2638,12 @@
   "501023": {
    "ad": "Rainmaker",
    "seviye": 1,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "uyarlama",
    "pvp": false,
@@ -2706,12 +2706,12 @@
   "501024": {
    "ad": "Galaxy Crusier",
    "seviye": 1,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "uyarlama",
    "pvp": false,
@@ -2771,12 +2771,12 @@
   "501025": {
    "ad": "Craftsman",
    "seviye": 1,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "uyarlama",
    "pvp": false,
@@ -2836,15 +2836,15 @@
   "12": {
    "ad": "A mixed bag of rocks",
    "seviye": 2,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     4
    ],
    "simge": 1,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "darkorbitwiki",
-   "meydan_okuma": true,
+   "challenge": true,
    "pvp": false,
    "kok": {
     "_": "QuestCaseModule",
@@ -2992,15 +2992,15 @@
   "16": {
    "ad": "Streuner or Devolarium",
    "seviye": 2,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     4
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "istemci metni ve fandom",
-   "meydan_okuma": true,
+   "challenge": true,
    "pvp": false,
    "kok": {
     "_": "QuestCaseModule",
@@ -3077,15 +3077,15 @@
   "23": {
    "ad": "Company expansion",
    "seviye": 5,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     4
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "istemci metni ve fandom",
-   "meydan_okuma": true,
+   "challenge": true,
    "pvp": false,
    "kok": {
     "_": "QuestCaseModule",
@@ -3192,15 +3192,15 @@
   "25": {
    "ad": "Downfall of the Kristallonians",
    "seviye": 15,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     4
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "istemci metni ve fandom",
-   "meydan_okuma": true,
+   "challenge": true,
    "pvp": false,
    "kok": {
     "_": "QuestCaseModule",
@@ -3364,15 +3364,15 @@
   "26": {
    "ad": "Endurium shortage",
    "seviye": 2,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     4
    ],
    "simge": 1,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "darkorbitwiki",
-   "meydan_okuma": true,
+   "challenge": true,
    "pvp": false,
    "kok": {
     "_": "QuestCaseModule",
@@ -3543,15 +3543,15 @@
   "32": {
    "ad": "Gatherer",
    "seviye": 2,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     4
    ],
    "simge": 1,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "istemci metni ve fandom",
-   "meydan_okuma": true,
+   "challenge": true,
    "pvp": false,
    "kok": {
     "_": "QuestCaseModule",
@@ -3658,15 +3658,15 @@
   "34": {
    "ad": "Hunter or gatherer",
    "seviye": 3,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     4
    ],
    "simge": 1,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "istemci metni ve fandom",
-   "meydan_okuma": true,
+   "challenge": true,
    "pvp": false,
    "kok": {
     "_": "QuestCaseModule",
@@ -3950,15 +3950,15 @@
   "38": {
    "ad": "Tour de Force",
    "seviye": 11,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     4
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "istemci metni ve fandom",
-   "meydan_okuma": true,
+   "challenge": true,
    "pvp": false,
    "kok": {
     "_": "QuestCaseModule",
@@ -4365,15 +4365,15 @@
   "39": {
    "ad": "Crush the Cubikons",
    "seviye": 11,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     4
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "istemci metni ve fandom",
-   "meydan_okuma": true,
+   "challenge": true,
    "pvp": false,
    "kok": {
     "_": "QuestCaseModule",
@@ -4547,15 +4547,15 @@
   "45": {
    "ad": "On the other side",
    "seviye": 16,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     4
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "istemci metni ve fandom",
-   "meydan_okuma": true,
+   "challenge": true,
    "pvp": false,
    "kok": {
     "_": "QuestCaseModule",
@@ -4621,15 +4621,15 @@
   "139": {
    "ad": "Plague of Sibelonites (1)",
    "seviye": 12,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     4
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "istemci metni ve fandom",
-   "meydan_okuma": true,
+   "challenge": true,
    "pvp": false,
    "kok": {
     "_": "QuestCaseModule",
@@ -4734,15 +4734,15 @@
   "140": {
    "ad": "Plague of Sibelonites (2)",
    "seviye": 12,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     4
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "istemci metni ve fandom",
-   "meydan_okuma": true,
+   "challenge": true,
    "pvp": false,
    "kok": {
     "_": "QuestCaseModule",
@@ -4847,15 +4847,15 @@
   "141": {
    "ad": "Plague of Sibelonites (3)",
    "seviye": 12,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     4
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "istemci metni ve fandom",
-   "meydan_okuma": true,
+   "challenge": true,
    "pvp": false,
    "kok": {
     "_": "QuestCaseModule",
@@ -4960,15 +4960,15 @@
   "152": {
    "ad": "Plague of Sibelonites (4)",
    "seviye": 14,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     4
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "istemci metni ve fandom",
-   "meydan_okuma": true,
+   "challenge": true,
    "pvp": false,
    "kok": {
     "_": "QuestCaseModule",
@@ -5073,15 +5073,15 @@
   "153": {
    "ad": "Plague of Sibelonites (5)",
    "seviye": 16,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     4
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "istemci metni ve fandom",
-   "meydan_okuma": true,
+   "challenge": true,
    "pvp": false,
    "kok": {
     "_": "QuestCaseModule",
@@ -5186,15 +5186,15 @@
   "142": {
    "ad": "Get a move on (1)",
    "seviye": 8,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     4
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "istemci metni ve fandom",
-   "meydan_okuma": true,
+   "challenge": true,
    "pvp": false,
    "kok": {
     "_": "QuestCaseModule",
@@ -5299,15 +5299,15 @@
   "143": {
    "ad": "Get a move on (2)",
    "seviye": 8,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     4
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "istemci metni ve fandom",
-   "meydan_okuma": true,
+   "challenge": true,
    "pvp": false,
    "kok": {
     "_": "QuestCaseModule",
@@ -5412,15 +5412,15 @@
   "144": {
    "ad": "Get a move on (3)",
    "seviye": 8,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     4
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "istemci metni ve fandom",
-   "meydan_okuma": true,
+   "challenge": true,
    "pvp": false,
    "kok": {
     "_": "QuestCaseModule",
@@ -5525,15 +5525,15 @@
   "145": {
    "ad": "StreuneR invasion (1)",
    "seviye": 12,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     4
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "istemci metni ve fandom",
-   "meydan_okuma": true,
+   "challenge": true,
    "pvp": false,
    "kok": {
     "_": "QuestCaseModule",
@@ -5638,15 +5638,15 @@
   "146": {
    "ad": "StreuneR invasion (2)",
    "seviye": 12,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     4
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "istemci metni ve fandom",
-   "meydan_okuma": true,
+   "challenge": true,
    "pvp": false,
    "kok": {
     "_": "QuestCaseModule",
@@ -5751,15 +5751,15 @@
   "147": {
    "ad": "StreuneR invasion (3)",
    "seviye": 12,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     4
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "istemci metni ve fandom",
-   "meydan_okuma": true,
+   "challenge": true,
    "pvp": false,
    "kok": {
     "_": "QuestCaseModule",
@@ -5864,15 +5864,15 @@
   "150": {
    "ad": "StreuneR invasion (4)",
    "seviye": 13,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     4
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "istemci metni ve fandom",
-   "meydan_okuma": true,
+   "challenge": true,
    "pvp": false,
    "kok": {
     "_": "QuestCaseModule",
@@ -5977,15 +5977,15 @@
   "151": {
    "ad": "StreuneR invasion (5)",
    "seviye": 13,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     4
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "istemci metni ve fandom",
-   "meydan_okuma": true,
+   "challenge": true,
    "pvp": false,
    "kok": {
     "_": "QuestCaseModule",
@@ -6090,15 +6090,15 @@
   "148": {
    "ad": "Resource shortage",
    "seviye": 5,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     4
    ],
    "simge": 1,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "istemci metni ve fandom",
-   "meydan_okuma": true,
+   "challenge": true,
    "pvp": false,
    "kok": {
     "_": "QuestCaseModule",
@@ -6203,15 +6203,15 @@
   "168": {
    "ad": "Top secret",
    "seviye": 16,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     4
    ],
    "simge": 2,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "istemci metni ve fandom",
-   "meydan_okuma": true,
+   "challenge": true,
    "pvp": false,
    "kok": {
     "_": "QuestCaseModule",
@@ -6391,15 +6391,15 @@
   "179": {
    "ad": "Crossing guard",
    "seviye": 3,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     4
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "istemci metni ve fandom",
-   "meydan_okuma": true,
+   "challenge": true,
    "pvp": false,
    "kok": {
     "_": "QuestCaseModule",
@@ -6518,15 +6518,15 @@
   "193": {
    "ad": "Far reaches of the universe",
    "seviye": 2,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     4
    ],
    "simge": 2,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "darkorbitwiki",
-   "meydan_okuma": true,
+   "challenge": true,
    "pvp": false,
    "kok": {
     "_": "QuestCaseModule",
@@ -6693,15 +6693,15 @@
   "10": {
    "ad": "One-minute Streuner",
    "seviye": 0,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     4
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "darkorbitwiki",
-   "meydan_okuma": true,
+   "challenge": true,
    "pvp": false,
    "kok": {
     "_": "QuestCaseModule",
@@ -6779,15 +6779,15 @@
   "20": {
    "ad": "Dead easy",
    "seviye": 3,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     4
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "darkorbitwiki",
-   "meydan_okuma": true,
+   "challenge": true,
    "pvp": false,
    "kok": {
     "_": "QuestCaseModule",
@@ -6896,15 +6896,15 @@
   "27": {
    "ad": "Crystal dust",
    "seviye": 10,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     4
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "darkorbitwiki",
-   "meydan_okuma": true,
+   "challenge": true,
    "pvp": false,
    "kok": {
     "_": "QuestCaseModule",
@@ -7100,15 +7100,15 @@
   "42": {
    "ad": "Test of courage",
    "seviye": 2,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     4
    ],
    "simge": 2,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "darkorbitwiki",
-   "meydan_okuma": true,
+   "challenge": true,
    "pvp": false,
    "kok": {
     "_": "QuestCaseModule",
@@ -7263,15 +7263,15 @@
   "44": {
    "ad": "Death race",
    "seviye": 9,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     4
    ],
    "simge": 2,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "darkorbitwiki",
-   "meydan_okuma": true,
+   "challenge": true,
    "pvp": false,
    "kok": {
     "_": "QuestCaseModule",
@@ -7554,15 +7554,15 @@
   "166": {
    "ad": "Gather ore",
    "seviye": 5,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     4
    ],
    "simge": 1,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "darkorbitwiki",
-   "meydan_okuma": true,
+   "challenge": true,
    "pvp": false,
    "kok": {
     "_": "QuestCaseModule",
@@ -7662,15 +7662,15 @@
   "172": {
    "ad": "Foreign territory",
    "seviye": 16,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     4
    ],
    "simge": 2,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "darkorbitwiki",
-   "meydan_okuma": true,
+   "challenge": true,
    "pvp": false,
    "kok": {
     "_": "QuestCaseModule",
@@ -7817,15 +7817,15 @@
   "175": {
    "ad": "Martyr",
    "seviye": 4,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     4
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "darkorbitwiki",
-   "meydan_okuma": true,
+   "challenge": true,
    "pvp": false,
    "kok": {
     "_": "QuestCaseModule",
@@ -8072,22 +8072,22 @@
    "basarisiz": [
     {
      "tur": "cephane",
-     "cins": "0"
+     "ammo_class": "0"
     }
    ]
   },
   "180": {
    "ad": "Blind man's bluff",
    "seviye": 10,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     4
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "darkorbitwiki",
-   "meydan_okuma": true,
+   "challenge": true,
    "pvp": false,
    "kok": {
     "_": "QuestCaseModule",
@@ -8300,15 +8300,15 @@
   "183": {
    "ad": "Laser malfunction I - Lordakia",
    "seviye": 2,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     4
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "darkorbitwiki",
-   "meydan_okuma": true,
+   "challenge": true,
    "pvp": false,
    "kok": {
     "_": "QuestCaseModule",
@@ -8496,22 +8496,22 @@
     },
     {
      "tur": "cephane",
-     "cins": "1"
+     "ammo_class": "1"
     }
    ]
   },
   "184": {
    "ad": "Laser malfunction II - Saimon",
    "seviye": 3,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     4
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "darkorbitwiki",
-   "meydan_okuma": true,
+   "challenge": true,
    "pvp": false,
    "kok": {
     "_": "QuestCaseModule",
@@ -8699,22 +8699,22 @@
     },
     {
      "tur": "cephane",
-     "cins": "1"
+     "ammo_class": "1"
     }
    ]
   },
   "185": {
    "ad": "The Lordakians are in for it now",
    "seviye": 3,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     4
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "darkorbitwiki",
-   "meydan_okuma": true,
+   "challenge": true,
    "pvp": false,
    "kok": {
     "_": "QuestCaseModule",
@@ -8906,22 +8906,22 @@
     },
     {
      "tur": "cephane",
-     "cins": "1"
+     "ammo_class": "1"
     }
    ]
   },
   "17": {
    "ad": "Explore your home galaxy",
    "seviye": 2,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     4
    ],
    "simge": 2,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "darkorbitwiki",
-   "meydan_okuma": true,
+   "challenge": true,
    "pvp": false,
    "kok": {
     "_": "QuestCaseModule",
@@ -9080,15 +9080,15 @@
   "170": {
    "ad": "Wormhole research",
    "seviye": 10,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     4
    ],
    "simge": 2,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "darkorbitwiki",
-   "meydan_okuma": true,
+   "challenge": true,
    "pvp": false,
    "kok": {
     "_": "QuestCaseModule",
@@ -9187,15 +9187,15 @@
   "190": {
    "ad": "The navigator",
    "seviye": 1,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     4
    ],
    "simge": 2,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "darkorbitwiki",
-   "meydan_okuma": true,
+   "challenge": true,
    "pvp": false,
    "kok": {
     "_": "QuestCaseModule",
@@ -9417,15 +9417,15 @@
   "186": {
    "ad": "Explore your home galaxy",
    "seviye": 2,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     4
    ],
    "simge": 2,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "darkorbitwiki",
-   "meydan_okuma": true,
+   "challenge": true,
    "pvp": false,
    "kok": {
     "_": "QuestCaseModule",
@@ -9584,15 +9584,15 @@
   "181": {
    "ad": "Wormhole research",
    "seviye": 10,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     4
    ],
    "simge": 2,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "darkorbitwiki",
-   "meydan_okuma": true,
+   "challenge": true,
    "pvp": false,
    "kok": {
     "_": "QuestCaseModule",
@@ -9691,15 +9691,15 @@
   "191": {
    "ad": "The navigator",
    "seviye": 1,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     4
    ],
    "simge": 2,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "darkorbitwiki",
-   "meydan_okuma": true,
+   "challenge": true,
    "pvp": false,
    "kok": {
     "_": "QuestCaseModule",
@@ -9921,15 +9921,15 @@
   "187": {
    "ad": "Explore your home galaxy",
    "seviye": 2,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     4
    ],
    "simge": 2,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "darkorbitwiki",
-   "meydan_okuma": true,
+   "challenge": true,
    "pvp": false,
    "kok": {
     "_": "QuestCaseModule",
@@ -10088,15 +10088,15 @@
   "182": {
    "ad": "Wormhole research",
    "seviye": 10,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     4
    ],
    "simge": 2,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "darkorbitwiki",
-   "meydan_okuma": true,
+   "challenge": true,
    "pvp": false,
    "kok": {
     "_": "QuestCaseModule",
@@ -10195,15 +10195,15 @@
   "192": {
    "ad": "The navigator",
    "seviye": 1,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     4
    ],
    "simge": 2,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "darkorbitwiki",
-   "meydan_okuma": true,
+   "challenge": true,
    "pvp": false,
    "kok": {
     "_": "QuestCaseModule",
@@ -10425,16 +10425,16 @@
   "49": {
    "ad": "Steal MMO resources (1)",
    "seviye": 13,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     4
    ],
    "simge": 1,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "istemci metni ve fandom",
-   "meydan_okuma": true,
-   "firma_haric": 1,
+   "challenge": true,
+   "company_excluded": 1,
    "pvp": false,
    "kok": {
     "_": "QuestCaseModule",
@@ -10558,16 +10558,16 @@
   "130": {
    "ad": "Steal EIC resources (1)",
    "seviye": 13,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     4
    ],
    "simge": 1,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "istemci metni ve fandom",
-   "meydan_okuma": true,
-   "firma_haric": 2,
+   "challenge": true,
+   "company_excluded": 2,
    "pvp": false,
    "kok": {
     "_": "QuestCaseModule",
@@ -10691,16 +10691,16 @@
   "131": {
    "ad": "Steal VRU resources (1)",
    "seviye": 13,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     4
    ],
    "simge": 1,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "istemci metni ve fandom",
-   "meydan_okuma": true,
-   "firma_haric": 3,
+   "challenge": true,
+   "company_excluded": 3,
    "pvp": false,
    "kok": {
     "_": "QuestCaseModule",
@@ -10824,16 +10824,16 @@
   "133": {
    "ad": "Steal MMO resources (2)",
    "seviye": 13,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     4
    ],
    "simge": 1,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "istemci metni ve fandom",
-   "meydan_okuma": true,
-   "firma_haric": 1,
+   "challenge": true,
+   "company_excluded": 1,
    "pvp": false,
    "kok": {
     "_": "QuestCaseModule",
@@ -10957,16 +10957,16 @@
   "134": {
    "ad": "Steal EIC resources (2)",
    "seviye": 13,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     4
    ],
    "simge": 1,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "istemci metni ve fandom",
-   "meydan_okuma": true,
-   "firma_haric": 2,
+   "challenge": true,
+   "company_excluded": 2,
    "pvp": false,
    "kok": {
     "_": "QuestCaseModule",
@@ -11090,16 +11090,16 @@
   "135": {
    "ad": "Steal VRU resources (2)",
    "seviye": 13,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     4
    ],
    "simge": 1,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "istemci metni ve fandom",
-   "meydan_okuma": true,
-   "firma_haric": 3,
+   "challenge": true,
+   "company_excluded": 3,
    "pvp": false,
    "kok": {
     "_": "QuestCaseModule",
@@ -11223,16 +11223,16 @@
   "136": {
    "ad": "Steal MMO resources (3)",
    "seviye": 13,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     4
    ],
    "simge": 1,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "istemci metni ve fandom",
-   "meydan_okuma": true,
-   "firma_haric": 1,
+   "challenge": true,
+   "company_excluded": 1,
    "pvp": false,
    "kok": {
     "_": "QuestCaseModule",
@@ -11356,16 +11356,16 @@
   "137": {
    "ad": "Steal EIC resources (3)",
    "seviye": 13,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     4
    ],
    "simge": 1,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "istemci metni ve fandom",
-   "meydan_okuma": true,
-   "firma_haric": 2,
+   "challenge": true,
+   "company_excluded": 2,
    "pvp": false,
    "kok": {
     "_": "QuestCaseModule",
@@ -11489,16 +11489,16 @@
   "138": {
    "ad": "Steal VRU resources (3)",
    "seviye": 13,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     4
    ],
    "simge": 1,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "istemci metni ve fandom",
-   "meydan_okuma": true,
-   "firma_haric": 3,
+   "challenge": true,
+   "company_excluded": 3,
    "pvp": false,
    "kok": {
     "_": "QuestCaseModule",
@@ -11622,16 +11622,16 @@
   "156": {
    "ad": "Steal MMO resources (4)",
    "seviye": 14,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     4
    ],
    "simge": 1,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "istemci metni ve fandom",
-   "meydan_okuma": true,
-   "firma_haric": 1,
+   "challenge": true,
+   "company_excluded": 1,
    "pvp": false,
    "kok": {
     "_": "QuestCaseModule",
@@ -11755,16 +11755,16 @@
   "155": {
    "ad": "Steal EIC resources (4)",
    "seviye": 14,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     4
    ],
    "simge": 1,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "istemci metni ve fandom",
-   "meydan_okuma": true,
-   "firma_haric": 2,
+   "challenge": true,
+   "company_excluded": 2,
    "pvp": false,
    "kok": {
     "_": "QuestCaseModule",
@@ -11888,16 +11888,16 @@
   "154": {
    "ad": "Steal VRU resources (4)",
    "seviye": 14,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     4
    ],
    "simge": 1,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "istemci metni ve fandom",
-   "meydan_okuma": true,
-   "firma_haric": 3,
+   "challenge": true,
+   "company_excluded": 3,
    "pvp": false,
    "kok": {
     "_": "QuestCaseModule",
@@ -12021,16 +12021,16 @@
   "157": {
    "ad": "Steal MMO resources (5)",
    "seviye": 16,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     4
    ],
    "simge": 1,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "istemci metni ve fandom",
-   "meydan_okuma": true,
-   "firma_haric": 1,
+   "challenge": true,
+   "company_excluded": 1,
    "pvp": false,
    "kok": {
     "_": "QuestCaseModule",
@@ -12154,16 +12154,16 @@
   "160": {
    "ad": "Steal EIC resources (5)",
    "seviye": 16,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     4
    ],
    "simge": 1,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "istemci metni ve fandom",
-   "meydan_okuma": true,
-   "firma_haric": 2,
+   "challenge": true,
+   "company_excluded": 2,
    "pvp": false,
    "kok": {
     "_": "QuestCaseModule",
@@ -12287,16 +12287,16 @@
   "159": {
    "ad": "Steal VRU resources (5)",
    "seviye": 16,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     4
    ],
    "simge": 1,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "istemci metni ve fandom",
-   "meydan_okuma": true,
-   "firma_haric": 3,
+   "challenge": true,
+   "company_excluded": 3,
    "pvp": false,
    "kok": {
     "_": "QuestCaseModule",
@@ -12420,12 +12420,12 @@
   "101001": {
    "ad": "One Step Behind",
    "seviye": 0,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "fandom",
    "pvp": false,
@@ -12551,12 +12551,12 @@
   "101002": {
    "ad": "Kristallon Crisis",
    "seviye": 0,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     101001
    ],
@@ -12744,12 +12744,12 @@
   "101003": {
    "ad": "Dominating Indoctrination",
    "seviye": 0,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     101002
    ],
@@ -12878,12 +12878,12 @@
   "407001": {
    "ad": "Dropped Call",
    "seviye": 7,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     107001,
     107002,
@@ -13242,12 +13242,12 @@
   "409001": {
    "ad": "It's a Trap!",
    "seviye": 9,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     109001,
     109002,
@@ -13568,12 +13568,12 @@
   "413001": {
    "ad": "Threat Level: Uber",
    "seviye": 13,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     113001,
     113002,
@@ -13770,12 +13770,12 @@
   "415001": {
    "ad": "Out of Left Field",
    "seviye": 15,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     115001,
     115002,
@@ -14154,12 +14154,12 @@
   "405001": {
    "ad": "A Daring Rescue",
    "seviye": 5,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     105001,
     105002,
@@ -14558,12 +14558,12 @@
   "406001": {
    "ad": "Power Vacuum",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     106001,
     106002,
@@ -15046,12 +15046,12 @@
   "408001": {
    "ad": "Operation Alcatraz",
    "seviye": 8,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     108001,
     108002,
@@ -15402,12 +15402,12 @@
   "410001": {
    "ad": "The Ultimate Sacrifice",
    "seviye": 10,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     110001,
     110002,
@@ -15904,12 +15904,12 @@
   "411001": {
    "ad": "Front Lines",
    "seviye": 11,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     111001,
     111002,
@@ -16147,12 +16147,12 @@
   "412002": {
    "ad": "The Duke's Lair",
    "seviye": 12,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     112004,
     112005,
@@ -16789,12 +16789,12 @@
   "414001": {
    "ad": "Declaration of War",
    "seviye": 14,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     114001,
     114002,
@@ -17205,12 +17205,12 @@
   "416001": {
    "ad": "Making an Example",
    "seviye": 16,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     116001,
     116002,
@@ -17633,12 +17633,12 @@
   "417001": {
    "ad": "Beneath the Martian Flag",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     117001,
     117002,
@@ -18273,12 +18273,12 @@
   "418001": {
    "ad": "Beneath the Terran Flag",
    "seviye": 18,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     118001,
     118002,
@@ -18587,12 +18587,12 @@
   "419001": {
    "ad": "A Thin Red Line",
    "seviye": 19,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     119001,
     119002,
@@ -18765,12 +18765,12 @@
   "420001": {
    "ad": "Justifiable Xen-icide",
    "seviye": 20,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     120001,
     120002,
@@ -18862,12 +18862,12 @@
   "420002": {
    "ad": "Miner Madness",
    "seviye": 20,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "darkorbitwiki",
    "pvp": true,
@@ -19426,12 +19426,12 @@
   "421001": {
    "ad": "Deus Ex Management",
    "seviye": 21,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     121001,
     121003,
@@ -19576,12 +19576,12 @@
   "117026": {
    "ad": "Abandoned Voices",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
-   "portre": "questgiver_amita",
+   "portrait": "questgiver_amita",
    "onceki": [],
    "kaynak": "fandom",
    "pvp": false,
@@ -19665,12 +19665,12 @@
   "117027": {
    "ad": "Life Expectancy",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 1,
-   "portre": "questgiver_amita",
+   "portrait": "questgiver_amita",
    "onceki": [
     117026
    ],
@@ -19726,12 +19726,12 @@
   "117028": {
    "ad": "Prophet",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 1,
-   "portre": "questgiver_amita",
+   "portrait": "questgiver_amita",
    "onceki": [
     117027
    ],
@@ -19787,12 +19787,12 @@
   "117029": {
    "ad": "Then They Ran",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
-   "portre": "questgiver_amita",
+   "portrait": "questgiver_amita",
    "onceki": [
     117028
    ],
@@ -19878,12 +19878,12 @@
   "117030": {
    "ad": "Human Heritage",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
-   "portre": "questgiver_amita",
+   "portrait": "questgiver_amita",
    "onceki": [
     117029
    ],
@@ -19959,12 +19959,12 @@
   "117031": {
    "ad": "All Apart",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
-   "portre": "questgiver_amita",
+   "portrait": "questgiver_amita",
    "onceki": [
     117030
    ],
@@ -20040,12 +20040,12 @@
   "117032": {
    "ad": "Earth Unbound",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
-   "portre": "questgiver_eic",
+   "portrait": "questgiver_eic",
    "onceki": [
     117031
    ],
@@ -20121,12 +20121,12 @@
   "117033": {
    "ad": "Well Red",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
-   "portre": "questgiver_mmo",
+   "portrait": "questgiver_mmo",
    "onceki": [
     117032
    ],
@@ -20202,12 +20202,12 @@
   "117034": {
    "ad": "Many Forms",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
-   "portre": "questgiver_vru",
+   "portrait": "questgiver_vru",
    "onceki": [
     117033
    ],
@@ -20323,12 +20323,12 @@
   "117035": {
    "ad": "Underestimated",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
-   "portre": "questgiver_friend",
+   "portrait": "questgiver_friend",
    "onceki": [
     117034
    ],
@@ -20444,12 +20444,12 @@
   "117036": {
    "ad": "Elysian Gift",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
-   "portre": "questgiver_amita",
+   "portrait": "questgiver_amita",
    "onceki": [
     117035
    ],
@@ -20565,12 +20565,12 @@
   "117037": {
    "ad": "Through the Gates",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
-   "portre": "questgiver_amita",
+   "portrait": "questgiver_amita",
    "onceki": [
     117036
    ],
@@ -20686,12 +20686,12 @@
   "117038": {
    "ad": "Call to Nowhere",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
-   "portre": "questgiver_friend",
+   "portrait": "questgiver_friend",
    "onceki": [
     117037
    ],
@@ -20839,12 +20839,12 @@
   "117039": {
    "ad": "Constantly Lost",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
-   "portre": "questgiver_amita",
+   "portrait": "questgiver_amita",
    "onceki": [
     117038
    ],
@@ -20992,12 +20992,12 @@
   "117040": {
    "ad": "Sentinels Breath",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
-   "portre": "questgiver_amita",
+   "portrait": "questgiver_amita",
    "onceki": [
     117039
    ],
@@ -21115,12 +21115,12 @@
   "117041": {
    "ad": "Within the Limits",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
-   "portre": "questgiver_amita",
+   "portrait": "questgiver_amita",
    "onceki": [],
    "kaynak": "darkorbitwiki",
    "pvp": false,
@@ -21255,12 +21255,12 @@
   "117042": {
    "ad": "From the Mouth of Prometheus",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
-   "portre": "questgiver_amita",
+   "portrait": "questgiver_amita",
    "onceki": [
     117041
    ],
@@ -21335,12 +21335,12 @@
   "117043": {
    "ad": "Lashing them Down",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
-   "portre": "questgiver_amita",
+   "portrait": "questgiver_amita",
    "onceki": [
     117042
    ],
@@ -21415,12 +21415,12 @@
   "117044": {
    "ad": "Gathering of Fools",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
-   "portre": "questgiver_amita",
+   "portrait": "questgiver_amita",
    "onceki": [
     117043
    ],
@@ -21495,12 +21495,12 @@
   "117045": {
    "ad": "Death is Fleeting",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
-   "portre": "questgiver_friend",
+   "portrait": "questgiver_friend",
    "onceki": [
     117044
    ],
@@ -21624,12 +21624,12 @@
   "117046": {
    "ad": "Things we Think",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
-   "portre": "questgiver_eic",
+   "portrait": "questgiver_eic",
    "onceki": [
     117045
    ],
@@ -21704,12 +21704,12 @@
   "117047": {
    "ad": "Razorblade!",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
-   "portre": "questgiver_eic",
+   "portrait": "questgiver_eic",
    "onceki": [
     117046
    ],
@@ -21833,12 +21833,12 @@
   "117048": {
    "ad": "Tangible Odds",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
-   "portre": "questgiver_vru",
+   "portrait": "questgiver_vru",
    "onceki": [
     117047
    ],
@@ -21962,12 +21962,12 @@
   "117049": {
    "ad": "Temporal Thoughts",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
-   "portre": "questgiver_vru",
+   "portrait": "questgiver_vru",
    "onceki": [
     117048
    ],
@@ -22042,12 +22042,12 @@
   "117050": {
    "ad": "Under the Surface",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
-   "portre": "questgiver_mmo",
+   "portrait": "questgiver_mmo",
    "onceki": [
     117049
    ],
@@ -22122,12 +22122,12 @@
   "117051": {
    "ad": "Drill Bit",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 1,
-   "portre": "questgiver_mmo",
+   "portrait": "questgiver_mmo",
    "onceki": [
     117050
    ],
@@ -22183,12 +22183,12 @@
   "117052": {
    "ad": "A Mess of Technology",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 1,
-   "portre": "questgiver_friend",
+   "portrait": "questgiver_friend",
    "onceki": [
     117051
    ],
@@ -22278,12 +22278,12 @@
   "117053": {
    "ad": "Thirst for Knowledge",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
-   "portre": "questgiver_friend",
+   "portrait": "questgiver_friend",
    "onceki": [
     117052
    ],
@@ -22369,12 +22369,12 @@
   "117054": {
    "ad": "When we Run",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
-   "portre": "questgiver_amita",
+   "portrait": "questgiver_amita",
    "onceki": [
     117053
    ],
@@ -22464,12 +22464,12 @@
   "117055": {
    "ad": "Erratic Solutions",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 1,
-   "portre": "questgiver_amita",
+   "portrait": "questgiver_amita",
    "onceki": [
     117054
    ],
@@ -22525,12 +22525,12 @@
   "117056": {
    "ad": "Inside Out",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 1,
-   "portre": "questgiver_amita",
+   "portrait": "questgiver_amita",
    "onceki": [
     117055
    ],
@@ -22648,12 +22648,12 @@
   "117057": {
    "ad": "Virtue is a Lie",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 1,
-   "portre": "questgiver_friend",
+   "portrait": "questgiver_friend",
    "onceki": [
     117056
    ],
@@ -22771,12 +22771,12 @@
   "117058": {
    "ad": "Organizing Chaos",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 1,
-   "portre": "questgiver_ministry",
+   "portrait": "questgiver_ministry",
    "onceki": [
     117057
    ],
@@ -22894,12 +22894,12 @@
   "117059": {
    "ad": "The Word of Mars",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 1,
-   "portre": "questgiver_ministry",
+   "portrait": "questgiver_ministry",
    "onceki": [
     117058
    ],
@@ -23017,12 +23017,12 @@
   "117060": {
    "ad": "Reap the Weak",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
-   "portre": "questgiver_ministry",
+   "portrait": "questgiver_ministry",
    "onceki": [
     117059
    ],
@@ -23140,12 +23140,12 @@
   "117061": {
    "ad": "Public Appearance",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
-   "portre": "questgiver_ministry",
+   "portrait": "questgiver_ministry",
    "onceki": [
     117060
    ],
@@ -23263,12 +23263,12 @@
   "117062": {
    "ad": "Miracle Touch",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
-   "portre": "questgiver_ministry",
+   "portrait": "questgiver_ministry",
    "onceki": [
     117061
    ],
@@ -23386,12 +23386,12 @@
   "117063": {
    "ad": "Tinkering with Heaven",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
-   "portre": "questgiver_ministry",
+   "portrait": "questgiver_ministry",
    "onceki": [
     117062
    ],
@@ -23539,12 +23539,12 @@
   "117064": {
    "ad": "A Single Plot",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
-   "portre": "questgiver_ministry",
+   "portrait": "questgiver_ministry",
    "onceki": [
     117063
    ],
@@ -23662,12 +23662,12 @@
   "117065": {
    "ad": "Cold Eyes, Frozen Heart",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "questgiver_ministry",
+   "portrait": "questgiver_ministry",
    "onceki": [
     117064
    ],
@@ -23789,12 +23789,12 @@
   "117066": {
    "ad": "Sensitive Strike",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
-   "portre": "questgiver_ministry",
+   "portrait": "questgiver_ministry",
    "onceki": [
     117065
    ],
@@ -23854,12 +23854,12 @@
   "117067": {
    "ad": "Just Breathe",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
-   "portre": "questgiver_ministry",
+   "portrait": "questgiver_ministry",
    "onceki": [
     117066
    ],
@@ -23919,12 +23919,12 @@
   "117068": {
    "ad": "Hidden Talents",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
-   "portre": "questgiver_friend",
+   "portrait": "questgiver_friend",
    "onceki": [
     117067
    ],
@@ -23984,12 +23984,12 @@
   "117069": {
    "ad": "Workhorse",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
-   "portre": "questgiver_ministry",
+   "portrait": "questgiver_ministry",
    "onceki": [
     117068
    ],
@@ -24049,12 +24049,12 @@
   "117070": {
    "ad": "Clearance",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
-   "portre": "questgiver_ministry",
+   "portrait": "questgiver_ministry",
    "onceki": [
     117069
    ],
@@ -24114,12 +24114,12 @@
   "117071": {
    "ad": "The Restoration",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
-   "portre": "questgiver_ministry",
+   "portrait": "questgiver_ministry",
    "onceki": [
     117070
    ],
@@ -24179,12 +24179,12 @@
   "117072": {
    "ad": "Protect and Obey",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
-   "portre": "questgiver_ministry",
+   "portrait": "questgiver_ministry",
    "onceki": [
     117071
    ],
@@ -24244,12 +24244,12 @@
   "117073": {
    "ad": "Dark Hearted Killer",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
-   "portre": "questgiver_ministry",
+   "portrait": "questgiver_ministry",
    "onceki": [
     117072
    ],
@@ -24309,12 +24309,12 @@
   "117074": {
    "ad": "Swatting the Fly",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
-   "portre": "questgiver_ministry",
+   "portrait": "questgiver_ministry",
    "onceki": [
     117073
    ],
@@ -24374,12 +24374,12 @@
   "117075": {
    "ad": "Motivation Direction",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "questgiver_ministry",
+   "portrait": "questgiver_ministry",
    "onceki": [
     117074
    ],
@@ -24447,12 +24447,12 @@
   "117076": {
    "ad": "Indoctrine Infection",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "darkorbitwiki",
    "pvp": false,
@@ -24539,12 +24539,12 @@
   "117077": {
    "ad": "Kill On Sight",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     117076
    ],
@@ -24680,12 +24680,12 @@
   "117078": {
    "ad": "Make Some Noise",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     117077
    ],
@@ -24822,12 +24822,12 @@
   "117079": {
    "ad": "Too Little, Too Late",
    "seviye": 24,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     117078
    ],
@@ -25058,12 +25058,12 @@
   "124000": {
    "ad": "The Letter of the Law",
    "seviye": 24,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 1,
-   "portre": "questgiver_friend",
+   "portrait": "questgiver_friend",
    "onceki": [
     117075
    ],
@@ -25142,12 +25142,12 @@
   "124001": {
    "ad": "Not so Dead!",
    "seviye": 24,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 1,
-   "portre": "questgiver_friend",
+   "portrait": "questgiver_friend",
    "onceki": [
     124000
    ],
@@ -25226,12 +25226,12 @@
   "124002": {
    "ad": "Rags and Bones",
    "seviye": 24,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 1,
-   "portre": "questgiver_amita",
+   "portrait": "questgiver_amita",
    "onceki": [
     124001
    ],
@@ -25359,12 +25359,12 @@
   "124003": {
    "ad": "Rash",
    "seviye": 24,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 1,
-   "portre": "questgiver_amita",
+   "portrait": "questgiver_amita",
    "onceki": [
     124002
    ],
@@ -25443,12 +25443,12 @@
   "124004": {
    "ad": "Human Nature",
    "seviye": 24,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
-   "portre": "questgiver_amita",
+   "portrait": "questgiver_amita",
    "onceki": [
     124003
    ],
@@ -25527,12 +25527,12 @@
   "124005": {
    "ad": "Sharpening Stones",
    "seviye": 24,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
-   "portre": "questgiver_friend",
+   "portrait": "questgiver_friend",
    "onceki": [
     124004
    ],
@@ -25660,12 +25660,12 @@
   "124006": {
    "ad": "Monkey See, Monkey Do",
    "seviye": 24,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
-   "portre": "questgiver_friend",
+   "portrait": "questgiver_friend",
    "onceki": [
     124005
    ],
@@ -25842,12 +25842,12 @@
   "124007": {
    "ad": "White Noise",
    "seviye": 24,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
-   "portre": "questgiver_friend",
+   "portrait": "questgiver_friend",
    "onceki": [
     124006
    ],
@@ -25924,12 +25924,12 @@
   "124008": {
    "ad": "Largess",
    "seviye": 24,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
-   "portre": "questgiver_friend",
+   "portrait": "questgiver_friend",
    "onceki": [
     124007
    ],
@@ -26006,12 +26006,12 @@
   "124009": {
    "ad": "Stay on the Line",
    "seviye": 24,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "questgiver_nyx",
+   "portrait": "questgiver_nyx",
    "onceki": [
     124008
    ],
@@ -26096,12 +26096,12 @@
   "124010": {
    "ad": "The Walls we Build",
    "seviye": 24,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
-   "portre": "questgiver_nyx",
+   "portrait": "questgiver_nyx",
    "onceki": [
     124009
    ],
@@ -26181,12 +26181,12 @@
   "124011": {
    "ad": "Invasion Incoming",
    "seviye": 24,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
-   "portre": "questgiver_nyx",
+   "portrait": "questgiver_nyx",
    "onceki": [
     124010
    ],
@@ -26266,12 +26266,12 @@
   "124012": {
    "ad": "The Resistance",
    "seviye": 24,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
-   "portre": "questgiver_nyx",
+   "portrait": "questgiver_nyx",
    "onceki": [
     124011
    ],
@@ -26351,12 +26351,12 @@
   "124013": {
    "ad": "Send and Receive",
    "seviye": 24,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
-   "portre": "questgiver_vru",
+   "portrait": "questgiver_vru",
    "onceki": [
     124012
    ],
@@ -26498,12 +26498,12 @@
   "124014": {
    "ad": "Times a Ticking",
    "seviye": 24,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
-   "portre": "questgiver_vru",
+   "portrait": "questgiver_vru",
    "onceki": [
     124013
    ],
@@ -26645,12 +26645,12 @@
   "124015": {
    "ad": "From an Empty Palm",
    "seviye": 24,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
-   "portre": "questgiver_mmo",
+   "portrait": "questgiver_mmo",
    "onceki": [
     124014
    ],
@@ -26792,12 +26792,12 @@
   "124016": {
    "ad": "Words are Tools",
    "seviye": 24,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
-   "portre": "questgiver_mmo",
+   "portrait": "questgiver_mmo",
    "onceki": [
     124015
    ],
@@ -26935,12 +26935,12 @@
   "124017": {
    "ad": "Once We Ruled",
    "seviye": 24,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
-   "portre": "questgiver_eic",
+   "portrait": "questgiver_eic",
    "onceki": [
     124016
    ],
@@ -27078,12 +27078,12 @@
   "124018": {
    "ad": "Fundamental Failings",
    "seviye": 24,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 0,
-   "portre": "questgiver_eic",
+   "portrait": "questgiver_eic",
    "onceki": [
     124017
    ],
@@ -27221,12 +27221,12 @@
   "124019": {
    "ad": "Edges of Reality",
    "seviye": 24,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "questgiver_friend",
+   "portrait": "questgiver_friend",
    "onceki": [
     124018
    ],
@@ -27473,12 +27473,12 @@
   "124020": {
    "ad": "Clocking On",
    "seviye": 24,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "questgiver_friend",
+   "portrait": "questgiver_friend",
    "onceki": [
     124019
    ],
@@ -27555,12 +27555,12 @@
   "124021": {
    "ad": "Final Bow",
    "seviye": 24,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "questgiver_friend",
+   "portrait": "questgiver_friend",
    "onceki": [
     124020
    ],
@@ -27620,12 +27620,12 @@
   "124022": {
    "ad": "Gladiator",
    "seviye": 24,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "questgiver_nyx",
+   "portrait": "questgiver_nyx",
    "onceki": [
     124021
    ],
@@ -27705,12 +27705,12 @@
   "124023": {
    "ad": "Childlike",
    "seviye": 24,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "questgiver_nyx",
+   "portrait": "questgiver_nyx",
    "onceki": [
     124022
    ],
@@ -27770,12 +27770,12 @@
   "124024": {
    "ad": "We Own Your Identity",
    "seviye": 24,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "questgiver_blacklight",
+   "portrait": "questgiver_blacklight",
    "onceki": [
     124023
    ],
@@ -27835,12 +27835,12 @@
   "502001": {
    "ad": "Level 1",
    "seviye": 1,
-   "oncelik": 1,
-   "turler": [
+   "priority": 1,
+   "kinds": [
     2
    ],
    "simge": 1,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "istemci metni",
    "kampanya": true,
@@ -27909,12 +27909,12 @@
   "502002": {
    "ad": "Level 5",
    "seviye": 1,
-   "oncelik": 2,
-   "turler": [
+   "priority": 2,
+   "kinds": [
     2
    ],
    "simge": 1,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "istemci metni",
    "kampanya": true,
@@ -27995,12 +27995,12 @@
   "502003": {
    "ad": "Level 10",
    "seviye": 1,
-   "oncelik": 3,
-   "turler": [
+   "priority": 3,
+   "kinds": [
     2
    ],
    "simge": 1,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "istemci metni",
    "kampanya": true,
@@ -28085,12 +28085,12 @@
   "502004": {
    "ad": "Level 15",
    "seviye": 1,
-   "oncelik": 4,
-   "turler": [
+   "priority": 4,
+   "kinds": [
     2
    ],
    "simge": 1,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "istemci metni",
    "kampanya": true,
@@ -28175,12 +28175,12 @@
   "502005": {
    "ad": "Level 20",
    "seviye": 1,
-   "oncelik": 5,
-   "turler": [
+   "priority": 5,
+   "kinds": [
     2
    ],
    "simge": 1,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "istemci metni",
    "kampanya": true,
@@ -28273,12 +28273,12 @@
   "502006": {
    "ad": "Level 25",
    "seviye": 1,
-   "oncelik": 6,
-   "turler": [
+   "priority": 6,
+   "kinds": [
     2
    ],
    "simge": 1,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "istemci metni",
    "kampanya": true,
@@ -28363,12 +28363,12 @@
   "122007": {
    "ad": "Trust is Expected",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -28493,12 +28493,12 @@
   "122008": {
    "ad": "Shatter Zone",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -28625,12 +28625,12 @@
   "122009": {
    "ad": "Wolf at the Door",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -28776,12 +28776,12 @@
   "122010": {
    "ad": "Blighted Times",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -28948,12 +28948,12 @@
   "122011": {
    "ad": "Conversion Theory",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -29078,12 +29078,12 @@
   "122012": {
    "ad": "Influence!",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -29231,12 +29231,12 @@
   "122013": {
    "ad": "The Mind was Loose",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -29361,12 +29361,12 @@
   "122014": {
    "ad": "Dead Direction",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -29496,12 +29496,12 @@
   "122015": {
    "ad": "Under our Palm",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -29647,12 +29647,12 @@
   "122016": {
    "ad": "Ways Forward",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -29781,12 +29781,12 @@
   "122017": {
    "ad": "T-88 Days",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -29930,12 +29930,12 @@
   "122018": {
    "ad": "Temptation!",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -30060,12 +30060,12 @@
   "122019": {
    "ad": "Moving Day",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -30190,12 +30190,12 @@
   "122020": {
    "ad": "Heart of Humanity",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -30326,12 +30326,12 @@
   "122021": {
    "ad": "End of the Rim",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -30475,12 +30475,12 @@
   "122022": {
    "ad": "Evacuation",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -30607,12 +30607,12 @@
   "122023": {
    "ad": "Odds and Ends",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -30737,12 +30737,12 @@
   "122024": {
    "ad": "Authority is Nothing",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -30888,12 +30888,12 @@
   "122025": {
    "ad": "Signs of Strain",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -31039,12 +31039,12 @@
   "122026": {
    "ad": "Warborn",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -31226,12 +31226,12 @@
   "122027": {
    "ad": "Falcon Flight",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -31356,12 +31356,12 @@
   "122028": {
    "ad": "Returning Glory",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -31488,12 +31488,12 @@
   "122029": {
    "ad": "Rogue Elements",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -31637,12 +31637,12 @@
   "122030": {
    "ad": "Nightmares Unbound",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -31811,12 +31811,12 @@
   "122031": {
    "ad": "The Old Ways",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -31941,12 +31941,12 @@
   "122032": {
    "ad": "New Path",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -32073,12 +32073,12 @@
   "122033": {
    "ad": "Heard it Before",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -32203,12 +32203,12 @@
   "122034": {
    "ad": "Getting Out There",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -32373,12 +32373,12 @@
   "122035": {
    "ad": "Silent Majority",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -32543,12 +32543,12 @@
   "122036": {
    "ad": "The Bigger Question",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -32700,12 +32700,12 @@
   "122037": {
    "ad": "Hiding in Plain Sight",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -32830,12 +32830,12 @@
   "122038": {
    "ad": "Sensor Sweep",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -32964,12 +32964,12 @@
   "122039": {
    "ad": "Fruitless Search",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -33094,12 +33094,12 @@
   "122040": {
    "ad": "Lock and Key",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -33264,12 +33264,12 @@
   "122041": {
    "ad": "Hidden Hand",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -33394,12 +33394,12 @@
   "122042": {
    "ad": "Bolt Hole",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -33566,12 +33566,12 @@
   "122043": {
    "ad": "Stepping Out",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -33696,12 +33696,12 @@
   "122044": {
    "ad": "Delta Force",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -33830,12 +33830,12 @@
   "122045": {
    "ad": "Persecution Prologue",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -34000,12 +34000,12 @@
   "122046": {
    "ad": "Strike When It’s Hot!",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -34138,12 +34138,12 @@
   "122047": {
    "ad": "Words of Authority",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -34268,12 +34268,12 @@
   "122048": {
    "ad": "Lords of War",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -34419,12 +34419,12 @@
   "122049": {
    "ad": "No Mistakes",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -34549,12 +34549,12 @@
   "122050": {
    "ad": "The Pen is Mightier",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -34721,12 +34721,12 @@
   "122051": {
    "ad": "What’s more, What’s Less!",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -34851,12 +34851,12 @@
   "122052": {
    "ad": "In Life We Trust",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -34983,12 +34983,12 @@
   "122053": {
    "ad": "Forgetting the Non-Essential",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -35113,12 +35113,12 @@
   "122054": {
    "ad": "The Enemy Within",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -35266,12 +35266,12 @@
   "122055": {
    "ad": "A Cross to Bear",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -35417,12 +35417,12 @@
   "122056": {
    "ad": "Associated Matters",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -35553,12 +35553,12 @@
   "122057": {
    "ad": "Loyal Citizen",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -35683,12 +35683,12 @@
   "122058": {
    "ad": "Test of Freedom",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -35834,12 +35834,12 @@
   "122059": {
    "ad": "Wise Word Never Caused Harm",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -36002,12 +36002,12 @@
   "122060": {
    "ad": "Ready or Not",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -36176,12 +36176,12 @@
   "122061": {
    "ad": "Loyalty is Key",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -36306,12 +36306,12 @@
   "122062": {
    "ad": "Test of Strength",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -36440,12 +36440,12 @@
   "122063": {
    "ad": "Order to Conform",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -36570,12 +36570,12 @@
   "122064": {
    "ad": "Finding Facts",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -36700,12 +36700,12 @@
   "122065": {
    "ad": "Penultimate Operations",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -36851,12 +36851,12 @@
   "122066": {
    "ad": "Emergency Redirection",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -37027,12 +37027,12 @@
   "122067": {
    "ad": "The End of Sense",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -37157,12 +37157,12 @@
   "122068": {
    "ad": "Snow Globe",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -37291,12 +37291,12 @@
   "122069": {
    "ad": "Flakes of the Truth",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -37421,12 +37421,12 @@
   "122070": {
    "ad": "War for Salvation",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -37574,12 +37574,12 @@
   "122071": {
    "ad": "Repeated Terror",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -37704,12 +37704,12 @@
   "122072": {
    "ad": "Clarity of Purpose",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -37855,12 +37855,12 @@
   "122073": {
    "ad": "A Howling Voice",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -37985,12 +37985,12 @@
   "122074": {
    "ad": "The Heart of Destruction",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -38140,12 +38140,12 @@
   "122075": {
    "ad": "Repeating the Past",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -38291,12 +38291,12 @@
   "122076": {
    "ad": "Reality Bites",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -38427,12 +38427,12 @@
   "122077": {
    "ad": "T-28 Days",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -38557,12 +38557,12 @@
   "122078": {
    "ad": "Administering History",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -38710,12 +38710,12 @@
   "122079": {
    "ad": "Dangerous Distraction",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -38840,12 +38840,12 @@
   "122080": {
    "ad": "Project Rebirth",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -38995,12 +38995,12 @@
   "122081": {
    "ad": "Seeded",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -39125,12 +39125,12 @@
   "122082": {
    "ad": "Hard Target",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -39314,12 +39314,12 @@
   "122083": {
    "ad": "Fake News",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -39444,12 +39444,12 @@
   "122084": {
    "ad": "Worse Still",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -39597,12 +39597,12 @@
   "122085": {
    "ad": "Political Insurgents",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -39767,12 +39767,12 @@
   "122086": {
    "ad": "Mind Palace",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -39905,12 +39905,12 @@
   "122087": {
    "ad": "Cold Call",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -40037,12 +40037,12 @@
   "122088": {
    "ad": "Out of the Dark",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -40169,12 +40169,12 @@
   "122089": {
    "ad": "Blood Feud",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -40301,12 +40301,12 @@
   "122090": {
    "ad": "On the Brain",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -40575,12 +40575,12 @@
   "122091": {
    "ad": "Making Sense",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -40705,12 +40705,12 @@
   "122092": {
    "ad": "Night of Pain",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -40839,12 +40839,12 @@
   "122093": {
    "ad": "Clever Acts",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -40969,12 +40969,12 @@
   "122094": {
    "ad": "Scorned",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -41101,12 +41101,12 @@
   "122095": {
    "ad": "Death Comes Past",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -41252,12 +41252,12 @@
   "122096": {
    "ad": "Regroup",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -41407,12 +41407,12 @@
   "122097": {
    "ad": "T-8 Days",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -41537,12 +41537,12 @@
   "122098": {
    "ad": "Escapades on a Wire",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -41690,12 +41690,12 @@
   "122099": {
    "ad": "Token Action",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -41820,12 +41820,12 @@
   "122100": {
    "ad": "All Your Systems",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -41974,12 +41974,12 @@
   "122101": {
    "ad": "Like All Humanity",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -42104,12 +42104,12 @@
   "122102": {
    "ad": "Back in the Bosom",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -42257,12 +42257,12 @@
   "122103": {
    "ad": "What Will it Be?",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -42387,12 +42387,12 @@
   "122104": {
    "ad": "Last Resort",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -42519,12 +42519,12 @@
   "122105": {
    "ad": "We Live in Your Nightmares",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -42689,12 +42689,12 @@
   "122106": {
    "ad": "Compromising Invasion",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     122004
    ],
@@ -42769,12 +42769,12 @@
   "122000": {
    "ad": "Gleaning the Cube",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "darkorbitwiki",
    "pvp": false,
@@ -42836,12 +42836,12 @@
   "122001": {
    "ad": "Purge the Protegit",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "darkorbitwiki",
    "pvp": false,
@@ -42903,12 +42903,12 @@
   "122002": {
    "ad": "Interceptor Irritant",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "darkorbitwiki",
    "pvp": false,
@@ -42970,12 +42970,12 @@
   "122003": {
    "ad": "Annihilation Anthem",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "darkorbitwiki",
    "pvp": false,
@@ -43037,12 +43037,12 @@
   "122004": {
    "ad": "Silent Sabotage",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "darkorbitwiki",
    "pvp": false,
@@ -43104,12 +43104,12 @@
   "122005": {
    "ad": "Unlimited Uber",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "darkorbitwiki",
    "pvp": false,
@@ -43171,12 +43171,12 @@
   "122006": {
    "ad": "Eradication",
    "seviye": 22,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     2
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "darkorbitwiki",
    "pvp": true,
@@ -43239,15 +43239,15 @@
   "300010": {
    "ad": "Lordakia Infestation",
    "seviye": 3,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     3
    ],
    "simge": 9,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "darkorbitwiki",
-   "portre_firma": {
+   "portrait_company": {
     "1": "questgiver_mmo",
     "2": "questgiver_eic",
     "3": "questgiver_vru"
@@ -43385,15 +43385,15 @@
   "300011": {
    "ad": "Duranium Scavanger",
    "seviye": 3,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     3
    ],
    "simge": 9,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "darkorbitwiki",
-   "portre_firma": {
+   "portrait_company": {
     "1": "questgiver_mmo",
     "2": "questgiver_eic",
     "3": "questgiver_vru"
@@ -43527,15 +43527,15 @@
   "300012": {
    "ad": "Signal Anomalies",
    "seviye": 3,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     3
    ],
    "simge": 9,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "darkorbitwiki",
-   "portre_firma": {
+   "portrait_company": {
     "1": "questgiver_mmo",
     "2": "questgiver_eic",
     "3": "questgiver_vru"
@@ -43673,15 +43673,15 @@
   "300013": {
    "ad": "Irradiant Selection",
    "seviye": 3,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     3
    ],
    "simge": 9,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "darkorbitwiki",
-   "portre_firma": {
+   "portrait_company": {
     "1": "questgiver_mmo",
     "2": "questgiver_eic",
     "3": "questgiver_vru"
@@ -43879,15 +43879,15 @@
   "300014": {
    "ad": "Oblivion",
    "seviye": 3,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     3
    ],
    "simge": 9,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "darkorbitwiki",
-   "portre_firma": {
+   "portrait_company": {
     "1": "questgiver_mmo",
     "2": "questgiver_eic",
     "3": "questgiver_vru"
@@ -44021,15 +44021,15 @@
   "300015": {
    "ad": "Silencing Saimon",
    "seviye": 3,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     3
    ],
    "simge": 9,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "darkorbitwiki",
-   "portre_firma": {
+   "portrait_company": {
     "1": "questgiver_mmo",
     "2": "questgiver_eic",
     "3": "questgiver_vru"
@@ -44167,15 +44167,15 @@
   "300016": {
    "ad": "A Symbiotic Relationship",
    "seviye": 3,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     3
    ],
    "simge": 9,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "darkorbitwiki",
-   "portre_firma": {
+   "portrait_company": {
     "1": "questgiver_mmo",
     "2": "questgiver_eic",
     "3": "questgiver_vru"
@@ -44313,15 +44313,15 @@
   "300017": {
    "ad": "Turncoat in our Midst",
    "seviye": 3,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     3
    ],
    "simge": 9,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "darkorbitwiki",
-   "portre_firma": {
+   "portrait_company": {
     "1": "questgiver_mmo",
     "2": "questgiver_eic",
     "3": "questgiver_vru"
@@ -44519,15 +44519,15 @@
   "300018": {
    "ad": "Crimson Chaos",
    "seviye": 3,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     3
    ],
    "simge": 9,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "darkorbitwiki",
-   "portre_firma": {
+   "portrait_company": {
     "1": "questgiver_mmo",
     "2": "questgiver_eic",
     "3": "questgiver_vru"
@@ -44695,15 +44695,15 @@
   "300019": {
    "ad": "Edge of the Orbit",
    "seviye": 3,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     3
    ],
    "simge": 9,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "darkorbitwiki",
-   "portre_firma": {
+   "portrait_company": {
     "1": "questgiver_mmo",
     "2": "questgiver_eic",
     "3": "questgiver_vru"
@@ -44837,15 +44837,15 @@
   "300020": {
    "ad": "The Art of War",
    "seviye": 3,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     3
    ],
    "simge": 9,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "darkorbitwiki",
-   "portre_firma": {
+   "portrait_company": {
     "1": "questgiver_mmo",
     "2": "questgiver_eic",
     "3": "questgiver_vru"
@@ -45103,15 +45103,15 @@
   "300021": {
    "ad": "Let's Make a Deal",
    "seviye": 3,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     3
    ],
    "simge": 9,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "darkorbitwiki",
-   "portre_firma": {
+   "portrait_company": {
     "1": "questgiver_mmo",
     "2": "questgiver_eic",
     "3": "questgiver_vru"
@@ -45249,12 +45249,12 @@
   "310022": {
    "ad": "Destination: Known",
    "seviye": 10,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     3
    ],
    "simge": 10,
-   "portre": "questgiver_amita",
+   "portrait": "questgiver_amita",
    "onceki": [],
    "kaynak": "darkorbitwiki",
    "havuz": {
@@ -45472,12 +45472,12 @@
   "310023": {
    "ad": "Raging Nebula",
    "seviye": 10,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     3
    ],
    "simge": 10,
-   "portre": "questgiver_amita",
+   "portrait": "questgiver_amita",
    "onceki": [],
    "kaynak": "darkorbitwiki",
    "havuz": {
@@ -45673,12 +45673,12 @@
   "310024": {
    "ad": "Smoke and Mirrors",
    "seviye": 10,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     3
    ],
    "simge": 10,
-   "portre": "questgiver_amita",
+   "portrait": "questgiver_amita",
    "onceki": [],
    "kaynak": "darkorbitwiki",
    "havuz": {
@@ -45844,12 +45844,12 @@
   "310025": {
    "ad": "Burning Titans",
    "seviye": 10,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     3
    ],
    "simge": 10,
-   "portre": "questgiver_amita",
+   "portrait": "questgiver_amita",
    "onceki": [],
    "kaynak": "darkorbitwiki",
    "havuz": {
@@ -46015,12 +46015,12 @@
   "310026": {
    "ad": "Sinking Feeling",
    "seviye": 10,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     3
    ],
    "simge": 10,
-   "portre": "questgiver_amita",
+   "portrait": "questgiver_amita",
    "onceki": [],
    "kaynak": "darkorbitwiki",
    "havuz": {
@@ -46216,12 +46216,12 @@
   "310027": {
    "ad": "Adrift in the Rift",
    "seviye": 10,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     3
    ],
    "simge": 10,
-   "portre": "questgiver_amita",
+   "portrait": "questgiver_amita",
    "onceki": [],
    "kaynak": "darkorbitwiki",
    "havuz": {
@@ -46387,12 +46387,12 @@
   "317028": {
    "ad": "Enemy Retaliation",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     3
    ],
    "simge": 11,
-   "portre": "questgiver_nyx",
+   "portrait": "questgiver_nyx",
    "onceki": [],
    "kaynak": "darkorbitwiki",
    "havuz": {
@@ -46610,12 +46610,12 @@
   "317029": {
    "ad": "Distant Vortex",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     3
    ],
    "simge": 11,
-   "portre": "questgiver_nyx",
+   "portrait": "questgiver_nyx",
    "onceki": [],
    "kaynak": "darkorbitwiki",
    "havuz": {
@@ -46751,12 +46751,12 @@
   "317030": {
    "ad": "Galactic Politics",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     3
    ],
    "simge": 11,
-   "portre": "questgiver_nyx",
+   "portrait": "questgiver_nyx",
    "onceki": [],
    "kaynak": "darkorbitwiki",
    "havuz": {
@@ -46922,12 +46922,12 @@
   "317031": {
    "ad": "The Exiled",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     3
    ],
    "simge": 11,
-   "portre": "questgiver_nyx",
+   "portrait": "questgiver_nyx",
    "onceki": [],
    "kaynak": "darkorbitwiki",
    "havuz": {
@@ -47093,12 +47093,12 @@
   "317032": {
    "ad": "Revelations",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     3
    ],
    "simge": 11,
-   "portre": "questgiver_nyx",
+   "portrait": "questgiver_nyx",
    "onceki": [],
    "kaynak": "darkorbitwiki",
    "havuz": {
@@ -47258,12 +47258,12 @@
   "318001": {
    "ad": "Dive into the echo",
    "seviye": 15,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     3
    ],
    "simge": 10,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "darkorbitwiki",
    "havuz": {
@@ -47485,12 +47485,12 @@
   "318002": {
    "ad": "Deep Space Echoes",
    "seviye": 15,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     3
    ],
    "simge": 10,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "darkorbitwiki",
    "havuz": {
@@ -47802,12 +47802,12 @@
   "506587": {
    "ad": "UNN Breaking News",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 2,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "darkorbitwiki",
    "etkinlik": [
@@ -47999,12 +47999,12 @@
   "506588": {
    "ad": "Something's Different",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 2,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     506587
    ],
@@ -48127,12 +48127,12 @@
   "506589": {
    "ad": "Insider Information",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     506588
    ],
@@ -48208,12 +48208,12 @@
   "506590": {
    "ad": "Cold Front",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     506589
    ],
@@ -48289,12 +48289,12 @@
   "506591": {
    "ad": "We Are Legion",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     506590
    ],
@@ -48372,12 +48372,12 @@
   "506592": {
    "ad": "Wormhole",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     506591
    ],
@@ -48485,12 +48485,12 @@
   "516593": {
    "ad": "UNN Breaking News",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     506592
    ],
@@ -48568,12 +48568,12 @@
   "516594": {
    "ad": "Something's Different",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     516593
    ],
@@ -48681,12 +48681,12 @@
   "516595": {
    "ad": "Insider Information",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     516594
    ],
@@ -48794,12 +48794,12 @@
   "516596": {
    "ad": "Cold Front",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     516595
    ],
@@ -48907,12 +48907,12 @@
   "516597": {
    "ad": "We Are Legion",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     516596
    ],
@@ -49018,12 +49018,12 @@
   "516598": {
    "ad": "Wormhole",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     516597
    ],
@@ -49135,12 +49135,12 @@
   "506143": {
    "ad": "Tech Grab",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "darkorbitwiki",
    "etkinlik": [
@@ -49214,12 +49214,12 @@
   "506144": {
    "ad": "Spread of Influence",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "darkorbitwiki",
    "etkinlik": [
@@ -49295,12 +49295,12 @@
   "506145": {
    "ad": "Running with Knives",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "darkorbitwiki",
    "etkinlik": [
@@ -49494,12 +49494,12 @@
   "506167": {
    "ad": "Quick and Dirty",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "darkorbitwiki",
    "etkinlik": [
@@ -49603,12 +49603,12 @@
   "506168": {
    "ad": "Bloody Retribution",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "darkorbitwiki",
    "etkinlik": [
@@ -49682,12 +49682,12 @@
   "506169": {
    "ad": "In Honor of the Dead",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 4,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "darkorbitwiki",
    "etkinlik": [
@@ -49813,12 +49813,12 @@
   "506170": {
    "ad": "Tribute to Prometheus",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 4,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "darkorbitwiki",
    "etkinlik": [
@@ -49975,12 +49975,12 @@
   "512171": {
    "ad": "Cleaning House",
    "seviye": 12,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "darkorbitwiki",
    "etkinlik": [
@@ -50096,12 +50096,12 @@
   "512172": {
    "ad": "To Hell and Back",
    "seviye": 12,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "darkorbitwiki",
    "etkinlik": [
@@ -50213,12 +50213,12 @@
   "506641": {
    "ad": "All Nighter",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "darkorbitwiki",
    "etkinlik": [
@@ -50369,12 +50369,12 @@
   "506642": {
    "ad": "Throw a Wrench",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "darkorbitwiki",
    "etkinlik": [
@@ -50448,12 +50448,12 @@
   "506643": {
    "ad": "Stand Down",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 4,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "darkorbitwiki",
    "etkinlik": [
@@ -50609,12 +50609,12 @@
   "506644": {
    "ad": "Light Up The Skies",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 4,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "darkorbitwiki",
    "etkinlik": [
@@ -50699,12 +50699,12 @@
   "512645": {
    "ad": "Spring Cleaning",
    "seviye": 12,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "darkorbitwiki",
    "etkinlik": [
@@ -50848,12 +50848,12 @@
   "512646": {
    "ad": "Out with the Old",
    "seviye": 12,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "darkorbitwiki",
    "etkinlik": [
@@ -50929,12 +50929,12 @@
   "506689": {
    "ad": "The Empyrian March",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "darkorbitwiki",
    "etkinlik": [
@@ -51029,12 +51029,12 @@
   "506690": {
    "ad": "Starry Visitors",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "darkorbitwiki",
    "etkinlik": [
@@ -51142,12 +51142,12 @@
   "506691": {
    "ad": "Unwelcome Invaders",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "darkorbitwiki",
    "etkinlik": [
@@ -51243,12 +51243,12 @@
   "506692": {
    "ad": "Catch 'em All",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 1,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "darkorbitwiki",
    "etkinlik": [
@@ -51318,12 +51318,12 @@
   "506705": {
    "ad": "Plus Ultra",
    "seviye": 12,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "darkorbitwiki",
    "etkinlik": [
@@ -51383,12 +51383,12 @@
   "506649": {
    "ad": "Astral Anomalies",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "darkorbitwiki",
    "etkinlik": [
@@ -51481,12 +51481,12 @@
   "731000": {
    "ad": "Quick Job",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "darkorbitwiki",
    "etkinlik": [
@@ -51590,12 +51590,12 @@
   "506650": {
    "ad": "Unwanted Attention",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "darkorbitwiki",
    "etkinlik": [
@@ -51701,12 +51701,12 @@
   "731001": {
    "ad": "Let's Make a Deal",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "darkorbitwiki",
    "etkinlik": [
@@ -51780,12 +51780,12 @@
   "506651": {
    "ad": "Unknown Visitors",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "darkorbitwiki",
    "etkinlik": [
@@ -51942,19 +51942,19 @@
    "basarisiz": [
     {
      "tur": "cephane",
-     "cins": "2"
+     "ammo_class": "2"
     }
    ]
   },
   "731002": {
    "ad": "Light It Up",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "darkorbitwiki",
    "etkinlik": [
@@ -52018,12 +52018,12 @@
   "506652": {
    "ad": "Chromatic Key",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "darkorbitwiki",
    "etkinlik": [
@@ -52089,12 +52089,12 @@
   "731003": {
    "ad": "Peace Maker",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "darkorbitwiki",
    "etkinlik": [
@@ -52156,12 +52156,12 @@
   "731004": {
    "ad": "Going Dark",
    "seviye": 12,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "darkorbitwiki",
    "etkinlik": [
@@ -52245,12 +52245,12 @@
   "731005": {
    "ad": "Survive Death",
    "seviye": 12,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "darkorbitwiki",
    "etkinlik": [
@@ -52332,12 +52332,12 @@
   "512653": {
    "ad": "Into the Unknown",
    "seviye": 12,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "darkorbitwiki",
    "etkinlik": [
@@ -52420,12 +52420,12 @@
   "512654": {
    "ad": "Double Down",
    "seviye": 12,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 8,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "darkorbitwiki",
    "etkinlik": [
@@ -52504,12 +52504,12 @@
   "506233": {
    "ad": "Stellar Quake",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "fandom (Permafrost Fissure)",
    "pvp": false,
@@ -52587,12 +52587,12 @@
   "506234": {
    "ad": "Volatile Acquisition",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     506233
    ],
@@ -52664,12 +52664,12 @@
   "506235": {
    "ad": "Deadly Fire",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     506234
    ],
@@ -52742,12 +52742,12 @@
   "506156": {
    "ad": "Drums in the Night",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "resmî Türk forumu 124840",
    "etkinlik": [
@@ -52851,12 +52851,12 @@
   "506157": {
    "ad": "Smells Like Freedom",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     506156
    ],
@@ -52936,12 +52936,12 @@
   "506158": {
    "ad": "Between a Rock and a Hard Place",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     506157
    ],
@@ -53027,12 +53027,12 @@
   "506159": {
    "ad": "Times of Plenty",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "resmî Türk forumu 124840",
    "etkinlik": [
@@ -53110,12 +53110,12 @@
   "506160": {
    "ad": "Lizard Hunting",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "resmî Türk forumu 124840",
    "etkinlik": [
@@ -53223,12 +53223,12 @@
   "506217": {
    "ad": "The New Order",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "resmî Türk forumu 126560",
    "etkinlik": [
@@ -53302,12 +53302,12 @@
   "506218": {
    "ad": "Fresh from the Kill",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     506217
    ],
@@ -53557,12 +53557,12 @@
   "506219": {
    "ad": "A Word from the Wise",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     506218
    ],
@@ -53819,12 +53819,12 @@
   "506220": {
    "ad": "Lost Science",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     506219
    ],
@@ -54011,12 +54011,12 @@
   "506221": {
    "ad": "Cold Day in Hell",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     506220
    ],
@@ -54094,12 +54094,12 @@
   "506223": {
    "ad": "Diabolus in Machina",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     506221
    ],
@@ -54490,12 +54490,12 @@
   "506224": {
    "ad": "Wasting Time",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     506223
    ],
@@ -54639,12 +54639,12 @@
   "506225": {
    "ad": "Deadly Malignancy",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     506224
    ],
@@ -54920,12 +54920,12 @@
   "506226": {
    "ad": "Dark Days",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     506225
    ],
@@ -55041,12 +55041,12 @@
   "506227": {
    "ad": "The End of Enlightenment",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     506226
    ],
@@ -55160,12 +55160,12 @@
   "506228": {
    "ad": "Running Scared",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     506227
    ],
@@ -55401,12 +55401,12 @@
   "506229": {
    "ad": "Black Out",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     506228
    ],
@@ -55889,12 +55889,12 @@
   "506201": {
    "ad": "Clear Out",
    "seviye": 1,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "resmî Türk forumu 126560",
    "etkinlik": [
@@ -55998,12 +55998,12 @@
   "506202": {
    "ad": "Charming Collaboration",
    "seviye": 1,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "resmî Türk forumu 126560",
    "etkinlik": [
@@ -56107,12 +56107,12 @@
   "506203": {
    "ad": "Exotic Knowledge",
    "seviye": 1,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "resmî Türk forumu 126560",
    "etkinlik": [
@@ -56220,12 +56220,12 @@
   "506204": {
    "ad": "Change of Direction",
    "seviye": 1,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "resmî Türk forumu 126560",
    "etkinlik": [
@@ -56348,12 +56348,12 @@
   "506205": {
    "ad": "Containing Cargo",
    "seviye": 1,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "resmî Türk forumu 126560",
    "etkinlik": [
@@ -56476,12 +56476,12 @@
   "506206": {
    "ad": "Perfect Payload",
    "seviye": 1,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "resmî Türk forumu 126560",
    "etkinlik": [
@@ -56604,12 +56604,12 @@
   "506207": {
    "ad": "Past is Present",
    "seviye": 1,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     506224
    ],
@@ -56808,12 +56808,12 @@
   "506208": {
    "ad": "Anterior Action",
    "seviye": 1,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     506224
    ],
@@ -56906,12 +56906,12 @@
   "506209": {
    "ad": "Old Pilots and Bold Pilots",
    "seviye": 1,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     506224
    ],
@@ -57010,12 +57010,12 @@
   "512210": {
    "ad": "Back Scratching",
    "seviye": 12,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "resmî Türk forumu 126560",
    "etkinlik": [
@@ -57119,12 +57119,12 @@
   "512211": {
    "ad": "Quelling Quakes",
    "seviye": 12,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "resmî Türk forumu 126560",
    "etkinlik": [
@@ -57228,12 +57228,12 @@
   "512212": {
    "ad": "Power Play",
    "seviye": 12,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "resmî Türk forumu 126560",
    "etkinlik": [
@@ -57341,12 +57341,12 @@
   "506213": {
    "ad": "Battle in the Bygone",
    "seviye": 1,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     506224
    ],
@@ -57442,12 +57442,12 @@
   "512214": {
    "ad": "Change of Direction",
    "seviye": 12,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "resmî Türk forumu 126560",
    "etkinlik": [
@@ -57570,12 +57570,12 @@
   "512215": {
    "ad": "Containing Cargo",
    "seviye": 12,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "resmî Türk forumu 126560",
    "etkinlik": [
@@ -57698,12 +57698,12 @@
   "512216": {
    "ad": "Perfect Payload",
    "seviye": 12,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "resmî Türk forumu 126560",
    "etkinlik": [
@@ -57826,12 +57826,12 @@
   "506248": {
    "ad": "This is the News!",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "resmî Türk forumu 130098",
    "etkinlik": [
@@ -58024,12 +58024,12 @@
   "506249": {
    "ad": "Elementary Achievement",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     506248
    ],
@@ -58101,12 +58101,12 @@
   "506250": {
    "ad": "We Live in your Nightmares",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     506249
    ],
@@ -58301,12 +58301,12 @@
   "506251": {
    "ad": "Nomadic Nonsense",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     506250
    ],
@@ -58382,12 +58382,12 @@
   "506252": {
    "ad": "Chessboard",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     506251
    ],
@@ -58459,12 +58459,12 @@
   "506253": {
    "ad": "Past and Present",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     506252
    ],
@@ -58536,12 +58536,12 @@
   "506254": {
    "ad": "Rumor Mill",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     506253
    ],
@@ -58613,12 +58613,12 @@
   "506255": {
    "ad": "Vague Plague",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     506254
    ],
@@ -58690,12 +58690,12 @@
   "506256": {
    "ad": "Wipeout",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     506255
    ],
@@ -58801,12 +58801,12 @@
   "506257": {
    "ad": "Hidden Enemy",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     506256
    ],
@@ -58908,12 +58908,12 @@
   "506258": {
    "ad": "Cover up",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     506257
    ],
@@ -58985,12 +58985,12 @@
   "506259": {
    "ad": "No Faction Here",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     506258
    ],
@@ -59185,12 +59185,12 @@
   "506260": {
    "ad": "Hybrid Function",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     506259
    ],
@@ -59262,12 +59262,12 @@
   "506261": {
    "ad": "Disruptive Purpose",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     506260
    ],
@@ -59343,12 +59343,12 @@
   "506262": {
    "ad": "Being the Cure",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     506261
    ],
@@ -59420,12 +59420,12 @@
   "506263": {
    "ad": "Processing Power",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     506262
    ],
@@ -59497,12 +59497,12 @@
   "506264": {
    "ad": "Three Years",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     506263
    ],
@@ -59591,12 +59591,12 @@
   "506265": {
    "ad": "A Slither of Evidence",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     506264
    ],
@@ -59736,12 +59736,12 @@
   "506266": {
    "ad": "Team Up",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     506265
    ],
@@ -59817,12 +59817,12 @@
   "506267": {
    "ad": "Reaping the Rewards",
    "seviye": 6,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     506266
    ],
@@ -59894,12 +59894,12 @@
   "512248": {
    "ad": "This is the News!",
    "seviye": 12,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "resmî Türk forumu 130098",
    "etkinlik": [
@@ -60154,12 +60154,12 @@
   "512249": {
    "ad": "Elementary Achievement",
    "seviye": 12,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     512248
    ],
@@ -60231,12 +60231,12 @@
   "512250": {
    "ad": "We Live in your Nightmares",
    "seviye": 12,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     512249
    ],
@@ -60493,12 +60493,12 @@
   "512251": {
    "ad": "Nomadic Nonsense",
    "seviye": 12,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     512250
    ],
@@ -60574,12 +60574,12 @@
   "512252": {
    "ad": "Chessboard",
    "seviye": 12,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     512251
    ],
@@ -60651,12 +60651,12 @@
   "512253": {
    "ad": "Past and Present",
    "seviye": 12,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     512252
    ],
@@ -60913,12 +60913,12 @@
   "512254": {
    "ad": "Rumor Mill",
    "seviye": 12,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     512253
    ],
@@ -60990,12 +60990,12 @@
   "512255": {
    "ad": "Vague Plague",
    "seviye": 12,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     512254
    ],
@@ -61097,12 +61097,12 @@
   "512256": {
    "ad": "Wipeout",
    "seviye": 12,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     512255
    ],
@@ -61208,12 +61208,12 @@
   "512257": {
    "ad": "Hidden Enemy",
    "seviye": 12,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     512256
    ],
@@ -61315,12 +61315,12 @@
   "512258": {
    "ad": "Cover up",
    "seviye": 12,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     512257
    ],
@@ -61392,12 +61392,12 @@
   "512259": {
    "ad": "No Faction Here",
    "seviye": 12,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     512258
    ],
@@ -61469,12 +61469,12 @@
   "512260": {
    "ad": "Hybrid Function",
    "seviye": 12,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     512259
    ],
@@ -61546,12 +61546,12 @@
   "512261": {
    "ad": "Disruptive Purpose",
    "seviye": 12,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     512260
    ],
@@ -61627,12 +61627,12 @@
   "512262": {
    "ad": "Being the Cure",
    "seviye": 12,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     512261
    ],
@@ -61704,12 +61704,12 @@
   "512263": {
    "ad": "Processing Power",
    "seviye": 12,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     512262
    ],
@@ -61904,12 +61904,12 @@
   "512264": {
    "ad": "Three Years",
    "seviye": 12,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     512263
    ],
@@ -61998,12 +61998,12 @@
   "512265": {
    "ad": "A Slither of Evidence",
    "seviye": 12,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     512264
    ],
@@ -62077,12 +62077,12 @@
   "512266": {
    "ad": "Team Up",
    "seviye": 12,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     512265
    ],
@@ -62188,12 +62188,12 @@
   "512267": {
    "ad": "Reaping the Rewards",
    "seviye": 12,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [
     512266
    ],
@@ -62295,12 +62295,12 @@
   "517306": {
    "ad": "Influx",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "resmî Türk forumu 145819",
    "etkinlik": [
@@ -62404,12 +62404,12 @@
   "517307": {
    "ad": "Data Extraction",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "resmî Türk forumu 145819",
    "etkinlik": [
@@ -62479,12 +62479,12 @@
   "517308": {
    "ad": "Reconstruction",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "resmî Türk forumu 145819",
    "etkinlik": [
@@ -62584,12 +62584,12 @@
   "517309": {
    "ad": "Mole Detection",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "resmî Türk forumu 145819",
    "etkinlik": [
@@ -62660,12 +62660,12 @@
   "517310": {
    "ad": "Surveillance",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "resmî Türk forumu 145819",
    "etkinlik": [
@@ -62752,12 +62752,12 @@
   "517311": {
    "ad": "Assault",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "resmî Türk forumu 145819",
    "etkinlik": [
@@ -62847,12 +62847,12 @@
   "517312": {
    "ad": "Pain in the Hull",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "resmî Türk forumu 145819",
    "etkinlik": [
@@ -63007,12 +63007,12 @@
   "517313": {
    "ad": "Reassembly",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "resmî Türk forumu 145819",
    "etkinlik": [
@@ -63082,12 +63082,12 @@
   "517314": {
    "ad": "Internal Inspection",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "resmî Türk forumu 145819",
    "etkinlik": [
@@ -63158,12 +63158,12 @@
   "517315": {
    "ad": "Hard Times",
    "seviye": 17,
-   "oncelik": 0,
-   "turler": [
+   "priority": 0,
+   "kinds": [
     5
    ],
    "simge": 0,
-   "portre": "",
+   "portrait": "",
    "onceki": [],
    "kaynak": "resmî Türk forumu 145819",
    "etkinlik": [

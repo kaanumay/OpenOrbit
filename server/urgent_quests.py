@@ -82,7 +82,7 @@ class UrgentQuests:
 
     @property
     def st(self):
-        return self.p.d.setdefault('acil_gorev', {})
+        return self.p.d.setdefault('urgent_quest', {})
 
     def attach(self, world):
         self.world = world
@@ -141,7 +141,7 @@ class UrgentQuests:
             return None
         pick = random.sample(kinds, min(3, len(kinds)))
         targets = [(T[k]['npc_kimlik'], random.randint(*D.get('adet', [2, 4]))) for k in pick]
-        mult = D.get('odul_carpani', 3)
+        mult = D.get('reward_multiplier', 3)
         tot = {'ep': 0, 'onur': 0, 'kredi': 0, 'uridyum': 0}
         for k, (npc_id, n) in zip(pick, targets):
             for a in tot:
@@ -225,7 +225,7 @@ class UrgentQuests:
         w = self.world
         if not w or w.hero_dead or getattr(w, 'gate', None):
             return out
-        if now - self.since < D.get('oynama_sn', 2700) or q.get('sayac', 0) < D.get('oldurme', 150):
+        if now - self.since < D.get('play_sec', 2700) or q.get('sayac', 0) < D.get('oldurme', 150):
             return out
         if now - q.get('son', 0) < D.get('ara_sn', 3600):
             return out

@@ -23,7 +23,7 @@ def folder():
 def setup():
     """Kurulumun kaydı {sunucu, model, test_ok, ...} ya da None."""
     try:
-        with open(os.path.join(folder(), 'kurulum.json'), encoding='utf8') as fh:
+        with open(os.path.join(folder(), 'install.json'), encoding='utf8') as fh:
             d = json.load(fh)
     except (OSError, ValueError):
         return None
@@ -130,6 +130,6 @@ def test(log=print):
                             schema={'type': 'object', 'properties': {'cevap': {'type': 'string'}, 'durum': {'type': 'string'}},
                                   'required': ['cevap', 'durum']}, max_count=80)
         ok = isinstance(response, dict) and 'TAMAM' in str(response.get('durum', '')).upper()
-        return {'ok': ok, 'acilis_sn': round(opening, 1), 'sure_sn': round(duration, 2), 'yanit': response.get('cevap') if isinstance(response, dict) else str(response)}
+        return {'ok': ok, 'startup_sec': round(opening, 1), 'sure_sn': round(duration, 2), 'yanit': response.get('cevap') if isinstance(response, dict) else str(response)}
     finally:
         s.stop()

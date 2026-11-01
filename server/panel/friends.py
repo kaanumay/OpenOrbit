@@ -19,7 +19,7 @@ from lang import t as _
 
 GAME_PORT = 8081
 CHAT_PORT = 7771
-PROTOCOL = 1                    # server/cok_oyunculu.PROTOKOL: hesap gönderiminin sürümü (test_cok_oyunculu denetler)
+PROTOCOL = 2                    # server/multiplayer.PROTOCOL: hesap gönderiminin sürümü (test_cok_oyunculu denetler)
 LONG_POLL_SEC = 25                   # uzun yoklamanın süresi
 RESPONSE_LIMIT = 64 * 1024 * 1024
 PUBLIC_IP_SERVICE = 'https://api.ipify.org'
@@ -121,7 +121,7 @@ def request(host, port, method, path, body=None, timeout=10):
 
 
 def _message(code, out):
-    return out.get('mesaj') or _('Sunucu isteği reddetti (HTTP %s).', code)
+    return out.get('message') or _('Sunucu isteği reddetti (HTTP %s).', code)
 
 
 # ------------------------------------------------------------------ panel tarafı
@@ -142,14 +142,14 @@ class Friend:
     # ------------------------------------------------------------ host
     def host_env(self):
         """Oyun sunucusunun OO_MULTIPLAYER ortam değişkeni (cok_oyunculu.configure)."""
-        return json.dumps({'sifre': self.cfg.get('arkadas_sifre'), 'en_cok': self.cfg.get('arkadas_en_cok'),
-                           'anahtar': self.key, 'kod': self.code, 'yerel': self.local})
+        return json.dumps({'sifre': self.cfg.get('friend_password'), 'en_cok': self.cfg.get('friend_max'),
+                           'anahtar': self.key, 'code': self.code, 'yerel': self.local})
 
     def host_status(self, live):
         is_open = self.direction.running() and self.direction.friend
         friends = (live or {}).get('arkadas') or {}
         return {'acik': is_open, 'ips': local_ips(), 'public_ip': self.general, 'game_port': GAME_PORT, 'chat_port': CHAT_PORT,
-                'sifre': self.cfg.get('arkadas_sifre'), 'en_cok': self.cfg.get('arkadas_en_cok'),
+                'sifre': self.cfg.get('friend_password'), 'en_cok': self.cfg.get('friend_max'),
                 'guests': friends.get('guests', []) if is_open else []}
 
     def find_public_ip(self):
@@ -175,7 +175,7 @@ class Friend:
         with self.lock:
             m = dict(self.m)
         m.pop('anahtar', None)
-        m['last_address'] = self.cfg.get('arkadas_son_adres')
+        m['last_address'] = self.cfg.get('friend_last_address')
         return m
 
     def attempt(self, address):
@@ -191,7 +191,7 @@ class Friend:
         a = self.m['adimlar']
         if a and a[-1]['durum'] == 'calisiyor':
             a[-1]['durum'] = 'tamam'
-        a.append({'metin': text, 'durum': state, 'zaman': time.strftime('%H:%M:%S')})
+        a.append({'metin': text, 'durum': state, 'time': time.strftime('%H:%M:%S')})
 
     def killer(self, address, password, slot, client_version, open_client):
         """Katılmayı başlatır (arka planda). istemci_ac: istemciyi açan işlev (panel)."""
@@ -201,7 +201,7 @@ class Friend:
                 raise FriendError(_('Zaten bir arkadaş sunucusundasın.'))
             self.m = self._empty()
             self.m.update(durum='baglaniyor', adres='%s:%d' % (host, port), kayit=slot)
-        self.cfg.update({'arkadas_son_adres': address.strip()})
+        self.cfg.update({'friend_last_address': address.strip()})
         threading.Thread(target=self._join, args=(host, port, password, slot, client_version, open_client), daemon=True).start()
         return self.state()
 
@@ -220,7 +220,7 @@ class Friend:
                 raise FriendError(_('Sunucu dolu (en çok %s misafir).', info.get('en_cok')))
             self._partial_session(slot)
             self._step(_('Kayıt yedekleniyor'))
-            self.saves.backup(slot, 'oto', _('Arkadaşın sunucusuna katılmadan önce'))
+            self.saves.backup(slot, 'auto', _('Arkadaşın sunucusuna katılmadan önce'))
             with open(self.saves.profile(slot), encoding='utf8') as fh:
                 d = json.load(fh)
             m['original_uid'] = d['pilot']['userId']
@@ -268,7 +268,7 @@ class Friend:
             if version <= m['surum']:
                 return
             if not (isinstance(d, dict) and isinstance(d.get('pilot'), dict) and isinstance(d.get('gemi'), dict)
-                    and isinstance(d.get('konum'), dict)) or d['pilot'].get('userId') != m['original_uid']:
+                    and isinstance(d.get('position'), dict)) or d['pilot'].get('userId') != m['original_uid']:
                 self.log('arkadaş sunucusu: geçersiz kayıt sürümü %s yok sayıldı' % version)
                 return
             p = self.saves.profile(slot)
