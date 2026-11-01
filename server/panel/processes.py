@@ -5,7 +5,7 @@
 Friend server (Play with Friends > Host): the game server with --multiplayer and the OO_MULTIPLAYER environment variable (friends.py).
 Multi-client (multi_client.py): the game server again with --multiplayer, only from this computer and without guests (the multi parameter).
 Guest (Join): only web.py, with arguments pointing to the friend's server (start_guest_web); the game server is not started.
-The servers run without a console (CREATE_NO_WINDOW); their output goes to logs/<name>_konsol.log (crash traces are there). The game server is
+The servers run without a console (CREATE_NO_WINDOW); their output goes to logs/<name>_console.log (crash traces are there). The game server is
 stopped with --stop-file=<file>: when the file appears it saves the profile and exits (so the last unsaved seconds are not lost on a forced
 close); if it does not respond it is terminated. If another process holds the port (a server left over from a previous session, another
 program) it is identified; the panel can only close this project's web.py / game.py processes.
@@ -331,7 +331,7 @@ class Process:
         if self.stop_file and os.path.exists(self.stop_file):
             os.remove(self.stop_file)
         fh = open(self.console, 'a', encoding='utf8')
-        fh.write('\n==== %s başlatıldı: %s\n' % (time.strftime('%Y-%m-%d %H:%M:%S'), ' '.join(self.cmd[1:])))
+        fh.write('\n==== %s started: %s\n' % (time.strftime('%Y-%m-%d %H:%M:%S'), ' '.join(self.cmd[1:])))
         fh.flush()
         env = dict(os.environ, PYTHONIOENCODING='utf8', PYTHONUNBUFFERED='1', **(self.env or {}))
         self.proc = subprocess.Popen(self.cmd, cwd=SERVER, stdout=fh, stderr=subprocess.STDOUT, stdin=subprocess.DEVNULL,
@@ -465,7 +465,7 @@ class Manager:
                         env = dict(env or {}, OO_MULTIPLAYER=env_json)
                     if bot:
                         env = dict(env or {}, OO_BOT=bot)
-                self.servers[name] = Process(name, cmd, os.path.join(self.logs, '%s_konsol.log' % name), stop_file, env).start()
+                self.servers[name] = Process(name, cmd, os.path.join(self.logs, '%s_console.log' % name), stop_file, env).start()
                 started.append(name)
             self.profile, self.slot, self.friend, self.multi = profile, slot, bool(friend), bool(multi and not friend)
             self.world = world_signature(world)
@@ -499,7 +499,7 @@ class Manager:
                 raise RuntimeError(_('Port %s (%s) is held by another process. Close it on the Server page or quit that program.',
                                      '/'.join(map(str, busy)), _(PORT_NAMES[busy[0]])))
             cmd = [python_exe(), '-I', os.path.join(SERVER, SCRIPTS['web']), self.logs, '--profile=%s' % profile] + list(args)
-            self.servers['web'] = s = Process('web', cmd, os.path.join(self.logs, 'web_konsol.log')).start()
+            self.servers['web'] = s = Process('web', cmd, os.path.join(self.logs, 'web_console.log')).start()
             self.profile, self.slot, self.guest = profile, slot, True
             deadline = time.time() + 15
             while not listening(PORTS['web'][0]):

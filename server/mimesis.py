@@ -125,7 +125,7 @@ class Mimesis:
     def time_cmd(self, now=None):
         key, open_, close_left, next_left, end = run_state(now)
         now = time.time() if now is None else now
-        return mod('PayloadEscortTimeInfoCommand', timeToGateClose=int(close_left) if open_ else 0,
+        return mod('PayloadEscortTimeInfoCommand', timeToGateClose=int(math.ceil(close_left)) if open_ else 0,
                    timeToNextSpawn=int(next_left) if not open_ else 0,
                    timeToSessionEnd=int(end - now) if end else (D['duration_sec'] if open_ else 0))
 

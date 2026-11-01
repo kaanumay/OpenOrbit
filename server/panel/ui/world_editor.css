@@ -194,7 +194,7 @@ body[data-page=world] .content > * { max-width: 1400px; }
 .we-svg-wrap { border: 1px solid var(--line-2); border-radius: var(--radius); overflow: hidden; background: #040912; position: relative;
   box-shadow: inset 0 0 60px rgba(0, 0, 0, .6); }
 .de-svg { display: block; width: 100%; height: auto; touch-action: none; user-select: none; --s: 1; }
-.de-svg[data-arac=bolge], .de-svg[data-arac=in], .de-svg[data-arac=guvenli] { cursor: crosshair; }
+.de-svg[data-tool=region], .de-svg[data-tool=in], .de-svg[data-tool=safe] { cursor: crosshair; }
 .de-svg .we-ground { fill: #060d1b; }
 .de-svg .iz { stroke: rgba(110, 160, 220, .07); stroke-width: 1; vector-effect: non-scaling-stroke; }
 .de-svg .iz.thick { stroke: rgba(110, 160, 220, .15); }

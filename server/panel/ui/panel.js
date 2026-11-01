@@ -339,7 +339,7 @@ window.addEventListener('pagehide', () => navigator.sendBeacon && navigator.send
 function renderPlay() { S.sig = {}; $('#content').replaceChildren(h('div', { class: 'stack', id: 'play' })); renderPlayBody(); }
 
 function renderPlayBody() {
-  const d = S.state, root = $('#oyna');
+  const d = S.state, root = $('#play');
   if (!root) return;
   if (!d) return;
   const sig = JSON.stringify([d.active, d.processes.servers.web.state, d.processes.servers.game.state, d.processes.client.state,
@@ -428,7 +428,7 @@ function renderPlayBody() {
         stText(v) + (v === 'on' && t != null ? ' · ' + fmtDur(t) : ''))))),
     h('div', { class: 'row' }, btn(T('Server and logs'), () => go('server'), 'sm', 'server')));
 
-  root.replaceChildren(...[...warns, hero, steps, early, multiCard(d), srv || S.live?.var ? liveCard() : null,
+  root.replaceChildren(...[...warns, hero, steps, early, multiCard(d), srv || S.live?.exists ? liveCard() : null,
     h('div', { class: 'grid g3' }, setCard, evCard, srvCard)].filter(Boolean));
 }
 
@@ -503,7 +503,7 @@ async function liveTick() {
   if (S.page !== 'play' || S.liveBusy) return;
   S.liveBusy = true;
   try { S.live = await api('/api/live'); } catch (e) { S.live = null; } finally { S.liveBusy = false; }
-  const c = $('#canli-card'), want = srvState(S.state).game === 'on' || !!S.live?.var;
+  const c = $('#live-card'), want = srvState(S.state).game === 'on' || !!S.live?.exists;
   if (c && want) c.replaceWith(liveCard());
   else if (!!c !== want) { S.sig.play = null; renderPlayBody(); }     // let the card appear / disappear
 }
@@ -515,7 +515,7 @@ function meter(label, v, max, cls) {
 function liveCard() {
   const r = S.live;
   const head = h('h2', null, icon('zap'), T('Live status'));
-  if (!r || !r.var) return h('div', { class: 'card', id: 'live-card' }, head, h('p', { class: 'desc' }, T("Waiting for the game server's status…")));
+  if (!r || !r.exists) return h('div', { class: 'card', id: 'live-card' }, head, h('p', { class: 'desc' }, T("Waiting for the game server's status…")));
   const d = r.state, w = d.world || {}, g = d.ship, p = d.pilot, k = d.position;
   const flags = [d.connected ? badge(T('Client connected'), 'ok') : badge(T('Client not connected'), ''), r.age > 10 ? badge(T('Status {0} s old', Math.round(r.age)), 'warn') : null,
     w.dead ? badge(T('Ship destroyed'), 'err') : null, w.in_combat ? badge(T('In combat'), 'orange') : null, w.safe ? badge(T('In a safe zone'), 'info') : null];
@@ -579,8 +579,8 @@ async function friendsTick() {
   if (friendsMode(v, S.state) !== S.sig.friendsMode) return drawFriends();
   if (friendsDyn(v) === S.sig.friendsDyn) return;
   S.sig.friendsDyn = friendsDyn(v);
-  const g = $('#ark-misafirler'); if (g) g.replaceWith(guestsCard(v.host));
-  const j = $('#ark-join-durum'); if (j) j.replaceWith(joinStatus(v));
+  const g = $('#friend-guests'); if (g) g.replaceWith(guestsCard(v.host));
+  const j = $('#friend-join-status'); if (j) j.replaceWith(joinStatus(v));
 }
 
 function launchSteps(o) {
@@ -820,7 +820,7 @@ async function backupsModal(id) {
     const r = await act(() => api('/api/backups?id=' + encodeURIComponent(id))); if (!r) return;
     const k = r.record, cfg = r.settings;
     const note = h('input', { class: 'input', placeholder: T('Note (optional): e.g. Before the gate') });
-    const take = btn(T('Back up now'), () => act(() => api('/api/backups/buy', { id, not: note.value }), T('Backup taken.')).then(load), 'primary', 'save');
+    const take = btn(T('Back up now'), () => act(() => api('/api/backups/buy', { id, note: note.value }), T('Backup taken.')).then(load), 'primary', 'save');
     const tog = h('input', { type: 'checkbox', checked: cfg.backup_on_launch, onchange: e => act(() => api('/api/panel_settings', { values: { backup_on_launch: e.target.checked } }), T('Saved.')) });
     const keep = h('input', { class: 'input num', type: 'number', min: 1, max: 200, value: cfg.backup_count,
       onchange: e => act(() => api('/api/panel_settings', { values: { backup_count: +e.target.value } }), T('Saved.')) });
@@ -838,13 +838,13 @@ async function backupsModal(id) {
         }, 'sm', 'undo', { disabled: k.in_use, title: k.in_use ? T("Can't restore while the game is running") : '' }),
         btn('', ev => popMenu(ev.currentTarget, [
           { label: T('Open as a new save'), ic: 'plus', fn: async () => { const v = await promptBox(T('New save from backup'), T('Name of the new save'), `${k.name} (${b.time.slice(0, 10)})`); if (v != null) act(() => api('/api/backups/new_save', { id, file: b.file, name: v }), T('New save created.')).then(() => S.page === 'saves' && renderSaves()); } },
-          { label: T('Note'), ic: 'note', fn: async () => { const v = await promptBox(T('Backup note'), T('Note'), b.not_); if (v != null) act(() => api('/api/backups/note', { id, file: b.file, not: v })).then(load); } },
+          { label: T('Note'), ic: 'note', fn: async () => { const v = await promptBox(T('Backup note'), T('Note'), b.not_); if (v != null) act(() => api('/api/backups/note', { id, file: b.file, note: v })).then(load); } },
           '-',
           { label: T('Delete'), ic: 'trash', danger: true, fn: async () => { if (await confirmBox(T('Delete the backup?'), T('The {0} backup will be deleted from disk.', b.time), { ok: T('Delete'), danger: true })) act(() => api('/api/backups/delete', { id, file: b.file }), T('Backup deleted.')).then(load); } },
         ]), 'ghost sm icon', 'more')))));
     const body = [
       k.in_use ? h('div', { class: 'alert info' }, icon('info'), h('div', null, T('The save is in the game: you can take backups; close the game and the server to restore.'))) : null,
-      h('div', { class: 'row' }, note, take, btn(T('Folder'), () => act(() => api('/api/open_folder', { ne: 'backup', id })), 'ghost', 'folder')),
+      h('div', { class: 'row' }, note, take, btn(T('Folder'), () => act(() => api('/api/open_folder', { what: 'backup', id })), 'ghost', 'folder')),
       h('div', { class: 'row wrap small muted', style: { gap: '18px' } },
         h('label', { class: 'row' }, h('span', { class: 'switch' }, tog, h('span')), T("Back up automatically on Play")),
         h('label', { class: 'row' }, T('Automatic backups to keep'), keep),
@@ -1099,7 +1099,7 @@ async function renderEvents(list) {
 // Views: hourly (the 24 hours of the selected day, rows and sessions), daily (the day's detailed list), weekly (7 days from Monday),
 // monthly (6-week grid). Bar: filled per the calendar, outlined if manually open, faded if manually closed. Times are local time.
 const CAL = { appearance: 'weekly', day: null, filter_by: { yearly: true, weekly: true, session: true }, search: '', data: null, coverage: null };
-const CAL_VIEW = [['hourly', N('Hourly')], ['daily', N('Log')], ['weekly', N('Weekly')], ['monthly', N('Monthly')]];
+const CAL_VIEW = [['hourly', N('Hourly')], ['daily', N('Daily')], ['weekly', N('Weekly')], ['monthly', N('Monthly')]];
 const CAL_COLOR = ['#38c4ff', '#ff8a3d', '#3ddc97', '#ff6b81', '#a29bfe', '#ffc857', '#1dd1a1', '#f368e0', '#54a0ff', '#ff7f50', '#00d2d3', '#c8d6e5'];
 const calColor = k => { let x = 7; for (const c of k) x = (x * 31 + c.charCodeAt(0)) >>> 0; return CAL_COLOR[x % CAL_COLOR.length]; };
 const dayStart = d => new Date(d.getFullYear(), d.getMonth(), d.getDate());
@@ -1152,7 +1152,7 @@ function drawCalendar() {
       : dfmt(A, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
   const chip = (k, t) => h('button', { class: 'cal-filter' + (CAL.filter_by[k] ? ' on' : ''), onclick: () => { CAL.filter_by[k] = !CAL.filter_by[k]; drawCalendar(); } }, T(t));
   const search = h('input', { class: 'input', style: { width: '170px' }, placeholder: T('Search events…'), value: CAL.search,
-    oninput: e => { CAL.search = e.target.value; clearTimeout(CAL.searchTimer); CAL.searchTimer = setTimeout(() => { drawCalendar(); const s = $('#tk-ara'); if (s) { s.focus(); s.setSelectionRange(s.value.length, s.value.length); } }, 250); } });
+    oninput: e => { CAL.search = e.target.value; clearTimeout(CAL.searchTimer); CAL.searchTimer = setTimeout(() => { drawCalendar(); const s = $('#cal-search'); if (s) { s.focus(); s.setSelectionRange(s.value.length, s.value.length); } }, 250); } });
   search.id = 'cal-search';
   const bar = h('div', { class: 'card cal-toolbar' },
     h('div', { class: 'row between wrap' },
@@ -1365,7 +1365,7 @@ function dlWatch(wrap, st, onDone, opts) {
 function engineBox(m, refresh, { engine = true } = {}) {
   const call = (path, msg) => act(() => api(path, {}), msg).then(x => { if (x) refresh(x); });
   const pct = m.total ? Math.floor(100 * m.claimed / m.total) : 0, run = m.running, ros = m.rosetta;
-  const rosetta = !ros.required ? null : ros.var ? h('div', { class: 'check-list', style: { margin: 0 } }, checkRow(true, T('Rosetta 2 is installed')))
+  const rosetta = !ros.required ? null : ros.exists ? h('div', { class: 'check-list', style: { margin: 0 } }, checkRow(true, T('Rosetta 2 is installed')))
     : h('div', { class: 'alert error' }, icon('alert'), h('div', null, T("Rosetta 2 is not installed: on Apple Silicon the Wine that opens the game runs with it. Installing it asks for your macOS administrator password."),
       ros.error ? h('div', { class: 'small' }, ros.error) : null),
       btn(ros.state === 'installing' ? T('Installing…') : T("Install Rosetta"), () => call('/api/rosetta/install'), 'primary sm', 'download', { disabled: ros.state === 'installing' }));
@@ -1447,7 +1447,7 @@ function runnerCard(c, cfg, saveCfg) {
   const found = [...c.protons.map(p => ['proton', p.route, p.name]), ...c.wines.map(w => ['wine', w, 'Wine'])];
   return h('div', { class: 'card' }, h('h2', null, icon('zap'), 'Wine / Proton'),
     h('p', { class: 'desc' }, T("The game is a Windows program; on Linux and macOS it opens with Wine or Proton. Automatic: Steam's Proton on Linux (through umu-run if it is installed), otherwise Wine; on macOS the Wine and DXMT that the panel installs itself (plain Wine can't draw the game's Direct3D 11 graphics on macOS). The client runs in its own prefix, which is set up the first time it opens (this can take about half a minute).")),
-    c.error && !(mac && c.engine && !c.engine.rosetta.var) ? h('div', { class: 'alert error' }, icon('alert'), h('div', null, c.error))
+    c.error && !(mac && c.engine && !c.engine.rosetta.exists) ? h('div', { class: 'alert error' }, icon('alert'), h('div', null, c.error))
       : h('div', { class: 'alert info' }, icon('info'), h('div', null, T('In use: {0}', used))),
     mWrap ? h('div', { style: { marginTop: '12px' } }, mWrap) : null,
     h('div', { class: 'stack', style: { gap: '14px', marginTop: '12px' } },
@@ -1485,7 +1485,7 @@ async function renderClient(data) {
     h('div', { class: 'row wrap', style: { marginTop: '12px' } },
       btn(T('Choose folder…'), () => act(() => api('/api/client/select', {}), x => x.cancelled ? T('Cancelled.') : T('Client folder saved.')).then(x => x && renderClient(x)), 'primary', 'folder'),
       btn(T('Find automatically'), () => act(() => api('/api/client/auto', {}), T('Automatic search is on.')).then(x => x && renderClient(x)), '', 'search'),
-      btn(T('Open folder'), () => act(() => api('/api/open_folder', { ne: 'client' })), 'ghost', 'folder')),
+      btn(T('Open folder'), () => act(() => api('/api/open_folder', { what: 'client' })), 'ghost', 'folder')),
     r.candidates.length > 1 || (r.candidates.length === 1 && r.candidates[0].route !== c.route) ? [h('hr', { class: 'sep' }), h('div', { class: 'lbl' }, T('Clients found')),
       h('div', { class: 'stack', style: { gap: '8px', marginTop: '8px' } }, r.candidates.map(a => h('div', { class: 'row' },
         badge(a.version || '?', a.compatible ? 'ok' : 'warn'), h('span', { class: 'mono', style: { flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }, title: a.route }, a.route),
@@ -1586,7 +1586,7 @@ async function renderServer() {
           [200, 400, 1000, 3000].map(n => h('option', { value: n, selected: logState.row === n }, T('{0} lines', n)))),
         h('label', { class: 'row small muted' }, h('span', { class: 'switch' }, h('input', { type: 'checkbox', checked: logState.auto, onchange: e => { logState.auto = e.target.checked; } }), h('span')), T('Live')),
         btn('', () => loadLog(), 'ghost sm icon', 'refresh', { title: T('Refresh') }),
-        btn(T('Folder'), () => act(() => api('/api/open_folder', { ne: 'logs' })), 'ghost sm', 'folder'),
+        btn(T('Folder'), () => act(() => api('/api/open_folder', { what: 'logs' })), 'ghost sm', 'folder'),
         btn(T('Clear'), async () => { if (await confirmBox(T('Clear the log?'), T('{0} will be emptied.', logState.name), { ok: T('Clear'), danger: true })) act(() => api('/api/log/clear', { name: logState.name }), T('Cleared.')).then(loadLog); }, 'ghost sm', 'trash'))),
     h('div', { class: 'log-tabs', id: 'log-tabs', style: { margin: '10px 0' } }), h('div', { class: 'log-view', id: 'log-view' }));
   $('#content').replaceChildren(h('div', { class: 'stack' }, h('div', { class: 'grid g3', id: 'srv-cards' }), h('div', { class: 'grid g2' }, behav, ports), logs));
@@ -1610,13 +1610,13 @@ function renderServerCards() {
     extra, h('div', { class: 'actions' }, actions));
   const w = s.servers.web, o = s.servers.game, srvOn = w.state === 'on' || o.state === 'on';
   box.replaceChildren(
-    card(T('Web server'), 'link', w, w.ports, h('div', { class: 'small muted' }, T("The client's web login, map list and language selection.")), [btn(T('Log'), () => showLog('http.log'), 'sm'), btn(T('Console'), () => showLog('web_konsol.log'), 'ghost sm')]),
+    card(T('Web server'), 'link', w, w.ports, h('div', { class: 'small muted' }, T("The client's web login, map list and language selection.")), [btn(T('Log'), () => showLog('http.log'), 'sm'), btn(T('Console'), () => showLog('web_console.log'), 'ghost sm')]),
     card(T('Game server'), 'server', o, o.ports, h('div', { class: 'small muted' }, s.record ? T('Save: {0}', s.record) + (s.control_channel ? ' · ' + T('control channel open (8099)') : '') : T('Game world, saving, chat (7771).')),
       [srvOn ? btn(T('Stop'), () => act(() => api('/api/server/stop', {}), T('Stopped.')), 'danger sm', 'stop', { disabled: cl || busy, title: cl ? T('Close the game first') : '' })
         : btn(T('Start'), () => act(() => api('/api/play', { server_only: true })), 'primary sm', 'play', { disabled: busy }),
       // icon only: so the four buttons fit the card width and "Console" does not drop to the bottom on its own
       btn(null, () => act(() => api('/api/server/restart', {}), T('Restarted.')), 'sm icon', 'refresh', { disabled: busy || !srvOn, title: T('Restart') + ' — ' + T('If the game is running, the client must reconnect') }),
-      btn(T('Log'), () => showLog('gs.log'), 'ghost sm'), btn(T('Console'), () => showLog('oyun_konsol.log'), 'ghost sm')]),
+      btn(T('Log'), () => showLog('gs.log'), 'ghost sm'), btn(T('Console'), () => showLog('game_console.log'), 'ghost sm')]),
     card(T('Client'), 'monitor', s.client, null, h('div', { class: 'small muted' }, s.client.last ? T('Last closed {0} · ran for {1}', s.client.last.time, fmtDur(s.client.last.duration_sec)) : T('The original Unity client.')),
       [cl ? btn(T('Close'), async () => { if (await confirmBox(T('Close the client?'), T('The game window will be closed.'), { ok: T('Close'), danger: true })) act(() => api('/api/client/close', {})); }, 'danger sm', 'power')
         : btn(T('Play'), () => { go('play'); act(() => api('/api/play', {})); }, 'orange sm', 'play', { disabled: busy }),
@@ -1648,7 +1648,7 @@ async function loadLog(quiet) {
   const sig = logState.name + '|' + f + '|' + lines.length + '|' + (lines[lines.length - 1] || '');
   if (quiet && view.dataset.sig === sig) return;
   view.dataset.sig = sig;
-  view.replaceChildren(...(r.var ? lines.map(l => {
+  view.replaceChildren(...(r.exists ? lines.map(l => {
     const low = l.toLowerCase();
     const cls = /error|hata|traceback|exception|çöktü|failed/.test(low) ? 'e' : /uyar|warn|yanıtsız|unanswered/.test(low) ? 'w' : /^\d\d:\d\d:\d\d -> /.test(l) ? 'i' : '';
     return h('div', { class: cls }, l);
@@ -1759,7 +1759,7 @@ function rpCard() {
 async function renderPanel() {
   const r = await act(() => api('/api/about')); if (!r || S.page !== 'panel') return;
   const pathRow = (label, p, ne) => h('div', { class: 'set-row' }, h('div', null, h('div', { class: 'name' }, label), h('div', { class: 'help mono' }, p)),
-    h('div', { class: 'ctl' }, ne ? btn(T('Open'), () => act(() => api('/api/open_folder', { ne })), 'sm', 'folder') : null));
+    h('div', { class: 'ctl' }, ne ? btn(T('Open'), () => act(() => api('/api/open_folder', { what: ne })), 'sm', 'folder') : null));
   const langSeg = h('div', { class: 'seg diller' }, I18N.list.map(({ code: k, name: t }) => h('button', { class: I18N.lang === k ? 'on info' : '', onclick: async () => {
     if (k === I18N.lang) return;
     const x = await act(() => api('/api/panel_settings', { values: { lang: k } })); if (x) location.reload();
@@ -2505,9 +2505,9 @@ async function renderSkylab() {
     h('div', { class: 'card' }, h('h2', null, T('Transport to ship')), transport)));
 }
 
-async function skylabAction(modul, operation, mod) {
+async function skylabAction(module, operation, mod) {
   const amounts = operation === 'startTransport' && mod !== 'instantFinish' ? SK.send : {};
-  const r = await act(() => api('/api/game/skylab/action', { modul, operation, mod: mod || '', amounts }));
+  const r = await act(() => api('/api/game/skylab/action', { module, operation, mod: mod || '', amounts }));
   if (r) {
     if (r.errors.length) toast(skText(r.errors[0]), 'err');
     else if (r.achievements.length) toast(skText(r.achievements[r.achievements.length - 1]), 'ok');
@@ -2516,8 +2516,8 @@ async function skylabAction(modul, operation, mod) {
   renderSkylab();
 }
 
-async function skylabRobot(modul, tip) {
-  const r = await act(() => api('/api/game/skylab/robot', { modul, tip }));
+async function skylabRobot(module, tip) {
+  const r = await act(() => api('/api/game/skylab/robot', { module, tip }));
   if (r && !r.done) toast(skText(r.errors[0]), 'err');
   else if (r) toast(T('Robot bought.'), 'ok');
   renderSkylab();
@@ -2527,7 +2527,7 @@ async function skylabRobot(modul, tip) {
 // Lots, bids and instant buy with the client's Auction* requests (panel_channel.py /muzayede). Auto-bid and alarm rules are
 // on the game server (muzayede.oto): they work even when the panel is closed, an alarm becomes an on-screen message in the game. Events (outbid, won, auto
 // bid ...) appear as notifications on every page of the panel (auctionEventTick; a desktop notification if permission is granted).
-const AUCTION_KIND = { hour: N('Hourly'), day: N('Log'), week: N('Weekly') };
+const AUCTION_KIND = { hour: N('Hourly'), day: N('Daily'), week: N('Weekly') };
 const AUCTION_GROUP = { ship: N('Ships'), shipdesign: N('Ship designs'), extra: N('Extras'), module: N('Modules'), booster: N('Boosters'),
   battery: N('Laser ammo'), rocket: N('Rockets'), generator: N('Generators'), weapon: N('Weapons'), special: N('Custom') };
 const AUCTION_STATUS = [['all', N('All')], ['bid', N('My bids')], ['leading', N('Leading')], ['not_leading', N('Not leading')], ['auto', N('Automatic')], ['alarm', N('With alarm')]];
@@ -2588,7 +2588,7 @@ async function renderAuction() {
         : h('div', { class: 'empty' }, T('No history.'))))));
   S.timers.push(setInterval(() => {            // period counters; when the period ends the list is refreshed (the item won, the new period)
     const t = Date.now() / 1000;
-    document.querySelectorAll('.auc-counter').forEach(el => { el.querySelector('b').textContent = fmtDur(MZ.end_time[el.dataset.type] - t); });
+    document.querySelectorAll('.auc-counter').forEach(el => { el.querySelector('b').textContent = fmtDur(MZ.end_time[el.dataset.kind] - t); });
     if (Object.values(MZ.end_time).some(b => b - t < -2) && !MZ.refreshing) { MZ.refreshing = true; setTimeout(() => { MZ.refreshing = false; if (S.page === 'auction') renderAuction(); }, 3000); }
   }, 1000));
 }

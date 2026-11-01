@@ -14,7 +14,7 @@ player (not guests).
 """
 import settings as SET
 
-BADGE = 6000                    # the client's admin rank (same as gm_konsol.ADMIN_RANK)
+BADGE = 6000                    # the client's admin rank (same as gm_console.ADMIN_RANK)
 SHIPS = (None, 'ship_admin', 'ship_police', 'ship_g-admincloak', 'ship_goliath_design_admincloak')
 CHAT_ROLE = 'admin'
 

@@ -67,7 +67,7 @@ async function renderSaves() {
     btn(T('Import…'), () => act(() => api('/api/saves/import', {}), x => x.cancelled ? T('Cancelled.') : T('Save imported.')).then(() => renderSaves()), '', 'upload'),
     h('span', { class: 'spacer' }),
     r.entries.length ? h('span', { class: 'small muted' }, T('{0} saves', r.entries.length)) : null,
-    btn(T('Saves folder'), () => act(() => api('/api/open_folder', { ne: 'saves' })), 'ghost', 'folder'));
+    btn(T('Saves folder'), () => act(() => api('/api/open_folder', { what: 'saves' })), 'ghost', 'folder'));
   $('#content').replaceChildren(h('div', { class: 'stack ke-kitap' }, tools,
     active ? saveScene(active) : h('div', { class: 'card empty' }, art('empty_save'), h('h3', null, T('No saves yet')),
       h('div', null, T('Create a new save or import a backup.'))),
@@ -85,7 +85,7 @@ function saveMenu(k, ev) {
       fn: () => openExtra(k.id, k.pilot).then(() => S.page === 'saves' && renderSaves()) } : null,
     extra ? '-' : null,
     { label: T('Rename'), ic: 'edit', fn: async () => { const v = await promptBox(T('Rename save'), T('Save name'), k.name); if (v != null) act(() => api('/api/saves/rename', { id: k.id, name: v }), T('Name changed.')).then(renderSaves); } },
-    { label: T('Add / edit note'), ic: 'note', fn: async () => { const v = await promptBox(T('Save note'), T('Note'), k.not_, { multiline: true }); if (v != null) act(() => api('/api/saves/note', { id: k.id, not: v })).then(renderSaves); } },
+    { label: T('Add / edit note'), ic: 'note', fn: async () => { const v = await promptBox(T('Save note'), T('Note'), k.not_, { multiline: true }); if (v != null) act(() => api('/api/saves/note', { id: k.id, note: v })).then(renderSaves); } },
     { label: T('Copy'), ic: 'copy', fn: async () => { const v = await promptBox(T('Copy save'), T('Name of the new save'), T('{0} (copy)', k.name)); if (v != null) act(() => api('/api/saves/copy', { id: k.id, name: v }), T('Copied.')).then(renderSaves); } },
     { label: T('Export (.zip)…'), ic: 'download', fn: () => act(() => api('/api/saves/export', { id: k.id, with_backups: true }), x => x.cancelled ? T('Cancelled.') : T('Exported: {0}', x.route)) },
     { label: T('Open folder'), ic: 'folder', fn: () => act(() => api('/api/open_folder', { ne: 'record', id: k.id })) },

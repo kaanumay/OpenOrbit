@@ -351,7 +351,7 @@ function weGeneral(area, b) {
   const covers = h('div', { class: 'we-covers' });
   const renderCover = () => fill(covers, ...DE.entries.covers.filter(k => k !== 'standard').map(k =>
     h('button', { type: 'button', class: 'we-cover-pick' + (w.cover === k ? ' on' : ''), disabled: w.standard, onclick: () =>
-      act(() => api('/api/world/update', { id: w.id, cover: k })).then(x => { if (x) { DE.entries = x; w.cover = k; renderCover(); $('#de-kok .we-bar .we-cover').replaceWith(weCover(k, 'lowercase')); } }) }, weCover(k))));
+      act(() => api('/api/world/update', { id: w.id, cover: k })).then(x => { if (x) { DE.entries = x; w.cover = k; renderCover(); $('#we-root .we-bar .we-cover').replaceWith(weCover(k, 'lowercase')); } }) }, weCover(k))));
   renderCover();
   const saveMeta = (fieldName, v) => act(() => api('/api/world/update', { id: w.id, [fieldName]: v })).then(x => { if (x) { DE.entries = x; w[fieldName] = v; weSaveStatus('saved'); } });
   const card = h('div', { class: 'card we-overview-card' }, weCover(w.cover, 'caps'),
@@ -921,7 +921,7 @@ function bulkPrice(products, refresh) {
 }
 
 // ================================================================== AUCTION
-const WE_AUCTION_KIND = [['hour', N('Hourly')], ['day', N('Log')], ['week', N('Weekly')]];
+const WE_AUCTION_KIND = [['hour', N('Hourly')], ['day', N('Daily')], ['week', N('Weekly')]];
 async function weAuction(area, b) {
   const r = await act(() => api('/api/world/section?section=auction&world=' + encodeURIComponent(DE.did))); if (!r || DE.section !== 'auction') return;
   const lots = r.lots;

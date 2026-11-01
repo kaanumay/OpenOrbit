@@ -307,7 +307,7 @@ async function btEditor() {
 }
 
 function btSaveStatus(state) {
-  const el = $('#bt-kayit'); if (!el) return;
+  const el = $('#bt-save'); if (!el) return;
   el.className = 'we-save-status ' + state;
   btFill(el, ...(state === 'saving' ? [h('span', { class: 'spin' }), T('Saving…')] : state === 'saved' ? [icon('check'), T('Saved')] : []));
 }
@@ -595,7 +595,7 @@ const BT_MOOD = { anger: N('Anger'), morale: N('Morale'), boredom: N('Boredom'),
 const BT_GEAR = [['laser', N('Lasers'), 'laser'], ['shield', N('Shield generators'), 'gen'], ['speed', N('Speed generators'), 'gen'], ['drone', N('Drones')], ['extras', N('Extras'), 'extras']];
 const BT_STATS = { npc: N('Aliens killed'), player: N('Players killed'), death: N('Deaths'), box: N('Bonus box'), cargo_box: N('Cargo boxes'),
   box_stolen: N("Others' cargo boxes"), purchase: N('Purchases'), quest: N('Quests finished'), duration_sec: N('Time played'),
-  spend_kredi: N('Credits spent'), spend_uridyum: N('Uridium spent'), ore_credits: N('Credits from ore sales'), resupply: N('Ammo restocks'),
+  spend_credits: N('Credits spent'), spend_uridium: N('Uridium spent'), ore_credits: N('Credits from ore sales'), resupply: N('Ammo restocks'),
   box_opened: N('Booty boxes opened'), key_pickup: N('Keys bought'), refining: N('Refining'), lab_load: N('Lab upgrades loaded'),
   skylab_upgrade: N('Skylab upgrades'), skylab_transport: N('Skylab transports'), technology: N('Tech items built'), assembly: N('Assembly crafting'),
   mode_run: N('Mode runs'), gate_done: N('Galaxy gates finished'), gate_lost: N('Galaxy gates lost'), gate_draw: N('Gate spins'),
@@ -696,7 +696,7 @@ async function btBotDetail(no, tab = 'profile') {
             v.online ? badge(T('Online'), 'ok') : null))),
       h('div', { class: 'bt-detail-label' }, h('div', null, h('b', null, T(BT_ARCHETYPE[v.archetype] || v.archetype)),
         v.habit ? T(BT_HABIT[v.habit] || v.habit) : null), h('div', { class: 'dim' }, btTraitSummary(v.traits))),
-      v.var ? [
+      v.exists ? [
         h('div', { class: 'se-lv sm' }, h('div', { class: 'se-lv-num' }, h('small', null, T('Lv')), h('b', null, p.level)),
           h('div', { class: 'grow' }, h('div', { class: 'row between small muted' }, btRank((BT.d.roster.find(b => b.no === no) || {}).rank || 1, 18), h('span', { class: 'mono' }, fmtShort(p.ep) + ' EP')),
             epBar(p.ep, p.base_ep || 0, p.next_ep))),
@@ -705,7 +705,7 @@ async function btBotDetail(no, tab = 'profile') {
           stats('heart', fmtShort(v.power.ehp), T('Effective HP')), stats('box', fmtShort(cargo) + '/' + fmtShort(v.cargo_capacity), T('Cargo')))] : null);
   }
   function menu() {
-    const n = { hangar: v.var ? BT_GEAR.reduce((a, [k]) => a + Object.keys(v.gear[k] || {}).length, 0) : 0, memory: v.var ? v.memories.length + v.relations.length : 0,
+    const n = { hangar: v.exists ? BT_GEAR.reduce((a, [k]) => a + Object.keys(v.gear[k] || {}).length, 0) : 0, memory: v.exists ? v.memories.length + v.relations.length : 0,
       thought: (v.agent || []).length };
     return h('nav', { class: 'card se-menu' }, BT_D_TABS.map(s => h('button', { class: s[0] === tab ? 'on' : '', type: 'button',
       onclick: () => { if (tab !== s[0]) { tab = s[0]; main.scrollTop = 0; render(); } } },
@@ -725,7 +725,7 @@ async function btBotDetail(no, tab = 'profile') {
         if (x) { BT.d = x; v.name = name; render(); }
       }, '', 'edit', { disabled: true })),
       h('div', { class: 'small dim' }, T('3-20 characters: letters, digits, _ . -  The name changes right away, without Save.')));
-    if (!v.var) return [nameCard, missing()];
+    if (!v.exists) return [nameCard, missing()];
     const currency = (key, icon, tag, n, o) => h('div', { class: 'se-currency' }, art('source_' + icon, 'se-currency-icon lg'),
       h('div', { class: 'grow' }, h('label', { class: 'lbl' }, tag), count(get_value(key, n), x => change(key, x), Object.assign({ min: 0, max: 2e12, cls: 'num wide' }, o))));
     const lv = p.next_ep ? T('Level {0}; next level at {1} EP.', p.level, fmtN(p.next_ep)) : T('Level {0}.', p.level);
@@ -763,13 +763,13 @@ async function btBotDetail(no, tab = 'profile') {
     };
     return [card(T('Traits'), 'brain', h('p', { class: 'desc' }, T('Set when the roster was generated; change it and the bot decides accordingly (aggressive bots lean to PvP, social ones to chat, thrifty ones to saving).')),
       h('div', { class: 'bt-personality' }, h('div', { class: 'bt-radar-box' }, r.svg), h('div', { class: 'bt-traits' }, Object.entries(BT_TRAIT).map(traitRow)))),
-    v.var ? card(T('Mood'), 'heart', h('p', { class: 'desc' }, T('Its current feelings: they settle back over time. An angry bot seeks revenge, a tired one logs off early.')),
+    v.exists ? card(T('Mood'), 'heart', h('p', { class: 'desc' }, T('Its current feelings: they settle back over time. An angry bot seeks revenge, a tired one logs off early.')),
       h('div', { class: 'bt-traits two' }, Object.entries(BT_MOOD).map(moodRow))) : null];
   }
 
   // ---- Hangar: ship, equipment boxes, ammo, cargo
   function hangar() {
-    if (!v.var) return [missing()];
+    if (!v.exists) return [missing()];
     const e = v.gear, f = fc();
     const ship = get_value('ship', e.ship);
     const g = multiplier.ships.find(x => x.loot === ship) || {};
@@ -824,7 +824,7 @@ async function btBotDetail(no, tab = 'profile') {
 
   // ---- Memory
   function memory() {
-    if (!v.var) return [missing()];
+    if (!v.exists) return [missing()];
     const deleted = (a, k) => (value[a] || []).includes(k);
     const relation = v.relations.filter(x => !deleted('delete_relation', x.key)).map(x => {
       const d = get_value('relation', {})[x.key] ?? x.d;
@@ -883,7 +883,7 @@ async function btBotDetail(no, tab = 'profile') {
 
   // ---- Statistics
   function stats() {
-    if (!v.var) return [missing()];
+    if (!v.exists) return [missing()];
     const ist = v.stats || {};
     const value = (k, n) => k === 'duration_sec' ? fmtDur(n) : fmtN(Math.round(n));
     const remaining = Object.entries(ist).filter(([k]) => !BT_STATS_FEATURED.includes(k)).sort((a, b) => (BT_STATS[a[0]] ? 0 : 1) - (BT_STATS[b[0]] ? 0 : 1));

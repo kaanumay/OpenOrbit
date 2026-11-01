@@ -64,7 +64,7 @@ PORT = 8077
 UI_DIR = os.path.join(PANEL_DIR, 'ui')
 TEMPLATES = os.path.join(PTH.SAVE, 'settings_templates.json')
 BROWSER_PROFILE = os.path.join(os.environ.get('LOCALAPPDATA') or PTH.SAVE, 'DarkOrbitPanel', 'browser')
-LOGS = ('gs.log', 'http.log', 'client.log', 'oyun_konsol.log', 'web_konsol.log', 'panel.log', 'errors.log', 'unknown.log') + (
+LOGS = ('gs.log', 'http.log', 'client.log', 'game_console.log', 'web_console.log', 'panel.log', 'errors.log', 'unknown.log') + (
     () if os.name == 'nt' else ('wine.log',))      # Linux and macOS: output of Wine / Proton (processes.open_client)
 EXTRA_LOG = re.compile(r'client_[a-z0-9_]{1,40}\.log')          # logs of the multi-client's extra clients (multi_client.py)
 HEARTBEAT_SEC = 180                      # if the browser window cannot be watched: if this many requests do not arrive the window is considered closed (monotonic:
@@ -582,7 +582,7 @@ def warnings(folder=False):
                     'page': 'server'})
     for name, s in MANAGER.servers.items():
         if s.crashed:
-            out.append({'type': 'error', 'text': _('The %s server closed unexpectedly (exit code %s). Details: Server > Logs > %s_konsol.log', _({'game': 'Game', 'web': 'Web'}[name]), s.proc.poll(), name),
+            out.append({'type': 'error', 'text': _('The %s server closed unexpectedly (exit code %s). Details: Server > Logs > %s_console.log', _({'game': 'Game', 'web': 'Web'}[name]), s.proc.poll(), name),
                         'page': 'server'})
     return out
 
@@ -672,7 +672,7 @@ def clients_closed():
     if MANAGER.client_alive() or MULTI.live():
         return                                        # a client is running: the servers stay open
     game, last = MANAGER.servers.get('game'), MANAGER.last_client
-    if not (game and game.alive and MANAGER.client_started and MANAGER.client_started >= game.start and last and not last['early']):
+    if not (game and game.alive and MANAGER.client_started and MANAGER.client_started >= game.started_at and last and not last['early']):
         return
     if CFG.get('when_client_closes') == 'close':
         MANAGER.stop_servers()
@@ -747,7 +747,7 @@ def launch(server_only=False, friend=False):
             STATE['last_backup'] = time.time()
         if not MANAGER.running() and CFG.get('rotate_logs'):
             import launcher
-            launcher.rotate_logs(PTH.LOGS, names=('gs.log', 'http.log', 'client.log', 'oyun_konsol.log', 'web_konsol.log',
+            launcher.rotate_logs(PTH.LOGS, names=('gs.log', 'http.log', 'client.log', 'game_console.log', 'web_console.log',
                                                 'panel.log'))
         _step((_('Starting the friend server') if friend else _('Starting the servers'))
               if not MANAGER.running() or restart else _('Servers running'))
@@ -1778,7 +1778,7 @@ def h_post(path, b):
     if path == '/api/saves/rename':
         return SAV.rename(slot_arg(b), b.get('name'))
     if path == '/api/saves/note':
-        return SAV.set_note(slot_arg(b), b.get('not'))
+        return SAV.set_note(slot_arg(b), b.get('note'))
     if path == '/api/saves/copy':
         return {'id': SAV.duplicate(slot_arg(b), b.get('name'))}
     if path == '/api/saves/delete':
@@ -1815,14 +1815,14 @@ def h_post(path, b):
         return {}
     # ---- backups
     if path == '/api/backups/buy':
-        return {'file': SAV.backup(slot_arg(b), 'manual', b.get('not') or '')}
+        return {'file': SAV.backup(slot_arg(b), 'manual', b.get('note') or '')}
     if path == '/api/backups/restore':
         return {'safety': SAV.restore(slot_arg(b), b.get('file'))}
     if path == '/api/backups/delete':
         SAV.delete_backup(slot_arg(b), b.get('file'))
         return {}
     if path == '/api/backups/note':
-        SAV.set_backup_note(slot_arg(b), b.get('file'), b.get('not'))
+        SAV.set_backup_note(slot_arg(b), b.get('file'), b.get('note'))
         return {}
     if path == '/api/backups/new_save':
         return {'id': SAV.backup_as_new(slot_arg(b), b.get('file'), b.get('name'))}
@@ -1928,7 +1928,7 @@ def h_post(path, b):
             raise Error(_('The log is open in a server right now; stop the server and try again.'))
         return {}
     if path == '/api/open_folder':
-        what = b.get('ne')
+        what = b.get('what')
         paths = {'project': ROOT, 'saves': PTH.SAVES, 'logs': PTH.LOGS, 'client': client_folder() or ROOT,
                  'server': SERVER}
         if what in ('record', 'backup'):
