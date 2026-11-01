@@ -149,7 +149,7 @@ public sealed class GMCenterOverlay : MonoBehaviour
         catch (Exception e)
         {
             error = "Nie można połączyć GM Center: " + e.Message;
-            notice = "Sprawdź, czy serwer działa i czy włączono Geliştirici > GM konsolu.";
+            notice = "Sprawdź, czy serwer działa i czy włączono Ustawienia gry > Deweloper > Konsola GM.";
         }
         finally
         {
@@ -227,7 +227,7 @@ public sealed class GMCenterOverlay : MonoBehaviour
                     {
                         Key = Text(item, "key"),
                         Name = Text(item, "name"),
-                        Status = Text(item, "status"),
+                        Status = StatusLabel(Text(item, "status")),
                         Reason = Text(item, "reason"),
                         GateId = Number(item, "gate_id"),
                         Parts = Number(item, "parts"),
@@ -288,6 +288,20 @@ public sealed class GMCenterOverlay : MonoBehaviour
         await LoadGatesAsync();
     }
 
+    static string StatusLabel(string code)
+    {
+        return code switch
+        {
+            "building" => "W BUDOWIE",
+            "first_manual_completion_required" => "WYMAGA PIERWSZEGO UKOŃCZENIA",
+            "gate_in_progress" => "WROTA W TRAKCIE",
+            "ready_to_send" => "GOTOWE DO WYSŁANIA",
+            "dispatching" => "WYSŁANE",
+            "ready_to_collect" => "GOTOWE DO ODBIORU",
+            _ => code
+        };
+    }
+
     static string Text(JsonElement e, string key)
     {
         if (!e.TryGetProperty(key, out var value) || value.ValueKind == JsonValueKind.Null)
@@ -331,8 +345,8 @@ public sealed class GMCenterOverlay : MonoBehaviour
     {
         GUILayout.BeginVertical();
         GUILayout.BeginHorizontal();
-        GUILayout.Label("ADMINISTRATOR CONTROL SYSTEM", GUILayout.ExpandWidth(true));
-        GUILayout.Label(string.IsNullOrEmpty(token) ? "● OFFLINE" : "● CONNECTED", GUILayout.Width(115));
+        GUILayout.Label("PANEL ADMINISTRATORA", GUILayout.ExpandWidth(true));
+        GUILayout.Label(string.IsNullOrEmpty(token) ? "● OFFLINE" : "● POŁĄCZONO", GUILayout.Width(115));
         if (GUILayout.Button("X", GUILayout.Width(34)))
             SetOpen(false);
         GUILayout.EndHorizontal();
@@ -341,13 +355,13 @@ public sealed class GMCenterOverlay : MonoBehaviour
         GUILayout.BeginHorizontal(GUILayout.ExpandHeight(true));
 
         GUILayout.BeginVertical(GUI.skin.box, GUILayout.Width(185), GUILayout.ExpandHeight(true));
-        NavButton("OVERVIEW", Page.Dashboard);
-        NavButton("PLAYERS", Page.Players);
-        NavButton("DISPATCH / GATES", Page.Dispatch);
-        NavButton("GM COMMANDS", Page.Commands);
-        NavButton("ACTIVITY LOG", Page.Logs);
+        NavButton("PODGLĄD", Page.Dashboard);
+        NavButton("GRACZE", Page.Players);
+        NavButton("DISPATCH / WROTA", Page.Dispatch);
+        NavButton("KOMENDY GM", Page.Commands);
+        NavButton("AKTYWNOŚĆ", Page.Logs);
         GUILayout.FlexibleSpace();
-        GUILayout.Label("F10  ·  Toggle GM Center");
+        GUILayout.Label("F10  ·  Pokaż / ukryj GM Center");
         GUILayout.EndVertical();
 
         GUILayout.BeginVertical(GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
@@ -367,7 +381,7 @@ public sealed class GMCenterOverlay : MonoBehaviour
         GUILayout.Space(5);
         GUILayout.BeginHorizontal();
         GUILayout.Label(string.IsNullOrEmpty(error) ? notice : error, GUILayout.ExpandWidth(true));
-        if (GUILayout.Button("REFRESH", GUILayout.Width(100)))
+        if (GUILayout.Button("ODŚWIEŻ", GUILayout.Width(100)))
         {
             if (string.IsNullOrEmpty(token))
                 _ = ConnectAsync();
@@ -400,7 +414,7 @@ public sealed class GMCenterOverlay : MonoBehaviour
 
     void DrawDashboard()
     {
-        GUILayout.Label("SERVER OVERVIEW");
+        GUILayout.Label("STATUS SERWERA");
         GUILayout.Space(8);
         int count;
         lock (sync) count = players.Count;
@@ -411,18 +425,18 @@ public sealed class GMCenterOverlay : MonoBehaviour
         GUILayout.EndHorizontal();
         GUILayout.Space(12);
         GUILayout.BeginVertical(GUI.skin.box);
-        GUILayout.Label("QUICK ACCESS");
-        if (GUILayout.Button("Open player management", GUILayout.Height(36)))
+        GUILayout.Label("SZYBKI DOSTĘP");
+        if (GUILayout.Button("Otwórz zarządzanie graczami", GUILayout.Height(36)))
             page = Page.Players;
-        if (GUILayout.Button("Open Dispatch and gate diagnostics", GUILayout.Height(36)))
+        if (GUILayout.Button("Dispatch i diagnostyka wrót", GUILayout.Height(36)))
         {
             page = Page.Dispatch;
             _ = LoadGatesAsync();
         }
         GUILayout.EndVertical();
         GUILayout.Space(8);
-        GUILayout.Label("The original GM console remains available with Ctrl + Shift + Z.");
-        GUILayout.Label("This overlay is the new host-only administration interface.");
+        GUILayout.Label("Oryginalna konsola GM nadal działa pod Ctrl + Shift + Z.");
+        GUILayout.Label("To nowe okno administracyjne jest dostępne wyłącznie dla hosta.");
     }
 
     void Metric(string label, string value)
@@ -435,7 +449,7 @@ public sealed class GMCenterOverlay : MonoBehaviour
 
     void DrawPlayers()
     {
-        GUILayout.Label("CONNECTED AND KNOWN PLAYERS");
+        GUILayout.Label("GRACZE PODŁĄCZENI I ZNANI SERWEROWI");
         GUILayout.BeginHorizontal(GUILayout.ExpandHeight(true));
         GUILayout.BeginVertical(GUI.skin.box, GUILayout.Width(330), GUILayout.ExpandHeight(true));
         playerScroll = GUILayout.BeginScrollView(playerScroll);
@@ -462,7 +476,7 @@ public sealed class GMCenterOverlay : MonoBehaviour
             selected = players.Find(p => p.Uid == selectedUid);
         if (selected == null)
         {
-            GUILayout.Label("Select a player from the list.");
+            GUILayout.Label("Wybierz gracza z listy.");
         }
         else
         {
@@ -474,7 +488,7 @@ public sealed class GMCenterOverlay : MonoBehaviour
             GUILayout.Label("Credits: " + selected.Credits.ToString("N0") + "     Uridium: " + selected.Uridium.ToString("N0"));
             GUILayout.Label("EP: " + selected.Ep.ToString("N0") + "     Honour: " + selected.Honour.ToString("N0"));
             GUILayout.Space(10);
-            GUILayout.Label("Profile editing is the next implementation layer. This first increment is read-only.");
+            GUILayout.Label("Edycja profilu będzie następnym etapem. Ta wersja pokazuje dane bez ich zmiany.");
         }
         GUILayout.EndVertical();
         GUILayout.EndHorizontal();
@@ -483,12 +497,12 @@ public sealed class GMCenterOverlay : MonoBehaviour
     void DrawDispatch()
     {
         GUILayout.BeginHorizontal();
-        GUILayout.Label("DISPATCH GATE STATUS", GUILayout.ExpandWidth(true));
-        GUILayout.Label("Target: " + (string.IsNullOrEmpty(selectedName) ? "not selected" : selectedName));
+        GUILayout.Label("STATUS WRÓT DISPATCH", GUILayout.ExpandWidth(true));
+        GUILayout.Label("Gracz: " + (string.IsNullOrEmpty(selectedName) ? "nie wybrano" : selectedName));
         GUILayout.EndHorizontal();
         if (string.IsNullOrEmpty(selectedUid))
         {
-            GUILayout.Label("Select a player in PLAYERS first.");
+            GUILayout.Label("Najpierw wybierz gracza w zakładce GRACZE.");
             return;
         }
         gateScroll = GUILayout.BeginScrollView(gateScroll);
@@ -504,17 +518,17 @@ public sealed class GMCenterOverlay : MonoBehaviour
 
                 if (gate.CanSend)
                 {
-                    if (GUILayout.Button("SEND · 1 GGEU", GUILayout.Width(150), GUILayout.Height(38)))
+                    if (GUILayout.Button("WYŚLIJ · 1 GGEU", GUILayout.Width(150), GUILayout.Height(38)))
                         _ = DispatchActionAsync(gate, "send");
                 }
                 else if (gate.CanCollect)
                 {
-                    if (GUILayout.Button("COLLECT", GUILayout.Width(150), GUILayout.Height(38)))
+                    if (GUILayout.Button("ODBIERZ", GUILayout.Width(150), GUILayout.Height(38)))
                         _ = DispatchActionAsync(gate, "collect");
                 }
                 else
                 {
-                    GUILayout.Label(gate.Built ? "LOCKED" : "BUILDING", GUILayout.Width(100));
+                    GUILayout.Label(gate.Built ? "ZABLOKOWANE" : "W BUDOWIE", GUILayout.Width(100));
                 }
                 GUILayout.EndHorizontal();
             }
@@ -524,18 +538,18 @@ public sealed class GMCenterOverlay : MonoBehaviour
 
     void DrawCommands()
     {
-        GUILayout.Label("NATIVE GM COMMANDS");
-        GUILayout.Label("Current commands remain available in the game's original GM window:");
+        GUILayout.Label("ORYGINALNE KOMENDY GM");
+        GUILayout.Label("Dotychczasowe komendy nadal są dostępne w oryginalnym oknie GM:");
         GUILayout.Label("jump · kill · quest · book · spawn · box · god · cooldown · pet · galaxyGates");
         GUILayout.Space(10);
-        GUILayout.Label("The new typed command builder and player-target selection will be added after the player and Dispatch API is validated.");
+        GUILayout.Label("Kreator komend i wybór celu (gracza) zostaną dołączone po sprawdzeniu API graczy i Dispatch.");
         if (GUILayout.Button("Open player list", GUILayout.Height(34)))
             page = Page.Players;
     }
 
     void DrawLogs()
     {
-        GUILayout.Label("ACTIVITY");
+        GUILayout.Label("AKTYWNOŚĆ");
         GUILayout.Label(notice);
         if (!string.IsNullOrEmpty(error))
             GUILayout.Label(error);
