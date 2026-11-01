@@ -69,6 +69,22 @@ def gate_status(*, built, completed, wave, sent_until=None, now=None):
     }
 
 
+def gate_progress(state, required):
+    """Separate the current assembled gate from the next build while a gate is prepared."""
+    current_parts = len(state.get("parcalar") or [])
+    next_parts = len(state.get("sonraki") or []) if state.get("hazir") else 0
+    required = int(required)
+    return {
+        "parts": current_parts,
+        "required": required,
+        "built": current_parts >= required,
+        "next_parts": next_parts,
+        "next_required": required,
+        "next_built": next_parts >= required,
+        "prepared": bool(state.get("hazir")),
+    }
+
+
 def player_snapshot(person):
     """Compact, UI-oriented view of a topluluk.Kisi."""
     profile = person.profil
@@ -111,15 +127,10 @@ def dispatch_snapshot(person, now=None):
             if key == "hades":  # grup kapısı Dispatch ile gönderilmez
                 continue
             state = gate_states.get(key) or KAPI.fresh(definition)
-            # parcalar is the currently assembled gate. Once that gate is
-            # prepared, new spins go to sonraki and must be shown separately.
-            # GalaxyGateBuilderInfoCommand.currPart uses Kapilar.parts(), which
-            # switches to sonraki while hazir=True; Dispatch.send_gate(), in
-            # contrast, validates built() against parcalar.
-            parts = len(state.get("parcalar") or [])
-            next_parts = len(state.get("sonraki") or []) if state.get("hazir") else 0
-            required = int(definition["parca"])
-            is_built = parts >= required
+            # currPart in the Galaxy Gates window can refer to the next build
+            # while hazir=True. Keep the assembled gate and its successor separate.
+            progress = gate_progress(state, definition["parca"])
+            is_built = progress["built"]
             until = sent.get(key)
             eligibility = gate_status(
                 built=is_built,
@@ -132,13 +143,7 @@ def dispatch_snapshot(person, now=None):
                 "key": key,
                 "name": definition.get("ad", key),
                 "gate_id": int(definition["kimlik"]),
-                "parts": parts,
-                "required": required,
-                "built": is_built,
-                "prepared": bool(state.get("hazir")),
-                "next_parts": next_parts,
-                "next_required": required,
-                "next_built": next_parts >= required,
+                **progress,
                 "wave": int(state.get("dalga") or 0),
                 "completed": int(state.get("tamam") or 0),
                 "dispatch_until": int(until) if until is not None else None,
