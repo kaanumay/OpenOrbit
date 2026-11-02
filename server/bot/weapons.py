@@ -38,7 +38,8 @@ def pick_laser(bot, ehp=0.0, pvp=False):
     """Which laser ammo (in stock) for this target -> loot or None (no rounds at all)."""
     s = stock(bot)
     special = bot.permission.get('custom_ammunition', True)
-    frugal = bot.o('frugality')
+    from . import playstyle as PL
+    frugal = PL.thrift(bot)
     if special:
         if pvp:
             for c in (RSB, UCB, MCB50, MCB25):
@@ -208,7 +209,8 @@ def resupply(bot):
     if not bot.permission.get('shop', True):
         return {}
     s = stock(bot)
-    t = bot.o('frugality')
+    from . import playstyle as PL
+    t = PL.thrift(bot)
     hourly = hourly_ammo(bot)
     claimed = {}
 
@@ -217,14 +219,14 @@ def resupply(bot):
         if not f:
             return
         currency = 'credits' if f[0] == 'C' else 'uridium'
-        budget = bot.k[currency] * pay
+        budget = bot.k[currency] * pay * (1 - PL.reserve(bot)[f[0]])      # a saver buys ammo in smaller batches
         count = int(min(count, budget // max(f[1], 1e-9)))
         if count > 0 and bot.pay(f[0], count * f[1]):
             add(bot, loot, count)
             claimed[loot] = count
 
     if s.get(LCB, 0) < hourly * (0.5 + t):
-        buy(LCB, hourly * (2 + 2 * t), 0.6)            # mandatory: up to most of the credits
+        buy(LCB, hourly * (2.2 + 1.2 * bot.o('patience')), 0.6)     # mandatory: up to most of the credits (batch: patience, not thrift)
     if bot.permission.get('rocket', True) and sum(s.get(r, 0) for r in ROCKETS) < 30:
         en = None
         for r in ROCKETS:

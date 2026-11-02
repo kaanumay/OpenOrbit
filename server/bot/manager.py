@@ -6,7 +6,7 @@ thread. The simulation script (tools/bot_simulation.py) and the tests drive the 
 On each tick only the bots that have work are processed: offline ones ask "should I log in" once a minute; online ones think at their own decision moments,
 abstract effects are applied in a batch every ABSTRACT_SEC. The worlds (ship.py) learn the bots on their maps through hooks.
 """
-import json, os, random, threading, time, traceback
+import json, math, os, random, threading, time, traceback
 
 import map_links as H
 from . import brain as B
@@ -14,6 +14,7 @@ from . import catalog as K
 from . import personality as PS
 from . import memories as MEM
 from . import abstract_sim as S
+from . import playstyle as PL
 from .state import Bot
 from . import speech as SPC
 from . import game_settings as GS
@@ -331,6 +332,8 @@ class Manager(ChatEngine):
             EV.season_pass(b, min(dt, 60.0))
             if b.body is None and b.target is not None:
                 b.target.abstract(b, min(dt, 60.0), self)
+            if b.target is not None and not b.en_route:
+                PL.practice(b, b.target.name, min(dt, 60.0))      # skill grows with practice (playstyle.py)
 
     def signup_tick(self, now, online, limit):
         """The next pilots sign up: for each company separately, one on average every signup_sec (±33%); a new signup enters the game at once
@@ -362,8 +365,9 @@ class Manager(ChatEngine):
         return FRONTS[int((now or self.now) // 3600) % len(FRONTS)]
 
     def _should_login(self, b, now):
-        hour = time.localtime(now).tm_hour
+        hour = time.localtime(now).tm_hour + PL.hour_shift(b)
         p = PS.online_tendency(b.k['personality'], hour) * self.setting('online_ratio', 0.6) * (PRIME_POPULATION if self.prime(now) else 1)
+        p *= PL.online_factor(b, now)                      # weekday/weekend, how often it logs in, motivation, a break
         # per-minute trial: divide the hourly tendency into minutes (average session ~1-3 hours; the equilibrium brings the online share close to the tendency)
         return b.r.random() < p / 45.0
 
@@ -378,8 +382,9 @@ class Manager(ChatEngine):
                 break
             if not b.saved:
                 continue
-            p = PS.online_tendency(b.k['personality'], hour) * self.setting('online_ratio', 0.6) * (PRIME_POPULATION if self.prime(now) else 1)
-            avg = sum(PS.HABITS[b.k['personality']['habit']][2]) / 2.0
+            p = PS.online_tendency(b.k['personality'], hour + PL.hour_shift(b)) * self.setting('online_ratio', 0.6) \
+                * (PRIME_POPULATION if self.prime(now) else 1) * PL.online_factor(b, now)
+            avg = sum(PS.HABITS[b.k['personality']['habit']][2]) / 2.0 * PL.session_factor(b)
             pay = (p / 45.0 * avg) / (1 + p / 45.0 * avg)
             if b.r.random() < pay:
                 self.entry(b, now, silent=True)
@@ -394,7 +399,9 @@ class Manager(ChatEngine):
             b.k['map'] = K.ev(b.company)
             b.plan = {}
         b.online = True
-        b.session_end = now + PS.session_min(b.k['personality'], b.r) * 60
+        PL.on_login(b, now)                                # session theme, the day's form, wallet top-up
+        b.session_end = PL.cap_session(b, now, now + PS.session_min(b.k['personality'], b.r) * 60 * PL.session_factor(b)
+                                       * math.exp(b.r.gauss(0, 0.3)))
         b.mood.update(now)
         b.mood.d['fatigue'] = 0.0
         b.last_abstract = now
@@ -403,7 +410,7 @@ class Manager(ChatEngine):
         b.__dict__.pop('_error', None)                    # the error counter is per session (when it counted for life, every single error took the bot down for 1 hour)
         self.on_map.setdefault(b.game_map, set()).add(b)
         b._event_time = now
-        if not silent and self.mode != 'simple' and b.r.random() < 0.25 * b.o('talkativeness'):
+        if not silent and self.mode != 'simple' and b.r.random() < 0.25 * b.o('talkativeness') and not PL.quiet(b):
             from . import talk as TALK                     # others may greet back (bot/talk)
             if TALK.say(self, b, 'hello', b.r.choice(('global', 'company')), now, delay=b.r.uniform(5, 40),
                         meta=dict(kind='event', depth=1, acts=['greet'], react='greet_back')) is None:
@@ -412,12 +419,18 @@ class Manager(ChatEngine):
             d.bot_online(b, True)
 
     def exit(self, b, now):
-        if b.r.random() < 0.15 * b.o('talkativeness'):
+        if b.r.random() < 0.15 * b.o('talkativeness') and not PL.quiet(b):
             from . import talk as TALK
             if TALK.say(self, b, 'leaving', 'global', now, delay=0, meta=dict(kind='event', depth=1, acts=['bye'], react='bye_reply')) is None:
                 self.speak(b, 'global', SPC.template(b, 'exit'), now=now, immediate=True)
             self.chat_tick(now)
+        if self.society:
+            import group as GR
+            if GR.group_of(b.uid) is not None:             # logging off leaves the group (its session stays registered: it would block it)
+                from . import society
+                GR.handle(society.person(b), 'LeaveGroupRequest', {})
         b.online = False
+        PL.on_logout(b, now)                               # stagnation, motivation, maybe a break of a few days
         b.next_login = now + b.r.uniform(15, 120) * 60          # after leaving it does not come in for a while
         b.target = None
         b.k['target'] = None
@@ -497,6 +510,8 @@ class Manager(ChatEngine):
                         target = a.r.choice(combat)        # clan war: a member of the enemy clan on the map first
                 if target.dead_until > now or a.k.get('clan') and TP.clan_relation(a, target) in (1, 2):
                     continue
+                if a.memory.count(target.name, 'i_killed') >= 3 and a.r.random() < 0.55:
+                    continue                     # killed that one several times already: looks for someone else
                 ratio = target.value()['power'] / max(0.5, a.value()['power'])
                 if not hunt and ratio > 0.9 + 0.6 * a.o('risk'):
                     continue                     # does not attack a stronger one when not hunting
@@ -524,6 +539,7 @@ class Manager(ChatEngine):
                     while b.en_route:
                         S.jump_to(b, b.en_route.pop(0), None)
                 b.target.abstract(b, dt, self)
+                PL.practice(b, b.target.name, dt)
             if self.permission('shop'):
                 for _ in range(8):           # spends the money accumulated in a big step (separate decisions in real time)
                     c = SHOP.candidate(b)[0]

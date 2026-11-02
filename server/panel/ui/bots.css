@@ -182,6 +182,9 @@ tr:hover .bt-name { color: var(--accent); }
 .bt-traits.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .bt-trait { display: grid; grid-template-columns: 112px 34px minmax(0, 1fr); align-items: center; gap: 8px; font-size: 13px; }
 .bt-trait > span { color: var(--steel); }
+.bt-trait.wide { grid-template-columns: 132px 62px minmax(0, 1fr); }
+.bt-skill-pair { display: grid; gap: 2px; }
+.bt-detail-card h3.bt-sub { font: 600 13px var(--body, inherit); letter-spacing: 0; text-transform: none; margin: 14px 0 6px; color: var(--steel); }
 .bt-trait > b { font: 600 14px var(--display); text-align: right; font-variant-numeric: tabular-nums; color: #fff; }
 .bt-trait .bt-mood::-webkit-slider-runnable-track { background: linear-gradient(90deg, #b07a22, var(--amber) var(--p, 50%), rgba(110, 160, 220, .18) var(--p, 50%)); }
 .bt-trait .bt-mood::-webkit-slider-thumb { border-color: var(--amber); box-shadow: 0 0 10px rgba(255, 185, 77, .55); }

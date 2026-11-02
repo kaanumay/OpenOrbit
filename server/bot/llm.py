@@ -31,6 +31,7 @@ from . import interaction as IX
 from . import brain as B
 from . import catalog as K
 from . import speech as SPC
+from . import playstyle as PL
 from . import llm_provider as PRV
 from . import admin_warnings as AW
 from . import llm_server as LS
@@ -207,7 +208,7 @@ def persona(b, y=None):
         b.name, COMPANY[b.company], b.level, ev, b.k['gear']['ship'].replace('ship_', '').replace('-', ' '), H.name(b.game_map), target, currency,
         ARCHETYPE_NAME.get(b.archetype, 'a normal player'), dominant, weak, _mood(b.mood),
         (' People: %s.' % ', '.join(relation)) if relation else '', (' Recently: %s.' % '; '.join(events)) if events else '') + lang_note(b) + \
-        _memories_note(b, y) + AW.note(b, y.now if y is not None else None)
+        ' ' + PL.describe(b) + _memories_note(b, y) + AW.note(b, y.now if y is not None else None)
 
 
 def _memories_note(b, y):

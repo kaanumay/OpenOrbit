@@ -14,7 +14,8 @@ SELL_DISTANCE = 600
 
 def threshold(bot):
     """It returns to sell once the cargo reaches this much."""
-    return min(1.0, 0.55 + 0.3 * bot.o('patience') + 0.15 * bot.o('frugality'))
+    from .. import playstyle as PL
+    return max(0.3, min(1.0, 0.55 + 0.3 * bot.o('patience') + 0.15 * bot.o('frugality') + PL.sell_shift(bot)))
 
 
 def nearest_station(bot):
@@ -40,7 +41,9 @@ class Selling(Goal):
     min_sec = 30
 
     def eligible(self, bot, b):
-        return bot.cargo_fill() >= threshold(bot)
+        from .. import playstyle as PL
+        now = b.now if b is not None else bot.hour()
+        return bot.cargo_fill() >= threshold(bot) and (now - PL.state(bot).get('sold', 0) >= PL.sell_gap(bot) or PL.wants_to_sell(bot))
 
     def points(self, bot, b):
         return 0.6 + 1.2 * min(1.0, bot.cargo_fill()) + 0.2 * bot.o('frugality')

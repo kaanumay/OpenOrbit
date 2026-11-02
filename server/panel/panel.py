@@ -1427,8 +1427,9 @@ def bot_post(path, b):
             if r.get('error'):
                 from bot import edit as ED
                 raise Error(BT.edit_error(ED.EditError(r['error'], r.get('area', ''))))
-            if 'traits' in value:
-                BT.bot_personality(pid, no, value['traits'])
+            from bot import edit as ED
+            if any(a in ED.ROSTER_FIELDS for a in value):
+                BT.bot_personality(pid, no, value)
             return dict(r, catalog=BT.edit_catalog(), live=True)
         return dict(BT.edit_bot(pid, no, value), catalog=BT.edit_catalog(), live=False)
     if path == '/api/bot/llm/provider':          # provider choice: built-in model, OpenAI, Claude ... (bot/llm_provider.py)

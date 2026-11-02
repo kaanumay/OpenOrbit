@@ -435,13 +435,14 @@ def bot_detail(pid, no):
     return ED.appearance(c.get(int(no)), _roster_row(d, no))
 
 
-def bot_personality(pid, no, traits):
-    """The bot's personality (roster row): also written to the package file while the game is open (the manager reads it from the roster at the next start)."""
+def bot_personality(pid, no, value):
+    """The bot's personality and play style (roster row: traits, likes, talent, spending style): also written to the package file while
+    the game is open (the manager reads it from the roster at the next start)."""
     from bot import edit as ED
     with _LOCK:
         d = read(pid)
         try:
-            ED.apply(None, _roster_row(d, no), {'traits': traits})
+            ED.apply(None, _roster_row(d, no), {a: v for a, v in value.items() if a in ED.ROSTER_FIELDS})
         except ED.EditError as e:
             raise BotError(edit_error(e)) from None
         _save(pid, d)
@@ -460,12 +461,12 @@ def edit_bot(pid, no, value):
             ED.apply(k, roster_row, value)
         except ED.EditError as e:
             raise BotError(edit_error(e)) from None
-        if k is not None and any(a != 'traits' for a in value):
+        if k is not None and any(a not in ED.ROSTER_FIELDS for a in value):
             os.makedirs(os.path.dirname(route), exist_ok=True)
             with open(route + '.tmp', 'w', encoding='utf8') as fh:
                 json.dump(all_candidates, fh, ensure_ascii=False, separators=(',', ':'))
             os.replace(route + '.tmp', route)
-        if 'traits' in value:
+        if any(a in ED.ROSTER_FIELDS for a in value):
             _save(pid, d)
     return bot_detail(pid, no)
 

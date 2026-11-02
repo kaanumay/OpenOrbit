@@ -55,12 +55,38 @@ def _memory_id(a):
     return '%.3f|%s' % (a['t'], a['who'])
 
 
+ROSTER_FIELDS = ('traits', 'likes', 'talent', 'spend')      # edits that live in the roster (the pack file), not in the state
+
+
+def _profile(roster_row):
+    """The pack's play profile of the bot (stored in the roster, otherwise derived from the name without storing it)."""
+    from . import playstyle as PL
+    p = roster_row['personality']
+    pl = p.get('play')
+    if isinstance(pl, dict) and pl.get('v') == 1:
+        return pl
+    return PL.generate(dict(p, _name=roster_row['name']))
+
+
+def _play(k, roster_row):
+    """Play style for the bot window: talent, enjoyment, habits, spending (roster) and the current skill and motivation (state)."""
+    from . import playstyle as PL
+    pl = _profile(roster_row)
+    st = (k or {}).get('play') if isinstance((k or {}).get('play'), dict) else {}
+    skill = st.get('skill') or {d: round(pl['talent'][d] * pl['start'], 3) for d in PL.DOMAINS}
+    return dict(talent={d: round(pl['talent'][d], 3) for d in PL.DOMAINS}, skill={d: round(skill.get(d, 0), 3) for d in PL.DOMAINS},
+                likes={a: round(pl['likes'][a], 3) for a in PL.ACTIVITIES}, quirks=list(pl['quirks']), spend=pl['spend'],
+                wallet=pl['wallet'], roam=pl['roam'], target=pl['target'], daily_h=pl.get('daily_h'),
+                motivation=round(st.get('motivation', pl['motivation']), 3), theme=st.get('theme'), break_until=st.get('brk', 0) or 0,
+                summary=pl.get('summary') or PL.summary(pl))
+
+
 def appearance(k, roster_row, online=None):
     """All of the bot's state -> the panel's window (k: state dictionary, None if absent; kd: roster row)."""
     out = {'no': roster_row['no'], 'name': roster_row['name'], 'company': roster_row['company'], 'archetype': roster_row['personality'].get('archetype'),
            'habit': roster_row['personality'].get('habit'), 'lang': roster_row['personality'].get('lang'),
            'traits': {o: round(roster_row['personality']['traits'].get(o, 0.5), 3) for o in TRAITS}, 'exists': k is not None,
-           'online': online}
+           'online': online, 'play': _play(k, roster_row)}
     if k is None:
         return out
     PF.level_for(0)
@@ -113,7 +139,7 @@ def apply(k, roster_row, value, online=False):
     value = value if isinstance(value, dict) else {}
     jobs = []
     gear = k.setdefault('gear', K.new_gear()) if k is not None else None
-    needs_state = [a for a in value if a not in ('traits',)]
+    needs_state = [a for a in value if a not in ROSTER_FIELDS]
     if needs_state and k is None:
         raise EditError('no_state')
     E = K.ITEMS
@@ -178,6 +204,52 @@ def apply(k, roster_row, value, online=False):
             if k is not None and k.get('personality') is not roster_row['personality'] and isinstance(k.get('personality'), dict):
                 k['personality'].setdefault('traits', {}).update(new_)
         jobs.append(personality)
+    from . import playstyle as PL
+    play_edit = {}
+    for field, keys, lo, hi in (('likes', PL.ACTIVITIES, 0.15, 3.0), ('talent', PL.DOMAINS, 0.05, 1.0)):
+        if field in value:
+            new_ = {}
+            for o, v in (value[field] or {}).items():
+                if o not in keys:
+                    raise EditError('value', o)
+                new_[o] = round(_number(v, lo, hi, o, full=False), 3)
+            play_edit[field] = new_
+    if 'spend' in value:
+        if value['spend'] not in ('saver', 'balanced', 'spender', 'impulsive'):
+            raise EditError('value', 'spend')
+        play_edit['spend'] = value['spend']
+    if play_edit:
+        def play(play_edit=play_edit):
+            p = roster_row['personality']
+            pl = p['play'] = dict(_profile(roster_row))           # stored in the roster from now on (the edited profile)
+            for a, v in play_edit.items():
+                if isinstance(v, dict):
+                    pl[a] = dict(pl[a], **v)
+                else:
+                    pl[a] = v
+            pl['summary'] = PL.summary(pl)
+            if k is not None and isinstance(k.get('personality'), dict) and k['personality'] is not p:
+                k['personality']['play'] = pl
+        jobs.append(play)
+    if 'skill' in value or 'motivation' in value:
+        new_ = {}
+        for o, v in (value.get('skill') or {}).items():
+            if o not in PL.DOMAINS:
+                raise EditError('value', o)
+            new_[o] = round(_number(v, 0.0, 1.0, o, full=False), 4)
+        mot = round(_number(value['motivation'], 0.02, 1.0, 'motivation', full=False), 3) if 'motivation' in value else None
+
+        def state(new_=new_, mot=mot):
+            st = k.get('play')
+            if not isinstance(st, dict) or 'skill' not in st:
+                pl = _profile(roster_row)
+                st = k['play'] = dict(v=PL.STATE_VERSION, skill={d: round(pl['talent'][d] * pl['start'], 4) for d in PL.DOMAINS},
+                                      xp={d: 0.0 for d in PL.DOMAINS}, motivation=pl['motivation'], maps={}, brk=0.0, paid=time.time(),
+                                      theme=None, form=1.0)
+            st['skill'].update(new_)
+            if mot is not None:
+                st['motivation'] = mot
+        jobs.append(state)
     if 'mood' in value:
         new_ = {}
         for d, v in (value['mood'] or {}).items():

@@ -127,24 +127,28 @@ def candidate(bot):
         all_candidates = [(a, p, f * m, l) for a, p, f, l in all_candidates]
     currency = {'C': bot.k['credits'], 'U': bot.k['uridium']}
     currency['C'] = max(0, currency['C'] - bot.clan_savings())                     # will found a clan: saves the founding fee
+    from .. import playstyle as PL
+    keep = PL.reserve(bot)                                     # a saver never goes broke, a spender spends it all
+    currency = {'C': currency['C'] * (1 - keep['C']), 'U': currency['U'] * (1 - keep['U'])}
     credit_equiv = lambda c: c[2] * (EXCHANGE_RATE if c[1] == 'U' else 1)
     # efficiency: gain / (price + a quarter of wealth): with little money efficiency per credit, with lots of money the size of the gain wins (a rich bot
     # with 80M credits and 2M uridium chose a 2,000 C +0.04 speed generator over a +3.4 power Apis; Laya trial 2026-10-31)
     wealth = currency['C'] + currency['U'] * EXCHANGE_RATE
-    efficiency = lambda c: c[0] / max(1.0, credit_equiv(c) + 0.25 * wealth) * 1e5
-    t = bot.o('frugality')
+    efficiency = lambda c: c[0] * PL.misjudge(bot, c[3]) / max(1.0, credit_equiv(c) + 0.25 * wealth) * 1e5     # weak money sense misjudges
+    t = PL.thrift(bot)                                     # frugality shifted by the spending style (saver, spender, impulsive)
     target = next((c for c in all_candidates if c[3] == bot.k.get('savings')), None)
     if target is not None:                       # its own chosen saving goal (the agent's save-up tool): it buys only that
         if currency[target[1]] >= target[2]:
             return target, target
         # purchases that do not delay the goal's accumulation are free (another currency, or money left over above the goal): it used to look only
         # at the goal, a bot saving for an 80,000 U ship stood idle with 66M credits without buying shields/engines (player report 2026-11-01)
-        free = [c for c in all_candidates if c[1] != target[1] and currency[c[1]] >= c[2] * (1 + 0.3 * bot.o('frugality'))
+        free = [c for c in all_candidates if c[1] != target[1] and currency[c[1]] >= c[2] * (1 + 0.3 * t)
                    or c[1] == target[1] and currency[c[1]] - c[2] >= target[2]]
         return max(free, key=lambda c: c[0], default=None), target
     affordable = [c for c in all_candidates if currency[c[1]] >= c[2] * (1 + 0.3 * t)]        # a thrifty bot leaves a little reserve
     g = income(bot)
-    horizon = 1.0 + 1.5 * t
+    horizon_h, good_share = PL.shop_horizon(bot)
+    horizon = horizon_h * (0.6 + 0.8 * t)
     reachable = [c for c in all_candidates if c[2] * (1 + 0.3 * t) <= currency[c[1]] + g[c[1]] * horizon]
     target_candidate = max(reachable, key=efficiency, default=None)
     # far saving goal (panel, chat): the biggest gain it cannot afford yet
@@ -154,11 +158,11 @@ def candidate(bot):
         savings = target_candidate
     if not affordable:
         return None, savings
-    if bot.r.random() < 0.05 * (1 - t):                                     # impulsive purchase (human error)
+    if bot.r.random() < PL.impulse_chance(bot):                             # impulsive purchase (human error, weak money sense)
         return bot.r.choice(affordable), savings
     if target_candidate is None or target_candidate in affordable:
         return max(affordable, key=efficiency), savings
-    iyi = [c for c in affordable if efficiency(c) >= 0.7 * efficiency(target_candidate)]
+    iyi = [c for c in affordable if efficiency(c) >= good_share * efficiency(target_candidate)]
     return (max(iyi, key=efficiency) if iyi else None), savings
 
 
@@ -176,26 +180,31 @@ class Shopping(Goal):
         return min(1.6, 0.45 + increase / max(1.0, bot.value()['power']) * 3 + 0.2 * bot.o('ambition'))
 
     def start(self, bot, b):
-        # buys in turn as long as the money suffices in one shopping trip (at most MAX_TRIP_ITEMS): it used to buy a single item per trip, a bot with 10M
-        # credits bought 8 items in an hour and stood idle without spending 80% of its money (player report 2026-10-31)
-        c = b.shopping[0]
-        for _ in range(MAX_TRIP_ITEMS):
-            increase, currency, price, loot = c
-            if not bot.pay(currency, price):
-                break
-            bot.add(loot)
-            bot.ist('purchase')
-            bot.mood.it(morale=0.12 + min(0.3, increase / max(1.0, bot.value()['power'])))
-            bot.event('purchase', item=loot, price=price, currency=currency)
-            if loot.startswith('ship_'):
-                bot.event('new_ship', item=loot)
-            if bot.k.get('savings') == loot:
-                bot.k['savings'] = None                  # got what it was saving for (the agent's save-up tool)
-            bot._candidates = None                          # (even if the ship did not change, the remaining slots and money did)
-            c = candidate(bot)[0]
-            if c is None:
-                break
+        buy(bot, b.shopping[0])
         bot.plan['finished'] = True
 
     def finished(self, bot, b):
         return bot.plan.get('finished', False)
+
+
+def buy(bot, c):
+    """One shopping trip from candidate c on (also a quick one between two kills, brain.decision). It buys in turn as long as the money
+    suffices (at most the pilot's trip size): it used to buy a single item per trip, a bot with 10M credits bought 8 items in an hour and
+    stood idle without spending 80% of its money (player report 2026-10-31)."""
+    from .. import playstyle as PL
+    for _ in range(PL.trip_items(bot, MAX_TRIP_ITEMS)):
+        increase, currency, price, loot = c
+        if not bot.pay(currency, price):
+            break
+        bot.add(loot)
+        bot.ist('purchase')
+        bot.mood.it(morale=0.12 + min(0.3, increase / max(1.0, bot.value()['power'])))
+        bot.event('purchase', item=loot, price=price, currency=currency)
+        if loot.startswith('ship_'):
+            bot.event('new_ship', item=loot)
+        if bot.k.get('savings') == loot:
+            bot.k['savings'] = None                  # got what it was saving for (the agent's save-up tool)
+        bot._candidates = None                          # (even if the ship did not change, the remaining slots and money did)
+        c = candidate(bot)[0]
+        if c is None:
+            break

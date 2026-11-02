@@ -592,6 +592,16 @@ function btAgentTrace(b) {
 }
 const BT_PURPOSE = { promise: N('promise'), revenge: N('revenge'), thanks: N('thanks'), rivalry: N('rivalry'), curiosity: N('a question') };
 const BT_MOOD = { anger: N('Anger'), morale: N('Morale'), boredom: N('Boredom'), fatigue: N('Tiredness'), confidence: N('Confidence') };
+// Play style (bot/playstyle.py): skill domains, activities it enjoys, habits, spending
+const BT_SKILL = { combat: N('Alien combat'), pvp: N('PvP'), survival: N('Survival instinct'), economy: N('Money sense'), navigation: N('Map knowledge'),
+  focus: N('Focus') };
+const BT_LIKE = { grind: N('Grinding'), quest: N('Quests'), pvp: N('PvP'), gate: N('Gates and modes'), explore: N('Exploring maps'), social: N('Playing with others'),
+  rest: N('Hanging out'), trade: N('Ore trading'), collect: N('Box hunting') };
+const BT_QUIRK = { box_hunter: N('Box hunter'), map_loyal: N('Loyal to its map'), nomad: N('Nomad'), kamikaze: N('Kamikaze'), coward: N('Cautious to a fault'),
+  afk: N('Often AFK'), hoarder: N('Hoarder'), shopaholic: N('Shopaholic'), lone_wolf: N('Lone wolf'), ore_trader: N('Ore trader'),
+  weekend_warrior: N('Weekend player'), binge: N('Long binges'), short_sessions: N('Short sessions'), portal_camper: N('Portal camper') };
+const BT_SPEND = { saver: N('Saver'), balanced: N('Balanced'), spender: N('Spender'), impulsive: N('Impulsive') };
+const BT_WALLET = { none: N('Never pays'), small: N('Buys small uridium packs'), whale: N('Pays a lot') };
 const BT_GEAR = [['laser', N('Lasers'), 'laser'], ['shield', N('Shield generators'), 'gen'], ['speed', N('Speed generators'), 'gen'], ['drone', N('Drones')], ['extras', N('Extras'), 'extras']];
 const BT_STATS = { npc: N('Aliens killed'), player: N('Players killed'), death: N('Deaths'), box: N('Bonus box'), cargo_box: N('Cargo boxes'),
   box_stolen: N("Others' cargo boxes"), purchase: N('Purchases'), quest: N('Quests finished'), duration_sec: N('Time played'),
@@ -764,7 +774,45 @@ async function btBotDetail(no, tab = 'profile') {
     return [card(T('Traits'), 'brain', h('p', { class: 'desc' }, T('Set when the roster was generated; change it and the bot decides accordingly (aggressive bots lean to PvP, social ones to chat, thrifty ones to saving).')),
       h('div', { class: 'bt-personality' }, h('div', { class: 'bt-radar-box' }, r.svg), h('div', { class: 'bt-traits' }, Object.entries(BT_TRAIT).map(traitRow)))),
     v.exists ? card(T('Mood'), 'heart', h('p', { class: 'desc' }, T('Its current feelings: they settle back over time. An angry bot seeks revenge, a tired one logs off early.')),
-      h('div', { class: 'bt-traits two' }, Object.entries(BT_MOOD).map(moodRow))) : null];
+      h('div', { class: 'bt-traits two' }, Object.entries(BT_MOOD).map(moodRow))) : null, play()];
+  }
+
+  // ---- Play style: skill (now / ceiling), what it enjoys, habits, spending (bot/playstyle.py)
+  function play() {
+    const pl = v.play;
+    if (!pl) return null;
+    const skill = Object.assign({}, pl.skill, value.skill), talent = Object.assign({}, pl.talent, value.talent);
+    const likes = Object.assign({}, pl.likes, value.likes);
+    const skillRow = ([k, name_]) => {
+      const val = h('b', null, Math.round(skill[k] * 100) + ' / ' + Math.round(talent[k] * 100));
+      const show = () => { val.textContent = Math.round(skill[k] * 100) + ' / ' + Math.round(talent[k] * 100); };
+      return h('div', { class: 'bt-trait wide' }, h('span', null, T(name_)), val,
+        h('div', { class: 'bt-skill-pair' },
+          v.exists ? percent(skill[k], x => { skill[k] = x; show(); mapping('skill', k, x); }) : null,
+          percent(talent[k], x => { talent[k] = Math.max(.05, x); show(); mapping('talent', k, Math.max(.05, x)); }, 'bt-mood')));
+    };
+    const likeRow = ([k, name_]) => {
+      const val = h('b', null, '×' + likes[k].toFixed(2));
+      return h('div', { class: 'bt-trait wide' }, h('span', null, T(name_)), val,
+        percent(Math.min(1, likes[k] / 2.5), x => { likes[k] = Math.max(.15, x * 2.5); val.textContent = '×' + likes[k].toFixed(2); mapping('likes', k, likes[k]); }));
+    };
+    const spend = value.spend || pl.spend;
+    const chips = pl.quirks.length ? h('div', { class: 'row wrap', style: { gap: '6px' } }, pl.quirks.map(q => h('span', { class: 'chip' }, T(BT_QUIRK[q] || q))))
+      : h('span', { class: 'dim' }, '—');
+    const brk = pl.break_until > now;
+    return card(T('Play style'), 'gauge',
+      h('p', { class: 'desc' }, T('Everyone can do everything, but not everyone is good at everything. Skill grows with practice up to the ceiling (talent); what it enjoys steers its choices.')),
+      h('h3', { class: 'bt-sub' }, T('Skills (now / ceiling)')),
+      h('div', { class: 'bt-traits' }, Object.entries(BT_SKILL).map(skillRow)),
+      h('h3', { class: 'bt-sub' }, T('What it enjoys')),
+      h('div', { class: 'bt-traits two' }, Object.entries(BT_LIKE).map(likeRow)),
+      btRow(T('Habits'), null, chips),
+      btRow(T('Spending'), null, h('select', { class: 'input', disabled: lock, onchange: e => change('spend', e.target.value) },
+        Object.entries(BT_SPEND).map(([k, n]) => h('option', { value: k, selected: k === spend }, T(n))))),
+      btRow(T('Wallet'), null, h('span', null, T(BT_WALLET[pl.wallet] || pl.wallet))),
+      btRow(T('Motivation'), brk ? T('Taking a break until {0}.', new Date(pl.break_until * 1000).toLocaleString(LOC())) : null,
+        h('span', null, Math.round((value.motivation ?? pl.motivation) * 100))),
+      pl.daily_h ? btRow(T('Daily play time'), null, h('span', null, T('{0} hours at most', Math.round(pl.daily_h * 10) / 10))) : null);
   }
 
   // ---- Hangar: ship, equipment boxes, ammo, cargo

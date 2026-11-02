@@ -274,6 +274,8 @@ class Bot:
                 name = K.ITEMS['ores']['kinds'].get(str(t), 'resource_ore_%s' % t)
                 WP.stock(self)[name] = WP.stock(self).get(name, 0) + cargo.pop(t)
         if credits:
+            from . import playstyle as PL
+            PL.state(self)['sold'] = self.hour()
             self.earn(credits=credits)
             self.ist('ore_credits', credits)
             self.event('sold_ore', credits=credits)
@@ -283,6 +285,8 @@ class Bot:
         """Event queue (at most 30): for the brain and the LLM context."""
         self.events.append(dict(type=kind, t=now or self.hour(), **f))
         del self.events[:-30]
+        from . import playstyle as PL
+        PL.on_event(self, kind, f)                     # success lifts motivation, deaths lower it
 
     def save(self):
         self.k['mood'] = self.mood.save()

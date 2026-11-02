@@ -485,7 +485,9 @@ def _interest(b, m):
 
 def _weight(b, m):
     pe = PE.of(b)
-    return (0.2 + _interest(b, m)) * (0.5 + pe.talk) * b.r.uniform(0.5, 1.5) * (0.4 if KN.fighting(b) else 1.0)
+    from .. import playstyle as PL
+    return (0.2 + _interest(b, m)) * (0.5 + pe.talk) * b.r.uniform(0.5, 1.5) * (0.4 if KN.fighting(b) else 1.0) \
+        * (0.12 if PL.quiet(b) else 1.0)                          # a lurker rarely joins in
 
 
 def responders(y, m, listeners, addressed, now, whisper=False):
@@ -827,7 +829,8 @@ def spontaneous(y, now):
     rate = P['spontaneous_per_min'] * min(1.6, len(online) / 20.0) * 5.0 / 60.0
     if random.random() >= rate:
         return False
-    free = [b for b in online if now - st.opened.get(b.uid, -1e9) >= P['bot_gap_sec']]
+    from .. import playstyle as PL
+    free = [b for b in online if now - st.opened.get(b.uid, -1e9) >= P['bot_gap_sec'] and not PL.quiet(b)]     # lurkers do not open topics
     if not free:
         return False
     b = max(free, key=lambda b: (0.25 + PE.of(b).talk) * b.r.random())

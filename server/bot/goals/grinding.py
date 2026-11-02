@@ -7,7 +7,7 @@ from .. import abstract_sim as S
 @target
 class Farming(Goal):
     name = 'grinding'
-    min_sec = 300
+    min_sec = 900             # x playstyle.commit_factor (0.35-4): from a few minutes to an hour
 
     def eligible(self, bot, b):
         return bool(b.game_map)
@@ -39,4 +39,7 @@ class Farming(Goal):
     def finished(self, bot, b):
         # its map is no longer suitable (strength rose or fell): if not in the top five, it should reconsider
         m = bot.plan.get('map')
+        from .. import playstyle as PL
+        if PL.wants_to_sell(bot) and bot.permission.get('cargo', True):
+            return True                                      # full hold: time to sell (if it cares about ore)
         return bool(b.game_map) and m is not None and not bot.en_route and m not in [x[1] for x in b.game_map[:5]]

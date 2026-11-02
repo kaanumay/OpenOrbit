@@ -16,6 +16,7 @@ import time
 
 from . import catalog as K
 from . import personality as PS
+from . import playstyle as PL
 
 GOALS = {}            # name -> Goal instance
 
@@ -116,6 +117,7 @@ def map_candidates(bot, value, y=None):
         # crowding: bots on a map share the same aliens (real players drift to empty maps; avoids piling onto the starting maps)
         crowd = len(y.on_map.get(m, ())) - (1 if m == bot.game_map else 0) if y is not None else 0
         utility = (earnings / 1000.0) * preference * (1 - min(0.9, risk)) / (1 + 0.04 * max(0, crowd)) - jump * 0.03 * (1.2 - o['patience'])
+        utility *= PL.map_bias(bot, m, y.now if y is not None else time.time())      # misjudging (map knowledge), favourite map, habits
         out.append((utility, m, r))
     out.sort(key=lambda x: -x[0])
     return out
@@ -145,9 +147,15 @@ def decision(bot, y, now=None):
         intent = bot.k['intent'] = None
     duration = now - bot.goal_start
     run = current is not None and current.name in ('gate', 'mod') and not bot.plan.get('finished')   # the intent must not split the run: there is no way from there
-    if current is not None and not current.finished(bot, b) and (run or duration < current.min_sec and not intent):
+    commit = bot.plan.get('min', getattr(current, 'min_sec', 0)) if current is not None else 0
+    if current is not None and not current.finished(bot, b) and (run or duration < commit and not intent):
         urgent = [h for h in GOALS.values() if h.urgent and h is not current and allowed(h, y) and h.eligible(bot, b)]
         if not urgent:
+            shop = GOALS.get('shopping')
+            if (not run and shop is not None and current is not shop and allowed(shop, y) and bot.r.random() < 0.2
+                    and b.shopping[0] is not None):
+                from .goals import shopping as SH
+                SH.buy(bot, b.shopping[0])            # pops into the shop between two kills and goes on with the same job
             return current
     candidates = []
     for h in GOALS.values():
@@ -156,9 +164,10 @@ def decision(bot, y, now=None):
         p = h.points(bot, b)
         if h is current and not h.finished(bot, b):
             # commitment: a human does not abandon a job halfway; it decreases as they get bored (as the same job drags on)
-            p += 0.25 * max(0.0, 1 - mood['boredom']) + (0.3 if duration < h.min_sec else 0)
+            p += 0.25 * max(0.0, 1 - mood['boredom']) + (0.3 if duration < commit else 0)
         if intent and intent.get('target') == h.name:
             p += intent.get('pay', 0.6)
+        p *= PL.goal_factor(bot, h.name, now)              # what this pilot enjoys, today's session theme (playstyle.py)
         p *= 1 + bot.r.uniform(-0.08, 0.08)
         candidates.append((h, p))
     if not candidates:
@@ -173,6 +182,7 @@ def decision(bot, y, now=None):
         bot.target, bot.goal_start, bot.plan = sec, now, {}
         bot.k['target'] = sec.name
         sec.start(bot, b)
+        bot.plan.setdefault('min', sec.min_sec * PL.commit_factor(bot))     # how long it sticks to it this time (patience, mood)
     else:
         mood.it(boredom=0.04 * (1.3 - bot.o('patience')))
     return sec

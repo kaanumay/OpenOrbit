@@ -35,11 +35,11 @@ ACTIVITY = {'grinder': (1.3, 1.15), 'hunter': (1.2, 1.0), 'social': (1.0, 0.8), 
             'casual': (0.55, 0.7), 'leader': (1.3, 1.0)}
 
 # play habit: hour -> online tendency (0-1) and session length (minutes, min-max)
-HABITS = {
-    'evening':   (0.40, [0.15] * 7 + [0.2] * 5 + [0.3] * 5 + [0.8] * 5 + [0.5] * 2, (40, 150)),
-    'night_owl': (0.20, [0.7] * 4 + [0.2] * 8 + [0.25] * 6 + [0.5] * 3 + [0.85] * 3, (60, 240)),
-    'daytime':  (0.20, [0.05] * 8 + [0.6] * 10 + [0.4] * 4 + [0.1] * 2, (30, 120)),
-    'devoted':    (0.20, [0.5] * 8 + [0.7] * 16, (120, 420)),
+HABITS = {         # sharper since 2026-11-02 (behavior lab: night owls were playing at 8 in the morning, evening players at 5)
+    'evening':   (0.40, [0.4, 0.2] + [0.06] * 6 + [0.12] * 4 + [0.2] * 4 + [0.4] + [0.85] * 6 + [0.65], (40, 150)),
+    'night_owl': (0.20, [0.85] * 3 + [0.6] * 2 + [0.08] * 5 + [0.14] * 5 + [0.25] * 4 + [0.5] * 2 + [0.8] * 3, (60, 240)),
+    'daytime':  (0.20, [0.06] * 7 + [0.25] + [0.65] * 9 + [0.4] * 3 + [0.2] * 2 + [0.1] * 2, (30, 120)),
+    'devoted':    (0.20, [0.55] * 2 + [0.25] * 5 + [0.55] * 3 + [0.8] * 14, (90, 300)),
 }
 
 EMOTIONS = ('anger', 'morale', 'boredom', 'fatigue', 'confidence')

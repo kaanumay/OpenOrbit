@@ -23,6 +23,7 @@ import map_links as H
 from legacy_protocol import legacy
 from . import catalog as K
 from . import abstract_sim as S
+from . import playstyle as PL
 from . import appearance as GR
 from . import society as T
 from . import manager as MGR
@@ -998,8 +999,8 @@ def think(w, n, now):
         ratio = (n.hp + n.shield) / max(1, d['hp'] + d['shield'])
     # 1) danger: HP is low and it is being hit -> flee
     in_gate = is_gate_world(w)
-    if attackers and ratio < 0.18 + 0.32 * (1 - b.o('risk')) and not in_gate:
-        return flee(w, n, now)
+    if attackers and ratio < 0.18 + 0.32 * (1 - b.o('risk')) + PL.flee_shift(b) and not in_gate:
+        return flee(w, n, now)                           # (survival skill: unaware pilots flee late; cowards early, kamikazes hardly)
     # 2) portal yolunda
     if b.en_route and not attackers and not in_gate:
         return portala(w, n, now)
@@ -1066,11 +1067,14 @@ def approach(w, n, pos, now):
     """Combat distance to the target: within laser range, close or far depending on personality; circles lightly around the target."""
     nx, ny = n.mover.pos(now)
     dist = math.hypot(pos[0] - nx, pos[1] - ny)
-    wanted = 280 + 300 * (1 - n.bot.o('aggression'))
+    pl = PL.profile(n.bot)
+    wanted = (280 + 300 * (1 - n.bot.o('aggression'))) * pl['range']         # its own preferred distance (playstyle.py)
+    pvp = n.target in w.npcs and w.npcs[n.target].bot is not None or n.target not in w.npcs
+    sk = PL.skill(n.bot, 'pvp' if pvp else 'combat')
     if dist > wanted + 120 or dist < 120:
         a = math.atan2(ny - pos[1], nx - pos[0]) + random.uniform(-0.5, 0.5)
         _go_to(w, n, pos[0] + math.cos(a) * wanted, pos[1] + math.sin(a) * wanted, now)
-    elif n.mover.t1 <= now and random.random() < 0.25 + 0.4 * n.bot.o('aggression'):
+    elif n.mover.t1 <= now and random.random() < (0.12 + 0.6 * pl['orbit']) * (0.55 + 0.9 * sk):     # skilled pilots keep moving
         # in range: circles around the target (a real player fires while circling, not standing still); the direction is fixed by the bot's temperament
         direction = n.__dict__.setdefault('orbit_direction', random.choice((-1, 1)))
         a = math.atan2(ny - pos[1], nx - pos[0]) + direction * random.uniform(0.25, 0.6)
@@ -1301,6 +1305,7 @@ def go_hunt(w, n, now):
     types = _killable(b, w.map_id)
     wanted = b.plan.get('tip')
     rude = random.random() < 0.15 * b.o('aggression') * (1 - b.o('helpfulness'))
+    style = PL.profile(b)['target']                     # nearest / weakest (lowest HP) / richest (best reward) first
     en, best_score = None, 1e18
     for m in w.npcs.values():
         if m.bot is not None or not m.alive or m.d.get('friendly') or getattr(m, 'hidden', False):
@@ -1315,6 +1320,11 @@ def go_hunt(w, n, now):
             continue                                     # tagged by someone else: no gain
         mx, my = m.mover.pos(now)
         dd = math.hypot(mx - nx, my - ny) * (0.5 if m.tip == wanted else 1.0)
+        if style != 'nearest' and dd < 3500:
+            if style == 'weakest':
+                dd *= 0.4 + (m.hp + m.shield) / max(1.0, m.d.get('hp', 1) + m.d.get('shield', 0))
+            else:
+                dd /= 0.5 + min(3.0, (m.d.get('reward') or {}).get('ep', 0) / max(1.0, 400.0 * b.level))
         if dd < best_score:
             en, best_score = m, dd
     if en is not None and best_score < 3500:
@@ -1326,12 +1336,19 @@ def go_hunt(w, n, now):
         return                                           # started escorting: next thought to the leader's side
     patrol_point = getattr(n, 'patrol', None)
     if patrol_point is None or math.hypot(patrol_point[0] - nx, patrol_point[1] - ny) < 300:
-        if patrol_point is not None and random.random() < 0.4:
-            n.next_think = now + random.uniform(2, 6)    # arrived: looks around a bit
+        focus = PL.skill(b, 'focus')
+        if patrol_point is not None and random.random() < 0.25 + 0.4 * (1 - focus) + 0.3 * PL.has(b, 'afk'):
+            n.next_think = now + random.uniform(2, 6) * (1.6 - focus) * (3 if PL.has(b, 'afk') else 1)    # arrived: looks around a bit
             n.patrol = None
             return
-        a = random.uniform(0, 2 * math.pi)
-        r = random.uniform(2500, 6000)
+        roam = PL.profile(b)['roam']                    # wide roamer, local loops, or a camper around its own spot
+        lo, hi = {'wide': (4000, 9000), 'local': (1800, 4500), 'camper': (500, 1600)}[roam]
+        r = random.uniform(lo, hi)
+        if roam == 'camper':
+            home = n.__dict__.setdefault('camp', (nx, ny))
+            a = math.atan2(home[1] - ny, home[0] - nx) + random.uniform(-1.2, 1.2) if math.hypot(home[0] - nx, home[1] - ny) > hi else random.uniform(0, 2 * math.pi)
+        else:
+            a = random.uniform(0, 2 * math.pi)
         patrol_point = n.patrol = (max(600, min(w.map_w - 600, nx + math.cos(a) * r)), max(600, min(w.map_h - 600, ny + math.sin(a) * r)))
     _route(w, n, patrol_point[0], patrol_point[1], now, threshold=400)
 
@@ -1467,7 +1484,7 @@ def collect_box(w, n, now):
     nx, ny = n.mover.pos(now)
     own = ('b', n.id)
     decision = n.__dict__.setdefault('stealing', {})
-    en, best_score = None, 900.0
+    en, best_score = None, 900.0 * PL.box_factor(b) ** 0.7       # a box hunter sees boxes from far away (playstyle.py)
     for h, k in w.boxes.items():
         tip = k.get('tip')
         if k.get('event'):                                 # event box: keyless, everyone collects

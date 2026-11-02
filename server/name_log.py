@@ -17,7 +17,8 @@ import json, os, threading, time
 import paths as PTH
 
 LOCK = threading.RLock()
-_cache = {'mtime': None, 'events': []}
+_cache = {'mtime': None, 'events': [], 'checked': 0.0}
+CHECK_SEC = 1.0             # the file is looked at (stat) at most once a second: bots check their contact lists very often
 BOT_UID = (1800000000, 1900000000)        # bot ids (bot/state.BOT_UID_BASE ...): when clan leadership passes to a human
 
 
@@ -28,10 +29,15 @@ def file():
 def read():
     """All events (from the cache unless the file changes)."""
     p = file()
+    w = time.monotonic()
+    if _cache['mtime'] is not None and w - _cache['checked'] < CHECK_SEC:
+        return _cache['events']
     try:
         m = os.path.getmtime(p)
     except OSError:
+        _cache.update(mtime=-1, events=[], checked=w)        # no log yet (no rename or delete ever happened)
         return []
+    _cache['checked'] = w
     with LOCK:
         if _cache['mtime'] != m:
             try:

@@ -212,6 +212,8 @@ def tick(y, now):
             handshake(y, b, now)
             if y.permission('friend'):
                 friendship(y, b, now)
+            if y.permission('group'):
+                party(y, b, now)
             if y.permission('clan'):
                 clan_actions(y, b, now)
             if y.permission('auction'):
@@ -226,7 +228,9 @@ def handshake(y, b, now):
     """Hunting together with a grinder from the same company on the same map (shooting the same alien, not taking each other's box, brief
     banter): 'hunted_together' in both memories. Mostly someone it met before is chosen; the relationship turns into friendship, a group,
     over time. Before, relationships arose only from chat and help: in 44 minutes 423 of 499 pilots had met nobody."""
-    if b.r.random() > 0.3 * (0.3 + b.o('sociability')) or b.target is None or b.target.name not in ('grinding', 'quest'):
+    from . import playstyle as PL
+    if b.r.random() > 0.3 * (0.3 + b.o('sociability')) * min(1.3, PL.like(b, 'social')) or b.target is None \
+            or b.target.name not in ('grinding', 'quest'):
         return
     nearby = [o for o in y.on_map.get(b.game_map, ()) if o is not b and o.company == b.company and o.online and o.dead_until <= now]
     if not nearby:
@@ -274,6 +278,51 @@ def _group_up(y, b, now):
     B.force(b, 'group', pay=0.8, duration=1800, now=now)
 
 
+PARTY_MIN = (20 * 60, 100 * 60)          # how long a bot-only group hunts together before someone leaves
+
+
+def party(y, b, now):
+    """Bots group up among themselves like real players: a pilot that likes playing with others invites an online friend or
+    acquaintance of its company (similar level) to hunt together; the invited one decides like for any invitation (decide_group).
+    A bot-only group breaks up after a while (someone leaves: dinner, other plans). Before, bots grouped only with the human player."""
+    import group as GR
+    import community as TP
+    from . import playstyle as PL
+    g = GR.group_of(b.uid)
+    if g is not None:
+        humans = [u for u in g.members if u < 1800000000 or u >= 1900000000]
+        until = b.__dict__.get('party_until')
+        if not humans and until is not None and now > until:
+            GR.handle(person(b), 'LeaveGroupRequest', {})
+            b.party_until = None
+            b.party_cd = now + b.r.uniform(3600, 4 * 3600)     # does not form a new group right away
+            b.event('left_group', now)
+        return
+    if now < b.__dict__.get('party_cd', 0):
+        return
+    if b.target is None or b.target.name not in ('grinding', 'quest', 'resting', 'exploring'):
+        return
+    if b.r.random() > 0.004 * b.o('sociability') * PL.like(b, 'social') ** 2:
+        return
+    cands = []
+    for o in y.bots:
+        if o is b or not o.online or o.company != b.company or o.dead_until > now or abs(o.level - b.level) > 6:
+            continue
+        rel = b.memory.relation(o.name, now)
+        friend = o.name in (b.k.get('friends') or [])
+        if (rel > 0.12 or friend) and GR.group_of(o.uid) is None:
+            cands.append((rel + 0.4 * friend + 0.1 * (o.game_map == b.game_map), o))
+    if not cands:
+        return
+    o = max(cands, key=lambda x: x[0] + b.r.uniform(0, 0.3))[1]
+    if TP.find(uid=o.uid) is None:
+        return
+    GR.handle(person(b), 'GroupInvitationRequest', {'candidateId': o.uid})
+    b.party_until = now + b.r.uniform(*PARTY_MIN)
+    o.party_until = b.party_until + b.r.uniform(-600, 600)
+    b.event('group_invite', now, name=o.name)
+
+
 def decide_group(y, b, name, uid, now):
     """Does it accept the group invitation: sociability, relationship with the inviter, level gap, current job (less in the middle of a
     quest), fatigue, company (rarely an invite from another company). If it said "inv me" in chat (promise) it accepts."""
@@ -285,6 +334,8 @@ def decide_group(y, b, name, uid, now):
     lv = int(o.profile.d['pilot'].get('level', 1)) if o is not None else b.level
     diff = abs(lv - b.level)
     p = 0.25 + 0.5 * b.o('sociability') + 0.6 * b.memory.relation(name, now) - 0.04 * max(0, diff - 3) - 0.3 * b.mood['fatigue']
+    from . import playstyle as PL
+    p *= min(1.4, PL.like(b, 'social') ** 0.7)             # a lone wolf rarely groups (playstyle.py)
     if b.target is not None and b.target.name == 'quest':
         p -= 0.15
     if o is not None and int(o.profile.d['pilot'].get('factionId', 0)) != b.company:
@@ -299,12 +350,15 @@ def friendship(y, b, now):
     for name in list(r.get('incoming', [])):
         k = k or person(b)
         rel = b.memory.relation(name, now)
-        accept = b.r.random() < 0.2 + 0.5 * b.o('sociability') + rel
+        from . import playstyle as PL
+        accept = b.r.random() < (0.2 + 0.5 * b.o('sociability') + rel) * min(1.2, PL.like(b, 'social')) ** 1.5 \
+            and not (PL.has(b, 'lone_wolf') and rel < 0.5)                         # a lone wolf says no to strangers
         CT.handle(k, 'ContactRequest', {'contactRequestType': CT.ACCEPT if accept else CT.REJECT, 'userName': name})
         b.event('friend_accept' if accept else 'friend_refuse', now, name=name)
         if accept:
             b.memory.event(name, 'friend', now)
-    if b.r.random() < 0.15 * b.o('sociability'):
+    from . import playstyle as PL
+    if b.r.random() < 0.15 * b.o('sociability') * PL.like(b, 'social') ** 2:
         friendly = [a for a in b.memory.allies(0.25, now) if not CT._var(r.get('friend', []), a) and not CT._var(r.get('outgoing', []), a)]
         if friendly:
             name = b.r.choice(friendly)
@@ -640,8 +694,11 @@ def auction(y, b, now):
     free credits by ambition. settle_bot gives the results (the item if it wins, credits back if outbid)."""
     import auction as MZ
     settle_bot(b, now)
+    from . import playstyle as PL
+    if not PL.state(b).get('auction') or b.r.random() > 0.15:
+        return                                         # only in some sessions, and many players hardly ever (playstyle.interest)
     from . import loot as LT
-    free = b.k['credits'] - b.clan_savings()
+    free = b.k['credits'] * (1 - PL.reserve(b)['C']) - b.clan_savings()
     if free < 3 * MZ.D.get('min_bid', 10000):
         return
     candidates = []
@@ -676,6 +733,8 @@ def auction(y, b, now):
     rival = MZ.best(MZ.bids(lot, end, skip=b.profile))
     current_time = rival[0] if rival else 0
     bid = max(MZ.D.get('min_bid', 10000), int(current_time * b.r.uniform(1.05, 1.25)) + MZ.D.get('increase', 1000))
+    if not rival:                                  # nobody bid yet: a real auction is contested, the opening is a market price (bots used
+        bid = max(bid, int(value * b.r.uniform(0.3, 0.55)))   # to win ships for the 10,000 minimum bid at level 3)
     if bid > cap and current_time + MZ.D.get('increase', 1000) <= cap:
         bid = int(cap)                          # down to its last penny: the highest without exceeding the ceiling
     if bid > cap or not b.pay('C', bid - old):
@@ -747,6 +806,19 @@ def reply_mail(y, b, r, now):
         TL.call(y, b, 'send_mail', {'name': name, 'subject': subject, 'text': body + ('' if len(body) >= 5 else ' :)')})
 
 
+def _outbid_unseen(b, lot, bid):
+    """A real auction has bidders the bot never sees: the closer the bid is to the lot's value, the likelier it wins (a 30% bid wins
+    about one time in five). Before, bots were the only bidders and won almost every lot they touched."""
+    import auction as MZ
+    from . import loot as LT
+    value = int((lot.get('price') or 0) * LT.EXCHANGE_RATE) or 1000000
+    p = max(0.08, min(0.95, (bid / value - 0.15) / 0.75))
+    if b.r.random() < p:
+        return False
+    b.event('auction_lost', item=lot.get('loot'))
+    return True
+
+
 def settle_bot(b, now):
     """Bot bids in finished periods: the item if it is the highest, otherwise the credits back."""
     import auction as MZ
@@ -758,7 +830,7 @@ def settle_bot(b, now):
         lot = MZ.LOTS.get((kind, loot))
         en = MZ.best(MZ.bids(lot, bid['end_time'])) if lot else None
         del t[key]
-        if lot and en and en[3] == b.uid:
+        if lot and en and en[3] == b.uid and not _outbid_unseen(b, lot, int(bid['bid'])):
             g = b.k['auction'].setdefault('history', [])          # the player's auction history shows it too (Muzayede.history)
             g.insert(0, {'group': lot['group'], 'who': b.uid, 'bid': int(bid['bid']), 'date': MZ.stamp(bid['end_time'] - MZ.SPAN[kind]),
                          'loot': loot, 'type': kind, 'name': b.name})

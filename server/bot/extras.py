@@ -104,8 +104,10 @@ def candidates(bot):
     power = bot.value()['power']
     empty = slot(bot) - len(equipped(bot))
     out = []
+    from . import playstyle as PL
+    advanced = bot.level < PL.gadget_level(bot)            # a beginner does not know about CPUs and jump drives yet (playstyle.py)
     for loot in list(ORDER) + [ROKT, CARGO_CPU, HM7, JP1, JP2, CLOAK[1], ISH, SMB, AIM2, AIM1] + list(SLE):
-        if var(bot, loot) or (empty <= 0 and loot not in SLE and loot not in ORDER):
+        if var(bot, loot) or (empty <= 0 and loot not in SLE and loot not in ORDER) or advanced and loot not in ORDER:
             continue
         f = K.price(loot)
         p = utility(bot, loot)

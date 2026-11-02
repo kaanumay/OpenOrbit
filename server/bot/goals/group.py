@@ -19,6 +19,8 @@ def leader(bot):
     members = [people.get(u) for u in g.members if u != bot.uid]
     members = [k for k in members if k is not None and k.session is not None]
     human = [k for k in members if k.uid < 1800000000 or k.uid >= 1900000000]
+    if not human and g.leader == bot.uid:
+        return None                                       # it leads a bot group: the others follow it, it plays on
     return (human or [people.get(g.leader)] or [None])[0] if (human or members) else None
 
 

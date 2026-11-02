@@ -166,9 +166,11 @@ def deferred(bot):
 class Quest(Goal):
     name = 'quest'
     permission = 'quest'
-    min_sec = 240
+    min_sec = 600
 
     def eligible(self, bot, b):
+        if b.now < bot.__dict__.get('_quest_cd', 0):
+            return False
         if bot.k.get('quest'):
             s = next_up(bot)
             return bool(s and s[1])
@@ -194,6 +196,7 @@ class Quest(Goal):
                 bot.k['quest'] = None
             if not bot.k.get('quest'):
                 bot.plan['finished'] = True
+                bot._quest_cd = b.now + bot.r.uniform(900, 2400)      # nothing doable now: other things for a while
                 return
             bot.event('quest_taken', name=quests()[bot.k['quest']['id']]['name'])
         self._head_to(bot, b.y, b.now)
@@ -212,6 +215,12 @@ class Quest(Goal):
             if not maps:
                 deferred(bot)
                 return
+        from .. import playstyle as PL
+        safe = [m for m in maps if not PL.avoided(bot, m, now or bot.hour())]
+        if not safe and not PL.has(bot, 'kamikaze'):
+            deferred(bot)                                # kept dying there: the quest waits (it does something else for a while)
+            return
+        maps = safe or maps
         target_map = min(maps, key=lambda m: len(K.route(bot.game_map, m, bot.company, bot.level) or range(99)))
         bot.plan['condition'] = c['id']
         bot.plan['map'] = target_map

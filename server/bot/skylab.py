@@ -164,6 +164,9 @@ def invest(bot, now):
     a frugal bot invests more: long-term gain) and its resource fits storage -> the started module or None."""
     if not bot.permission.get('skylab', True) or bot.level < 3:
         return None
+    from . import playstyle as PL
+    if bot.r.random() > PL.interest(bot, 'skylab'):
+        return None                                    # some pilots neglect the Skylab, others tend it every time
     st = advance(bot, now)
     m = next_up(st)
     c = cost(st, m) if m else None

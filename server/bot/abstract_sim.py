@@ -105,6 +105,8 @@ def farm(bot, dt, y, target_kind=None):
     efficiency = max(0.2, bot.r.gauss(PS.ACTIVITY[bot.archetype][1], 0.12 + 0.2 * (1 - bot.o('patience')))) * (1 - 0.35 * bot.mood['fatigue'])
     from . import extras as EX
     efficiency *= 1 + 0.04 * EX.repair_level(bot)          # repair robot: less time to recover
+    from . import playstyle as PL
+    efficiency *= PL.combat_efficiency(bot)                  # skill (combat, focus), the day's form, habits
     k = dt / 3600.0 * speed * efficiency
     kills = r['kills']
     if target_kind and target_kind in kills:
@@ -122,7 +124,7 @@ def farm(bot, dt, y, target_kind=None):
     x1 = x1_cut(bot)
     bot.reward('npc', ep=r['ep_per_hour'] * k_reward * x1, credits=r['credits_per_hour'] * k_reward * x1, uridium=r['uridium_per_hour'] * k_reward * x1,
              honor=r['honor_per_hour'] * k_reward)
-    box = BONUS_URIDIUM_PER_HOUR * (1 + lv / 6.0) * k * x1
+    box = BONUS_URIDIUM_PER_HOUR * (1 + lv / 6.0) * k * x1 * PL.box_factor(bot) / max(0.3, PL.combat_efficiency(bot))
     bot.reward('box', uridium=box)
     WP.box_ammo(bot, box / BOX_URIDIUM)                # the ammo and credits of the bonus boxes
     total = 0
@@ -135,7 +137,8 @@ def farm(bot, dt, y, target_kind=None):
             from . import loot as LT
             LT.extra_loot(bot, tip, n)                   # Scrapium, Mucosum, the daily file ...
             if bot.permission.get('cargo', True):             # cargo boxes: a patient player collects all, an impatient one leaves most
-                take = (0.55 + 0.4 * bot.o('patience')) * bot.game_settings.multiplier('collecting', 'cargo') * (1 + LT.booster_share(bot, 'COLLECT_RESOURCES'))
+                take = (0.55 + 0.4 * bot.o('patience')) * bot.game_settings.multiplier('collecting', 'cargo') * (1 + LT.booster_share(bot, 'COLLECT_RESOURCES')) \
+                    * PL.cargo_care(bot)                 # many pilots leave most ore boxes, an ore trader takes them all (playstyle.py)
                 bot.add_cargo({t: int(v * n * take) for t, v in K.npc_cargo(tip, bot.level, bot.game_map).items()})
             if y is not None:
                 y.npc_killed(bot, tip, n)
@@ -145,7 +148,7 @@ def farm(bot, dt, y, target_kind=None):
     from . import loot as LT, events as IX
     LT.abstract(bot, dt, y)                                 # the map's keyed boxes
     IX.abstract(bot, dt, y, dps)                            # event aliens, their drops and boxes
-    if bot.r.random() < r['deaths_per_hour'] * dt / 3600.0 * (0.6 + 0.8 * (1 - bot.o('patience')) * 0.5):
+    if bot.r.random() < r['deaths_per_hour'] * dt / 3600.0 * (0.6 + 0.8 * (1 - bot.o('patience')) * 0.5) * PL.death_factor(bot):
         death(bot, y, reason='npc', now=y.now if y is not None else None)
 
 
@@ -171,7 +174,8 @@ def pick_repair(bot, y, killer=None):
     for kind, price, urge in (('in_place', C['in_place_uridium'] * k,
                                0.12 * (1 - bot.o('patience')) + (0.3 * bot.mood['anger'] if killer else 0.0)),
                               ('portal', C['portal_uridium'] * k, 0.1 * far * (1.2 - frugality))):
-        if bot.k['uridium'] >= price * (3 + 5 * frugality) and bot.r.random() < urge:     # pays if it is a small share of the savings
+        from . import playstyle as PL
+        if bot.k['uridium'] >= price * (3 + 5 * frugality) and bot.r.random() < urge * PL.repair_urge(bot):     # pays if it is a small share of the savings
             bot.earn(uridium=-int(round(price)))
             return kind
     return 'station'
@@ -237,8 +241,9 @@ def encounter(a, b, y, now=None):
     now = now or time.time()
     from . import extras as EX
     from . import technology as TECH
-    ga = max(0.5, a.value()['power']) * EX.pvp_factor(a) * TECH.pvp_factor(a)
-    gb = max(0.5, b.value()['power']) * EX.pvp_factor(b) * TECH.pvp_factor(b)
+    from . import playstyle as PL
+    ga = max(0.5, a.value()['power']) * EX.pvp_factor(a) * TECH.pvp_factor(a) * PL.pvp_factor(a)      # + PvP skill (aim, movement)
+    gb = max(0.5, b.value()['power']) * EX.pvp_factor(b) * TECH.pvp_factor(b) * PL.pvp_factor(b)
     ratio = gb / ga                                 # >1: b is stronger
     if ratio < 0.6 and b.r.random() < 1 - b.o('risk') and EX.cloak(b):          # stealth CPU: slips away unseen
         b.ist('hidden')
@@ -247,7 +252,7 @@ def encounter(a, b, y, now=None):
     mine_choice = WP.pick_mine(b)                      # the fleeing one drops a mine behind: the chaser slows down
     # does b flee: if cautious and weak
     flee = ratio < 0.8 and b.r.random() < (1 - b.o('risk')) * (1 - ratio) + 0.2 * (1 - b.o('aggression'))
-    if flee and b.r.random() < 0.55 + 0.25 * (b.value()['speed'] > a.value()['speed']) + 0.15 * bool(mine_choice and WP.spend(b, mine_choice, 1)):
+    if flee and b.r.random() < 0.4 + 0.3 * PL.skill(b, 'survival') + 0.25 * (b.value()['speed'] > a.value()['speed']) + 0.15 * bool(mine_choice and WP.spend(b, mine_choice, 1)):
         b.memory.event(a.name, 'insult', now, multiplier=0.5)
         b.mood.it(anger=0.1, confidence=-0.05)
         return ('fled', b, a)
