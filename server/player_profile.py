@@ -17,7 +17,8 @@ EVENT_WINDOWS = {'plutus': ('plutus',), 'frozen_labyrinth': ('labyrinth',), 'aga
                  'strikeAndExit': ('vortex_of_greed',), 'publicWorldBoss': ('world_boss',), 'payload_escort': ('mimesis_mutiny',),  # stage 4
                  'mileageMarket': ('mileage_market',), 'vipMerchantExchange': ('vip_merchant',),                            # stage 7
                  'preBlackFridaySales': ('pre_prometheus',), 'return_of_hero': ('return_of_hero',), 'returnee_login': (),
-                 'apotheosis': ('kristallon_apotheosis',), 'recallBattlePass': ('return_of_hero',)}                       # 1.1.115
+                 'apotheosis': ('kristallon_apotheosis',), 'recallBattlePass': ('return_of_hero',),                        # 1.1.115
+                 'battle_pass': ()}      # Objectives: while the save's pass runs (battle_pass.py; the session binds the hook), otherwise it opened empty
 # the 1.1.115 windows are not in the interface in the recording: added to the profile as a copy of the Return of Hero item (title, size from game.xml);
 # before opening a window the client looks up the menu item by name (FeatureMenuHelper.GetFeatureItemById)
 NEW_WINDOWS = {'apotheosis': ('title_kristallon_apotheosis', 728, 460), 'recallBattlePass': ('return_pass_name', 800, 440)}

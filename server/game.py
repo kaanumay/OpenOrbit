@@ -444,6 +444,7 @@ class Session:
         self.extra.add(self.store)
         self.extra.add(PILOT.Pilot(self, log))                # Auto Mode (pilot/): the server flies the ship; local feature
         self.profile.window_hooks['returnee_login'] = self.store.returnee_active
+        self.profile.window_hooks['battle_pass'] = lambda: self.ticket.ensure() is not None
         self.extra.rbp.hero = lambda: bool(self.store.rh().get('connected'))           # Recall Battle Pass: the state in Return of Hero
         # Season Pass quest finished -> event systems (Recall Battle Pass, Return of Hero: COMPLETE_SEASON_PASS_QUESTS quests)
         self.season.quest_done = lambda cat: self.extra.event('sp_quest', dict(category=cat))
@@ -840,6 +841,8 @@ class Session:
                 if self.cal_sent is not None:
                     log('   calendar: %s' % ', '.join(sorted(cur)) or '-')
                     changed = [(n, f) for n, f in items if self.win_sent.get(f['itemId']) != f['visible']]
+                    if any(f['itemId'] == 'battle_pass' and f['visible'] for n, f in changed):
+                        changed += self.ticket.login_msgs()      # a pass opened while playing: the Objectives window's data
                     self.send([CAL.event_cmd(now)] + changed + CAL.mood_cmds(cur, self.cal_sent),
                               quiet=True)      # menu item (to be verified live: Ö1); map decorations
                     self.event_tips(now)
