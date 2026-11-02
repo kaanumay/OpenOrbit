@@ -76,6 +76,7 @@ import panel_channel as PCH   # noqa: E402
 import event_maps as EVM  # noqa: E402
 import live_status as CD   # noqa: E402
 import extra_events as EXE  # noqa: E402
+import pilot as PILOT  # noqa: E402  (Auto Mode)
 import cbs as CBS
 import stores as STO
 import player_profile as PF
@@ -441,6 +442,7 @@ class Session:
         self.shop.cbs = self.cbs                 # Assembly: idle modules are in the inventory, upgradeable (shop.module_items)
         self.store = STO.Stores(self.profile, self.shop, log)              # Ö7: shop windows that run on uridium
         self.extra.add(self.store)
+        self.extra.add(PILOT.Pilot(self, log))                # Auto Mode (pilot/): the server flies the ship; local feature
         self.profile.window_hooks['returnee_login'] = self.store.returnee_active
         self.extra.rbp.hero = lambda: bool(self.store.rh().get('connected'))           # Recall Battle Pass: the state in Return of Hero
         # Season Pass quest finished -> event systems (Recall Battle Pass, Return of Hero: COMPLETE_SEASON_PASS_QUESTS quests)
