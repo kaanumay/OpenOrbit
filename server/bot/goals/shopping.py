@@ -85,7 +85,7 @@ def _candidates(bot):
     best = max((l for l in e.get('laser', {}) if l in lasers), key=lasers.get, default=None)
     for loot, d in K.ITEMS['drones'].items():
         n = e.get('drone', {}).get(loot, 0)
-        if sum(e.get('drone', {}).values()) < K.ITEMS['max_drones'] and K.price(loot, n):
+        if K.drone_room(e.get('drone', {}), loot) and K.price(loot, n):
             missing = max(0, d.get('slot', 1) - backup)
             attempt(loot, n, (best, missing) if best and missing else None)
     for loot in K.ships():

@@ -18,7 +18,9 @@ from . import catalog as K
 
 FORMATION = {'drone_formation_default': 0, 'drone_formation_f-01-tu': 1, 'drone_formation_f-02-ar': 2,
              'drone_formation_f-04-st': 4, 'drone_formation_f-05-pi': 5}
-MIN_DRONES = {'drone_formation_f-02-ar': 4, 'drone_formation_f-05-pi': 6}
+# the game's minimum (items.json formation_rules: Arrow 4, Pincer 6); Turtle and Star have none in the game, but a bot does not fly a formation
+# with 1-3 drones (player report 2026-11-02: formations with 1-2 drones looked odd)
+MIN_DRONES = {'drone_formation_f-01-tu': 4, 'drone_formation_f-02-ar': 4, 'drone_formation_f-04-st': 4, 'drone_formation_f-05-pi': 6}
 # (title, statistic, threshold): the game's achievements (data/achievements.json achievement_destroy_aliens, _experience, _honor)
 TITLES = (('title_achievement_honor-2', 'honor', 2500000), ('title_achievement_experience-2', 'ep', 10000000000),
             ('title_achievement_destroy_aliens-2', 'npc', 1000000), ('title_achievement_honor-1', 'honor', 450000),

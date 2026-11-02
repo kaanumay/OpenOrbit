@@ -126,6 +126,10 @@ SCHEMA = [
                                                              "box become yours (bots in your group still share). Not for aliens fought together such as Cubikon, "
                                                              "Mindfire Behemoth and world bosses: there the reward is split between players and bots by damage "
                                                              "dealt, and the cargo box goes to the top damage dealer. Has no effect while alien tagging is off.", default=False),
+    _b('group_split', 'Shared rewards on group aliens', 'reward', 'Cubikon, Ice Meteoroids, Hitac and world bosses: the reward is split '
+                                                                  'between players and bots by damage dealt, and the cargo box goes to the '
+                                                                  'top damage dealer. If off, they follow the usual tagging rule: whoever '
+                                                                  'tags it gets everything (handy for levelling up a friend).', default=True),
     _b('cargo_ownership', 'Cargo box ownership', 'reward', "An alien's cargo box belongs to its owner only; others see it in blue (if the game's Settings > "
                                                            "Display option for other players' cargo boxes is on). Collecting the box of someone from your own "
                                                            "company costs honor: 10 for the first that day, twice as much each time. If off, anyone can collect "

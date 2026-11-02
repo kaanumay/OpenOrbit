@@ -79,6 +79,25 @@ def speed_generators():
     return {k: v['speed'] for k, v in ITEMS['speed_generators'].items() if price(k)}
 
 
+def drone_room(drones, loot, n=1):
+    """Can n more of this drone be fitted? Flax/Iris share max_drones (8), Apis and Zeus are one each outside it: 10 at most (wiki
+    drones; player report 2026-11-02: bots flew 2 Apis + 2 Zeus, the box rewards were added without the single rule)."""
+    if ITEMS['drones'][loot].get('single'):
+        return drones.get(loot, 0) + n <= 1
+    return sum(v for l, v in drones.items() if not ITEMS['drones'].get(l, {}).get('single')) + n <= ITEMS['max_drones']
+
+
+def fix_drones(drones):
+    """An old save's drones within the rule (drone_room): the extra ones are dropped."""
+    out = {}
+    for loot, n in drones.items():
+        while n > 0 and loot in ITEMS['drones'] and drone_room(out, loot):
+            out[loot] = out.get(loot, 0) + 1
+            n -= 1
+    drones.clear()
+    drones.update(out)
+
+
 def new_gear():
     return {'ship': 'ship_phoenix', 'laser': {'equipment_weapon_laser_lf-1': 1}, 'shield': {}, 'speed': {}, 'drone': {},
             'ammunition': AMMO[0]}

@@ -149,6 +149,8 @@ def apply(k, roster_row, value, online=False):
             if l not in E[CATEGORY[multiplier]]:
                 raise EditError('item', l)
             n = _number(n, 0, MAX_COUNTS[multiplier], l)
+            if n and multiplier == 'drone' and not K.drone_room(new_, l, n):
+                raise EditError('interval', l)           # Flax/Iris 8 in all, Apis and Zeus one each (catalog.drone_room)
             if n:
                 new_[l] = n
         jobs.append(lambda multiplier=multiplier, new_=new_: gear.__setitem__(multiplier, new_))

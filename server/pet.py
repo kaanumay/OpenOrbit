@@ -196,6 +196,8 @@ class Pet:
         self.in_beacon = False       # the ship is within the marker's range: the bonus is on the ship
         self.ready = {}              # gears on cooldown (TIMED): type -> cooldown end
         self.charge_end = 0.0        # G-KK1 flying at its target: explodes on arrival
+        self.charge_at = None        # what it flies at: an NPC/bot id or ('p', world) of a player on the shared map; re-aimed on arrival
+        self.charge_hops = 0
         self.rep_state = None        # G-REP state last sent (PetGearActivationChangeCommand: on while the P.E.T. is hurt)
         self.buffs_sent = {}         # cooldown buffs in the window: buff id -> cooldown end (buff_msgs)
         self.look = None             # the look (ship type) the client knows: PetLevelUpdateCommand only when it changes
@@ -1115,7 +1117,7 @@ class Pet:
                 self.deactivate(msg='msg_pet_out_of_fuel')
                 return
         if self.charge_end:                      # G-KK1 on its way: no following, no fighting
-            if now >= self.charge_end:
+            if now >= self.charge_end and not self.recharge(now):
                 self.kamikaze(now)
             return
         if now >= self.next_second:
@@ -1502,7 +1504,7 @@ class Pet:
             return False
         w = self.w
         px, py = self.pos(now)
-        return any(n.alive and not n.d.get('friendly') and (n.engaged or n.id == w.target)
+        return any(n.alive and not n.d.get('friendly') and (n.engaged or n.id == w.target or (n.bot is not None and n.target == w.hid))
                    and math.hypot(n.mover.pos(now)[0] - px, n.mover.pos(now)[1] - py) <= kamikaze_cfg['range'] for n in list(w.npcs.values()))             or bool(self.assets_in_blast(px, py, kamikaze_cfg['range']))
 
     def assets_in_blast(self, px, py, r):
@@ -1535,19 +1537,42 @@ class Pet:
         n = w.npcs.get(w.target)
         if not (n and n.alive and not n.d.get('friendly')):
             n = attacker if getattr(attacker, 'alive', False) and getattr(attacker, 'mover', None) else None
-        if n is None:
+        other = w.player(w.target) if n is None and w.shared is not None and w.target else None      # a player on the shared map
+        if n is None and other is None:
             return self.kamikaze(now)
-        tx, ty = n.mover.pos(now)
+        self.charge_at, self.charge_hops = (n.id if n is not None else ('p', other)), 0
+        if not self.recharge(now, first=True):
+            self.kamikaze(now)
+
+    def charge_target_pos(self, now):
+        """Where the charge target is now, or None (gone, dead, left the map)."""
+        t = self.charge_at
+        if isinstance(t, tuple):
+            o = t[1]
+            return None if o.hero_dead or not o.running or o.map_id != self.w.map_id else o.hero_pos(now)
+        n = self.w.npcs.get(t)
+        return n.mover.pos(now) if n is not None and n.alive else None
+
+    def recharge(self, now, first=False):
+        """Flies (again) at the charge target if it is farther than half the blast range -> still flying. A moving target (a bot, a player)
+        used to be gone from the spot when the P.E.T. arrived and the blast hit nothing (player report 2026-11-02); at most 4 legs."""
+        pos = self.charge_target_pos(now) if self.charge_at is not None else None
+        self.charge_end = 0.0
+        if pos is None or self.charge_hops >= 4:
+            return False
         px, py = self.pos(now)
-        dist = math.hypot(tx - px, ty - py)
+        dist = math.hypot(pos[0] - px, pos[1] - py)
         if dist <= self.gear(KAMIKAZE)['range'] * 0.5:
-            return self.kamikaze(now)
+            return False
         speed = max(1, self.speed())
         if self.shooting:
             self.stop_shooting()
-        self.move(tx, ty, speed, now)
+        self.move(pos[0], pos[1], speed, now)
         self.charge_end = now + dist / speed
-        self.log('   P.E.T. kamikaze: flying at %s (%d away)' % (n.d.get('name', n.id), dist))
+        self.charge_hops += 1
+        if first:
+            self.log('   P.E.T. kamikaze: flying at %s (%d away)' % (self.charge_at, dist))
+        return True
 
     def kamikaze(self, now):
         """Kamikaze gear: explodes when HP drops below the threshold, damages nearby NPCs (the P.E.T. is destroyed), the cooldown starts (wiki
@@ -1563,11 +1588,22 @@ class Pet:
             self.p.dirty = True
         self.destroyed(DESTROYED_KAMIKAZE)
         self.send([('PetGearActivationChangeCommand', dict(gearType=gear_type(KAMIKAZE), active=False))])   # grey while cooling down
+        self.charge_at = None
         for n in hit:
             w.hit_npc(n.id, kamikaze_cfg['damage'], 1, attacker=self.pid)
         for uid in assets:
             self.send(w.asset_targets.asset_damage(uid, kamikaze_cfg['damage'], attacker=self.pid))
-        self.log('   P.E.T. kamikaze: %d NPCs, %d base modules hit' % (len(hit), len(assets)))
+        players = 0
+        if w.shared is not None:                    # enemy players on the shared map (player report 2026-11-02: only NPCs and bots were hit)
+            import player_combat as PVP
+            for o in list(w.shared.members):
+                if o is w or not o.running or o.hero_dead or o.map_id != w.map_id:
+                    continue
+                ox, oy = o.hero_pos(now)
+                if math.hypot(ox - px, oy - py) <= kamikaze_cfg['range'] and not PVP.attack_error(w, o, now):
+                    PVP._hit(w, o, now, kamikaze_cfg['damage'], atype=0)      # the PvP rules and the panel's damage multiplier as for a rocket
+                    players += 1
+        self.log('   P.E.T. kamikaze: %d NPCs, %d players, %d base modules hit' % (len(hit), players, len(assets)))
 
     def destroyed(self, kind, killer=None):
         with self.p.lock:

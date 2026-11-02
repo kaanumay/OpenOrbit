@@ -132,14 +132,17 @@ def tag_alien(n, who, now):
 
 
 def group_npc(n):
-    """An alien fought together (world bosses that drop a chest, like Cubikon, Mindfire Behemoth, Invoke XVI): when player_tag is on,
-    the tag does not pass, and the reward is split by damage dealt."""
-    return bool(n.d.get('chest') or n.d.get('boss') or 'Cubikon' in str(n.d.get('name', '')) or str(getattr(n, 'tip', '')).startswith('wb_'))
+    """An alien fought together (world bosses that drop a chest, like Mindfire Behemoth, Invoke XVI; npc.json shared: Cubikon, Ice
+    Meteoroids, Hitac): while the panel's group_split is on, the tag does not pass and the reward is split by damage dealt; when off it
+    is an ordinary alien (the tagger gets everything: levelling up a friend). Before, the split needed player_tag (off by default) and
+    did not cover the meteoroids and Hitac (player report 2026-11-02)."""
+    return bool(SET.get('group_split') and (n.d.get('shared') or n.d.get('chest') or n.d.get('boss')
+                                            or str(getattr(n, 'tip', '')).startswith('wb_')))
 
 
 def record_damage(n, who, dmg):
-    """The damage dealt to a group alien by who ('h', hero) or ('b', bot): reward sharing (tag_sharers). Only when tag and player_tag are on."""
-    if dmg > 0 and SET.get('tag') and SET.get('player_tag') and group_npc(n):
+    """The damage dealt to a group alien by who ('h', hero) or ('b', bot): reward sharing (tag_sharers)."""
+    if dmg > 0 and group_npc(n):
         d = n.__dict__.setdefault('damage_split', {})
         d[who] = d.get(who, 0) + dmg
 
@@ -251,6 +254,7 @@ class NPC:
         self.last_hit = 0.0                 # the moment it was last hit (out-of-combat regeneration)
         self.next_summon = 0.0
         self.next_regen = 0.0
+        self.next_shield_regen = 0.0        # the alien's own shield refill (World.npc_shield_regen)
         self.ab = {}                        # state of the abilities (alien.py: cooldowns, thresholds, vanishing, speed)
         self.attackers = {}                 # attacker -> last hit time (Battleray's rage)
         self.foe = None                     # the world that runs its AI on a shared map (shared_maps.Map.owners)
@@ -3354,6 +3358,16 @@ class World:
         if (n.hp, n.shield) != (hp, sh) and self.target == n.id:
             self.send([self.selection(n)])
 
+    def npc_shield_regen(self, n, now):
+        """Every alien refills its shield by itself, also in combat (COMBAT npc_shield_regen of the maximum per second); HP does not (player
+        report 2026-11-02: only Cubikon regenerated, and only its HP)."""
+        if now < n.next_shield_regen:
+            return
+        n.next_shield_regen = now + 1.0
+        n.shield = min(n.d['shield'], n.shield + max(1, int(n.d['shield'] * COMBAT.get('npc_shield_regen', 0.0025))))
+        if self.target == n.id:
+            self.send([self.selection(n)])
+
     def effect_stats_msgs(self, now=None):
         """Update the effect speed; re-time the ongoing flight toward the same target with the new speed, from where it is."""
         now = time.time() if now is None else now
@@ -3409,6 +3423,8 @@ class World:
                 n.effect.expired(now)
             if n.alive and 'regeneration' in n.behavior:
                 self.npc_regen(n, now)
+            if n.alive and n.bot is None and n.shield < n.d['shield']:
+                self.npc_shield_regen(n, now)
         expired = self.hero_effects.expired(now) if self.hero_effects.d else set()
         expired.update(kind for kind in self.items.mine_visuals if not self.hero_effects.get(kind, now))
         infection = getattr(self.p, '_infection_effect', None)

@@ -573,6 +573,7 @@
    "shield_absorb": 0.9
   },
   "80": {
+   "shared": true,
    "name": "-=[ Cubikon ]=-",
    "hp": 1600000,
    "shield": 1200000,
@@ -3040,6 +3041,7 @@
    "_source": "wiki (belgeler/wiki/aliens.md: hitac_underling_x8); appearance from the client's game.xml; speed, aggressiveness adaptation"
   },
   "event_hitac_underboss_x2": {
+   "shared": true,
    "name": "Hitac-Underboss",
    "hp": 240000,
    "shield": 180000,
@@ -3062,6 +3064,7 @@
    "_source": "wiki (belgeler/wiki/aliens.md: hitac_underboss_x2); appearance from the client's game.xml; speed, aggressiveness adaptation"
   },
   "event_hitac_underboss_x3": {
+   "shared": true,
    "name": "Hitac-Underboss",
    "hp": 400000,
    "shield": 300000,
@@ -3084,6 +3087,7 @@
    "_source": "wiki (belgeler/wiki/aliens.md: hitac_underboss_x3); appearance from the client's game.xml; speed, aggressiveness adaptation"
   },
   "event_hitac_underboss_x4": {
+   "shared": true,
    "name": "Hitac-Underboss",
    "hp": 640000,
    "shield": 480000,
@@ -3106,6 +3110,7 @@
    "_source": "wiki (belgeler/wiki/aliens.md: hitac_underboss_x4); appearance from the client's game.xml; speed, aggressiveness adaptation"
   },
   "event_hitac_underboss_x5": {
+   "shared": true,
    "name": "Hitac-Underboss",
    "hp": 1720000,
    "shield": 1290000,
@@ -3128,6 +3133,7 @@
    "_source": "wiki (belgeler/wiki/aliens.md: hitac_underboss_x5); appearance from the client's game.xml; speed, aggressiveness adaptation"
   },
   "event_hitac_underboss_x6": {
+   "shared": true,
    "name": "Hitac-Underboss",
    "hp": 3520000,
    "shield": 2640000,
@@ -3150,6 +3156,7 @@
    "_source": "wiki (belgeler/wiki/aliens.md: hitac_underboss_x6); appearance from the client's game.xml; speed, aggressiveness adaptation"
   },
   "event_hitac_underboss_x7": {
+   "shared": true,
    "name": "Hitac-Underboss",
    "hp": 5400000,
    "shield": 4050000,
@@ -3172,6 +3179,7 @@
    "_source": "wiki (belgeler/wiki/aliens.md: hitac_underboss_x7); appearance from the client's game.xml; speed, aggressiveness adaptation"
   },
   "event_hitac_underboss_x8": {
+   "shared": true,
    "name": "Hitac-Underboss",
    "hp": 6400000,
    "shield": 4800000,
@@ -3642,6 +3650,7 @@
    "_source": "wiki (belgeler/wiki/aliens.md: icy); appearance from the client's game.xml; speed, aggressiveness adaptation"
   },
   "event_ice_meteoroid": {
+   "shared": true,
    "name": "Ice Meteoroid",
    "hp": 1600000,
    "shield": 1200000,
@@ -3677,6 +3686,7 @@
    "_source": "wiki (belgeler/wiki/aliens.md: ice_meteoroid); appearance from the client's game.xml; speed, aggressiveness adaptation"
   },
   "event_super_ice_meteoroid": {
+   "shared": true,
    "name": "Super Ice Meteoroid",
    "hp": 3200000,
    "shield": 2400000,
@@ -5641,6 +5651,7 @@
    "_source": "wiki/fandom: Santa-1100101 reward per map (X-3 EP typo 38,400); hp/shield/damage within the range according to the map"
   },
   "event_hitac_minion": {
+   "shared": true,
    "name": "Hitac-Minion 2.5",
    "model": "117",
    "npc_id": 263,
@@ -5660,6 +5671,7 @@
    "_source": "wiki: Hitac 2.5 Minion"
   },
   "event_hitac_mothership": {
+   "shared": true,
    "name": "Hitac 2.5",
    "model": "116",
    "npc_id": 261,
@@ -7360,6 +7372,7 @@
    }
   },
   "event_hitac2_minion": {
+   "shared": true,
    "name": "Hitac-Minion 2.0",
    "model": "117",
    "npc_id": 105,
@@ -7379,6 +7392,7 @@
    "_source": "wiki: Hitac 2.0 Minion"
   },
   "event_hitac2_mothership": {
+   "shared": true,
    "name": "Hitac 2.0",
    "model": "116",
    "npc_id": 106,
@@ -7447,6 +7461,7 @@
    "_source": "darkorbitwiki (Mirror Mimesis): weak clones; hp/shield 10%, damage 20%, no reward (adaptation; from mm_mirror)"
   },
   "event_cubikon_chaos": {
+   "shared": true,
    "name": "-=[ Chaos Cubikon ]=-",
    "hp": 2000000,
    "shield": 1500000,
@@ -8023,6 +8038,7 @@
    "_source": "official Turkish forum 132357 (2020): small Demaner kill reward 24 U / 50,000 credits, cargo 100 Prometium / Endurium / Terbium; hp, shield, damage and speed from the Delta gate's DemaNeR (gates.json; adaptation)"
   },
   "event_i_hitac": {
+   "shared": true,
    "name": "I-Hitac",
    "model": "245",
    "npc_id": 125,
@@ -9859,6 +9875,8 @@
   "rocket_hit_chance": 0.8,
   "_rocket_hit": "if the rocket has no hit chance of its own, the base (items.json rockets.<id>.hit: R-310 70%, PLT-2026 80%, PLT-2021 90%, PLT-3030 65%, BDR-1211 100%; special ammo this base, adaptation); raised by the Heat-Seeking Missiles ability (rocket_hit_chance) and the DMG-H01 booster (hit), lowered by effects like PLD-8",
   "npc_shield_absorb": 0.7,
+  "npc_shield_regen": 0.0025,
+  "_npc_shield_regen": "Share of the shield maximum an alien refills per second by itself, also in combat; HP does not refill (wiki: most aliens do not regenerate health but their shield regenerates; real recording 2026-10-27: Boss Sibelon median 0.25%/s between hits, Plagued Kristallin and Cubikon back to a full shield out of view with HP unchanged)",
   "_npc_shield_absorb": "Default shield absorb ratio; if the type has a shield_absorb value, that one applies (fandom: Aider Streuner, Kristallon, Uber Kristallon 90%, Cubikon 80%, Uber Annihilator 85%, Uber Interceptor 60%)",
   "npc_hit_chance": 0.7,
   "npc_range": 450,

@@ -31,6 +31,7 @@ class Bot:
         for a in ('ep', 'credits', 'uridium', 'honor'):
             k.setdefault(a, 0)
         k.setdefault('gear', K.new_gear())
+        K.fix_drones(k['gear'].setdefault('drone', {}))
         k.setdefault('map', K.ev(k['company']))
         k.setdefault('x', 0)
         k.setdefault('y', 0)
@@ -217,8 +218,8 @@ class Bot:
         elif loot in K.ITEMS['speed_generators']:
             e['speed'][loot] = e['speed'].get(loot, 0) + n
         elif loot in K.ITEMS['drones']:
-            if sum(e['drone'].values()) + n > K.ITEMS['max_drones']:
-                return False                             # drone slots full: a dropped drone goes to stock
+            if not K.drone_room(e['drone'], loot, n):
+                return False                             # drone slots full or a second Apis/Zeus: a dropped drone goes to stock
             e['drone'][loot] = e['drone'].get(loot, 0) + n
         elif loot in K.ITEMS['combat_items']['launcher']['kinds']:
             e['launcher'] = loot                       # rocket launcher (technology.py)
