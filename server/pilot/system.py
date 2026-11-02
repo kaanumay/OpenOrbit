@@ -18,7 +18,7 @@ the mode's maps) and the aliens attacking the ship (defend, clear_path) / new ta
 ore if the mode harvests / an empty map (next map of the list) / patrol.
 Activities (self.mode, the panel's status): fight, box, roam, idle, flee, repair, hide, ore, gate (next wave), and the errands travel, home,
 sell, quest, gate_trip."""
-import time, traceback
+import math, time, traceback
 
 import paths as PTH
 
@@ -170,8 +170,11 @@ class Pilot:
         if not self.running or world is not self.world or self.act is None:
             return
         now = time.time()
-        if self.act.ours(f.get('targetX', 0), f.get('targetY', 0), now):
+        tx, ty = f.get('targetX', 0), f.get('targetY', 0)
+        if self.act.ours(tx, ty, now):
             return
+        if math.hypot(tx - f.get('positionX', tx), ty - f.get('positionY', ty)) <= A.base.OWN_MOVE_DIST:
+            return                                  # the client stops where it stands after a jump: not the player's click
         self.pause_until = now + self.cfg['pause_sec']
         if self.cfg['pause_sec']:
             self.log('   auto mode: paused (manual move)')
