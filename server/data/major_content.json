@@ -30,7 +30,7 @@
     "hp": 90000,
     "shield": 60000,
     "damage": 500,
-    "speed": 320,
+    "speed": 572,
     "aggressive": true,
     "reward": {
      "ep": 7500,
@@ -57,7 +57,7 @@
     "hp": 270000,
     "shield": 150000,
     "damage": 6000,
-    "speed": 280,
+    "speed": 375,
     "aggressive": true,
     "reward": {
      "ep": 15000,
@@ -84,7 +84,7 @@
     "hp": 300000,
     "shield": 225000,
     "damage": 4000,
-    "speed": 260,
+    "speed": 428,
     "aggressive": true,
     "reward": {
      "ep": 22500,
@@ -114,7 +114,7 @@
    "hp": 1125000,
    "shield": 900000,
    "damage": 14000,
-   "speed": 200,
+   "speed": 334,
    "aggressive": true,
    "reward": {
     "ep": 187500,

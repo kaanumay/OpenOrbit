@@ -12700,7 +12700,7 @@
    "hp": 8000,
    "shield": 8000,
    "damage": 50,
-   "speed": 380,
+   "speed": 412,
    "aggressive": true,
    "reward": {
     "ep": 0,
@@ -12792,7 +12792,7 @@
    "hp": 6000,
    "shield": 6000,
    "damage": 150,
-   "speed": 380,
+   "speed": 412,
    "aggressive": true,
    "reward": {
     "ep": 0,
@@ -12886,7 +12886,7 @@
    "hp": 12000,
    "shield": 12000,
    "damage": 250,
-   "speed": 380,
+   "speed": 412,
    "aggressive": true,
    "reward": {
     "ep": 387,
@@ -12984,7 +12984,7 @@
    "hp": 32400,
    "shield": 32400,
    "damage": 350,
-   "speed": 380,
+   "speed": 412,
    "aggressive": true,
    "reward": {
     "ep": 653,
@@ -13083,7 +13083,7 @@
    "hp": 64800,
    "shield": 64800,
    "damage": 450,
-   "speed": 380,
+   "speed": 412,
    "aggressive": true,
    "reward": {
     "ep": 1381,
@@ -13637,7 +13637,7 @@
    "hp": 20000,
    "shield": 10000,
    "damage": 390,
-   "speed": 125,
+   "speed": 68,
    "aggressive": true,
    "reward": {
     "ep": 3200,
@@ -13661,7 +13661,7 @@
    "hp": 80000,
    "shield": 40000,
    "damage": 1500,
-   "speed": 150,
+   "speed": 81,
    "aggressive": true,
    "reward": {
     "ep": 12800,
@@ -13686,7 +13686,7 @@
    "hp": 24000,
    "shield": 12000,
    "damage": 800,
-   "speed": 300,
+   "speed": 272,
    "aggressive": true,
    "reward": {
     "ep": 6400,
@@ -13711,7 +13711,7 @@
    "hp": 200000,
    "shield": 200000,
    "damage": 2650,
-   "speed": 100,
+   "speed": 82,
    "aggressive": true,
    "reward": {
     "ep": 12800,
@@ -13735,7 +13735,7 @@
    "hp": 40000,
    "shield": 40000,
    "damage": 3200,
-   "speed": 320,
+   "speed": 272,
    "aggressive": true,
    "reward": {
     "ep": 3200,
@@ -13759,7 +13759,7 @@
    "hp": 800000,
    "shield": 800000,
    "damage": 12350,
-   "speed": 175,
+   "speed": 92,
    "aggressive": true,
    "reward": {
     "ep": 51200,
@@ -13784,7 +13784,7 @@
    "hp": 1600000,
    "shield": 1600000,
    "damage": 24000,
-   "speed": 100,
+   "speed": 92,
    "aggressive": true,
    "reward": {
     "ep": 102400,
@@ -13809,7 +13809,7 @@
    "hp": 320000,
    "shield": 320000,
    "damage": 8000,
-   "speed": 350,
+   "speed": 272,
    "aggressive": true,
    "reward": {
     "ep": 25600,
@@ -13883,7 +13883,7 @@
    "hp": 60000,
    "shield": 40000,
    "damage": 500,
-   "speed": 600,
+   "speed": 572,
    "aggressive": true,
    "reward": {
     "ep": 7500,
@@ -13907,7 +13907,7 @@
    "hp": 180000,
    "shield": 100000,
    "damage": 6000,
-   "speed": 430,
+   "speed": 375,
    "aggressive": true,
    "reward": {
     "ep": 15000,
@@ -13931,7 +13931,7 @@
    "hp": 300000,
    "shield": 200000,
    "damage": 15000,
-   "speed": 350,
+   "speed": 322,
    "aggressive": true,
    "reward": {
     "ep": 75000,
@@ -13956,7 +13956,7 @@
    "hp": 1600000,
    "shield": 1200000,
    "damage": 32000,
-   "speed": 400,
+   "speed": 347,
    "aggressive": true,
    "reward": {
     "ep": 90000,
@@ -14129,7 +14129,7 @@
    "hp": 16000,
    "shield": 16000,
    "damage": 640,
-   "speed": 250,
+   "speed": 272,
    "aggressive": true,
    "reward": {
     "ep": 6400,
@@ -14154,7 +14154,7 @@
    "hp": 2400000,
    "shield": 1600000,
    "damage": 32000,
-   "speed": 100,
+   "speed": 172,
    "aggressive": true,
    "reward": {
     "ep": 204800,
@@ -14204,7 +14204,7 @@
    "hp": 400000,
    "shield": 200000,
    "damage": 11500,
-   "speed": 400,
+   "speed": 350,
    "aggressive": true,
    "reward": {
     "ep": 30000,
@@ -14230,7 +14230,7 @@
    "hp": 50000,
    "shield": 40000,
    "damage": 1500,
-   "speed": 500,
+   "speed": 472,
    "aggressive": true,
    "reward": {
     "ep": 6400,
@@ -14254,7 +14254,7 @@
    "hp": 400000,
    "shield": 320000,
    "damage": 12000,
-   "speed": 300,
+   "speed": 472,
    "aggressive": true,
    "reward": {
     "ep": 6400,
@@ -14328,7 +14328,7 @@
    "hp": 2400000,
    "shield": 1600000,
    "damage": 90000,
-   "speed": 320,
+   "speed": 322,
    "aggressive": true,
    "reward": {
     "ep": 300000,

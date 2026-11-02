@@ -27,7 +27,7 @@
    "hp": 600,
    "shield": 800,
    "damage": 40,
-   "speed": 200,
+   "speed": 192,
    "spread": 1,
    "aggressive": true,
    "reward": {
@@ -40,7 +40,7 @@
     "0": 12,
     "2": 12
    },
-   "_source": "wiki; speed adaptation; aggressive (fandom)",
+   "_source": "wiki; speed adaptation; aggressive (fandom); speed from the recording (297 moves, mode 192; was 200)",
    "npc_id": 152
   },
   "153": {
@@ -95,7 +95,7 @@
    "hp": 8000,
    "shield": 8000,
    "damage": 320,
-   "speed": 240,
+   "speed": 242,
    "spread": 2,
    "aggressive": true,
    "reward": {
@@ -111,7 +111,7 @@
     "4": 10,
     "3": 1
    },
-   "_source": "wiki; speed verified by the recording (489 units / 2,020 ms = 242); aggressiveness adaptation",
+   "_source": "wiki; speed verified by the recording (489 units / 2,020 ms = 242); aggressiveness adaptation; speed from the recording (103 moves, mode 242)",
    "npc_id": 15,
    "extra_reward": {
     "resource_collectable_mucosum": 6,
@@ -182,7 +182,7 @@
    "hp": 20000,
    "shield": 10000,
    "damage": 390,
-   "speed": 52,
+   "speed": 68,
    "spread": 2,
    "aggressive": true,
    "reward": {
@@ -199,7 +199,7 @@
     "5": 8,
     "6": 1
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: mordon); speed, aggressiveness adaptation",
+   "_source": "wiki (belgeler/wiki/aliens.md: mordon); speed, aggressiveness adaptation; speed from the recording (1,251 moves, mode 68; was 52)",
    "npc_id": 4,
    "extra_reward": {
     "resource_collectable_scrapium": 2
@@ -210,7 +210,7 @@
    "hp": 6000,
    "shield": 6000,
    "damage": 200,
-   "speed": 280,
+   "speed": 272,
    "spread": 2,
    "aggressive": true,
    "reward": {
@@ -226,7 +226,7 @@
     "4": 2,
     "5": 2
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: saimon); speed, aggressiveness adaptation",
+   "_source": "wiki (belgeler/wiki/aliens.md: saimon); speed, aggressiveness adaptation; speed from the recording (812 moves, mode 272; was 280)",
    "npc_id": 6,
    "extra_reward": {
     "resource_collectable_scrapium": 2
@@ -237,7 +237,7 @@
    "hp": 80000,
    "shield": 40000,
    "damage": 1500,
-   "speed": 78,
+   "speed": 81,
    "spread": 3,
    "aggressive": true,
    "reward": {
@@ -255,7 +255,7 @@
     "6": 8,
     "3": 8
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: boss_mordon); speed, aggressiveness adaptation",
+   "_source": "wiki (belgeler/wiki/aliens.md: boss_mordon); speed, aggressiveness adaptation; speed from the recording (53 moves, mode 81)",
    "npc_id": 16,
    "extra_reward": {
     "resource_collectable_scrapium": 6,
@@ -336,7 +336,7 @@
    "hp": 200000,
    "shield": 200000,
    "damage": 2650,
-   "speed": 150,
+   "speed": 82,
    "spread": 3,
    "aggressive": true,
    "reward": {
@@ -353,7 +353,7 @@
     "5": 32,
     "6": 4
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: sibelon); speed, aggressiveness adaptation",
+   "_source": "wiki (belgeler/wiki/aliens.md: sibelon); speed, aggressiveness adaptation; speed from the recording (16 moves, median 82; was 150); every source has it as the slowest X-4 alien (fandom, board-en 1005 and 4 emulators: 100 on the old scale)",
    "npc_id": 5,
    "extra_reward": {
     "resource_collectable_boltrum": 1
@@ -453,7 +453,7 @@
    "hp": 160000,
    "shield": 160000,
    "damage": 4350,
-   "speed": 280,
+   "speed": 272,
    "spread": 3,
    "aggressive": true,
    "reward": {
@@ -471,7 +471,7 @@
     "6": 4,
     "3": 8
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: boss_sibelonit); speed, aggressiveness adaptation",
+   "_source": "wiki (belgeler/wiki/aliens.md: boss_sibelonit); speed, aggressiveness adaptation; speed from the recording (248 moves, mode 272; was 280)",
    "npc_id": 19,
    "extra_reward": {
     "resource_collectable_mucosum": 6,
@@ -486,7 +486,7 @@
    "hp": 1200000,
    "shield": 800000,
    "damage": 16000,
-   "speed": 180,
+   "speed": 172,
    "spread": 3,
    "aggressive": false,
    "reward": {
@@ -504,7 +504,7 @@
     "6": 32,
     "3": 32
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: boss_lordakium); speed adaptation; does not attack unless hit (fandom)",
+   "_source": "wiki (belgeler/wiki/aliens.md: boss_lordakium); speed adaptation; does not attack unless hit (fandom); speed from the recording (49 moves, mode 172; was 180)",
    "npc_id": 21,
    "extra_reward": {
     "resource_collectable_mucosum": 6,
@@ -607,7 +607,7 @@
    "hp": 200000,
    "shield": 160000,
    "damage": 4700,
-   "speed": 280,
+   "speed": 272,
    "spread": 3,
    "aggressive": true,
    "reward": {
@@ -625,7 +625,7 @@
     "6": 4,
     "3": 6
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: boss_kristallin); speed, aggressiveness adaptation",
+   "_source": "wiki (belgeler/wiki/aliens.md: boss_kristallin); speed, aggressiveness adaptation; speed from the recording (180 moves, mode 272; was 280)",
    "npc_id": 22,
    "extra_reward": {
     "resource_collectable_prismatium": 3,
@@ -781,7 +781,7 @@
    "hp": 6400,
    "shield": 3200,
    "damage": 160,
-   "speed": 250,
+   "speed": 172,
    "spread": 2,
    "aggressive": true,
    "reward": {
@@ -797,7 +797,7 @@
     "4": 2,
     "5": 2
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: uber_streuner); speed, aggressiveness adaptation",
+   "_source": "wiki (belgeler/wiki/aliens.md: uber_streuner); speed, aggressiveness adaptation; speed from the recording (172) and Streuner/Boss Streuner (172); was 250",
    "npc_id": 28
   },
   "37": {
@@ -834,7 +834,7 @@
    "hp": 160000,
    "shield": 80000,
    "damage": 3120,
-   "speed": 71,
+   "speed": 81,
    "spread": 3,
    "aggressive": true,
    "reward": {
@@ -852,7 +852,7 @@
     "6": 16,
     "3": 8
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: uber_mordon); speed, aggressiveness adaptation",
+   "_source": "wiki (belgeler/wiki/aliens.md: uber_mordon); speed, aggressiveness adaptation; speed from the recording (15 moves, mode 81; was 71)",
    "npc_id": 30,
    "extra_reward": {
     "resource_collectable_scrapium": 10
@@ -863,7 +863,7 @@
    "hp": 48000,
    "shield": 24000,
    "damage": 1600,
-   "speed": 250,
+   "speed": 272,
    "spread": 3,
    "aggressive": true,
    "reward": {
@@ -881,7 +881,7 @@
     "6": 2,
     "3": 4
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: uber_saimon); speed, aggressiveness adaptation",
+   "_source": "wiki (belgeler/wiki/aliens.md: uber_saimon); speed, aggressiveness adaptation; speed from the recording (5 moves, 272) and Saimon/Boss Saimon (272); was 250",
    "npc_id": 31,
    "extra_reward": {
     "resource_collectable_scrapium": 10
@@ -892,7 +892,7 @@
    "hp": 800000,
    "shield": 800000,
    "damage": 9600,
-   "speed": 150,
+   "speed": 122,
    "aggressive": true,
    "reward": {
     "ep": 51200,
@@ -909,7 +909,7 @@
     "6": 16,
     "3": 16
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: uber_devolarium); speed, aggressiveness adaptation",
+   "_source": "wiki (belgeler/wiki/aliens.md: uber_devolarium); speed, aggressiveness adaptation; speed = Devolarium and Boss Devolarium from the recording (122); was 150",
    "npc_id": 32,
    "extra_reward": {
     "resource_collectable_boltrum": 5
@@ -920,7 +920,7 @@
    "hp": 320000,
    "shield": 320000,
    "damage": 8000,
-   "speed": 280,
+   "speed": 272,
    "spread": 3,
    "aggressive": true,
    "reward": {
@@ -938,7 +938,7 @@
     "6": 8,
     "3": 16
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: uber_sibelonit); speed, aggressiveness adaptation",
+   "_source": "wiki (belgeler/wiki/aliens.md: uber_sibelonit); speed, aggressiveness adaptation; speed from the recording (39 moves, mode 272; was 280)",
    "npc_id": 33,
    "extra_reward": {
     "resource_collectable_mucosum": 10
@@ -949,7 +949,7 @@
    "hp": 1600000,
    "shield": 1600000,
    "damage": 24000,
-   "speed": 150,
+   "speed": 92,
    "aggressive": true,
    "reward": {
     "ep": 102400,
@@ -966,7 +966,7 @@
     "6": 64,
     "3": 64
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: uber_sibelon); speed, aggressiveness adaptation",
+   "_source": "wiki (belgeler/wiki/aliens.md: uber_sibelon); speed, aggressiveness adaptation; speed = Boss Sibelon from the recording (Uber hulls move like their Boss: Mordon, Kristallon, Barracuda, Battleray); was 150",
    "npc_id": 34,
    "extra_reward": {
     "resource_collectable_boltrum": 5
@@ -977,7 +977,7 @@
    "hp": 2400000,
    "shield": 1600000,
    "damage": 32000,
-   "speed": 180,
+   "speed": 172,
    "spread": 3,
    "aggressive": false,
    "reward": {
@@ -995,7 +995,7 @@
     "6": 64,
     "3": 128
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: uber_lordakium); speed adaptation; does not attack unless hit (fandom)",
+   "_source": "wiki (belgeler/wiki/aliens.md: uber_lordakium); speed adaptation; does not attack unless hit (fandom); speed = Lordakium and Boss Lordakium from the recording (172); was 180",
    "npc_id": 35,
    "extra_reward": {
     "resource_collectable_mucosum": 10
@@ -1006,7 +1006,7 @@
    "hp": 400000,
    "shield": 320000,
    "damage": 9600,
-   "speed": 280,
+   "speed": 272,
    "aggressive": true,
    "reward": {
     "ep": 51200,
@@ -1023,7 +1023,7 @@
     "6": 16,
     "3": 16
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: uber_kristallin); speed, aggressiveness adaptation",
+   "_source": "wiki (belgeler/wiki/aliens.md: uber_kristallin); speed, aggressiveness adaptation; speed = Kristallin and Boss Kristallin from the recording (272); was 280",
    "npc_id": 36,
    "extra_reward": {
     "resource_collectable_prismatium": 5,
@@ -1277,7 +1277,7 @@
    "hp": 480000,
    "shield": 320000,
    "damage": 4000,
-   "speed": 320,
+   "speed": 372,
    "spread": 3,
    "aggressive": true,
    "reward": {
@@ -1294,7 +1294,7 @@
     "5": 72,
     "6": 16
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: uber_interceptor); speed, aggressiveness adaptation; shield absorption 60% (fandom); the rate of the \"CHANCE:\" extra rewards is not in the wiki: 25% (adaptation)",
+   "_source": "wiki (belgeler/wiki/aliens.md: uber_interceptor); speed, aggressiveness adaptation; shield absorption 60% (fandom); the rate of the \"CHANCE:\" extra rewards is not in the wiki: 25% (adaptation); speed from the recording (16 moves, mode 372; was 320)",
    "npc_id": 163,
    "extra_reward": {
     "resource_collectable_bifenon": {
@@ -1401,7 +1401,7 @@
    "hp": 2400000,
    "shield": 1600000,
    "damage": 90000,
-   "speed": 240,
+   "speed": 322,
    "aggressive": false,
    "reward": {
     "ep": 300000,
@@ -1418,7 +1418,7 @@
     "6": 48,
     "3": 8
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: uber_annihilator); speed adaptation; does not attack unless hit (fandom); shield absorption 85% (fandom); the rate of the \"CHANCE:\" extra rewards is not in the wiki: 25% (adaptation)",
+   "_source": "wiki (belgeler/wiki/aliens.md: uber_annihilator); speed adaptation; does not attack unless hit (fandom); shield absorption 85% (fandom); the rate of the \"CHANCE:\" extra rewards is not in the wiki: 25% (adaptation); speed = Annihilator from the recording (322; Uber pirates move like the base ship: Barracuda, Battleray); board-en 119073 says 320; was 240",
    "npc_id": 166,
    "extra_reward": {
     "resource_ore_palladium": 4,
@@ -1691,7 +1691,7 @@
    "hp": 4000,
    "shield": 4000,
    "damage": 160,
-   "speed": 242,
+   "speed": 302,
    "aggressive": true,
    "reward": {
     "ep": 400,
@@ -1704,7 +1704,7 @@
     "2": 40,
     "1": 40
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: lordakium_spore); speed is Lordakia's (same hull), aggressiveness adaptation",
+   "_source": "wiki (belgeler/wiki/aliens.md: lordakium_spore); speed is Lordakia's (same hull), aggressiveness adaptation; speed from the recording (56 moves, mode 302; was 242)",
    "npc_id": 173,
    "model": "71",
    "_model_note": "client: no type of its own in game.xml; appearance Lordakia (71): the fandom and darkorbitwiki image is a small Lordakia"
@@ -1740,7 +1740,7 @@
    "hp": 1000000,
    "shield": 0,
    "damage": 15000,
-   "speed": 250,
+   "speed": 372,
    "spread": 3,
    "aggressive": true,
    "reward": {
@@ -1750,7 +1750,7 @@
     "uridium": 5000
    },
    "cargo": {},
-   "_source": "wiki (belgeler/wiki/aliens.md: urge_iv); speed, aggressiveness adaptation",
+   "_source": "wiki (belgeler/wiki/aliens.md: urge_iv); speed, aggressiveness adaptation; speed from the recording (9 moves, mode 372; was 250)",
    "npc_id": 179,
    "extra_reward": {
     "resource_collectable_tetrathrin": 150,
@@ -2105,7 +2105,7 @@
    "hp": 80000,
    "shield": 80000,
    "damage": 5000,
-   "speed": 300,
+   "speed": 355,
    "aggressive": true,
    "reward": {
     "ep": 9000,
@@ -2121,7 +2121,7 @@
     "5": 4,
     "3": 1
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: vagrant_low); speed, aggressiveness adaptation",
+   "_source": "wiki (belgeler/wiki/aliens.md: vagrant_low); speed, aggressiveness adaptation; speed: mean of fandom (-) and the emulator table (380) x 0.94, the median recording/fandom ratio of the fast aliens; was 300",
    "npc_id": 42
   },
   "93": {
@@ -2129,7 +2129,7 @@
    "hp": 200000,
    "shield": 120000,
    "damage": 11000,
-   "speed": 280,
+   "speed": 350,
    "aggressive": true,
    "reward": {
     "ep": 18000,
@@ -2145,7 +2145,7 @@
     "5": 8,
     "3": 2
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: marauder_low); speed, aggressiveness adaptation",
+   "_source": "wiki (belgeler/wiki/aliens.md: marauder_low); speed, aggressiveness adaptation; speed: mean of fandom (370) and the emulator table (380) x 0.94, the median recording/fandom ratio of the fast aliens; was 280",
    "npc_id": 43
   },
   "92": {
@@ -2153,7 +2153,7 @@
    "hp": 300000,
    "shield": 160000,
    "damage": 15000,
-   "speed": 280,
+   "speed": 325,
    "aggressive": true,
    "reward": {
     "ep": 27000,
@@ -2169,7 +2169,7 @@
     "5": 4,
     "3": 1
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: outcast_low); speed, aggressiveness adaptation",
+   "_source": "wiki (belgeler/wiki/aliens.md: outcast_low); speed, aggressiveness adaptation; speed: mean of fandom (370) and the emulator table (320) x 0.94, the median recording/fandom ratio of the fast aliens; was 280",
    "npc_id": 44
   },
   "91": {
@@ -2177,7 +2177,7 @@
    "hp": 400000,
    "shield": 240000,
    "damage": 16000,
-   "speed": 260,
+   "speed": 330,
    "aggressive": true,
    "reward": {
     "ep": 39000,
@@ -2193,7 +2193,7 @@
     "5": 4,
     "3": 1
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: corsair_low); speed, aggressiveness adaptation",
+   "_source": "wiki (belgeler/wiki/aliens.md: corsair_low); speed, aggressiveness adaptation; speed: mean of fandom (380) and the emulator table (320) x 0.94, the median recording/fandom ratio of the fast aliens; was 260",
    "npc_id": 45
   },
   "96": {
@@ -2201,7 +2201,7 @@
    "hp": 750000,
    "shield": 600000,
    "damage": 9000,
-   "speed": 260,
+   "speed": 345,
    "aggressive": true,
    "reward": {
     "ep": 48000,
@@ -2217,7 +2217,7 @@
     "5": 4,
     "3": 1
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: hooligan_low); speed, aggressiveness adaptation",
+   "_source": "wiki (belgeler/wiki/aliens.md: hooligan_low); speed, aggressiveness adaptation; speed: mean of fandom (380-400) and the emulator table (340) x 0.94, the median recording/fandom ratio of the fast aliens; was 260",
    "npc_id": 46
   },
   "97": {
@@ -2225,7 +2225,7 @@
    "hp": 900000,
    "shield": 600000,
    "damage": 22000,
-   "speed": 240,
+   "speed": 320,
    "aggressive": true,
    "reward": {
     "ep": 54000,
@@ -2242,7 +2242,7 @@
     "6": 2,
     "3": 1
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: ravager_low); speed, aggressiveness adaptation",
+   "_source": "wiki (belgeler/wiki/aliens.md: ravager_low); speed, aggressiveness adaptation; speed: mean of fandom (-) and the emulator table (340) x 0.94, the median recording/fandom ratio of the fast aliens; was 240",
    "npc_id": 47
   },
   "95": {
@@ -2250,7 +2250,7 @@
    "hp": 1200000,
    "shield": 600000,
    "damage": 23000,
-   "speed": 240,
+   "speed": 350,
    "aggressive": true,
    "reward": {
     "ep": 60000,
@@ -2267,7 +2267,7 @@
     "6": 2,
     "3": 1
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: convict_low); speed, aggressiveness adaptation",
+   "_source": "wiki (belgeler/wiki/aliens.md: convict_low); speed, aggressiveness adaptation; speed: mean of fandom (400) and the emulator table (340) x 0.94, the median recording/fandom ratio of the fast aliens; was 240",
    "npc_id": 48
   },
   "uber_protegit": {
@@ -2275,7 +2275,7 @@
    "hp": 400000,
    "shield": 320000,
    "damage": 12000,
-   "speed": 300,
+   "speed": 472,
    "aggressive": true,
    "reward": {
     "ep": 51200,
@@ -2292,7 +2292,7 @@
     "6": 16,
     "3": 16
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: uber_protegit); speed, aggressiveness adaptation",
+   "_source": "wiki (belgeler/wiki/aliens.md: uber_protegit); speed, aggressiveness adaptation; speed = Protegit from the recording (472, same hull); was 300",
    "npc_id": 53,
    "model": "81"
   },
@@ -7736,7 +7736,7 @@
    "hp": 1600000,
    "shield": 1200000,
    "damage": 20000,
-   "speed": 180,
+   "speed": 171,
    "aggressive": false,
    "range": 550,
    "reward": {
@@ -8344,7 +8344,7 @@
    "hp": 600000,
    "shield": 400000,
    "damage": 4000,
-   "speed": 240,
+   "speed": 322,
    "aggressive": true,
    "reward": {
     "ep": 65000,
@@ -8361,7 +8361,7 @@
      }
     ]
    },
-   "_source": "darkorbitwiki: Blighted Kristallon X-7 (on death 1-3 Blighted Gygerthrall), Alloy Box 50%; official Turkish forum 154610 (Plague Mutation): X-5, X-6 and X-7; official server recording 2026-10-27: in a 33-map round only on X-7 (1-7, 2-7, 3-7), not seen on X-5 and X-6; population adaptation"
+   "_source": "darkorbitwiki: Blighted Kristallon X-7 (on death 1-3 Blighted Gygerthrall), Alloy Box 50%; official Turkish forum 154610 (Plague Mutation): X-5, X-6 and X-7; official server recording 2026-10-27: in a 33-map round only on X-7 (1-7, 2-7, 3-7), not seen on X-5 and X-6; population adaptation; speed from the recording (98 moves, mode 322; was 240)"
   },
   "pm_blighted_gygerthrall": {
    "name": "-=[ Blighted Gygerthrall ]=-",
@@ -10152,6 +10152,6 @@
  "_extra_reward": "types.extra_reward: extra reward on death {lootId: count} (aliens.md \"Extra destroy rewards\"; Palladium goes to cargo, the others to the resource storage). Probabilistic rewards (Stinger: 20-40 Isochronate, 45% …) are not there yet.",
  "_event_kinds": "event_* types via tools/event_aliens.py (map events, Stage 7).",
  "_event_boxes": "etk_santa_*, etk_hitac_* tools/etkinlik_kutulari.py ile.",
- "_forum_tr": "Official Turkish forum (2026-10-26): Darksilver speeds and Stinger/Pike (160525), Impulse II/Attend IX speeds (141806), LF-4 upgrade Bifenon table (129125: Interceptor 20%, Deadly Battleray 2, Uber Kristallon 30%, Uber Kristallin 25%), 1 log file from Bosses and 2 from Uber Kristallon (127585; the 5% rate is an adaptation), Protegit speed 420 (127543)",
+ "_forum_tr": "Official Turkish forum (2026-10-26): Darksilver speeds and Stinger/Pike (160525), Impulse II/Attend IX speeds (141806), LF-4 upgrade Bifenon table (129125: Interceptor 20%, Deadly Battleray 2, Uber Kristallon 30%, Uber Kristallin 25%), 1 log file from Bosses and 2 from Uber Kristallon (127585; the 5% rate is an adaptation), Protegit speed 420 (127543; old scale like board-en 1005, the official recording gives 472)",
  "_forum_tr_plagued": "Plagued Kristallin permanently only on X-6 (the client's spacemap-config.xml, darkorbitwiki X-6); on X-4 and X-5 only in the Plague Mutation event (official Turkish forum 154610: during the event the spawn rate increases on X-4, X-5, X-6): events.json plague_mutation map_extra, event_plagued_kristallin 2 each (counts are an adaptation)"
 }

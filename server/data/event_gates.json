@@ -174,7 +174,7 @@
        "hp": 200000,
        "shield": 150000,
        "damage": 2225,
-       "speed": 200,
+       "speed": 172,
        "npc_id": 10,
        "reward": {
         "ep": 25600,
@@ -213,7 +213,7 @@
        "hp": 150000,
        "shield": 100000,
        "damage": 1800,
-       "speed": 200,
+       "speed": 172,
        "npc_id": 8,
        "reward": {
         "ep": 12800,
@@ -345,7 +345,7 @@
        "hp": 1200000,
        "shield": 800000,
        "damage": 16000,
-       "speed": 180,
+       "speed": 172,
        "npc_id": 35,
        "reward": {
         "ep": 102400,
@@ -515,7 +515,7 @@
        "hp": 90000,
        "shield": 50000,
        "damage": 3000,
-       "speed": 280,
+       "speed": 375,
        "npc_id": 59,
        "reward": {
         "ep": 7500,
@@ -554,7 +554,7 @@
        "hp": 100000,
        "shield": 75000,
        "damage": 2000,
-       "speed": 260,
+       "speed": 428,
        "npc_id": 60,
        "reward": {
         "ep": 11250,
@@ -593,7 +593,7 @@
        "hp": 150000,
        "shield": 100000,
        "damage": 7500,
-       "speed": 240,
+       "speed": 322,
        "npc_id": 61,
        "reward": {
         "ep": 37500,
@@ -717,7 +717,7 @@
        "hp": 30000,
        "shield": 20000,
        "damage": 250,
-       "speed": 320,
+       "speed": 572,
        "npc_id": 58,
        "reward": {
         "ep": 3750,
@@ -1400,7 +1400,7 @@
        "hp": 128000,
        "shield": 75000,
        "damage": 4250,
-       "speed": 300,
+       "speed": 522,
        "npc_id": 87,
        "reward": {
         "ep": 25600,
@@ -1569,7 +1569,7 @@
        "hp": 137500,
        "shield": 75000,
        "damage": 2500,
-       "speed": 300,
+       "speed": 372,
        "npc_id": 99,
        "reward": {
         "ep": 12500,
@@ -1786,7 +1786,7 @@
        "hp": 50000,
        "shield": 50000,
        "damage": 600,
-       "speed": 150,
+       "speed": 123,
        "npc_id": 3,
        "reward": {
         "ep": 3200,
@@ -1825,7 +1825,7 @@
        "hp": 400000,
        "shield": 400000,
        "damage": 6175,
-       "speed": 140,
+       "speed": 92,
        "npc_id": 20,
        "reward": {
         "ep": 25500,
@@ -1912,7 +1912,7 @@
        "hp": 50000,
        "shield": 50000,
        "damage": 600,
-       "speed": 150,
+       "speed": 123,
        "npc_id": 3,
        "reward": {
         "ep": 3200,
@@ -1951,7 +1951,7 @@
        "hp": 200000,
        "shield": 200000,
        "damage": 2325,
-       "speed": 140,
+       "speed": 122,
        "npc_id": 18,
        "reward": {
         "ep": 13250,
@@ -2167,7 +2167,7 @@
        "hp": 80000,
        "shield": 80000,
        "damage": 2175,
-       "speed": 280,
+       "speed": 272,
        "npc_id": 19,
        "reward": {
         "ep": 6400,
@@ -2207,7 +2207,7 @@
        "hp": 20000,
        "shield": 20000,
        "damage": 1600,
-       "speed": 300,
+       "speed": 272,
        "npc_id": 7,
        "reward": {
         "ep": 1600,
@@ -2292,7 +2292,7 @@
        "hp": 100000,
        "shield": 100000,
        "damage": 1325,
-       "speed": 150,
+       "speed": 82,
        "npc_id": 5,
        "reward": {
         "ep": 6400,
@@ -2757,7 +2757,7 @@
        "hp": 400000,
        "shield": 300000,
        "damage": 4450,
-       "speed": 200,
+       "speed": 172,
        "npc_id": 10,
        "reward": {
         "ep": 51200,
@@ -2796,7 +2796,7 @@
        "hp": 300000,
        "shield": 200000,
        "damage": 3600,
-       "speed": 200,
+       "speed": 172,
        "npc_id": 8,
        "reward": {
         "ep": 25600,
@@ -2928,7 +2928,7 @@
        "hp": 2400000,
        "shield": 1600000,
        "damage": 32000,
-       "speed": 180,
+       "speed": 172,
        "npc_id": 35,
        "reward": {
         "ep": 204800,
@@ -3088,7 +3088,7 @@
        "hp": 180000,
        "shield": 100000,
        "damage": 6000,
-       "speed": 280,
+       "speed": 375,
        "npc_id": 59,
        "reward": {
         "ep": 15000,
@@ -3127,7 +3127,7 @@
        "hp": 200000,
        "shield": 150000,
        "damage": 4000,
-       "speed": 260,
+       "speed": 428,
        "npc_id": 60,
        "reward": {
         "ep": 22500,
@@ -3166,7 +3166,7 @@
        "hp": 300000,
        "shield": 200000,
        "damage": 15000,
-       "speed": 240,
+       "speed": 322,
        "npc_id": 61,
        "reward": {
         "ep": 75000,
@@ -3280,7 +3280,7 @@
        "hp": 60000,
        "shield": 40000,
        "damage": 500,
-       "speed": 320,
+       "speed": 572,
        "npc_id": 58,
        "reward": {
         "ep": 7500,
@@ -3953,7 +3953,7 @@
        "hp": 256000,
        "shield": 150000,
        "damage": 8500,
-       "speed": 300,
+       "speed": 522,
        "npc_id": 87,
        "reward": {
         "ep": 51200,
@@ -4112,7 +4112,7 @@
        "hp": 275000,
        "shield": 150000,
        "damage": 5000,
-       "speed": 300,
+       "speed": 372,
        "npc_id": 99,
        "reward": {
         "ep": 25000,
@@ -4329,7 +4329,7 @@
        "hp": 100000,
        "shield": 100000,
        "damage": 1200,
-       "speed": 150,
+       "speed": 123,
        "npc_id": 3,
        "reward": {
         "ep": 6400,
@@ -4368,7 +4368,7 @@
        "hp": 800000,
        "shield": 800000,
        "damage": 12350,
-       "speed": 140,
+       "speed": 92,
        "npc_id": 20,
        "reward": {
         "ep": 51000,
@@ -4455,7 +4455,7 @@
        "hp": 100000,
        "shield": 100000,
        "damage": 1200,
-       "speed": 150,
+       "speed": 123,
        "npc_id": 3,
        "reward": {
         "ep": 6400,
@@ -4494,7 +4494,7 @@
        "hp": 400000,
        "shield": 400000,
        "damage": 4650,
-       "speed": 140,
+       "speed": 122,
        "npc_id": 18,
        "reward": {
         "ep": 26500,
@@ -4700,7 +4700,7 @@
        "hp": 160000,
        "shield": 160000,
        "damage": 4350,
-       "speed": 280,
+       "speed": 272,
        "npc_id": 19,
        "reward": {
         "ep": 12800,
@@ -4740,7 +4740,7 @@
        "hp": 40000,
        "shield": 40000,
        "damage": 3200,
-       "speed": 300,
+       "speed": 272,
        "npc_id": 7,
        "reward": {
         "ep": 3200,
@@ -4825,7 +4825,7 @@
        "hp": 200000,
        "shield": 200000,
        "damage": 2650,
-       "speed": 150,
+       "speed": 82,
        "npc_id": 5,
        "reward": {
         "ep": 12800,
@@ -5258,7 +5258,7 @@
        "hp": 2000,
        "shield": 2000,
        "damage": 80,
-       "speed": 320,
+       "speed": 242,
        "npc_id": 2,
        "reward": {
         "ep": 800,
@@ -5300,7 +5300,7 @@
        "hp": 8000,
        "shield": 8000,
        "damage": 320,
-       "speed": 320,
+       "speed": 242,
        "npc_id": 15,
        "reward": {
         "ep": 3200,
@@ -5443,7 +5443,7 @@
        "hp": 16000,
        "shield": 16000,
        "damage": 640,
-       "speed": 250,
+       "speed": 272,
        "npc_id": 29,
        "reward": {
         "ep": 6400,
@@ -5516,7 +5516,7 @@
        "hp": 40000,
        "shield": 40000,
        "damage": 3200,
-       "speed": 320,
+       "speed": 272,
        "npc_id": 7,
        "reward": {
         "ep": 3200,
@@ -5555,7 +5555,7 @@
        "hp": 2000,
        "shield": 2000,
        "damage": 80,
-       "speed": 320,
+       "speed": 242,
        "npc_id": 2,
        "reward": {
         "ep": 800,
@@ -5603,7 +5603,7 @@
        "hp": 200000,
        "shield": 200000,
        "damage": 2650,
-       "speed": 100,
+       "speed": 82,
        "npc_id": 5,
        "reward": {
         "ep": 12800,
@@ -5642,7 +5642,7 @@
        "hp": 40000,
        "shield": 40000,
        "damage": 3200,
-       "speed": 320,
+       "speed": 272,
        "npc_id": 7,
        "reward": {
         "ep": 3200,
@@ -5812,7 +5812,7 @@
        "hp": 40000,
        "shield": 40000,
        "damage": 3200,
-       "speed": 320,
+       "speed": 272,
        "npc_id": 7,
        "reward": {
         "ep": 3200,
@@ -5857,7 +5857,7 @@
        "hp": 400000,
        "shield": 400000,
        "damage": 4650,
-       "speed": 140,
+       "speed": 122,
        "npc_id": 18,
        "reward": {
         "ep": 26500,
@@ -5930,7 +5930,7 @@
        "hp": 1600000,
        "shield": 1600000,
        "damage": 24000,
-       "speed": 100,
+       "speed": 92,
        "npc_id": 34,
        "reward": {
         "ep": 102400,
@@ -6080,7 +6080,7 @@
        "hp": 20000,
        "shield": 10000,
        "damage": 390,
-       "speed": 125,
+       "speed": 68,
        "npc_id": 4,
        "reward": {
         "ep": 3200,
@@ -6132,7 +6132,7 @@
        "hp": 80000,
        "shield": 40000,
        "damage": 1500,
-       "speed": 150,
+       "speed": 81,
        "npc_id": 16,
        "reward": {
         "ep": 12800,
@@ -6245,7 +6245,7 @@
        "hp": 40000,
        "shield": 40000,
        "damage": 3200,
-       "speed": 320,
+       "speed": 272,
        "npc_id": 7,
        "reward": {
         "ep": 3200,
@@ -6290,7 +6290,7 @@
        "hp": 3200000,
        "shield": 2400000,
        "damage": 40000,
-       "speed": 240,
+       "speed": 171,
        "npc_id": 37,
        "reward": {
         "ep": 490000,
@@ -6375,7 +6375,7 @@
        "hp": 1600000,
        "shield": 1600000,
        "damage": 24000,
-       "speed": 100,
+       "speed": 92,
        "npc_id": 34,
        "reward": {
         "ep": 102400,
@@ -6579,7 +6579,7 @@
        "hp": 160000,
        "shield": 160000,
        "damage": 4350,
-       "speed": 300,
+       "speed": 272,
        "npc_id": 19,
        "reward": {
         "ep": 12800,
@@ -6653,7 +6653,7 @@
        "hp": 40000,
        "shield": 40000,
        "damage": 3200,
-       "speed": 320,
+       "speed": 272,
        "npc_id": 7,
        "reward": {
         "ep": 3200,
@@ -6699,7 +6699,7 @@
        "hp": 200000,
        "shield": 200000,
        "damage": 2650,
-       "speed": 100,
+       "speed": 82,
        "npc_id": 5,
        "reward": {
         "ep": 12800,
@@ -6821,7 +6821,7 @@
        "hp": 800000,
        "shield": 800000,
        "damage": 12350,
-       "speed": 175,
+       "speed": 92,
        "npc_id": 20,
        "reward": {
         "ep": 51000,
@@ -6939,7 +6939,7 @@
        "hp": 3200000,
        "shield": 2400000,
        "damage": 40000,
-       "speed": 240,
+       "speed": 171,
        "npc_id": 37,
        "reward": {
         "ep": 490000,
@@ -7013,7 +7013,7 @@
        "hp": 2400000,
        "shield": 1600000,
        "damage": 32000,
-       "speed": 100,
+       "speed": 172,
        "npc_id": 35,
        "reward": {
         "ep": 204800,
@@ -7087,7 +7087,7 @@
        "hp": 400000,
        "shield": 320000,
        "damage": 9600,
-       "speed": 335,
+       "speed": 272,
        "npc_id": 36,
        "reward": {
         "ep": 51200,
@@ -7201,7 +7201,7 @@
        "hp": 1600000,
        "shield": 1600000,
        "damage": 24000,
-       "speed": 100,
+       "speed": 92,
        "npc_id": 34,
        "reward": {
         "ep": 102400,
@@ -7457,7 +7457,7 @@
        "hp": 200000,
        "shield": 200000,
        "damage": 2650,
-       "speed": 100,
+       "speed": 82,
        "npc_id": 5,
        "reward": {
         "ep": 12800,
@@ -7573,7 +7573,7 @@
        "hp": 800000,
        "shield": 800000,
        "damage": 12350,
-       "speed": 175,
+       "speed": 92,
        "npc_id": 20,
        "reward": {
         "ep": 51000,
@@ -7690,7 +7690,7 @@
        "hp": 1600000,
        "shield": 1600000,
        "damage": 24000,
-       "speed": 100,
+       "speed": 92,
        "npc_id": 34,
        "reward": {
         "ep": 102400,
@@ -7934,7 +7934,7 @@
        "hp": 800000,
        "shield": 800000,
        "damage": 12350,
-       "speed": 175,
+       "speed": 92,
        "npc_id": 20,
        "reward": {
         "ep": 51000,
@@ -8007,7 +8007,7 @@
        "hp": 1600000,
        "shield": 1200000,
        "damage": 20000,
-       "speed": 250,
+       "speed": 171,
        "npc_id": 23,
        "reward": {
         "ep": 204800,
@@ -8080,7 +8080,7 @@
        "hp": 1600000,
        "shield": 1600000,
        "damage": 24000,
-       "speed": 100,
+       "speed": 92,
        "npc_id": 34,
        "reward": {
         "ep": 102400,
@@ -8482,7 +8482,7 @@
        "hp": 20000,
        "shield": 10000,
        "damage": 390,
-       "speed": 200,
+       "speed": 68,
        "npc_id": 4,
        "reward": {
         "ep": 3200,
@@ -8527,7 +8527,7 @@
        "hp": 3000,
        "shield": 3000,
        "damage": 100,
-       "speed": 280,
+       "speed": 272,
        "npc_id": 6,
        "reward": {
         "ep": 1600,
@@ -8571,7 +8571,7 @@
        "hp": 100000,
        "shield": 100000,
        "damage": 1200,
-       "speed": 150,
+       "speed": 123,
        "npc_id": 3,
        "reward": {
         "ep": 6400,
@@ -8616,7 +8616,7 @@
        "hp": 25000,
        "shield": 20000,
        "damage": 825,
-       "speed": 300,
+       "speed": 272,
        "npc_id": 9,
        "reward": {
         "ep": 6400,
@@ -8661,7 +8661,7 @@
        "hp": 200000,
        "shield": 200000,
        "damage": 2650,
-       "speed": 150,
+       "speed": 82,
        "npc_id": 5,
        "reward": {
         "ep": 12800,
@@ -8700,7 +8700,7 @@
        "hp": 30000,
        "shield": 30000,
        "damage": 2400,
-       "speed": 300,
+       "speed": 272,
        "npc_id": 7,
        "reward": {
         "ep": 3200,
@@ -8745,7 +8745,7 @@
        "hp": 200000,
        "shield": 150000,
        "damage": 2225,
-       "speed": 200,
+       "speed": 172,
        "npc_id": 10,
        "reward": {
         "ep": 51200,
@@ -8784,7 +8784,7 @@
        "hp": 135000,
        "shield": 75000,
        "damage": 4500,
-       "speed": 280,
+       "speed": 375,
        "npc_id": 59,
        "reward": {
         "ep": 15000,
@@ -8809,7 +8809,7 @@
        "hp": 150000,
        "shield": 112500,
        "damage": 3000,
-       "speed": 260,
+       "speed": 428,
        "npc_id": 60,
        "reward": {
         "ep": 22500,
@@ -8926,7 +8926,7 @@
        "hp": 900000,
        "shield": 600000,
        "damage": 12000,
-       "speed": 180,
+       "speed": 172,
        "npc_id": 21,
        "reward": {
         "ep": 102400,
@@ -8952,7 +8952,7 @@
        "hp": 25000,
        "shield": 20000,
        "damage": 750,
-       "speed": 420,
+       "speed": 472,
        "npc_id": 12,
        "reward": {
         "ep": 6400,
@@ -9488,7 +9488,7 @@
        "hp": 748000,
        "shield": 374400,
        "damage": 250000,
-       "speed": 280,
+       "speed": 272,
        "npc_id": 31,
        "reward": {
         "ep": 1996800,
@@ -9506,7 +9506,7 @@
        "hp": 300000,
        "shield": 200000,
        "damage": 15000,
-       "speed": 240,
+       "speed": 322,
        "npc_id": 61,
        "reward": {
         "ep": 75000,
@@ -9532,7 +9532,7 @@
        "hp": 1600000,
        "shield": 1600000,
        "damage": 24000,
-       "speed": 140,
+       "speed": 92,
        "npc_id": 20,
        "reward": {
         "ep": 102400,
@@ -9558,7 +9558,7 @@
        "hp": 800000,
        "shield": 800000,
        "damage": 9600,
-       "speed": 160,
+       "speed": 122,
        "npc_id": 32,
        "reward": {
         "ep": 51200,
@@ -9628,7 +9628,7 @@
        "hp": 750000,
        "shield": 600000,
        "damage": 9000,
-       "speed": 280,
+       "speed": 345,
        "npc_id": 46,
        "reward": {
         "ep": 48000,
@@ -9738,7 +9738,7 @@
        "hp": 1100000,
        "shield": 600000,
        "damage": 400,
-       "speed": 300,
+       "speed": 372,
        "npc_id": 99,
        "reward": {
         "ep": 100000,
@@ -9970,7 +9970,7 @@
        "hp": 1600000,
        "shield": 1200000,
        "damage": 20000,
-       "speed": 180,
+       "speed": 171,
        "npc_id": 23,
        "reward": {
         "ep": 204800,
@@ -9996,7 +9996,7 @@
        "hp": 2400000,
        "shield": 1600000,
        "damage": 32000,
-       "speed": 180,
+       "speed": 172,
        "npc_id": 21,
        "reward": {
         "ep": 104800,
@@ -10022,7 +10022,7 @@
        "hp": 1200000,
        "shield": 800000,
        "damage": 16000,
-       "speed": 180,
+       "speed": 172,
        "npc_id": 21,
        "reward": {
         "ep": 102400,
@@ -10048,7 +10048,7 @@
        "hp": 2400000,
        "shield": 1600000,
        "damage": 32000,
-       "speed": 180,
+       "speed": 172,
        "npc_id": 35,
        "reward": {
         "ep": 204800,
@@ -10074,7 +10074,7 @@
        "hp": 3200000,
        "shield": 2400000,
        "damage": 40000,
-       "speed": 180,
+       "speed": 171,
        "npc_id": 37,
        "reward": {
         "ep": 490000,
@@ -10314,7 +10314,7 @@
        "hp": 800000,
        "shield": 480000,
        "damage": 32000,
-       "speed": 300,
+       "speed": 330,
        "npc_id": 45,
        "reward": {
         "ep": 90000,
@@ -10341,7 +10341,7 @@
        "hp": 400000,
        "shield": 240000,
        "damage": 16000,
-       "speed": 300,
+       "speed": 330,
        "npc_id": 45,
        "reward": {
         "ep": 60000,
@@ -10368,7 +10368,7 @@
        "hp": 360000,
        "shield": 200000,
        "damage": 12000,
-       "speed": 280,
+       "speed": 375,
        "npc_id": 59,
        "reward": {
         "ep": 30000,
@@ -10393,7 +10393,7 @@
        "hp": 300000,
        "shield": 160000,
        "damage": 9000,
-       "speed": 280,
+       "speed": 325,
        "npc_id": 44,
        "reward": {
         "ep": 18000,
@@ -10552,7 +10552,7 @@
        "hp": 480000,
        "shield": 320000,
        "damage": 4000,
-       "speed": 360,
+       "speed": 372,
        "npc_id": 163,
        "reward": {
         "ep": 30000,
@@ -10577,7 +10577,7 @@
        "hp": 1440000,
        "shield": 800000,
        "damage": 48000,
-       "speed": 280,
+       "speed": 372,
        "npc_id": 164,
        "reward": {
         "ep": 60000,
@@ -10602,7 +10602,7 @@
        "hp": 1600000,
        "shield": 1200000,
        "damage": 32000,
-       "speed": 260,
+       "speed": 347,
        "npc_id": 165,
        "reward": {
         "ep": 90000,
@@ -10627,7 +10627,7 @@
        "hp": 2400000,
        "shield": 1600000,
        "damage": 90000,
-       "speed": 260,
+       "speed": 322,
        "npc_id": 166,
        "reward": {
         "ep": 300000,
@@ -10653,7 +10653,7 @@
        "hp": 2640000,
        "shield": 2080000,
        "damage": 51200,
-       "speed": 250,
+       "speed": 322,
        "npc_id": 167,
        "reward": {
         "ep": 320000,
@@ -10962,7 +10962,7 @@
        "hp": 40000,
        "shield": 40000,
        "damage": 3200,
-       "speed": 300,
+       "speed": 272,
        "npc_id": 7,
        "reward": {
         "ep": 3200,
@@ -10987,7 +10987,7 @@
        "hp": 100000,
        "shield": 100000,
        "damage": 1200,
-       "speed": 150,
+       "speed": 123,
        "npc_id": 3,
        "reward": {
         "ep": 6400,
@@ -11030,7 +11030,7 @@
        "hp": 40000,
        "shield": 40000,
        "damage": 3200,
-       "speed": 300,
+       "speed": 272,
        "npc_id": 7,
        "reward": {
         "ep": 3200,
@@ -11055,7 +11055,7 @@
        "hp": 100000,
        "shield": 100000,
        "damage": 1200,
-       "speed": 150,
+       "speed": 123,
        "npc_id": 3,
        "reward": {
         "ep": 6400,
@@ -11080,7 +11080,7 @@
        "hp": 400000,
        "shield": 400000,
        "damage": 4650,
-       "speed": 140,
+       "speed": 122,
        "npc_id": 18,
        "reward": {
         "ep": 26500,
@@ -11128,7 +11128,7 @@
        "hp": 40000,
        "shield": 40000,
        "damage": 3200,
-       "speed": 300,
+       "speed": 272,
        "npc_id": 7,
        "reward": {
         "ep": 3200,
@@ -11153,7 +11153,7 @@
        "hp": 200000,
        "shield": 150000,
        "damage": 4000,
-       "speed": 260,
+       "speed": 428,
        "npc_id": 60,
        "reward": {
         "ep": 22500,
@@ -11178,7 +11178,7 @@
        "hp": 100000,
        "shield": 100000,
        "damage": 1200,
-       "speed": 150,
+       "speed": 123,
        "npc_id": 3,
        "reward": {
         "ep": 6400,
@@ -11203,7 +11203,7 @@
        "hp": 400000,
        "shield": 400000,
        "damage": 4650,
-       "speed": 140,
+       "speed": 122,
        "npc_id": 18,
        "reward": {
         "ep": 26500,
@@ -11255,7 +11255,7 @@
        "hp": 40000,
        "shield": 40000,
        "damage": 3200,
-       "speed": 300,
+       "speed": 272,
        "npc_id": 7,
        "reward": {
         "ep": 3200,
@@ -11280,7 +11280,7 @@
        "hp": 200000,
        "shield": 150000,
        "damage": 4000,
-       "speed": 260,
+       "speed": 428,
        "npc_id": 60,
        "reward": {
         "ep": 22500,
@@ -11305,7 +11305,7 @@
        "hp": 100000,
        "shield": 100000,
        "damage": 1200,
-       "speed": 150,
+       "speed": 123,
        "npc_id": 3,
        "reward": {
         "ep": 6400,
@@ -11330,7 +11330,7 @@
        "hp": 800000,
        "shield": 800000,
        "damage": 9600,
-       "speed": 150,
+       "speed": 122,
        "npc_id": 32,
        "reward": {
         "ep": 51200,
@@ -11442,7 +11442,7 @@
        "hp": 300000,
        "shield": 200000,
        "damage": 3600,
-       "speed": 200,
+       "speed": 172,
        "npc_id": 8,
        "reward": {
         "ep": 25600,
@@ -11485,7 +11485,7 @@
        "hp": 200000,
        "shield": 200000,
        "damage": 2650,
-       "speed": 150,
+       "speed": 82,
        "npc_id": 5,
        "reward": {
         "ep": 12800,
@@ -11510,7 +11510,7 @@
        "hp": 40000,
        "shield": 40000,
        "damage": 3200,
-       "speed": 300,
+       "speed": 272,
        "npc_id": 7,
        "reward": {
         "ep": 3200,
@@ -11535,7 +11535,7 @@
        "hp": 6000,
        "shield": 6000,
        "damage": 200,
-       "speed": 280,
+       "speed": 272,
        "npc_id": 6,
        "reward": {
         "ep": 1600,
@@ -11581,7 +11581,7 @@
        "hp": 200000,
        "shield": 200000,
        "damage": 2650,
-       "speed": 150,
+       "speed": 82,
        "npc_id": 5,
        "reward": {
         "ep": 12800,
@@ -11606,7 +11606,7 @@
        "hp": 40000,
        "shield": 40000,
        "damage": 3200,
-       "speed": 300,
+       "speed": 272,
        "npc_id": 7,
        "reward": {
         "ep": 3200,
@@ -11631,7 +11631,7 @@
        "hp": 6000,
        "shield": 6000,
        "damage": 200,
-       "speed": 280,
+       "speed": 272,
        "npc_id": 6,
        "reward": {
         "ep": 1600,
@@ -11677,7 +11677,7 @@
        "hp": 200000,
        "shield": 200000,
        "damage": 2650,
-       "speed": 150,
+       "speed": 82,
        "npc_id": 5,
        "reward": {
         "ep": 12800,
@@ -11702,7 +11702,7 @@
        "hp": 800000,
        "shield": 800000,
        "damage": 12350,
-       "speed": 140,
+       "speed": 92,
        "npc_id": 20,
        "reward": {
         "ep": 51000,
@@ -11728,7 +11728,7 @@
        "hp": 40000,
        "shield": 40000,
        "damage": 3200,
-       "speed": 300,
+       "speed": 272,
        "npc_id": 7,
        "reward": {
         "ep": 3200,
@@ -11753,7 +11753,7 @@
        "hp": 6000,
        "shield": 6000,
        "damage": 200,
-       "speed": 280,
+       "speed": 272,
        "npc_id": 6,
        "reward": {
         "ep": 1600,
@@ -11803,7 +11803,7 @@
        "hp": 200000,
        "shield": 200000,
        "damage": 2650,
-       "speed": 150,
+       "speed": 82,
        "npc_id": 5,
        "reward": {
         "ep": 12800,
@@ -11828,7 +11828,7 @@
        "hp": 800000,
        "shield": 800000,
        "damage": 12350,
-       "speed": 140,
+       "speed": 92,
        "npc_id": 20,
        "reward": {
         "ep": 51000,
@@ -11854,7 +11854,7 @@
        "hp": 6000,
        "shield": 6000,
        "damage": 200,
-       "speed": 280,
+       "speed": 272,
        "npc_id": 6,
        "reward": {
         "ep": 1600,
@@ -11900,7 +11900,7 @@
        "hp": 1600000,
        "shield": 1600000,
        "damage": 24000,
-       "speed": 150,
+       "speed": 92,
        "npc_id": 34,
        "reward": {
         "ep": 102400,
@@ -12004,7 +12004,7 @@
        "hp": 100000,
        "shield": 100000,
        "damage": 1200,
-       "speed": 150,
+       "speed": 123,
        "npc_id": 3,
        "reward": {
         "ep": 6400,
@@ -12029,7 +12029,7 @@
        "hp": 6000,
        "shield": 6000,
        "damage": 200,
-       "speed": 280,
+       "speed": 272,
        "npc_id": 6,
        "reward": {
         "ep": 1600,
@@ -12053,7 +12053,7 @@
        "hp": 200000,
        "shield": 150000,
        "damage": 4000,
-       "speed": 260,
+       "speed": 428,
        "npc_id": 60,
        "reward": {
         "ep": 22500,
@@ -12100,7 +12100,7 @@
        "hp": 100000,
        "shield": 100000,
        "damage": 1200,
-       "speed": 150,
+       "speed": 123,
        "npc_id": 3,
        "reward": {
         "ep": 6400,
@@ -12125,7 +12125,7 @@
        "hp": 400000,
        "shield": 400000,
        "damage": 4650,
-       "speed": 140,
+       "speed": 122,
        "npc_id": 18,
        "reward": {
         "ep": 26500,
@@ -12151,7 +12151,7 @@
        "hp": 6000,
        "shield": 6000,
        "damage": 200,
-       "speed": 280,
+       "speed": 272,
        "npc_id": 6,
        "reward": {
         "ep": 1600,
@@ -12197,7 +12197,7 @@
        "hp": 100000,
        "shield": 100000,
        "damage": 1200,
-       "speed": 150,
+       "speed": 123,
        "npc_id": 3,
        "reward": {
         "ep": 6400,
@@ -12222,7 +12222,7 @@
        "hp": 400000,
        "shield": 400000,
        "damage": 4650,
-       "speed": 140,
+       "speed": 122,
        "npc_id": 18,
        "reward": {
         "ep": 26500,
@@ -12248,7 +12248,7 @@
        "hp": 6000,
        "shield": 6000,
        "damage": 200,
-       "speed": 280,
+       "speed": 272,
        "npc_id": 6,
        "reward": {
         "ep": 1600,
@@ -12272,7 +12272,7 @@
        "hp": 200000,
        "shield": 150000,
        "damage": 4000,
-       "speed": 260,
+       "speed": 428,
        "npc_id": 60,
        "reward": {
         "ep": 22500,
@@ -12323,7 +12323,7 @@
        "hp": 100000,
        "shield": 100000,
        "damage": 1200,
-       "speed": 150,
+       "speed": 123,
        "npc_id": 3,
        "reward": {
         "ep": 6400,
@@ -12348,7 +12348,7 @@
        "hp": 400000,
        "shield": 400000,
        "damage": 4650,
-       "speed": 140,
+       "speed": 122,
        "npc_id": 18,
        "reward": {
         "ep": 26500,
@@ -12374,7 +12374,7 @@
        "hp": 800000,
        "shield": 800000,
        "damage": 9600,
-       "speed": 150,
+       "speed": 122,
        "npc_id": 32,
        "reward": {
         "ep": 51200,
@@ -12400,7 +12400,7 @@
        "hp": 200000,
        "shield": 150000,
        "damage": 4000,
-       "speed": 260,
+       "speed": 428,
        "npc_id": 60,
        "reward": {
         "ep": 22500,
@@ -12515,7 +12515,7 @@
        "hp": 160000,
        "shield": 80000,
        "damage": 3120,
-       "speed": 200,
+       "speed": 81,
        "npc_id": 30,
        "reward": {
         "ep": 25600,
@@ -12541,7 +12541,7 @@
        "hp": 200000,
        "shield": 150000,
        "damage": 4000,
-       "speed": 260,
+       "speed": 428,
        "npc_id": 60,
        "reward": {
         "ep": 22500,
@@ -12566,7 +12566,7 @@
        "hp": 400000,
        "shield": 400000,
        "damage": 4650,
-       "speed": 140,
+       "speed": 122,
        "npc_id": 18,
        "reward": {
         "ep": 26500,
@@ -12592,7 +12592,7 @@
        "hp": 6000,
        "shield": 6000,
        "damage": 200,
-       "speed": 280,
+       "speed": 272,
        "npc_id": 6,
        "reward": {
         "ep": 1600,
@@ -12660,7 +12660,7 @@
        "hp": 160000,
        "shield": 80000,
        "damage": 3120,
-       "speed": 200,
+       "speed": 81,
        "npc_id": 30,
        "reward": {
         "ep": 25600,
@@ -12686,7 +12686,7 @@
        "hp": 6000,
        "shield": 6000,
        "damage": 200,
-       "speed": 280,
+       "speed": 272,
        "npc_id": 6,
        "reward": {
         "ep": 1600,
@@ -12710,7 +12710,7 @@
        "hp": 200000,
        "shield": 150000,
        "damage": 4000,
-       "speed": 260,
+       "speed": 428,
        "npc_id": 60,
        "reward": {
         "ep": 22500,
@@ -12761,7 +12761,7 @@
        "hp": 160000,
        "shield": 80000,
        "damage": 3120,
-       "speed": 200,
+       "speed": 81,
        "npc_id": 30,
        "reward": {
         "ep": 25600,
@@ -12787,7 +12787,7 @@
        "hp": 400000,
        "shield": 400000,
        "damage": 4650,
-       "speed": 140,
+       "speed": 122,
        "npc_id": 18,
        "reward": {
         "ep": 26500,
@@ -12813,7 +12813,7 @@
        "hp": 200000,
        "shield": 150000,
        "damage": 4000,
-       "speed": 260,
+       "speed": 428,
        "npc_id": 60,
        "reward": {
         "ep": 22500,
@@ -12838,7 +12838,7 @@
        "hp": 6000,
        "shield": 6000,
        "damage": 200,
-       "speed": 280,
+       "speed": 272,
        "npc_id": 6,
        "reward": {
         "ep": 1600,
@@ -12906,7 +12906,7 @@
        "hp": 160000,
        "shield": 80000,
        "damage": 3120,
-       "speed": 200,
+       "speed": 81,
        "npc_id": 30,
        "reward": {
         "ep": 25600,
@@ -12932,7 +12932,7 @@
        "hp": 400000,
        "shield": 400000,
        "damage": 4650,
-       "speed": 140,
+       "speed": 122,
        "npc_id": 18,
        "reward": {
         "ep": 26500,
@@ -12958,7 +12958,7 @@
        "hp": 6000,
        "shield": 6000,
        "damage": 200,
-       "speed": 280,
+       "speed": 272,
        "npc_id": 6,
        "reward": {
         "ep": 1600,
@@ -12982,7 +12982,7 @@
        "hp": 200000,
        "shield": 150000,
        "damage": 4000,
-       "speed": 260,
+       "speed": 428,
        "npc_id": 60,
        "reward": {
         "ep": 22500,
@@ -13101,7 +13101,7 @@
        "hp": 800000,
        "shield": 800000,
        "damage": 9600,
-       "speed": 150,
+       "speed": 122,
        "npc_id": 32,
        "reward": {
         "ep": 51200,
@@ -13127,7 +13127,7 @@
        "hp": 200000,
        "shield": 200000,
        "damage": 2650,
-       "speed": 150,
+       "speed": 82,
        "npc_id": 5,
        "reward": {
         "ep": 12800,
@@ -13152,7 +13152,7 @@
        "hp": 160000,
        "shield": 80000,
        "damage": 3120,
-       "speed": 200,
+       "speed": 81,
        "npc_id": 30,
        "reward": {
         "ep": 25600,
@@ -13200,7 +13200,7 @@
        "hp": 800000,
        "shield": 800000,
        "damage": 12350,
-       "speed": 140,
+       "speed": 92,
        "npc_id": 20,
        "reward": {
         "ep": 51000,
@@ -13226,7 +13226,7 @@
        "hp": 160000,
        "shield": 80000,
        "damage": 3120,
-       "speed": 200,
+       "speed": 81,
        "npc_id": 30,
        "reward": {
         "ep": 25600,
@@ -13252,7 +13252,7 @@
        "hp": 300000,
        "shield": 200000,
        "damage": 3600,
-       "speed": 200,
+       "speed": 172,
        "npc_id": 8,
        "reward": {
         "ep": 25600,
@@ -13277,7 +13277,7 @@
        "hp": 200000,
        "shield": 150000,
        "damage": 4000,
-       "speed": 260,
+       "speed": 428,
        "npc_id": 60,
        "reward": {
         "ep": 22500,
@@ -13328,7 +13328,7 @@
        "hp": 800000,
        "shield": 800000,
        "damage": 12350,
-       "speed": 140,
+       "speed": 92,
        "npc_id": 20,
        "reward": {
         "ep": 51000,
@@ -13354,7 +13354,7 @@
        "hp": 160000,
        "shield": 80000,
        "damage": 3120,
-       "speed": 200,
+       "speed": 81,
        "npc_id": 30,
        "reward": {
         "ep": 25600,
@@ -13380,7 +13380,7 @@
        "hp": 1200000,
        "shield": 800000,
        "damage": 16000,
-       "speed": 180,
+       "speed": 172,
        "npc_id": 21,
        "reward": {
         "ep": 102400,
@@ -13406,7 +13406,7 @@
        "hp": 40000,
        "shield": 40000,
        "damage": 3200,
-       "speed": 300,
+       "speed": 272,
        "npc_id": 7,
        "reward": {
         "ep": 3200,
@@ -13431,7 +13431,7 @@
        "hp": 200000,
        "shield": 150000,
        "damage": 4000,
-       "speed": 260,
+       "speed": 428,
        "npc_id": 60,
        "reward": {
         "ep": 22500,
@@ -13486,7 +13486,7 @@
        "hp": 1600000,
        "shield": 1600000,
        "damage": 24000,
-       "speed": 150,
+       "speed": 92,
        "npc_id": 34,
        "reward": {
         "ep": 102400,
@@ -13512,7 +13512,7 @@
        "hp": 160000,
        "shield": 80000,
        "damage": 3120,
-       "speed": 200,
+       "speed": 81,
        "npc_id": 30,
        "reward": {
         "ep": 25600,
@@ -13538,7 +13538,7 @@
        "hp": 2400000,
        "shield": 1600000,
        "damage": 32000,
-       "speed": 180,
+       "speed": 172,
        "npc_id": 35,
        "reward": {
         "ep": 204800,
@@ -13582,7 +13582,7 @@
        "hp": 200000,
        "shield": 150000,
        "damage": 4000,
-       "speed": 260,
+       "speed": 428,
        "npc_id": 60,
        "reward": {
         "ep": 22500,
@@ -13607,7 +13607,7 @@
        "hp": 40000,
        "shield": 40000,
        "damage": 3200,
-       "speed": 300,
+       "speed": 272,
        "npc_id": 7,
        "reward": {
         "ep": 3200,
@@ -13730,7 +13730,7 @@
        "hp": 800000,
        "shield": 800000,
        "damage": 12350,
-       "speed": 140,
+       "speed": 92,
        "npc_id": 20,
        "reward": {
         "ep": 51000,
@@ -13756,7 +13756,7 @@
        "hp": 1600000,
        "shield": 1600000,
        "damage": 24000,
-       "speed": 150,
+       "speed": 92,
        "npc_id": 34,
        "reward": {
         "ep": 102400,
@@ -13782,7 +13782,7 @@
        "hp": 6000,
        "shield": 6000,
        "damage": 200,
-       "speed": 280,
+       "speed": 272,
        "npc_id": 6,
        "reward": {
         "ep": 1600,
@@ -13828,7 +13828,7 @@
        "hp": 200000,
        "shield": 200000,
        "damage": 2650,
-       "speed": 150,
+       "speed": 82,
        "npc_id": 5,
        "reward": {
         "ep": 12800,
@@ -13853,7 +13853,7 @@
        "hp": 800000,
        "shield": 800000,
        "damage": 12350,
-       "speed": 140,
+       "speed": 92,
        "npc_id": 20,
        "reward": {
         "ep": 51000,
@@ -13879,7 +13879,7 @@
        "hp": 6000,
        "shield": 6000,
        "damage": 200,
-       "speed": 280,
+       "speed": 272,
        "npc_id": 6,
        "reward": {
         "ep": 1600,
@@ -13989,7 +13989,7 @@
        "hp": 6000,
        "shield": 6000,
        "damage": 200,
-       "speed": 280,
+       "speed": 272,
        "npc_id": 6,
        "reward": {
         "ep": 1600,
@@ -14013,7 +14013,7 @@
        "hp": 800000,
        "shield": 800000,
        "damage": 12350,
-       "speed": 140,
+       "speed": 92,
        "npc_id": 20,
        "reward": {
         "ep": 51000,
@@ -14121,7 +14121,7 @@
        "hp": 200000,
        "shield": 200000,
        "damage": 2650,
-       "speed": 150,
+       "speed": 82,
        "npc_id": 5,
        "reward": {
         "ep": 12800,
@@ -14146,7 +14146,7 @@
        "hp": 6000,
        "shield": 6000,
        "damage": 200,
-       "speed": 280,
+       "speed": 272,
        "npc_id": 6,
        "reward": {
         "ep": 1600,
@@ -14188,7 +14188,7 @@
        "hp": 800000,
        "shield": 800000,
        "damage": 12350,
-       "speed": 140,
+       "speed": 92,
        "npc_id": 20,
        "reward": {
         "ep": 51000,
@@ -14232,7 +14232,7 @@
        "hp": 6000,
        "shield": 6000,
        "damage": 200,
-       "speed": 280,
+       "speed": 272,
        "npc_id": 6,
        "reward": {
         "ep": 1600,
@@ -14278,7 +14278,7 @@
        "hp": 1600000,
        "shield": 1600000,
        "damage": 24000,
-       "speed": 150,
+       "speed": 92,
        "npc_id": 34,
        "reward": {
         "ep": 102400,
@@ -14322,7 +14322,7 @@
        "hp": 200000,
        "shield": 150000,
        "damage": 4000,
-       "speed": 260,
+       "speed": 428,
        "npc_id": 60,
        "reward": {
         "ep": 22500,
@@ -14347,7 +14347,7 @@
        "hp": 6000,
        "shield": 6000,
        "damage": 200,
-       "speed": 280,
+       "speed": 272,
        "npc_id": 6,
        "reward": {
         "ep": 1600,
@@ -14397,7 +14397,7 @@
        "hp": 2400000,
        "shield": 1600000,
        "damage": 32000,
-       "speed": 180,
+       "speed": 172,
        "npc_id": 35,
        "reward": {
         "ep": 204800,
@@ -14441,7 +14441,7 @@
        "hp": 200000,
        "shield": 150000,
        "damage": 4000,
-       "speed": 260,
+       "speed": 428,
        "npc_id": 60,
        "reward": {
         "ep": 22500,
@@ -14466,7 +14466,7 @@
        "hp": 6000,
        "shield": 6000,
        "damage": 200,
-       "speed": 280,
+       "speed": 272,
        "npc_id": 6,
        "reward": {
         "ep": 1600,
@@ -14598,7 +14598,7 @@
        "hp": 6000,
        "shield": 6000,
        "damage": 200,
-       "speed": 280,
+       "speed": 272,
        "npc_id": 6,
        "reward": {
         "ep": 1600,
@@ -14658,7 +14658,7 @@
        "hp": 6000,
        "shield": 6000,
        "damage": 200,
-       "speed": 280,
+       "speed": 272,
        "npc_id": 6,
        "reward": {
         "ep": 1600,
@@ -14718,7 +14718,7 @@
        "hp": 6000,
        "shield": 6000,
        "damage": 200,
-       "speed": 280,
+       "speed": 272,
        "npc_id": 6,
        "reward": {
         "ep": 1600,
@@ -14742,7 +14742,7 @@
        "hp": 200000,
        "shield": 150000,
        "damage": 4000,
-       "speed": 260,
+       "speed": 428,
        "npc_id": 60,
        "reward": {
         "ep": 22500,
@@ -14807,7 +14807,7 @@
        "hp": 200000,
        "shield": 150000,
        "damage": 4000,
-       "speed": 260,
+       "speed": 428,
        "npc_id": 60,
        "reward": {
         "ep": 22500,
@@ -14832,7 +14832,7 @@
        "hp": 6000,
        "shield": 6000,
        "damage": 200,
-       "speed": 280,
+       "speed": 272,
        "npc_id": 6,
        "reward": {
         "ep": 1600,
@@ -14942,7 +14942,7 @@
        "hp": 6000,
        "shield": 6000,
        "damage": 200,
-       "speed": 280,
+       "speed": 272,
        "npc_id": 6,
        "reward": {
         "ep": 1600,
@@ -14966,7 +14966,7 @@
        "hp": 40000,
        "shield": 40000,
        "damage": 3200,
-       "speed": 300,
+       "speed": 272,
        "npc_id": 7,
        "reward": {
         "ep": 3200,
@@ -14991,7 +14991,7 @@
        "hp": 300000,
        "shield": 200000,
        "damage": 3600,
-       "speed": 200,
+       "speed": 172,
        "npc_id": 8,
        "reward": {
         "ep": 25600,
@@ -15060,7 +15060,7 @@
        "hp": 6000,
        "shield": 6000,
        "damage": 200,
-       "speed": 280,
+       "speed": 272,
        "npc_id": 6,
        "reward": {
         "ep": 1600,
@@ -15084,7 +15084,7 @@
        "hp": 40000,
        "shield": 40000,
        "damage": 3200,
-       "speed": 300,
+       "speed": 272,
        "npc_id": 7,
        "reward": {
         "ep": 3200,
@@ -15109,7 +15109,7 @@
        "hp": 1200000,
        "shield": 800000,
        "damage": 16000,
-       "speed": 180,
+       "speed": 172,
        "npc_id": 21,
        "reward": {
         "ep": 102400,
@@ -15157,7 +15157,7 @@
        "hp": 6000,
        "shield": 6000,
        "damage": 200,
-       "speed": 280,
+       "speed": 272,
        "npc_id": 6,
        "reward": {
         "ep": 1600,
@@ -15181,7 +15181,7 @@
        "hp": 40000,
        "shield": 40000,
        "damage": 3200,
-       "speed": 300,
+       "speed": 272,
        "npc_id": 7,
        "reward": {
         "ep": 3200,
@@ -15206,7 +15206,7 @@
        "hp": 2400000,
        "shield": 1600000,
        "damage": 32000,
-       "speed": 180,
+       "speed": 172,
        "npc_id": 35,
        "reward": {
         "ep": 204800,
@@ -15372,7 +15372,7 @@
        "hp": 40000,
        "shield": 40000,
        "damage": 3200,
-       "speed": 300,
+       "speed": 272,
        "npc_id": 7,
        "reward": {
         "ep": 3200,
@@ -15451,7 +15451,7 @@
        "hp": 40000,
        "shield": 40000,
        "damage": 3200,
-       "speed": 300,
+       "speed": 272,
        "npc_id": 7,
        "reward": {
         "ep": 3200,
@@ -15494,7 +15494,7 @@
        "hp": 200000,
        "shield": 150000,
        "damage": 4000,
-       "speed": 260,
+       "speed": 428,
        "npc_id": 60,
        "reward": {
         "ep": 22500,
@@ -15519,7 +15519,7 @@
        "hp": 300000,
        "shield": 200000,
        "damage": 3600,
-       "speed": 200,
+       "speed": 172,
        "npc_id": 8,
        "reward": {
         "ep": 25600,
@@ -15544,7 +15544,7 @@
        "hp": 6000,
        "shield": 6000,
        "damage": 200,
-       "speed": 280,
+       "speed": 272,
        "npc_id": 6,
        "reward": {
         "ep": 1600,
@@ -15590,7 +15590,7 @@
        "hp": 6000,
        "shield": 6000,
        "damage": 200,
-       "speed": 280,
+       "speed": 272,
        "npc_id": 6,
        "reward": {
         "ep": 1600,
@@ -15714,7 +15714,7 @@
        "hp": 200000,
        "shield": 150000,
        "damage": 4000,
-       "speed": 260,
+       "speed": 428,
        "npc_id": 60,
        "reward": {
         "ep": 22500,
@@ -15739,7 +15739,7 @@
        "hp": 300000,
        "shield": 200000,
        "damage": 3600,
-       "speed": 200,
+       "speed": 172,
        "npc_id": 8,
        "reward": {
         "ep": 25600,
@@ -15764,7 +15764,7 @@
        "hp": 6000,
        "shield": 6000,
        "damage": 200,
-       "speed": 280,
+       "speed": 272,
        "npc_id": 6,
        "reward": {
         "ep": 1600,
@@ -15832,7 +15832,7 @@
        "hp": 200000,
        "shield": 150000,
        "damage": 4000,
-       "speed": 260,
+       "speed": 428,
        "npc_id": 60,
        "reward": {
         "ep": 22500,
@@ -15857,7 +15857,7 @@
        "hp": 1200000,
        "shield": 800000,
        "damage": 16000,
-       "speed": 180,
+       "speed": 172,
        "npc_id": 21,
        "reward": {
         "ep": 102400,
@@ -15883,7 +15883,7 @@
        "hp": 6000,
        "shield": 6000,
        "damage": 200,
-       "speed": 280,
+       "speed": 272,
        "npc_id": 6,
        "reward": {
         "ep": 1600,
@@ -16011,7 +16011,7 @@
        "hp": 40000,
        "shield": 40000,
        "damage": 3200,
-       "speed": 300,
+       "speed": 272,
        "npc_id": 7,
        "reward": {
         "ep": 3200,
@@ -16829,7 +16829,7 @@
        "hp": 3200,
        "shield": 1600,
        "damage": 100,
-       "speed": 220,
+       "speed": 173,
        "npc_id": 14,
        "reward": {
         "ep": 1600,
@@ -16891,7 +16891,7 @@
        "hp": 8000,
        "shield": 8000,
        "damage": 320,
-       "speed": 240,
+       "speed": 242,
        "npc_id": 15,
        "reward": {
         "ep": 3200,
@@ -16915,7 +16915,7 @@
        "hp": 24000,
        "shield": 12000,
        "damage": 800,
-       "speed": 250,
+       "speed": 272,
        "npc_id": 17,
        "reward": {
         "ep": 6400,
@@ -16963,7 +16963,7 @@
        "hp": 6000,
        "shield": 6000,
        "damage": 200,
-       "speed": 280,
+       "speed": 272,
        "npc_id": 6,
        "reward": {
         "ep": 1600,
@@ -16987,7 +16987,7 @@
        "hp": 20000,
        "shield": 10000,
        "damage": 390,
-       "speed": 200,
+       "speed": 68,
        "npc_id": 4,
        "reward": {
         "ep": 3200,
@@ -17030,7 +17030,7 @@
        "hp": 24000,
        "shield": 12000,
        "damage": 800,
-       "speed": 250,
+       "speed": 272,
        "npc_id": 17,
        "reward": {
         "ep": 6400,
@@ -17056,7 +17056,7 @@
        "hp": 50000,
        "shield": 0,
        "damage": 1000,
-       "speed": 150,
+       "speed": 123,
        "npc_id": 3,
        "reward": {
         "ep": 6400,
