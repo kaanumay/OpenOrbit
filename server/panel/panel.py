@@ -55,6 +55,7 @@ import bots as BT            # noqa: E402  (Bots page: bot packs)
 import llm_setup as LLMS     # noqa: E402  (language model of the Advanced bot mode)
 import discord_rp as DRP       # noqa: E402  (Discord Rich Presence)
 from bot import llm_provider as PRV  # noqa: E402  (the language model's provider: built-in or the user's choice)
+import pilot_panel as PP     # noqa: E402  (Auto Mode page; local feature)
 
 VERSION = '1.0'
 DISCORD = 'https://discord.com/invite/openorbit'   # community server (Panel page, README); permanent invite
@@ -1521,6 +1522,8 @@ def supporters():
 
 
 def h_get(path, q):
+    if PP.handles(path):                            # Auto Mode (pilot_panel.py)
+        return PP.get(path, q)
     if path.startswith('/api/bot'):                 # Bots (bots.py)
         return bot_get(path, q)
     if path.startswith('/api/world'):               # World Editor (worlds.py)
@@ -1617,6 +1620,8 @@ def h_get(path, q):
 def h_post(path, b):
     if migration_error() and path not in ('/api/close', '/api/update/check', '/api/update/install'):
         raise Error(migration_error())              # saves could not be migrated: no new save, setting ... is written (so it does not conflict on retry)
+    if PP.handles(path):                            # Auto Mode (pilot_panel.py)
+        return PP.post(path, b)
     if path.startswith('/api/bot/'):                # Bots (bots.py)
         return bot_post(path, b)
     if path.startswith('/api/world') or path == '/api/saves/world':      # World Editor (worlds.py)
