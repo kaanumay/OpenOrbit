@@ -56,6 +56,10 @@ OVERFLOW_HONOR = 10                           # purchased points above the maxim
 DONE_TEXT = {DAILY: 'sp_daily-mission-completed', WEEKLY: 'sp_weekly-mission-completed', SEASON: 'sp_season-mission-completed'}
 TRACKS = (('free', False, False), ('gold', True, False), ('ext', False, True))
 GOLD_ITEM, EXT_ITEM, POINT_ITEM = 'resource_gold-pass', 'resource_ext-gold-pass', 'resource_season-pass-point'
+# the window's title by the season's month (the client's sp_season-name_1..4; its achievement texts: 2023-08, 2024-08, 2025-08, 2026-08 Waxing
+# Gibbous, 2023-11, 2024-11, 2025-11 Waning Gibbous, 2024-02, 2025-02, 2026-02 Waning Crescent; May the Waxing Crescent left; Season XV 2026-11
+# "Waning Gibbous" in the official window, player screenshot 2026-11-02). Every season used to be "Waxing Crescent"
+NAME_BY_MONTH = {5: 'sp_season-name_1', 8: 'sp_season-name_2', 11: 'sp_season-name_3', 2: 'sp_season-name_4'}
 
 
 def _reserve_pool(*tracks):
@@ -200,8 +204,8 @@ def refresh_price(n):
 def seasons(now=None):
     """Ids of the seasons, oldest to newest (event_appearances.SEASONS: those with known designs); also newer seasons that started on the
     real calendar (their designs are sampled from the table: EG.season_track)."""
-    ids = [s['season'] for s in EG.SEASONS]
     cur = season_id(now)
+    ids = [s['season'] for s in EG.SEASONS if s['season'] <= cur]        # a season in the table opens on its real start day
     return ids + [cur] if cur > ids[-1] else ids
 
 
@@ -308,6 +312,11 @@ class Season:
         """The window's image: that of the season being played (from the record for those not on the official CDN)."""
         return S['images'].get(self.st.get('period'), S['visual'])
 
+    def name(self):
+        """The window's title: the moon phase of the season's month."""
+        period = self.st.get('period') or seasons()[-1]
+        return NAME_BY_MONTH.get(int(period.split('-')[1]), S['name'])
+
     def status_code(self, qid):
         gold, done = MISSIONS[qid]['gold'], qid in self.st['done']
         if not gold:
@@ -320,7 +329,7 @@ class Season:
     def status_cmd(self, now=None, tips=False):
         st = self.st
         return ('SeasonPassStatusCommand', dict(pointsCost=list(COST), uridiumCost=list(UCOST), goldPass=bool(st.get('gold')),
-                                                showTips=tips, marketingImage=self.image(), seasonName=S['name'],
+                                                showTips=tips, marketingImage=self.image(), seasonName=self.name(),
                                                 extGoldPass=bool(st.get('ext')),
                                                 timeToEventEnd=max(0, int(self.end() - (time.time() if now is None else now)))))
 
@@ -380,7 +389,7 @@ class Season:
             return []
         return [('SeasonPassRewardUnclaimedInfoCommand', dict(captainLimit=NV.D['max_roster'], captainPending=wait,
                                                               captainOwned=self.roster(), captainWarning=self.roster_full('captain_', wait),
-                                                              spcId=0, marketingImage=self.image(), seasonName=S['name']))]
+                                                              spcId=0, marketingImage=self.image(), seasonName=self.name()))]
 
     # ------------------------------------------------------------ points and Gold Pass
     def add_points(self, n, bought=False):

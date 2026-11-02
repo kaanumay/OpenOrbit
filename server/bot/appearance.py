@@ -39,6 +39,11 @@ def _can_afford(bot, currency, price):
     return bot.k['credits' if currency == 'C' else 'uridium'] >= price * (4 + 6 * bot.o('frugality'))
 
 
+def _rich(bot, f):
+    """Money is no object (50 times the price): even a bot that rarely shows off buys the look (a gift of millions is spent)."""
+    return bool(f) and bot.k['credits' if f[0] == 'C' else 'uridium'] >= f[1] * 50
+
+
 # ------------------------------------------------------------------------------------------------------------ purchase
 def cosmetic_designs(ship):
     return sorted(l for l, f in K.prices().items() if l.startswith(ship + '_design_') and l not in K.ITEMS['designs'])
@@ -78,10 +83,10 @@ def drone_looks():
 
 def drone_shopping(bot):
     """One more drone: first the design with a bonus (when money allows; a third of the time, when money is short, it mixes in the other bonus design), then
-    sometimes a cosmetic look. At most one purchase per call."""
+    sometimes a cosmetic look. At most one purchase per call; True if it bought something."""
     n = len(drone_sequence(bot))
     if not n:
-        return
+        return False
     dt = bot.k['gear'].setdefault('drone_design', {})
     designs, looks = dt.setdefault('design', []), dt.setdefault('appearance', [])
     del designs[n:], looks[n:]
@@ -99,17 +104,20 @@ def drone_shopping(bot):
                 designs[i] = loot
                 bot.event('new_design', item=loot)
                 bot.loadout_changed()
-                return
+                return True
         break                                            # not enough money: the next drone waits, move on to cosmetics
     option = drone_looks()
-    if option and bot.r.random() < 0.5 * showiness(bot):
-        loot = option[_stable_hash(bot, 'appearance') % len(option)]
-        f = K.price(loot)
+    if not option or '' not in looks:
+        return False
+    loot = option[_stable_hash(bot, 'appearance') % len(option)]
+    f = K.price(loot)
+    if _rich(bot, f) or bot.r.random() < 0.5 * showiness(bot):
         for i in range(n):
             if not looks[i] and f and _can_afford(bot, *f) and bot.pay(*f):
                 looks[i] = loot
                 bot.event('new_design', item=loot)
-                return
+                return True
+    return False
 
 
 def formation_preference(bot):
@@ -129,7 +137,8 @@ def formation_preference(bot):
 
 
 def shopping(bot, now):
-    """Every half hour: design and formation (if the shop permission and money allow)."""
+    """Every half hour: design and formation (if the shop permission and money allow). Drone designs and looks are bought for every drone
+    the money allows in one go (one per call kept a gifted bot buying for a day)."""
     if now < bot.__dict__.get('_cosmetic_t', 0) or not bot.permission.get('shop', True):
         return
     bot._cosmetic_t = now + 1800
@@ -137,13 +146,15 @@ def shopping(bot, now):
     designs = e.get('design')
     if not designs or not designs.startswith(e['ship'] + '_design_'):
         option = cosmetic_designs(e['ship'])
-        if option and bot.r.random() < 0.4 * showiness(bot):
-            loot = option[_stable_hash(bot, e['ship']) % len(option)]          # each bot's taste: always wants the same design on the same ship
-            f = K.price(loot)
+        loot = option[_stable_hash(bot, e['ship']) % len(option)] if option else None   # each bot's taste: always the same design on the same ship
+        f = K.price(loot) if loot else None
+        if loot and (_rich(bot, f) or bot.r.random() < 0.4 * showiness(bot)):
             if f and _can_afford(bot, *f) and bot.pay(*f):
                 e['design'] = loot
                 bot.event('new_design', item=loot)
-    drone_shopping(bot)
+    for _ in range(2 * K.ITEMS['max_drones']):
+        if not drone_shopping(bot):
+            break
     owner = bot.k.setdefault('formations', ['drone_formation_default'])
     ist = formation_preference(bot)
     if ist not in owner:

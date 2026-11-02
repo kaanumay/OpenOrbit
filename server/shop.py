@@ -1224,7 +1224,6 @@ class Shop:
                     if got < room and self.fits(slot_of(g), iid, g, equip_ids):
                         equip_ids.append(iid)
                         got += 1
-                EX.recharge(self.p, g, n)                  # jump/cloak CPU: new use
                 if g == 'equipment_extra_hmd-07':
                     msgs += self.p.menu_changes([g])      # HM-7: appears on the shortcut bar immediately even if not fitted
                 msgs.append(legacy('0|LM|ST|LOT|%s|%d' % (g, n)))
@@ -1258,6 +1257,12 @@ class Shop:
             if len((name or '').strip()) >= 3:              # the "P.E.T. name" field in the shop
                 self.p.d['pet']['name'] = name.strip()[:20]
             self.p.dirty = True
+        stored = self.p.resource(PET_FUEL)              # fuel won before owning a P.E.T. (pass, quest) waited in storage: into the tank
+        if stored:
+            add = max(0, min(stored, PETM.PET['max_fuel'] - self.p.d['pet']['fuel']))
+            with self.p.lock:
+                self.p.d['pet']['fuel'] += add
+            self.p.add_resource(PET_FUEL, -add)
         self.log('   new P.E.T.: %s' % PET_LOOT)
         return [('PetPurchasedCommand', {}), self.pet.init_msg(), self.p.generate('@arayuz'),    # P.E.T. icon on the bar
                 legacy('0|LM|ST|LOT|%s|1' % PET_LOOT)]
@@ -1400,12 +1405,15 @@ class Shop:
                 self.p.dirty = True
             msgs.append(legacy('0|LM|ST|LOT|%s|%d' % (loot, n)))
         elif loot == 'resource_pet-fuel' and self.pet and self.pet.owned:
-            add = max(0, min(n, PETM.PET['max_fuel'] - self.p.d['pet'].get('fuel', 0)))
+            before = self.p.d['pet'].get('fuel', 0)
+            add = max(0, min(n, PETM.PET['max_fuel'] - before))
             with self.p.lock:
-                self.p.d['pet']['fuel'] = self.p.d['pet'].get('fuel', 0) + add
+                self.p.d['pet']['fuel'] = before + add
                 self.p.dirty = True
             if add:
                 msgs += [legacy('0|LM|ST|LOT|%s|%d' % (loot, add)), self.pet.fuel_msg()]     # the P.E.T. window's fuel bar
+                if before <= 0:                        # the window still said "no fuel" (hasFuel false since it ran dry): launch possible again
+                    msgs.append(self.pet.init_msg())
             if add < n:                                # storage full: client log_msg_not_gather_pet_fuel ("cargo is full")
                 msgs.append(('PetFuelCargoFullMessage', {}))
         elif loot == 'resource_logfile' and self.gates:

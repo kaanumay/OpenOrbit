@@ -675,24 +675,27 @@ class World:
         """Safe zone: around its own company's station or around the map portals (NPCs do not attack, spawn or wander there)."""
         return bool(self.station_at(x, y)) or self.near_gate_peace(x, y) or self.near_giver_peace(x, y) or ML.in_safe(self.map_id, x, y)
 
-    def in_pvp_peace(self, x, y):
-        """Home station, portal and map-layout DMZs; CBS docking grants no PvP protection."""
-        s = self.home_station()
+    def in_pvp_peace(self, x, y, faction=None):
+        """Home station, portal and map-layout DMZs; CBS docking grants no PvP protection. faction: whose protection (default the pilot's;
+        a bot ship's own company: the zones protect only on that company's maps, player report 2026-11-02: a VRU bot was safe at a 1-3
+        portal of an MMO pilot and an EIC bot could be shot at its own 2-3 portal). The quest-giver zones are the pilot's alone."""
+        own = faction is None or faction == self.p.d['pilot'].get('factionId')
+        s = self.home_station(faction)
         return (bool(s and math.hypot(x - s['posX'], y - s['posY']) <= s['peaceRadius'])
-                or self.near_gate_peace(x, y) or self.near_giver_peace(x, y) or ML.in_safe(self.map_id, x, y))
+                or self.near_gate_peace(x, y, faction) or (own and self.near_giver_peace(x, y)) or ML.in_safe(self.map_id, x, y))
 
-    def peace_gates(self):
+    def peace_gates(self, faction=None):
         """Portals that have a safe zone: map portals (not Galaxy Gate and gate map portals; map_links.py). None on an enemy
-        company's map and on war maps (4-1..4-4); in 4-5, 15 s after entering (the client's DMZ help)."""
+        company's map (faction: default the pilot's) and on war maps (4-1..4-4); in 4-5, 15 s after entering (the client's DMZ help)."""
         n, fac = H.name(self.map_id), H.company(self.map_id)
-        if n in H.NO_DMZ_MAPS or (fac and fac != self.p.d['pilot'].get('factionId')) \
+        if n in H.NO_DMZ_MAPS or (fac and fac != (self.p.d['pilot'].get('factionId') if faction is None else faction)) \
                 or time.time() > self.entered + H.DMZ_AFTER_JUMP_SEC.get(n, float('inf')):
             return []
         return [g for g in self.gates if not g.get('gate') and not g.get('hidden')]
 
-    def near_gate_peace(self, x, y):
+    def near_gate_peace(self, x, y, faction=None):
         r = ML.gate_peace_radius(self.map_id, H.GATE_PEACE_RADIUS)        # "very small" in X-BL (map_layout.json)
-        return any(math.hypot(g['x'] - x, g['y'] - y) <= r for g in self.peace_gates())
+        return any(math.hypot(g['x'] - x, g['y'] - y) <= r for g in self.peace_gates(faction))
 
     def giver_zones(self):
         """Demilitarized zones (x, y, radius) around the pilot's own usable quest givers (map_links.GIVER_PEACE_RADIUS). A giver inside
@@ -706,11 +709,11 @@ class World:
     def near_giver_peace(self, x, y):
         return any(math.hypot(gx - x, gy - y) <= r for gx, gy, r in self.giver_zones())
 
-    def home_station(self):
-        """The player's company station: at another company's base (X-1, X-8) there is no safe zone, refinery, hangar, equipment change or
-        repair at the station; on death the player respawns on their own home map."""
+    def home_station(self, faction=None):
+        """The player's (or faction's) company station: at another company's base (X-1, X-8) there is no safe zone, refinery, hangar,
+        equipment change or repair at the station; on death the player respawns on their own home map."""
         s = self.station
-        return s if s and s.get('type') == self.p.d['pilot'].get('factionId') else None
+        return s if s and s.get('type') == (self.p.d['pilot'].get('factionId') if faction is None else faction) else None
 
     def station_at(self, x, y):
         """Friendly home station or completed own/allied CBS at this position."""
@@ -2022,8 +2025,12 @@ class World:
                     RT.note(self.p, 'received_item', ORE['kinds'].get(str(t), ''), c)       # logbook
                 for loot, c in sorted((extra or {}).items()):
                     c = int(c * boost)
-                    self.p.add_resource(loot, c)
-                    msgs += [legacy('0|LM|ST|LOT|%s|%d' % (loot, c))] + self.quest('loot', loot=loot, amount=c, box=True)
+                    if loot == 'resource_pet-fuel' and self.grant:
+                        msgs += self.grant(loot, c)              # into the P.E.T.'s tank (storage fuel is never burnt)
+                    else:
+                        self.p.add_resource(loot, c)
+                        msgs.append(legacy('0|LM|ST|LOT|%s|%d' % (loot, c)))
+                    msgs += self.quest('loot', loot=loot, amount=c, box=True)
                 msgs += self.auto_refine()               # after every collection (if the setting is on)
                 if left and self.p.cargo_free() < 1:     # partial take: the rest is taken once room is made (sale/refining)
                     msgs += [legacy('0|A|STM|loadfull')] + self.p.hint(IP.FULL_CARGO)
@@ -2307,7 +2314,9 @@ class World:
                 n.damage_hook(dmg)
             if dmg > 0 and not attacker:
                 self.p.ach('damage', count=dmg, npc=n.d.get('npc_id'))
-            self.alien.on_hit(n, dmg, attacker, now)              # summoning and vanishing at an HP threshold (alien.py)
+            # summoning and vanishing at an HP threshold (alien.py); reversed controls and EMPs answer only the pilot's own hit, not the P.E.T.'s or a
+            # battle station's (a Boss Saimon hit by the base reversed the controls of a pilot who wasn't attacking it: player report 2026-11-02)
+            self.alien.on_hit(n, dmg, attacker, now, to_player=engage and not attacker)
             if engage and not attacker:                  # the pilot's own hit lets this NPC fight on inside a protected zone; the P.E.T.'s does not
                 if getattr(n, 'station_retaliation', None) is None:
                     n.station_retaliation = {}
@@ -2397,7 +2406,7 @@ class World:
                 cnt = int(cnt * (1 + bm.get('agate_amount', 0)))          # AS-B01: Agate Splinter x2
             if cnt <= 0:
                 continue
-            if loot.startswith(('equipment_', 'ammunition_', 'tech_')) or loot == 'resource_extra-energy' or                     (loot == 'resource_logfile' and self.grant):     # the log file goes to the gate generator's counter (skill tree)
+            if loot.startswith(('equipment_', 'ammunition_', 'tech_')) or loot == 'resource_extra-energy' or                     (loot in ('resource_logfile', 'resource_pet-fuel') and self.grant):   # P.E.T. fuel: into the tank, not storage     # the log file goes to the gate generator's counter (skill tree)
                 msgs += self.grant(loot, cnt) if self.grant else []      # The Stinger's Caucasus laser (0.5%), A-BL, chaos packs (ammo, NPC Nuke, EE)
                 continue
             cnt = SET.amount('collecting', cnt, 'extra')                        # the panel's collection multiplier
@@ -3019,8 +3028,8 @@ class World:
             self.send([('AttackMissedCommand', dict(attackType=attack_type(1), targetUserId=uid, skillColorId=0))])
         if asset and self.asset_at(uid):
             self.items.auto_weapons(uid, now)
-        if pvp and self.p.lab_bonus(0):
-            self.lab_spend(0)          # Every fired PvP salvo consumes one upgrade charge, including misses.
+        if self.p.lab_bonus(0):
+            self.lab_spend(0, len(lasers))  # every fired salvo (player, P.E.T., base module) uses one charge per laser, misses too
 
     def hero_laser(self, now):
         player = self.player(self.target)
@@ -3094,7 +3103,7 @@ class World:
         else:
             self.send([('AttackMissedCommand', dict(attackType=attack_type(1), targetUserId=n.id, skillColorId=0))])
         if self.p.lab_bonus(0):
-            self.lab_spend(0)                   # laser upgrade: 1 per round
+            self.lab_spend(0, len(lasers))      # laser upgrade: one per laser (and drone laser) in the salvo, like the ammo
         self.items.auto_weapons(n, now)         # AROL-X, RL-LB1
         if n.alive:
             self.particle.auto(n, now)          # RG-SL (slug), AGS-X (GSP)
@@ -3644,7 +3653,7 @@ class World:
                                               victimNanoHull=int(g.get('nanoHull', 0)), damage=dmg, skilled=False, strike=False,
                                               cannonType=0)))
         if g['hitPoints'] > 0 and self.pet:
-            self.pet.ship_hurt(now)                 # G-KK1: the ship's HP is below the threshold
+            self.pet.ship_hurt(now, None if source_player or source_asset else killer)    # G-KK1: low ship HP or an alien attacking
         if g['hitPoints'] <= 0 and not self.hero_dead:
             self.hero_death(msgs, killer, cause=cause, source_player=source_player)
         return msgs

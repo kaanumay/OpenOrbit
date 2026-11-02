@@ -340,8 +340,9 @@ def hero_power(o):
         return 50.0
 
 
-def _in_peace(w, x, y):
-    return w.in_pvp_peace(x, y)
+def _in_peace(w, x, y, bot=None):
+    """A safe zone at this spot for the pilot (bot None) or for that bot ship: zones protect a ship only on its own company's maps."""
+    return w.in_pvp_peace(x, y, None if bot is None else bot.company)
 
 
 # ------------------------------------------------------------------------------------------------------------ rules
@@ -353,7 +354,7 @@ def attack_error(w, n, now=None):
         return [legacy('0|A|STM|msg_grp_attack_impossible')]
     hx, hy = w.hero_pos(now)
     nx, ny = n.mover.pos(now)
-    if _in_peace(w, hx, hy) or _in_peace(w, nx, ny):
+    if _in_peace(w, hx, hy) or _in_peace(w, nx, ny, b):
         # safe zone: "Attack-Protected-Zone" (the client's peacearea; it used to say "Group members cannot be attacked", player
         # report 2026-10-30)
         return [legacy('0|A|STM|peacearea')]
@@ -855,7 +856,7 @@ def can_attack_player(w, n, o, now):
         return False
     hx, hy = o.hero_pos(now)
     nx, ny = n.mover.pos(now)
-    if _in_peace(w, hx, hy) or _in_peace(w, nx, ny) or relation(o, n.bot) in (1, 2):
+    if _in_peace(w, hx, hy) or _in_peace(w, nx, ny, n.bot) or relation(o, n.bot) in (1, 2):
         return False                                     # its clan is an ally or in non-aggression
     return int(o.p.d['pilot'].get('factionId') or 0) != n.bot.company or not (
         H.company(w.map_id) == n.bot.company and H.name(w.map_id).split('-')[-1] in ('1', '2'))
@@ -869,7 +870,7 @@ def can_attack_bot(w, n, m, now):
         return False
     nx, ny = n.mover.pos(now)
     mx, my = m.mover.pos(now)
-    return not (_in_peace(w, nx, ny) or _in_peace(w, mx, my))
+    return not (_in_peace(w, nx, ny, n.bot) or _in_peace(w, mx, my, m.bot))
 
 
 # ------------------------------------------------------------------------------------------------------------ the alien's reply to the bot
@@ -1150,7 +1151,7 @@ def drop_mine(w, n, x, y, now):
     from . import weapons as WP
     b = n.bot
     m = WP.pick_mine(b)
-    if m is None or now < getattr(n, 'mine_ready', 0) or w.items.start_map() or w.in_pvp_peace(x, y):
+    if m is None or now < getattr(n, 'mine_ready', 0) or w.items.start_map() or w.in_pvp_peace(x, y, n.bot.company):
         return False
     if not WP.spend(b, m, 1):
         return False

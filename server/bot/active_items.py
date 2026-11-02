@@ -168,7 +168,7 @@ def emp(w, n, now):
     c = CIT['emp']
     b = n.bot
     x, y = n.mover.pos(now)
-    if WP.stock(b).get(EMP, 0) <= 0 or not ready(n, 'emp', now) or w.in_pvp_peace(x, y) or w.target != n.id:
+    if WP.stock(b).get(EMP, 0) <= 0 or not ready(n, 'emp', now) or w.in_pvp_peace(x, y, b.company) or w.target != n.id:
         return False
     WP.spend(b, EMP, 1)
     wait(n, 'emp', now, c['cooldown_sec'])

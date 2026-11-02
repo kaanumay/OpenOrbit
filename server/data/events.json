@@ -1939,6 +1939,10 @@
     [
      "2026-09-23",
      "2026-09-26"
+    ],
+    [
+     "2026-10-28",
+     "2026-10-30"
     ]
    ],
    "kinds": [
@@ -6221,6 +6225,10 @@
     [
      "2026-10-01 10:00",
      "2026-10-07"
+    ],
+    [
+     "2026-11-02 10:00",
+     "2026-11-08"
     ]
    ],
    "kinds": [],
@@ -6670,6 +6678,15 @@
      "recipe_blueprint-chromin-holo-ullrin",
      "recipe_blueprint-chromin-disruptor-ullrin",
      "recipe_blueprint-chromin-pusat-plus-ullrin"
+    ],
+    "2026-11-02": [
+     "recipe_blueprint-chromin-seprom",
+     "recipe_blueprint-chromin-hammerclaw",
+     "recipe_blueprint-chromin-dmg-mtch01",
+     "recipe_blueprint-chromin-permit",
+     "recipe_blueprint-chromin-polychromium",
+     "recipe_blueprint-chromin-goliath-plus-ullrin",
+     "recipe_blueprint-chromin-diminisher-ullrin"
     ]
    },
    "_run_recipes": "First day of the run -> recipes open in that run (recipes.json; 6-9 recipes per run, once per run): official Turkish forum Chromin Rush announcements (39 runs) and the EN board (7 runs); belgeler/forum_tr/karsilastirma/BAG1_chromin_kosular.json. After the last known day the runs repeat every 52 weeks"
@@ -6951,6 +6968,10 @@
     [
      "2026-10-01",
      "2026-10-15"
+    ],
+    [
+     "2026-11-01",
+     "2026-11-15"
     ]
    ],
    "_source": "vortex_of_greed.json runs_pattern: since 2026, from the 1st of each month for 15-25 days; tools/major_content.py",
@@ -11527,5 +11548,5 @@
   }
  },
  "_box_hunts": "map_extra boxes, gate_reward, rover and new events via tools/event_boxes.py (Phase 7b).",
- "known_calendar": "2026-10-22"
+ "known_calendar": "2026-11-02"
 }

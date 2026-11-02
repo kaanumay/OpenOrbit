@@ -1828,16 +1828,16 @@
     [
      "ammunition_laser_sab-50",
      5000,
-     7.0
+     10.5
     ],
     [
      "ammunition_rocketlauncher_hstrm-01",
      800,
-     10.5
+     7.0
     ],
     [
      "ammunition_rocketlauncher_sar-02",
-     5000,
+     1500,
      7.0
     ],
     [
@@ -3001,7 +3001,7 @@
      ],
      [
       "resource_collectable_kyhalon",
-      200,
+      20,
       0.5
      ],
      [
@@ -3383,22 +3383,22 @@
      [
       "ammunition_specialammo_emote_pumpkin-smile",
       20,
-      1.25
+      1.2
      ],
      [
       "ammunition_specialammo_emote_pumpkin-alien",
       20,
-      1.25
+      1.2
      ],
      [
       "ammunition_specialammo_spray_batman",
       20,
-      1.25
+      1.2
      ],
      [
       "ammunition_specialammo_spray_hand",
       20,
-      1.25
+      1.2
      ],
      [
       "equipment_shipupgrade_dmg-xv03",

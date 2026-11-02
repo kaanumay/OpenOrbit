@@ -1315,17 +1315,20 @@ class Clan:
                 self.diplo_sync(r['to'])
             return [('ClanDeleteOpenDiploCommand', {'diploId': did, 'success': ok,
                                                     'errorMsg': err('diplo_request_delete' if ok else 'err_diplo_default')})]
-        with LOCK:                                       # ClanDeleteDiploRequest: alliance/non-aggression ends (war with a request)
+        with LOCK:      # ClanDeleteDiploRequest: alliance/non-aggression ends; a war too, by either side (the client's "End war", diplo_stop_war)
             d = next((x for x in k['diplomacy'] if x['id'] == did), None)
             if d is None or not self.right('diplo_end', k):
                 e = 'err_clan_noRights' if d is not None else 'err_diplo_default'
-            elif d['type'] == 3:
-                e = 'err_diplo_war_is_running'
             else:
                 e = None
-                for c in (k, CLANS.get(d['clan'])):
+                o = CLANS.get(d['clan'])
+                for c in (k, o):
                     if c:
                         c['diplomacy'] = [x for x in c['diplomacy'] if x['id'] != did]
+                if d['type'] == 3:          # it used to answer "You're already at war with this clan." (player report 2026-11-02)
+                    if o:
+                        self.add_news('peace', '', o, other=k['name'])        # "The X clan ended the war with your clan."
+                    self.add_news('peace2', '', k, other=(o or {}).get('name', ''))   # "Your clan ended the war with the X clan."
         if e:
             return [('ClanDeleteDiploCommand', {'diploId': did, 'baseStackCommand': err(e), 'success': False})]
         self.changed(k)

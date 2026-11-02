@@ -101,6 +101,7 @@ SCHEMA = [
                                                      'the map or a module is hit.', apply_mode='map', lo=0.1, hi=10.0, limit=1000.0),
     _c('cbs_damage', 'Clan Battle Station damage', 'combat', 'Damage dealt by the weapon modules of every Clan Battle Station (to aliens, and by a rival station '
                                                             'to you).', lo=0.0, hi=10.0, limit=1000.0),
+    _b('cbs_deflector', 'Battle station shields', 'combat', "Other clans' Clan Battle Stations are protected by their deflector shield while it is up. When off, their deflectors don't stop your attacks: a station another clan has just built can be destroyed at once and the asteroid taken. Your own station's deflector still protects it.", default=True),
     # ---------------------------------------------------------------- rewards
     _c('credits', 'Credit gain', 'reward', 'Credits earned from aliens, boxes, missions, gates and events (sales and refunds excluded).', hi=50.0, limit=100000.0),
     _c('uridium', 'Uridium gain', 'reward', 'Uridium earned from aliens, boxes, missions, gates and events.', hi=50.0,

@@ -17,7 +17,8 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 D = json.load(open(os.path.join(HERE, 'data', 'event_appearances.json'), encoding='utf8'))
 ITEMS = D['looks']
 SEASONS = D['seasons']
-RECORDED = SEASONS[-1]                   # the season in the save (its designs in the reward tracks)
+# the season recorded on the official server: its designs are in the reward tracks of data/tickets.json (newer seasons swap theirs in)
+RECORDED = next(s for s in SEASONS if s['season'] == D.get('recorded_season', SEASONS[-1]['season']))
 FIRST = tuple(int(x) for x in SEASONS[0]['season'].split('-'))
 
 

@@ -52643,6 +52643,45 @@
   "resource_recall-pass-vip-badge": {
    "type": "RECALL_PASS_VIP_BADGE",
    "class_name": "ItemType"
+  },
+  "drone_designs_drone-goliath-helios": {
+   "type": "GOLIATH_HELIOS",
+   "class_name": "DroneCustomizationType",
+   "equippable": [
+    "DRONE"
+   ],
+   "selling": 10000.0
+  },
+  "pet_designs_pet-goliath-helios": {
+   "type": "GOLIATH_HELIOS",
+   "class_name": "PetCustomizationType",
+   "equippable": [
+    "PET"
+   ],
+   "selling": 50000.0
+  },
+  "ship_goliath-plus_design_goliath-plus-helios": {
+   "type": "GOLIATH_PLUS",
+   "class_name": "ShipDesignType",
+   "uid": 506,
+   "model": 736,
+   "hp": 356000,
+   "speed": 330,
+   "cargo": 1500,
+   "price": 9999999.0,
+   "selling": 200000.0,
+   "slots": {
+    "lasers": 18,
+    "generators": 18,
+    "cannons": 3,
+    "drives": 10,
+    "cannon_shields": 6,
+    "lenses": 14,
+    "heavy_guns": 1,
+    "extras": 4,
+    "ship_upgrades": 4,
+    "QuantumFluidCore": 2
+   }
   }
  }
 }

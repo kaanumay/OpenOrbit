@@ -52,7 +52,10 @@ ASTEROID, BATTLESTATION, SATELLITE = 35, 36, 37
 HULL, DEFLECTOR = 0, 1                 # center slots
 SLOTS = 10
 OWN, NEUTRAL, HOSTILE = 1, 2, 3        # StarmapStationInfo.StationStatus
-DESTRUCTION_BATTLESTATION = 5           # DestructionTypeModule.DestructionCause (death screen)
+# DestructionTypeModule.DestructionCause of a station kill on the death screen: NPC (1), "Destroyer: <module> [<clan>]". The client's own
+# BATTLESTATION (5) has no death screen text (only head_killscreen_destroyer_player/npc/radiation_zone/mine/unknown) and the game closed on
+# every death by a station (player report 2026-11-02)
+DESTRUCTION_BATTLESTATION = 1
 E = dict(UNSPECIFIED=0, NO_CLAN=1, STATION_ALREADY_BUILDING=2, ITEM_HITPOINTS_ZERO=3, ITEM_ALREADY_EQUIPPED_IN_ANOTHER_ASTEROID=4,
          CONCURRENT_EQUIP=5, REPLACE_RIGHT_MISSING=6, ITEM_NOT_OWNED=7, OUT_OF_RANGE=8, EQUIP_OF_SAME_PLAYER_RUNNING=9,
          SATELLITE_ONLY=10, HUB_ONLY=11, ITEM_NOT_IN_STATION=12, MAX_NUMBER_OF_MODULE_TYPE_EXCEEDED=13, DEFLECTOR_ALREADY_ON=14,
@@ -702,7 +705,7 @@ class Cbs:
             if kind == SATELLITE and cmd[1]['designId'] == 0:
                 continue
             df = a['deflector']
-            if df.get('on'):
+            if self.shielded(a):
                 cmd[1]['modifier'] = [self.deflector_modifier(uid, 34, True, int(df.get('sec', 0)))]
             elif kind == BATTLESTATION:
                 seconds = max(0, math.ceil(df.get('closed_until', 0) - time.time()))
@@ -729,7 +732,7 @@ class Cbs:
         assets = [(uid, kind) for uid, kind, cmd in self.map_assets(aid)
                   if uid in shown and not (kind == SATELLITE and cmd[1]['designId'] == 0)]
         hub = asset_id(aid)
-        if df['on']:
+        if self.shielded(self.ast(aid)):
             # Clearing timer 35 after shield 34 would delete the active shield's own timer (both effect 49).
             msgs = [('VisualModifierCommand', self.deflector_modifier(hub, 35, False))] if hub in shown else []
             return msgs + [('VisualModifierCommand', self.deflector_modifier(uid, 34, True, df.get('sec', 0)))
@@ -1651,9 +1654,14 @@ class Cbs:
             msgs += self.refresh_assets(aid)
         return msgs
 
+    def shielded(self, a):
+        """The deflector is up and protects the station. Panel setting cbs_deflector off: other clans' deflectors don't (player request
+        2026-11-02: destroy a station another clan has just built and build your own); one's own still does."""
+        return bool((a.get('deflector') or {}).get('on')) and (SET.get('cbs_deflector') or self.mine(a))
+
     def rival_attackable(self, aid):
         a = self.ast(aid)
-        return a.get('owner') == 'rival' and a['state'] == 'built' and not (a.get('deflector') or {}).get('on')
+        return a.get('owner') == 'rival' and a['state'] == 'built' and not self.shielded(a)
 
     def hit_asset(self, asset, dmg):
         """The player's hit on the rival station (entity id) -> messages."""
@@ -1705,7 +1713,7 @@ class Cbs:
         if self.asset_module(uid):
             a = self.ast(aid)
             hostile = self.rival_attackable(aid) or (self.host is not None and not self.mine(a)
-                and self.relation(a) == 3 and not a['deflector'].get('on'))
+                and self.relation(a) == 3 and not self.shielded(a))
             if hostile:
                 return []
         return [legacy('0|A|STM|msg_station_not_atackable')]
@@ -1787,7 +1795,7 @@ class Cbs:
                 if distance <= md['range'] and not cloaked:
                     candidates.append((distance, 0, w.hid, None))
                 pet = getattr(w, 'pet', None)
-                if pet and pet.active and pet.alive and pet.w is w:
+                if pet and pet.active and pet.alive and pet.w is w and not pet.hidden(now):   # cloaked with its owner (unless firing)
                     px, py = pet.pos(now)
                     distance = math.hypot(sx - px, sy - py)
                     if distance <= md['range']:

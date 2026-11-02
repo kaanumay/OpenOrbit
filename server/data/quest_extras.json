@@ -49994,7 +49994,7 @@
     "active": false,
     "mandatory": true,
     "ordered": false,
-    "mandatoryCount": 2,
+    "mandatoryCount": 3,
     "modifier": [
      {
       "_": "QuestElementModule",
@@ -50011,11 +50011,9 @@
        "_": "QuestConditionModule",
        "id": 51217101,
        "matches": [
-        "2",
+        "1",
         "ALPHA",
-        "BETA",
-        "51",
-        "52"
+        "51"
        ],
        "type": 80,
        "displayType": 80,
@@ -50045,10 +50043,40 @@
        "_": "QuestConditionModule",
        "id": 51217102,
        "matches": [
-        "2",
-        "ALPHA",
+        "1",
+        "BETA",
+        "52"
+       ],
+       "type": 80,
+       "displayType": 80,
+       "targetValue": 1,
+       "mandatory": true,
+       "state": {
+        "_": "QuestConditionStateModule",
+        "currentValue": 0,
+        "active": true,
+        "completed": false
+       },
+       "subConditions": []
+      }
+     },
+     {
+      "_": "QuestElementModule",
+      "questCase": {
+       "_": "QuestCaseModule",
+       "id": 0,
+       "active": false,
+       "mandatory": false,
+       "ordered": false,
+       "mandatoryCount": 0,
+       "modifier": []
+      },
+      "condition": {
+       "_": "QuestConditionModule",
+       "id": 51217103,
+       "matches": [
+        "1",
         "GAMMA",
-        "51",
         "53"
        ],
        "type": 80,
@@ -50085,7 +50113,7 @@
     ],
     [
      "resource_collectable_axion-beam-regulator",
-     10
+     30
     ],
     [
      "resource_collectable_indoctrineoil",

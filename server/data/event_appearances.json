@@ -99,6 +99,13 @@
    "drone": "drone_designs_drone-hyperion-cerevisia",
    "pet": "pet_designs_pet-hyperion-cerevisia",
    "ship": null
+  },
+  {
+   "season": "2026-11",
+   "name": "Helios",
+   "drone": "drone_designs_drone-goliath-helios",
+   "pet": "pet_designs_pet-goliath-helios",
+   "ship": null
   }
  ],
  "looks": {
@@ -5165,5 +5172,6 @@
     0.469
    ]
   ]
- }
+ },
+ "recorded_season": "2026-08"
 }

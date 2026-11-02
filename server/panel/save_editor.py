@@ -451,7 +451,8 @@ def appearance(pr, m, original=None):
         'boosters': boosters,
         'quests': {'active': len(quests.get('active', {})), 'done': len(quests.get('done', []))},
         # CPUs that work with uses (Jump CPU, Cloak ...): lootId -> [remaining, uses of one refill]; uses per lootId (extras.py)
-        'rights': {l: [int(p.d.get('extra_uses', {}).get(l, SHP.EX.X[l]['right'])), SHP.EX.X[l]['right']]
+        'rights': {l: [int(p.d.get('extra_uses', {}).get(l, SHP.EX.X[l]['right'] * sum(1 for x in p.d['items'].values() if x == l))),
+                       SHP.EX.X[l]['right']]
                    for l in sorted(set(p.d['items'].values())) if 'right' in SHP.EX.X.get(l, {})},
         'pools': {l: rng_pool(l) for l in sorted(set(p.d['items'].values())) if rng_kind(l)},
         'all_ships': sorted(SHP.ITEMS['ships']),

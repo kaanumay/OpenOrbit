@@ -8168,11 +8168,12 @@
     "1": 150,
     "4": 100,
     "5": 100,
-    "6": 12
+    "6": 12,
+    "7": 6
    },
    "npc_id": 99,
    "model": "ship_aegis",
-   "_source": "official server recording 2026-10-27: Saturn ship roaming the X-4..X-8, 4-X and BL maps (name, model, speed, expansionStage; did not fire at the hero on its own: not aggressive). HP, shield, damage, reward and cargo from the same ship of the Kronos Gate (gates.json; adaptation)"
+   "_source": "official server recording 2026-10-27: Saturn ship roaming the X-4..X-8, 4-X and BL maps (name, model, speed, expansionStage; did not fire at the hero on its own: not aggressive). HP, shield, damage, reward and cargo from the same ship of the Kronos Gate (gates.json; adaptation); Seprom 6: wiki Seprom drops it from non-gate Saturn aliens (amount: half the Promerium, as on the Zeta aliens)"
   },
   "saturn_diminisher": {
    "name": "-={ Saturn Diminisher }=-",
@@ -8194,7 +8195,8 @@
     "1": 150,
     "4": 100,
     "5": 100,
-    "6": 12
+    "6": 12,
+    "7": 6
    },
    "npc_id": 90,
    "model": "ship_diminisher",
@@ -8220,11 +8222,12 @@
     "1": 150,
     "4": 100,
     "5": 100,
-    "6": 12
+    "6": 12,
+    "7": 6
    },
    "npc_id": 85,
    "model": "ship_goliath",
-   "_source": "official server recording 2026-10-27: Saturn ship roaming the X-4..X-8, 4-X and BL maps (name, model, speed, expansionStage; did not fire at the hero on its own: not aggressive). HP, shield, damage, reward and cargo from the same ship of the Kronos Gate (gates.json; adaptation)"
+   "_source": "official server recording 2026-10-27: Saturn ship roaming the X-4..X-8, 4-X and BL maps (name, model, speed, expansionStage; did not fire at the hero on its own: not aggressive). HP, shield, damage, reward and cargo from the same ship of the Kronos Gate (gates.json; adaptation); Seprom 6: wiki Seprom drops it from non-gate Saturn aliens (amount: half the Promerium, as on the Zeta aliens)"
   },
   "saturn_sentinel": {
    "name": "-={ Saturn Sentinel }=-",
@@ -8246,11 +8249,12 @@
     "1": 150,
     "4": 100,
     "5": 100,
-    "6": 12
+    "6": 12,
+    "7": 6
    },
    "npc_id": 88,
    "model": "ship_sentinel",
-   "_source": "official server recording 2026-10-27: Saturn ship roaming the X-4..X-8, 4-X and BL maps (name, model, speed, expansionStage; did not fire at the hero on its own: not aggressive). HP, shield, damage, reward and cargo from the same ship of the Kronos Gate (gates.json; adaptation)"
+   "_source": "official server recording 2026-10-27: Saturn ship roaming the X-4..X-8, 4-X and BL maps (name, model, speed, expansionStage; did not fire at the hero on its own: not aggressive). HP, shield, damage, reward and cargo from the same ship of the Kronos Gate (gates.json; adaptation); Seprom 6: wiki Seprom drops it from non-gate Saturn aliens (amount: half the Promerium, as on the Zeta aliens)"
   },
   "saturn_solace": {
    "name": "-={ Saturn Solace }=-",
@@ -8272,11 +8276,12 @@
     "1": 150,
     "4": 100,
     "5": 100,
-    "6": 12
+    "6": 12,
+    "7": 6
    },
    "npc_id": 91,
    "model": "ship_solace",
-   "_source": "official server recording 2026-10-27: Saturn ship roaming the X-4..X-8, 4-X and BL maps (name, model, speed, expansionStage; did not fire at the hero on its own: not aggressive). HP, shield, damage, reward and cargo from the same ship of the Kronos Gate (gates.json; adaptation)"
+   "_source": "official server recording 2026-10-27: Saturn ship roaming the X-4..X-8, 4-X and BL maps (name, model, speed, expansionStage; did not fire at the hero on its own: not aggressive). HP, shield, damage, reward and cargo from the same ship of the Kronos Gate (gates.json; adaptation); Seprom 6: wiki Seprom drops it from non-gate Saturn aliens (amount: half the Promerium, as on the Zeta aliens)"
   },
   "saturn_spectrum": {
    "name": "-={ Saturn Spectrum }=-",
@@ -8298,11 +8303,12 @@
     "1": 150,
     "4": 100,
     "5": 100,
-    "6": 12
+    "6": 12,
+    "7": 6
    },
    "npc_id": 89,
    "model": "ship_spectrum",
-   "_source": "official server recording 2026-10-27: Saturn ship roaming the X-4..X-8, 4-X and BL maps (name, model, speed, expansionStage; did not fire at the hero on its own: not aggressive). HP, shield, damage, reward and cargo from the same ship of the Kronos Gate (gates.json; adaptation)"
+   "_source": "official server recording 2026-10-27: Saturn ship roaming the X-4..X-8, 4-X and BL maps (name, model, speed, expansionStage; did not fire at the hero on its own: not aggressive). HP, shield, damage, reward and cargo from the same ship of the Kronos Gate (gates.json; adaptation); Seprom 6: wiki Seprom drops it from non-gate Saturn aliens (amount: half the Promerium, as on the Zeta aliens)"
   },
   "saturn_venom": {
    "name": "-={ Saturn Venom }=-",
@@ -8324,11 +8330,12 @@
     "1": 150,
     "4": 100,
     "5": 100,
-    "6": 12
+    "6": 12,
+    "7": 6
    },
    "npc_id": 87,
    "model": "ship_venom",
-   "_source": "official server recording 2026-10-27: Saturn ship roaming the X-4..X-8, 4-X and BL maps (name, model, speed, expansionStage; did not fire at the hero on its own: not aggressive). HP, shield, damage, reward and cargo from the same ship of the Kronos Gate (gates.json; adaptation)"
+   "_source": "official server recording 2026-10-27: Saturn ship roaming the X-4..X-8, 4-X and BL maps (name, model, speed, expansionStage; did not fire at the hero on its own: not aggressive). HP, shield, damage, reward and cargo from the same ship of the Kronos Gate (gates.json; adaptation); Seprom 6: wiki Seprom drops it from non-gate Saturn aliens (amount: half the Promerium, as on the Zeta aliens)"
   },
   "pm_blighted_kristallon": {
    "name": "-=[ Blighted Kristallon ]=-",

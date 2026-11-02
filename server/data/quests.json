@@ -8814,7 +8814,7 @@
     "active": false,
     "mandatory": true,
     "ordered": false,
-    "mandatoryCount": 2,
+    "mandatoryCount": 1,
     "modifier": [
      {
       "_": "QuestElementModule",
@@ -8824,7 +8824,7 @@
        "active": false,
        "mandatory": true,
        "ordered": false,
-       "mandatoryCount": 1,
+       "mandatoryCount": 2,
        "modifier": [
         {
          "_": "QuestElementModule",
@@ -10280,6 +10280,7 @@
    "previous": [],
    "source": "wiki",
    "pvp": true,
+   "company_excluded": 1,
    "root": {
     "_": "QuestCaseModule",
     "id": 11200100,
@@ -10352,6 +10353,7 @@
    "previous": [],
    "source": "wiki",
    "pvp": true,
+   "company_excluded": 2,
    "root": {
     "_": "QuestCaseModule",
     "id": 11200200,
@@ -10424,6 +10426,7 @@
    "previous": [],
    "source": "wiki",
    "pvp": true,
+   "company_excluded": 3,
    "root": {
     "_": "QuestCaseModule",
     "id": 11200300,

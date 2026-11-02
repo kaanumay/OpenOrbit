@@ -36,6 +36,8 @@ REPAIR_SAE = 13                           # KillScreenOptionTypeModule STRIKE_AN
 COIN = D.get('currency', 'resource_collectable_stellar-coin')
 NPC_IDS = [D['alien_spawns'][k]['npc_id'] for k in ('vog_interceptor', 'vog_barracuda', 'vog_saboteur')] if D else []
 SESSION_WINDOW = 15 * 60                  # "always open": every 15-minute slot
+HINT_SEC = 30                             # the nearest evacuation zone's direction, while out of the zones (Run.zone_hint)
+DIRECTIONS = ('east', 'north-east', 'north', 'north-west', 'west', 'south-west', 'south', 'south-east')
 
 
 def _register():
@@ -324,6 +326,7 @@ class VogRun:
         self.zone_times = set()
         self.inside_since = None
         self.next_hud = 0.0
+        self.next_hint = 0.0                       # the next "nearest evacuation zone" hint (zone_hint)
         self.dirty = True
         self.left = False
         now = time.time()
@@ -445,6 +448,7 @@ class VogRun:
             self.add_zone(x, y)
         msgs.append(legacy('0|A|STM|strikeandexit_message_escape_zone_spawn'))
         w.send(msgs)
+        self.next_hint = 0.0                       # where the new zone is: at once
         w.log('   Vortex: %d evacuation zones %s' % (count, [(z[0], z[1]) for z in self.zones[-count:]]))
 
     def add_zone(self, x, y):
@@ -465,6 +469,17 @@ class VogRun:
         r = D['evacuation']['radius']
         return next((z for z in self.zones if math.hypot(x - z[0], y - z[1]) <= r), None)
 
+    def zone_hint(self, hx, hy, now):
+        """Every 30 s while out of the zones: the nearest one's distance and direction. The zones are not on the minimap (wiki) and are drawn only
+        once in sight, 3,000+ away on a big map: players found no way out (player report 2026-11-02, "no way to extract yourself")."""
+        if now < self.next_hint:
+            return []
+        self.next_hint = now + HINT_SEC
+        x, y, _ = min(self.zones, key=lambda z: math.hypot(z[0] - hx, z[1] - hy))
+        d = math.hypot(x - hx, y - hy)
+        side = DIRECTIONS[int(round(math.degrees(math.atan2(hy - y, x - hx)) / 45.0)) % 8]     # the map's y grows southwards
+        return [GALAXY.screen('Nearest evacuation zone: %s units to the %s.' % ('{:,}'.format(int(round(d, -2))), side))]
+
     def evac_tick(self, now):
         w = self.w
         if w.hero_dead or w.jumping or not self.zones:
@@ -472,6 +487,9 @@ class VogRun:
             return
         hx, hy = w.hero_pos(now)
         if not self.zone_at(hx, hy):
+            hint = self.zone_hint(hx, hy, now)
+            if hint:
+                w.send(hint)
             if self.inside_since is not None:
                 self.inside_since = None
                 w.send([GALAXY.screen('Evacuation interrupted.')])

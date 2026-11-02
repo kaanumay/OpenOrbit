@@ -263,11 +263,18 @@ class Dispatch:
         if miss:
             return [('DispatchLootMessageCommand', dict(messageType=NO_RESOURCE, loots=[loot(l, n) for l, n in miss.items()]))]
         INV.spend(self.p, cost)
+        g = GALAXY.GATES[key]
         with self.p.lock:
             self.st['gates'][key] = time.time() + SET.duration(D['gate']['duration_sec'], 'dispatch')
-            self.k.gate(key)['ready'] = False
+            # the gate goes with the dispatch: its parts are used up now, the parts gathered meanwhile build the next one. The built gate used to
+            # stay (ready to be prepared and played by hand while out) and every part spun during the dispatch was a duplicate, then wiped at the
+            # collection (player report 2026-11-02, "fix Galaxy Gates Dispatch")
+            self.k.d['gates'][key] = dict(GALAXY.fresh(g, self.k.gate(key)), dispatched=True)
             self.p.dirty = True
-        self.log('   Dispatch: gate %s sent' % GALAXY.GATES[key]['name'])
+        w = self.k.world()
+        if w:
+            w.remove_gate(GALAXY.PORTAL_BASE + g['uid'])        # a prepared gate's X-1 portal led into an empty gate
+        self.log('   Dispatch: gate %s sent' % g['name'])
         return INV.update_msgs(self.m, self.p, list(cost)) + [('DispatchMessageCommand', {'messageType': SUCCESS_SEND_GATE})] + self.gate_list()
 
     def collect_gate(self, f, now=None):

@@ -217,6 +217,8 @@ class Bot:
         elif loot in K.ITEMS['speed_generators']:
             e['speed'][loot] = e['speed'].get(loot, 0) + n
         elif loot in K.ITEMS['drones']:
+            if sum(e['drone'].values()) + n > K.ITEMS['max_drones']:
+                return False                             # drone slots full: a dropped drone goes to stock
             e['drone'][loot] = e['drone'].get(loot, 0) + n
         elif loot in K.ITEMS['combat_items']['launcher']['kinds']:
             e['launcher'] = loot                       # rocket launcher (technology.py)

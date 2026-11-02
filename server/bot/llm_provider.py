@@ -332,8 +332,12 @@ class Remote:
     def _anthropic(self, system, user, schema, max_count, temperature, timestamp):
         if schema is not None and self.json_mode != 'schema':
             system = self._prompt_schema(system, schema)
-        body = {'model': self.c['model'], 'max_tokens': max(max_count * 8, 2048), 'system': system,
-                 'messages': self._messages(user), 'cache_control': {'type': 'ephemeral'}}   # prefix cache (system + steps)
+        # thinking is on by default on current Claude models and counts toward max_tokens (only what is generated is paid for)
+        body = {'model': self.c['model'], 'max_tokens': max(max_count * 8, 8192),
+                 'system': [{'type': 'text', 'text': system, 'cache_control': {'type': 'ephemeral'}}],  # shared by every job and bot
+                 'messages': self._messages(user)}
+        if isinstance(user, list):
+            body['cache_control'] = {'type': 'ephemeral'}  # agent steps: the conversation so far is read back at the next step
         oc = {'effort': 'low'}              # chat line: deep thinking not needed (latency and cost)
         if schema is not None and self.json_mode == 'schema':
             oc['format'] = {'type': 'json_schema', 'schema': _anthropic_schema(schema)}
@@ -345,7 +349,7 @@ class Remote:
         self._count(u.get('input_tokens', 0) + u.get('cache_read_input_tokens', 0) + u.get('cache_creation_input_tokens', 0),
                   u.get('cache_read_input_tokens', 0), u.get('output_tokens', 0))
         if d.get('stop_reason') == 'refusal':
-            raise ValueError('the model refused to answer')
+            raise ProviderError('the model refused to answer')   # not retried: the same request would be refused again
         text = ''.join(b.get('text', '') for b in d.get('content') or [] if b.get('type') == 'text')
         if not text.strip():
             raise ValueError('empty reply (%s)' % d.get('stop_reason'))

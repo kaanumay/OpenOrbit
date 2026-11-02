@@ -6388,6 +6388,7 @@
    "pet_designs_pet-g-champion-nobilis": 328,
    "pet_designs_pet-g-champion-silver": 199,
    "pet_designs_pet-goliath-dogma": 366,
+   "pet_designs_pet-goliath-helios": 400,
    "pet_designs_pet-goliath-dreadwing": 381,
    "pet_designs_pet-goliath-nobilis": 397,
    "pet_designs_pet-goliath-x-argon": 207,
@@ -7084,6 +7085,10 @@
   },
   "drone_designs_drone-goliath-dogma": {
    "id": 152,
+   "slot": "visual"
+  },
+  "drone_designs_drone-goliath-helios": {
+   "id": 206,
    "slot": "visual"
   },
   "drone_designs_drone-goliath-x-argon": {

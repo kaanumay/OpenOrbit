@@ -34,7 +34,8 @@ Gate-specific rules:
   leads to the map of the wave you were on.
   Zeta Devourer ("kalici"): comes at the start of the wave; the escort groups are around it, the species of one family (normal, Boss, Uber)
   spawn together; while a group is alive its Insta-Shield is on and it takes no damage, when the group ends the shield drops for shield_gap_sec (10), then the next group
-  (fandom Galaxy Gates); the wave ends when the Devourer dies, without waiting for groups that have not come (Kosu.boss_tick).
+  (fandom Galaxy Gates); in the gap its HP stops at the next group's share (7 groups: 6/7, 5/7 ...) and reaching it brings the next group at
+  once, so it dies only after the last group (forum 127323: "you must destroy all 7 groups"; Run.boss_floor).
   Kronos: no spin in the builder; its parts come from completing the other gates (1 per completion, 2 on Saturday; at most the number in the wiki per gate:
   Alpha 4, Beta 3, Gamma 1, Delta 1, Epsilon 4, Zeta 1, Kappa 2, Lambda 5 = 21). Progress per gate in the builder window
   (GalaxyGateBuilderMultiGateProgressModule). "Evil Clone Of Your Ship" comes with the player's own look.
@@ -164,20 +165,25 @@ def ring(hx, hy, groups, map_w, map_h, radius=None):
     return out
 
 
-def far_spot(hx, hy, map_w, map_h):
+def far_spot(hx, hy, map_w, map_h, distance=None):
     """A single alien's spawn point: dogma_uzaklik away from the player in a random direction; avoids directions that get shorter at the map edge (if none
-    suffices, the farthest). An alien that spawns far away only catches up while the player is cutting the previous one down."""
+    suffices, the farthest). An alien that spawns far away only catches up while the player is cutting the previous one down. distance: [min, max]
+    instead (a stationary alien never catches up: it spawns in sight)."""
+    lo_hi = distance or K['spawn_distance']
     best = None
     for _ in range(12):
-        a, r = random.uniform(0, 2 * math.pi), random.uniform(*K['spawn_distance'])
+        a, r = random.uniform(0, 2 * math.pi), random.uniform(*lo_hi)
         x = min(max(hx + math.cos(a) * r, 300), map_w - 300)
         y = min(max(hy + math.sin(a) * r, 300), map_h - 300)
         d = math.hypot(x - hx, y - hy)
-        if d >= K['spawn_distance'][0]:
+        if d >= lo_hi[0]:
             return x, y
         if best is None or d > best[0]:
             best = (d, x, y)
     return best[1:]
+
+
+STATIONARY_DISTANCE = (600, 1000)        # spawn distance of an alien that does not move (far_spot)
 
 
 def center(map_id):
@@ -860,10 +866,15 @@ class Gates:
                         got.append(loot)
                 self.p.ach('package', package=s['package'])
         with self.p.lock:
-            new = fresh(g, self.gate(key))
-            new['done'] += 1
-            new['parts'] = sorted(set(new['parts']) | set(random.sample(range(1, g['part'] + 1), min(R['part'], g['part']))))
-            self.d['gates'][key] = new
+            if dispatch and self.gate(key).pop('dispatched', False):
+                new = self.gate(key)                 # used up when it was sent (dispatch.send_gate): the parts gathered since then stay
+                bucket = self.parts(key)
+            else:
+                new = fresh(g, self.gate(key))
+                bucket = new['parts']
+                self.d['gates'][key] = new
+            new['done'] = new.get('done', 0) + 1
+            bucket[:] = sorted(set(bucket) | set(random.sample(range(1, g['part'] + 1), min(R['part'], g['part']))))
             self.p.dirty = True
         kronos = self.kronos_part(key, dispatch)
         bm, bonus, ship = self.claim_bonus(key, mark=not dispatch)   # timed gate bonus; one taken via Dispatch does not count as "taken" (forum 160334)
@@ -995,7 +1006,10 @@ class Run:
         i, group = self.queue.pop(0)
         self.due = now + random.uniform(*K['spawn_interval_sec']) * SET.multiplier('wave_wait')
         w = self.w
-        self.spawn_one(i, group, *far_spot(*w.hero_pos(), w.map_w, w.map_h))
+        # Kuiper IV's Streuner Turrets (speed 0) spawned 1,500-2,000 away out of sight and never came: the wave never ended and no portal
+        # appeared (player report 2026-11-02); a stationary alien spawns in sight
+        still = self.wave()['alien_spawns'][i].get('speed', 1) == 0
+        self.spawn_one(i, group, *far_spot(*w.hero_pos(), w.map_w, w.map_h, STATIONARY_DISTANCE if still else None))
 
     def tick(self, now):
         w, G = self.w, self.k.gate(self.key)
@@ -1017,7 +1031,9 @@ class Run:
                 self.cleared = cleared
                 w.send(self.sub_msgs())
             if self.queue or alive:
-                if not self.queue and alive <= 3 and alive != self.left:
+                # also when only stationary aliens are left, however many (they don't come to the player: Kuiper IV's 4 turrets)
+                if not self.queue and alive != self.left and (alive <= 3 or all(
+                        w.npcs[i].d.get('speed', 1) == 0 for i in self.npcs - self.keep if i in w.npcs)):
                     self.left = alive
                     w.send(self.say('wave_remaining', remaining=alive))
                 return
@@ -1131,6 +1147,7 @@ class Run:
             group.add(n.id)
             self.keep.add(n.id)
             n.invulnerable = lambda: self.guarding
+            n.hp_floor, n.at_floor = self.boss_floor(n), self.boss_at_floor
             self.boss = wave['alien_spawns'][i]['name']
         boss = self.boss_npc()
         cx, cy = boss.mover.pos(time.time()) if boss else w.hero_pos()
@@ -1151,6 +1168,18 @@ class Run:
 
     def boss_npc(self):
         return next((self.w.npcs[i] for i in self.keep if i in self.w.npcs and self.w.npcs[i].alive), None)
+
+    def boss_floor(self, b):
+        """The boss's HP floor until the next group: its share of the groups still to come (0 after the last one). Without it the Devourer was
+        killed in the first 10 s gap with 1 of 7 groups out and the gate ended (player report 2026-11-02)."""
+        total = len(self.wave()['groups'])
+        left = total - 1 - self.sub
+        return int(b.d['hp'] * left / total) if self.boss_wave() and left > 0 else 0
+
+    def boss_at_floor(self, b):
+        """In the gap the boss reached the next group's threshold (world.hit_npc): the shield returns and the next group comes at once."""
+        if self.next_group:
+            self.next_group = min(self.next_group, time.time())
 
     def shield(self, n, on):
         """The boss's Insta-Shield visual (VisualModifierCommand INVINCIBILITY: the client's NPC shield, game.xml invincibilityShield;
@@ -1188,6 +1217,7 @@ class Run:
         if self.next_group and now >= self.next_group:
             self.sub += 1
             self.next_group, self.left = 0, None
+            boss.hp_floor = self.boss_floor(boss)
             self.spawn()
 
     def wave_done(self, now):

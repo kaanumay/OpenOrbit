@@ -10536,6 +10536,21 @@
    "result": {
     "booster_dmg-b01": 1
    }
+  },
+  "recipe_blueprint-season-goliath-plus-helios": {
+   "usage": "USABLE_ONCE",
+   "visibility": "ALWAYS_VISIBLE",
+   "max_count": 1,
+   "scale": 1.0,
+   "stackable": false,
+   "duration_sec": 5,
+   "level": 0,
+   "parts": {
+    "resource_collectable_spvoucher": 10
+   },
+   "result": {
+    "ship_goliath-plus_design_goliath-plus-helios": 1
+   }
   }
  }
 }

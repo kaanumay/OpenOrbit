@@ -2573,7 +2573,7 @@
    "X-8": 1.0
   },
   "renew_sec": 15,
-  "cooldown_sec": 300,
+  "cooldown_sec": 30,
   "combat_sec": 1800,
   "closing_sec": 120,
   "boss": {
@@ -3016,7 +3016,7 @@
    ]
   ],
   "_source": "board-en 130459 (FAQ Kristallon Apotheosis); client 1.1.115 (window apotheosis, map 510, portal 307, VisualModifier 158 ice, 159 rift, 160 radiation guide); tools/version_115.py; defeat probabilities and weekly limits from the official server recording (2026-10-25)",
-  "_adaptation": "Single-player: the server-wide collection goal is the player's own points (1000); collection aliens per map 4 + 1-2 (copies of Icy, Kristallon, Boss Kristallon, their power is the map's 'power'), respawn in 15 s. The boss's HP, damage and the timing, area and damage of attacks are an adaptation (HP by the player's power, world_boss.scale; +15% per level); phases at 66% and 33%. Weekly rank in single-player from the week's defeat count: 3+ 1st, 2 2nd, 1 4th (rewards when it resets on Sunday). The participation reward is given once the damage dealt exceeds 1% of the boss's HP.",
+  "_adaptation": "Single-player: the server-wide collection goal is the player's own points (1000); collection aliens per map 4 + 1-2 (copies of Icy, Kristallon, Boss Kristallon, their power is the map's 'power'), respawn in 15 s. The boss's HP, damage and the timing, area and damage of attacks are an adaptation (HP by the player's power, world_boss.scale; +15% per level); phases at 66% and 33%. Weekly rank in single-player from the week's defeat count: 3+ 1st, 2 2nd, 1 4th (rewards when it resets on Sunday). The participation reward is given once the damage dealt exceeds 1% of the boss's HP. The boss comes 30 s after the portal opens (it was 5 min: the boss map stayed empty and looked broken, player report 2026-11-02; no wait in the wiki or the FAQ).",
   "weekly_limit": {
    "participation": 3,
    "defeats": 3,

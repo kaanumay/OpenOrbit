@@ -163,7 +163,9 @@ def _compute_spans(entries, t):
                 out.append((s, (e if e >= s else _day(b, y + 1)) + DAY, h))
     if dated and t >= KNOWN:                    # after the last known day: the runs of the last 52 weeks repeat every 52 weeks
         n = (t - KNOWN) // CYCLE + 1
-        out += [(s + k * CYCLE, e + k * CYCLE, h) for s, e, h in dated if KNOWN - CYCLE <= s < KNOWN for k in (n - 1, n) if k]
+        proj = [(s + k * CYCLE, e + k * CYCLE, h) for s, e, h in dated if KNOWN - CYCLE <= s < KNOWN for k in (n - 1, n) if k]
+        # a run already announced for those days replaces last year's (Chromin 2026-11-02..08 against 2025-11-04 + 52 weeks)
+        out += [p for p in proj if not any(p[0] < e and s < p[1] for s, e, _ in dated)]
     return out + dated + once
 
 

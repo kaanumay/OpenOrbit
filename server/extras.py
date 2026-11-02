@@ -14,7 +14,7 @@ Active ones (from the shortcut bar; combat_items.py):
   cloak            cloak CPU (CL04K-XS 1, M 10, XL 50 uses)            aim            AIM-01/02 miss rate -25%/-50% (10 Xenomit)
   insta_shield     Insta-Shield (ISH-01)                               smart_bomb     Smart Bomb (SMB-01)
   auto_rocket      AROL-X: the selected rocket on a laser attack      auto_launcher  RL-LB1: the loaded launcher on a laser attack
-Uses (right): in the profile (extra_uses), full when first fitted; added when bought (recharge).
+Uses (right): in the profile (extra_uses), one pool per lootId: every copy owned brings its own uses, from any source (extra_copies: copies counted).
 """
 import json, os
 
@@ -82,23 +82,25 @@ def unlimited(p, loot):
 
 
 def uses(p, loot):
-    """Remaining uses of a limited-use extra (HM-7 sales, Jump CPU jumps, cloaking): in the profile, full when first fitted."""
+    """Remaining uses of a limited-use extra (HM-7 sales, Jump CPU jumps, cloaking): one pool per lootId in the profile; each copy owned adds its
+    own uses when it is first counted (quest, pass, box and assembly copies too: only the shop used to add them, and a second CL04K-XL showed
+    0/50 once the first one's 50 cloaks were spent: player report 2026-11-02). Selling copies caps the pool at what the rest can hold."""
     if unlimited(p, loot):
         return UNLIMITED
-    st = p.d.setdefault('extra_uses', {})
+    right = X.get(loot, {}).get('right', 0)
+    st, seen = p.d.setdefault('extra_uses', {}), p.d.setdefault('extra_copies', {})   # no lock: use() calls this under p.lock
+    n = max(1, sum(1 for l in p.d['items'].values() if l == loot))
+    before, prev = (st.get(loot), seen.get(loot)), seen.get(loot, 1)
     if loot not in st:
-        st[loot] = X.get(loot, {}).get('right', 0)
-    return st[loot]
-
-
-def recharge(p, loot, n=1):
-    """An extra that has uses was bought: n of its uses are added."""
-    if 'right' not in X.get(loot, {}):
-        return
-    with p.lock:
-        st = p.d.setdefault('extra_uses', {})
-        st[loot] = st.get(loot, 0) + X[loot]['right'] * n
+        st[loot] = right * n
+    elif n > prev:
+        st[loot] += right * (n - prev)
+    elif n < prev:
+        st[loot] = min(st[loot], right * n)
+    seen[loot] = n
+    if (st[loot], n) != before:
         p.dirty = True
+    return st[loot]
 
 
 def attached(p, loot):

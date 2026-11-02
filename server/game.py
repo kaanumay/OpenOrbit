@@ -132,8 +132,19 @@ class Templates:
     def __init__(self):
         self.entry = _load('login.json', {})
         self.maps = _load('maps.json', {})
-        for w in self.maps.values():
+        for map_id, w in self.maps.items():
             w['ready'] = [m for m in w.get('ready', []) if not (m['_m'] == 'JumpgateCreateCommand' and m['designId'] in SERVER_GATE_DESIGNS)]
+            seen = set()
+            for m in list(w['ready']):
+                if m['_m'] != 'JumpgateCreateCommand':
+                    continue
+                if m['gateId'] in seen:                 # the 2-2 record lists each portal twice
+                    w['ready'].remove(m)
+                    continue
+                seen.add(m['gateId'])
+                p = H.ML.gate_pos(int(map_id), m['gateId'] - H.GATE_ID_BASE)
+                if p:       # World Editor: a recorded map's (2-1, 2-2) portal is drawn where it was moved (the jump already used the new spot)
+                    m['x'], m['y'] = p
         # only the ones used (E10): the code covers all the others; the record account's data (other players' names, clan
         # lists) must not leak into the window from a request's backup. They stay in the file: the source of the tools (rank, pve_modes, ranking_rewards)
         self.replies = {k: v for k, v in _load('responses.json', {}).items() if k in USED_RESPONSES}

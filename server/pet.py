@@ -55,6 +55,11 @@ DESIGNS = PET['designs']
 PASSIVE, GUARD, AUTO_LOOT, AUTO_RESOURCE, ENEMY_LOCATOR, RESOURCE_LOCATOR = 1, 2, 4, 5, 6, 7
 TRADE_POD, REPAIR_PET, KAMIKAZE, COMBO_REPAIR, COMBO_GUARD = 8, 9, 10, 11, 12
 TRADE_BUFF = 3                          # the client's game.xml petBuffs: trade_buff.png / ttip_pet_trading
+# gear cooldowns in the P.E.T. window's buff row (PetBuffCommand, seconds; the client counts down and shows "<gear> may not be selected
+# until its cooldown has ended. Cooldown: m:ss"); ids read live from the client's icons and tooltips (2026-11-02): 5 Kamikaze,
+# 6 Combo Ship Repair, 7 Sacrificial Flame, 8 Retargeting, 9 HP Link, 10 Mega Mine, 11 Combat Beacon, 12 HP Beacon, 13 Heat Release
+# (1 Singularity, 2 Speed Leech and 4 Weaken Shield draw nothing in this client)
+COOLDOWN_BUFF = {}                      # filled below, once the gear types are known
 RETARGETING, HP_LINK, MEGA_MINE, COMBAT_BEACON, HP_BEACON, HEAT_RELEASE = 15, 16, 17, 18, 19, 20
 WORKING = {PASSIVE, GUARD, AUTO_LOOT, AUTO_RESOURCE, ENEMY_LOCATOR, RESOURCE_LOCATOR, TRADE_POD, REPAIR_PET, KAMIKAZE, COMBO_REPAIR,
            COMBO_GUARD, HEAT_RELEASE, HP_LINK, COMBAT_BEACON, HP_BEACON}
@@ -63,6 +68,7 @@ FIGHTING = {GUARD, KAMIKAZE, COMBO_GUARD, HP_LINK}
 TIMED = {HP_LINK: 'hp-link', COMBAT_BEACON: 'combat-beacon', HP_BEACON: 'hp-beacon'}
 BEACONS = (COMBAT_BEACON, HP_BEACON)
 READY_NAMES = {**TIMED, KAMIKAZE: 'kamikaze'}     # when the cooldown ends: msg_pet_<name>-gear_cooldown_ready
+COOLDOWN_BUFF.update({KAMIKAZE: 5, COMBO_REPAIR: 6, HP_LINK: 9, COMBAT_BEACON: 11, HP_BEACON: 12, HEAT_RELEASE: 13})
 START_MAPS = ('1-1', '2-1', '3-1')       # G-KK1 is not selectable (client msg_pet_kamikaze-gear_not_on_start_maps)
 FUEL_WARN = 0.1                          # when fuel drops to 10% of the maximum, msg_pet_running_out_of_fuel (the ratio is an adaptation)
 FOLLOW_AHEAD = 1.0                       # while following, how many seconds behind the ship's future position to stay (follow)
@@ -189,6 +195,9 @@ class Pet:
         self.beacon = None           # G-BC1/G-BH1 marker: (type, x, y, end)
         self.in_beacon = False       # the ship is within the marker's range: the bonus is on the ship
         self.ready = {}              # gears on cooldown (TIMED): type -> cooldown end
+        self.charge_end = 0.0        # G-KK1 flying at its target: explodes on arrival
+        self.rep_state = None        # G-REP state last sent (PetGearActivationChangeCommand: on while the P.E.T. is hurt)
+        self.buffs_sent = {}         # cooldown buffs in the window: buff id -> cooldown end (buff_msgs)
         self.look = None             # the look (ship type) the client knows: PetLevelUpdateCommand only when it changes
         self.release_wait = False    # a "ready" message will go when the cooldown ends
         self.heat_sent, self.next_heat_msg = None, 0.0
@@ -505,7 +514,50 @@ class Pet:
     def gear_msgs(self):
         msgs = [('PetGearAddCommand', dict(gearType=gear_type(t), level=lv, amount=0, enabled=ok)) for t, lv, ok in self.gear_list()]
         self.targets_sent = {}
-        return msgs + self.locator_msgs() + [self.select_msg()]
+        self.rep_state = None                    # the G-REP state goes again with the next second
+        return msgs + self.locator_msgs() + self.cooldown_msgs(time.time()) + [self.select_msg()]
+
+    def cooldown_msgs(self, now):
+        """Gears still cooling down are grey again (PetGearAddCommand comes enabled): after a kamikaze and repair, a relaunch or a map change
+        Kamikaze, HP Link, the beacons and Heat Release looked ready while on cooldown (player report 2026-11-02: "no Kami timer")."""
+        off = [t for t, r in self.ready.items() if r > now] + ([HEAT_RELEASE] if self.release_ready > now else [])
+        installed = self.installed_gears()
+        return [('PetGearActivationChangeCommand', dict(gearType=gear_type(t), active=False)) for t in off if t in installed]
+
+    def cooldown_ends(self, now):
+        """Gears cooling down -> {gear type: end}."""
+        out = {t: r for t, r in self.ready.items() if r > now}
+        if self.release_ready > now:
+            out[HEAT_RELEASE] = self.release_ready
+        if self.csr_end <= now < self.csr_ready:
+            out[COMBO_REPAIR] = self.csr_ready
+        return out
+
+    def buff_msgs(self, now):
+        """The cooldown buffs of the P.E.T. window (bottom left, where the trade buff is): added with the seconds left when a cooldown
+        starts (also while the P.E.T. is destroyed, as after a kamikaze), removed when it ends (player report 2026-11-02: no Kamikaze timer)."""
+        want = {COOLDOWN_BUFF[t]: e for t, e in self.cooldown_ends(now).items() if t in COOLDOWN_BUFF}
+        msgs = [('PetBuffCommand', dict(effectAction=0, effectId=b, addingParameters=[max(1, int(math.ceil(e - now)))]))
+                for b, e in sorted(want.items()) if self.buffs_sent.get(b) != e]
+        msgs += [('PetBuffCommand', dict(effectAction=1, effectId=b, addingParameters=[])) for b in sorted(self.buffs_sent) if b not in want]
+        self.buffs_sent = want
+        return msgs
+
+    def cooldown_step(self, now):
+        """Cooldowns end also while the P.E.T. is in the hangar or destroyed (after a kamikaze it is always destroyed: the ready message and the
+        gear's state never came until it was repaired and launched)."""
+        msgs = []
+        if self.release_wait and now >= self.release_ready:
+            self.release_wait = False
+            msgs += [legacy('0|A|STM|msg_pet_heat-release-gear_cooldown_ready'),
+                     ('PetGearActivationChangeCommand', dict(gearType=gear_type(HEAT_RELEASE), active=True))]
+        for t in [t for t, r in self.ready.items() if now >= r]:          # cooldown over: the gear can be selected again
+            del self.ready[t]
+            msgs += [legacy('0|A|STM|msg_pet_%s-gear_cooldown_ready' % READY_NAMES[t]),
+                     ('PetGearActivationChangeCommand', dict(gearType=gear_type(t), active=True))]
+        msgs += self.buff_msgs(now)
+        if msgs:
+            self.send(msgs)
 
     def locator_msgs(self, changed=False):
         """Target lists of the equipped locator gears (PetLocatorGearInitializationCommand; the client replaces the list:
@@ -758,6 +810,7 @@ class Pet:
             self.end_link(now, notify=False)
         self.beacon, self.in_beacon = None, False
         self.active, self.task, self.trading = False, None, False
+        self.charge_end = 0.0
         self.stop_heat(now)                      # the cooling delay starts
         msgs = self.abort_msgs() if self.shooting else []
         self.shooting = None
@@ -1004,12 +1057,14 @@ class Pet:
             self.stop_heat(time.time())          # it does not cool during the transition (the delay lasts until it relaunches)
             self.release_end = 0.0
         self.w, self.active, self.task, self.shooting = world, False, None, None
+        self.charge_end = 0.0
         self.relaunch = self.relaunch or was
 
     def on_ready(self):
         """Map loaded (ReadyRequest): if it was active on the previous map it launches again."""
         if self.trade_wait and self.w:
             self.send(self.trade_block_msgs(time.time()))          # map changed: the client asks again for the lock and the icon
+        self.buffs_sent = {}                                        # the cooldown buffs again with the next tick (new map, login)
         if self.relaunch and self.w:
             self.relaunch = False
             with self.w.lock:
@@ -1034,6 +1089,8 @@ class Pet:
         """From the world loop (under the lock): follow, collect, fire, fuel, repair, locator."""
         if self.trade_wait and self.w and now >= self.trade_ready:
             self.trade_unblock()
+        if self.w:
+            self.cooldown_step(now)
         if not self.active or not self.alive or not self.w:
             return
         w = self.w
@@ -1057,6 +1114,10 @@ class Pet:
                 self.send([self.fuel_msg(), ('PetOutOfFuelCommand', {}), self.init_msg()])
                 self.deactivate(msg='msg_pet_out_of_fuel')
                 return
+        if self.charge_end:                      # G-KK1 on its way: no following, no fighting
+            if now >= self.charge_end:
+                self.kamikaze(now)
+            return
         if now >= self.next_second:
             self.next_second = now + 1.0
             self.each_second(now)
@@ -1073,6 +1134,7 @@ class Pet:
         self.follow(now)
 
     def each_second(self, now):
+        self.cooldown_step(now)                  # (tick runs it too, also while inactive; repeating it is harmless)
         w, d, msgs = self.w, self.d, []
         if self.release_end:
             msgs += self.release_step(now)
@@ -1088,17 +1150,14 @@ class Pet:
             elif int(d['heat']) != self.heat_sent and now >= self.next_heat_msg:
                 self.heat_sent, self.next_heat_msg = int(d['heat']), now + 5      # the gauge at most every 5 s
                 msgs.append(self.heat_msg(now))
-        if self.release_wait and now >= self.release_ready:
-            self.release_wait = False
-            msgs += [legacy('0|A|STM|msg_pet_heat-release-gear_cooldown_ready'),
-                     ('PetGearActivationChangeCommand', dict(gearType=gear_type(HEAT_RELEASE), active=True))]
         if self.link_end and now >= self.link_end:
             msgs += self.end_link(now, notify=False)
         msgs += self.beacon_step(now)
-        for t in [t for t, r in self.ready.items() if now >= r]:          # cooldown over: the gear can be selected again
-            del self.ready[t]
-            msgs += [legacy('0|A|STM|msg_pet_%s-gear_cooldown_ready' % READY_NAMES[t]),
-                     ('PetGearActivationChangeCommand', dict(gearType=gear_type(t), active=True))]
+        if REPAIR_PET in self.installed_gears():       # real recording: G-REP is on while the P.E.T. is hurt, off once it is full
+            hurt = d['hp'] < self.hp_max()
+            if hurt != self.rep_state:
+                self.rep_state = hurt
+                msgs.append(('PetGearActivationChangeCommand', dict(gearType=gear_type(REPAIR_PET), active=hurt)))
         if int(d['fuel']) != self.fuel_sent and now >= self.next_fuel_msg:
             self.fuel_sent, self.next_fuel_msg = int(d['fuel']), now + 10      # the fuel gauge at most every 10 s
             msgs.append(self.fuel_msg())
@@ -1459,11 +1518,36 @@ class Pet:
         """G-KK1 selected, not on cooldown, not on a starting map."""
         return self.d.get('gear') == KAMIKAZE and now >= self.ready.get(KAMIKAZE, 0) and not self.start_map()
 
-    def ship_hurt(self, now):
-        """The ship took damage (world.hurt_hero): G-KK1 also explodes when the ship's HP drops below the threshold (client "your P.E.T. or ship")."""
+    def ship_hurt(self, now, attacker=None):
+        """The ship took damage (world.hurt_hero): G-KK1 goes off when the ship's HP drops below the threshold (client "your P.E.T. or ship") and
+        when an alien attacks the ship (fandom Kamikaze Gear: "activates when the player or P.E.T. is attacked by any damage source"). Aliens never
+        fire at the P.E.T. here, so its own HP threshold was hardly ever reached and the gear looked dead (player report 2026-11-02)."""
+        if not (self.active and self.alive and self.w) or self.charge_end or not self.kamikaze_armed(now):
+            return
         ship = self.p.d['ship']
-        if self.active and self.kamikaze_armed(now) and ship.get('hitPoints', 0) <= ship.get('hitMax', 0) * self.gear(KAMIKAZE).get('threshold', 0):
-            self.kamikaze(now)
+        if ship.get('hitPoints', 0) <= ship.get('hitMax', 0) * self.gear(KAMIKAZE).get('threshold', 0) or getattr(attacker, 'mover', None):
+            self.charge(now, attacker)
+
+    def charge(self, now, attacker=None):
+        """G-KK1 flies straight at the locked target, else at the alien that hit the ship, and explodes there (fandom Kamikaze Gear); with
+        neither it explodes where it is. It used to explode at once next to the ship, where the aliens it was meant for often weren't."""
+        w = self.w
+        n = w.npcs.get(w.target)
+        if not (n and n.alive and not n.d.get('friendly')):
+            n = attacker if getattr(attacker, 'alive', False) and getattr(attacker, 'mover', None) else None
+        if n is None:
+            return self.kamikaze(now)
+        tx, ty = n.mover.pos(now)
+        px, py = self.pos(now)
+        dist = math.hypot(tx - px, ty - py)
+        if dist <= self.gear(KAMIKAZE)['range'] * 0.5:
+            return self.kamikaze(now)
+        speed = max(1, self.speed())
+        if self.shooting:
+            self.stop_shooting()
+        self.move(tx, ty, speed, now)
+        self.charge_end = now + dist / speed
+        self.log('   P.E.T. kamikaze: flying at %s (%d away)' % (n.d.get('name', n.id), dist))
 
     def kamikaze(self, now):
         """Kamikaze gear: explodes when HP drops below the threshold, damages nearby NPCs (the P.E.T. is destroyed), the cooldown starts (wiki
@@ -1472,11 +1556,13 @@ class Pet:
         px, py = self.pos(now)
         hit = [n for n in list(w.npcs.values()) if n.alive and math.hypot(n.mover.pos(now)[0] - px, n.mover.pos(now)[1] - py) <= kamikaze_cfg['range']]
         assets = self.assets_in_blast(px, py, kamikaze_cfg['range'])
+        self.charge_end = 0.0
         self.ready[KAMIKAZE] = now + kamikaze_cfg.get('cooldown_sec', 0)
         with self.p.lock:
             self.d['gear'] = GUARD
             self.p.dirty = True
         self.destroyed(DESTROYED_KAMIKAZE)
+        self.send([('PetGearActivationChangeCommand', dict(gearType=gear_type(KAMIKAZE), active=False))])   # grey while cooling down
         for n in hit:
             w.hit_npc(n.id, kamikaze_cfg['damage'], 1, attacker=self.pid)
         for uid in assets:

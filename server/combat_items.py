@@ -173,7 +173,9 @@ def _first(p, key):
 
 
 def jump_loot(p):
-    return next((l for l, v in EX.props(p, 'jump') if 'right' in EX.X[l]), None)
+    """The fitted jump CPU: the first with uses left (else the first, for the "no uses" message)."""
+    cpus = [l for l, v in EX.props(p, 'jump') if 'right' in EX.X[l]]
+    return next((l for l in cpus if EX.uses(p, l) > 0), cpus[0] if cpus else None)
 
 
 def has_ajp(p):
@@ -181,7 +183,9 @@ def has_ajp(p):
 
 
 def cloak_loot(p):
-    return _first(p, 'cloak')
+    """The fitted cloak CPU: the first with uses left (an empty XL no longer blocks a fitted M), else the first."""
+    cpus = [l for l, v in EX.props(p, 'cloak')]
+    return next((l for l in cpus if EX.uses(p, l) > 0), cpus[0] if cpus else None)
 
 
 def toggled(p, item):
@@ -1173,6 +1177,8 @@ class Items:
         first = salvo(w.hid, uid, hit, cnt, cfg['type'])
         self.send([first, legacy('0|RL|S|%d|%d|0' % (launcher_type(p), cfg['uid']))] + self.status(S['launcher']['menu']))
         self.log('   launcher: %d x %s%s' % (cnt, ammo, '' if hit else ' (miss)'))
+        if p.lab_bonus(1):
+            w.lab_spend(1, cnt)                         # rocket upgrade: one per rocket of the volley (like the single rocket, misses too)
         if not hit:
             return
         mods = p.mods()

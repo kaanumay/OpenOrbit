@@ -267,7 +267,7 @@
     [
      15,
      "ammunition_spool_gsp-75",
-     1000
+     800
     ],
     [
      16,
@@ -327,7 +327,7 @@
     [
      27,
      "ammunition_spool_gsp-75",
-     1000
+     800
     ],
     [
      28,
@@ -589,7 +589,7 @@
     [
      13,
      "ammunition_laser_a-bl",
-     6000
+     5000
     ],
     [
      14,
@@ -614,7 +614,7 @@
     [
      18,
      "ammunition_spool_gsp-150",
-     2000
+     1500
     ],
     [
      19,
@@ -689,7 +689,7 @@
     [
      33,
      "ammunition_laser_spacecup_group-c",
-     6000
+     5000
     ],
     [
      34,
@@ -699,7 +699,7 @@
     [
      35,
      "ammunition_laser_a-bl",
-     6000
+     5000
     ],
     [
      36,
@@ -739,7 +739,7 @@
     [
      43,
      "resource_collectable_luminaflux-alloy",
-     4000
+     3000
     ],
     [
      44,
@@ -875,7 +875,7 @@
    "ext": [
     [
      0,
-     "ship_hyperion",
+     "package_seasonpass-gold-giant",
      1
     ],
     [
@@ -896,7 +896,7 @@
     [
      4,
      "ammunition_laser_spacecup_group-c",
-     4000
+     5000
     ],
     [
      5,
@@ -916,7 +916,7 @@
     [
      8,
      "ammunition_spool_gsp-300",
-     1000
+     500
     ],
     [
      9,
@@ -966,7 +966,7 @@
     [
      18,
      "ammunition_laser_a-bl",
-     10000
+     8000
     ],
     [
      19,
@@ -981,7 +981,7 @@
     [
      21,
      "ammunition_spool_gsp-300",
-     2000
+     1000
     ],
     [
      22,
@@ -991,7 +991,7 @@
     [
      23,
      "ammunition_laser_rsb-75",
-     10000
+     8000
     ],
     [
      24,
@@ -1041,7 +1041,7 @@
     [
      33,
      "ammunition_laser_spacecup_group-c",
-     8000
+     5000
     ],
     [
      34,
@@ -1120,7 +1120,7 @@
     ],
     [
      49,
-     "resource_collectable_ether-shard",
+     "equipment_weapon_laser_lf-5-mf",
      1
     ],
     [
@@ -1146,7 +1146,7 @@
     [
      59,
      "resource_collectable_ether-shard",
-     2
+     1
     ],
     [
      60,
@@ -1171,7 +1171,7 @@
     [
      69,
      "resource_collectable_ether-shard",
-     2
+     1
     ],
     [
      70,
@@ -1196,7 +1196,7 @@
     [
      79,
      "resource_collectable_ether-shard",
-     2
+     1
     ],
     [
      80,
@@ -11911,7 +11911,8 @@
    },
    {
     "id": "2026-11",
-    "start": "2026-10-26"
+    "start": "2026-11-01",
+    "end_time": "2027-01-24"
    }
   ],
   "refresh_ladder": [
