@@ -1085,7 +1085,7 @@
 "How often the bonus gates change (aligned to midnight; 24: every day). Changing it renews the selection right away.": "Bonuslu kapıların değiştiği aralık (gece yarısına hizalı; 24: her gün). Değiştirilince seçim hemen yenilenir.",
 "How the ship is moved. If the ship stutters or does not move, try the other one.": "Geminin nasıl hareket ettirileceği. Gemi takılıyorsa ya da hareket etmiyorsa diğerini dene.",
 "Hull damage from radiation outside the map border. 0: radiation does no harm.": "Harita sınırının dışındaki radyasyonun gövdeye verdiği hasar. 0: radyasyon zarar vermez.",
-"Hunt": "Avlanma",
+"Hunt": "Avla",
 "Hunt all": "Hepsini avla",
 "Hunting PvP": "PvP avında",
 "I helped": "yardım ettim",
