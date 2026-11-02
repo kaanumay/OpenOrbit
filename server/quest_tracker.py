@@ -11,7 +11,7 @@ Condition types are the client's ConditionType enum (from the compiled code); th
   34 VISIT_MAP                                51 CARGO (cargo box)                            52 SELL_ORE ([old ore id])
   53 LEVEL (level)                            55 COLLECT_BONUS_BOX                            67 COLLECT_LOOT ([lootId ...])
   66 IN_CLAN (clan event)                     68 FINISH_STARTER_GATE (gate event, type=STARTER_GATE; Devolarium Attack gate)
-  72 USE_ORE_UPDATE ([LASER|ROCKET|SPEED|SHIELD, ORE]; upgrade in the laboratory: ore_update event)
+  72 USE_ORE_UPDATE ([LASER|ROCKET|SPEED|SHIELD, ORE]; upgrade in the laboratory: ore_update event; counts the ore loaded)
   80 FINISH_GALAXY_GATES ([count, name ..., map ...])   85 COLLECT_BUILT_RECIPE ([recipe]; Assembly)
   87 COMPLETED_OBJECTIVES (a finished Battle Pass quest)   89 SPEND_ITEM ([lootId])
   95 COMPLETE_SEASON_PASS_QUESTS ([2 season | 5 daily | 6 weekly])   96 LOGIN   100 RECHARGE_AMOUNT (single player: Uridium Bank)
@@ -114,7 +114,10 @@ def measure(c, kind, kw, map_id=None):
     if t == 68 and kind == 'gate':
         return 1 if kw.get('type') == 'STARTER_GATE' else 0
     if t == 72 and kind == 'ore_update':
-        return 1 if len(m) > 1 and m[0] == kw.get('type') and kw.get('ore') == 'resource_ore_' + m[1].lower() else 0
+        # the ore loaded, not the number of upgrades ("Upgrade your Rockets with Seprom (0/80)": 80 Seprom at once is 80/80)
+        if len(m) > 1 and m[0] == kw.get('type') and kw.get('ore') == 'resource_ore_' + m[1].lower():
+            return int(kw.get('amount', 1))
+        return 0
     if t == 80 and kind == 'gate':
         names = counted(m)
         return 1 if not names or str(kw.get('type', '')).replace('_GATE', '') in names else 0

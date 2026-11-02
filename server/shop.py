@@ -556,7 +556,8 @@ class Shop:
         self.log('   upgrade: part %d <- %s x%d (total %d)' % (item, ORES.get(t), n, ups[str(item)][1]))
         return ([('AttributeOreCountUpdateCommand', {'oreCountList': totals}), self.ore_pack([t]), self.lab_cmd()] + self.apply_stats()
                 + [legacy('0|A|STM|%s' % key)]
-                + (self.quest('ore_update', type=('LASER', 'ROCKET', 'SPEED', 'SHIELD')[item], ore=ORES.get(t)) if self.quest else []))
+                + (self.quest('ore_update', type=('LASER', 'ROCKET', 'SPEED', 'SHIELD')[item], ore=ORES.get(t), amount=n)
+                   if self.quest else []))
 
     def item_id(self, loot):
         return self.p.d['item_id'].get(loot) or self.tpl_ids.get(loot) or self.p.item_id(loot)
