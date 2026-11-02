@@ -1074,7 +1074,7 @@ const GATE_REWARD_FIELD = [['ep', N('Experience'), 'source_experience'], ['honor
 const ROMAN = n => ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII', 'XIII', 'XIV', 'XV'][n] || String(n + 1);
 
 async function weGates(area, b) {
-  const r = await act(() => api('/api/world/section?section=kapilar&world=' + encodeURIComponent(DE.did))); if (!r || DE.section !== 'gates') return;
+  const r = await act(() => api('/api/world/section?section=gates&world=' + encodeURIComponent(DE.did))); if (!r || DE.section !== 'gates') return;
   const f = DE.sec.qp || (DE.sec.qp = { selected: r.gates[0]?.key, on: {} });
   const entries = h('div', { class: 'we-npc-list' }), detail = h('div', { class: 'we-detail' });
   const render = () => {
