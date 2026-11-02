@@ -213,7 +213,7 @@ class Cbs:
         self.starmap_tpl = None                 # the login's StarmapStationCommand template (resent when it changes)
         self.home = None                        # bound per session: base map
         self.prime = None                       # last known Prime Time state (announcement on transition)
-        self.seen = {}                          # last seen (version, state) of the shared asteroids: refreshed when it changes
+        self.seen = {}                          # last seen (version, state, diplomacy) of the shared asteroids: refreshed when it changes
 
     # ------------------------------------------------------------ profile
     @property
@@ -428,6 +428,17 @@ class Cbs:
             return 0
         k = self.clan()
         return (KL.clan_relation(k['id'], a.get('clan')) if k else 0) or 3
+
+    def diplomacy(self, a):
+        """The relation shown (ClanRelationModule.type, star map colour): rival 3, own clan 0, another clan's real diplomacy (0 none, 1 alliance,
+        2 non-aggression, 3 war). relation() stays the attack rule (no diplomacy: attackable); only a war is shown hostile (player report
+        2026-11-02: allied and non-enemy clans' stations were red on the star map)."""
+        if a.get('owner') == 'rival':
+            return 3
+        if self.mine(a):
+            return 0
+        k = self.clan()
+        return KL.clan_relation(k['id'], a.get('clan')) if k else 0
 
     def own_module(self, iid):
         return self.st['modules'].get(str(iid))
@@ -684,7 +695,7 @@ class Cbs:
         rival = a.get('owner') == 'rival'
         clan = {'id': 9000 + aid, 'tag': (a.get('rival') or '')[:3].upper()} if rival else self.st_clan(a)
         fac = a.get('rival_company', 0) if rival else self.st_faction(a)
-        rel = self.relation(a)
+        rel = self.diplomacy(a)
         stage = self.hub_stage(aid)
         out = [(asset_id(aid), BATTLESTATION, self.asset_cmd(asset_id(aid), BATTLESTATION, x, y, a.get('rival') if rival else self.st_name(a),
                                                              stage=stage, clan=clan, faction=fac, relation=rel))]
@@ -750,7 +761,7 @@ class Cbs:
 
     def show_assets(self, map_id):
         msgs = self.remove_assets()
-        self.seen = {int(k): (a.get('version', 0), a.get('state')) for k, a in self.asteroids.items()}
+        self.seen = {int(k): self.seen_key(a) for k, a in self.asteroids.items()}
         for aid in BY_MAP.get(int(map_id), []):
             for i, k, cmd in self.map_assets(aid):
                 self.shown_assets.append((i, k))
@@ -825,7 +836,7 @@ class Cbs:
             s['lastChangedTimestamp'] = 0               # ownerless: not the change time the recorded account saw (E10)
             if a['state'] in ('built', 'building'):
                 rival = a.get('owner') == 'rival'
-                s.update(status=OWN if self.mine(a) else HOSTILE, clanName=a.get('rival') if rival else self.st_name(a),
+                s.update(status=OWN if self.mine(a) else HOSTILE if self.diplomacy(a) == 3 else NEUTRAL, clanName=a.get('rival') if rival else self.st_name(a),
                          owningFaction=mod('FactionModule', faction=a.get('rival_company', 0) if rival else self.st_faction(a)),
                          lastChangedTimestamp=int(a.get('founded', time.time()) * 1000))
         f['currentServerTimestamp'] = int(time.time() * 1000)
@@ -880,19 +891,23 @@ class Cbs:
                     if n == 'AssetInfoCommand' and f['assetId'] != w.target else (n, f) for n, f in msgs]
         return msgs
 
+    def seen_key(self, a):
+        """What the view of a shared asteroid depends on: its version, state and (built/building) the owner's diplomacy with the player's clan."""
+        return a.get('version', 0), a.get('state'), self.diplomacy(a) if a.get('state') in ('built', 'building') else 0
+
     def refresh_changed(self):
         """Shared asteroids whose version changed (another session's work or the server's timed job): the entities of those on the map,
-        the window of the one nearby; built/destroyed: the galaxy map."""
+        the window of the one nearby; built/destroyed or the owner's diplomacy with the player's clan changed: the galaxy map."""
         msgs, star = [], False
         w = self.world
         for aid_s, a in list(self.asteroids.items()):
             aid = int(aid_s)
-            v = (a.get('version', 0), a.get('state'))
+            v = self.seen_key(a)
             old = self.seen.get(aid)
             self.seen[aid] = v
             if old == v or aid not in ASTEROIDS:
                 continue
-            star = star or (old or (0, 'vacant'))[1] != v[1]
+            star = star or (old or (0, 'vacant', 0))[1:] != v[1:]
             if int(ASTEROIDS[aid]['map']) == int(w.map_id):
                 msgs += self.refresh_assets(aid)
                 if self.near == aid:
@@ -976,7 +991,7 @@ class Cbs:
         a = self.ast(aid)
         if out and out[0][0] != 'BattleStationErrorCommand':
             self.bump(a)                               # let the other sessions refresh; this session refreshed with the reply
-            self.seen[aid] = (a.get('version', 0), a.get('state'))
+            self.seen[aid] = self.seen_key(a)
         return out
 
     def equip(self, aid, iid, slot, replace):
@@ -1338,7 +1353,7 @@ class Cbs:
             msgs += self.destroy(aid, by)
         elif self.world:
             msgs += self.refresh_assets(aid)
-            self.seen[aid] = (a.get('version', 0), a.get('state'))
+            self.seen[aid] = self.seen_key(a)
         return msgs
 
     def clan_asteroids(self, k):
@@ -1419,7 +1434,7 @@ class Cbs:
         msgs += self.starmap_msgs()
         if self.world:
             msgs += self.refresh_assets(aid)
-        self.seen[aid] = (self.ast(aid).get('version', 0), 'vacant')
+        self.seen[aid] = (self.ast(aid).get('version', 0), 'vacant', 0)
         if self.near == aid and not rival:
             msgs += [self.building_ui(aid), self.available_msg()]
         return msgs

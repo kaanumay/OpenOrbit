@@ -5,8 +5,9 @@ record's order), boostedDetailsUpdate: [BoosterPlayerDetailModule {lootId, secon
 {lootId}]}. The player in the record had no boosters (all 0); the value is a percentage number (the client's texts "+%BOOSTERVALUE%%"),
 not verified live. Booster dropped by an alien: BoosterFoundOnMapCommand {lootId, hours}.
 Rules (wiki, belgeler/wiki/extras_cpu_tech.md): a shop booster lasts, from the moment it is bought, as long as the client's hour table says
-(B01/B02 10, DLB 1, KAPPA 5, EP-50 24 …; items.json boosters), and also runs offline; ones dropped by aliens last
-1-10 hours and stop while offline. Boosters of the same type are summed, with a per-type cap (damage 35%, HP 30%, shield 80% …). When
+(B01/B02 10, DLB 1, KAPPA 5, EP-50 24 …; items.json boosters); ones dropped by aliens last 1-10 hours. Every booster's time runs only
+while online (the client's FAQ booster_main_p: "Time will only be deducted on the space map"; Fandom Booster: "only runs out in game, not
+when you are logged out"; player report 2026-11-02: a 10-hour shop booster was gone after a night offline). Boosters of the same type are summed, with a per-type cap (damage 35%, HP 30%, shield 80% …). When
 several of the same booster are obtained, their durations add up.
 """
 import json, os, random, time
@@ -36,8 +37,14 @@ def is_booster(loot):
 
 
 def state(p):
-    """Boosters in the profile: lootId -> {end_time: the moment a shop one ends, remaining: seconds left of one dropped by an alien}."""
-    return p.d.setdefault('boosters', {})
+    """Boosters in the profile: lootId -> {remaining: seconds left (counted down online by tick), end_time: old saves only}."""
+    st = p.d.setdefault('boosters', {})
+    for e in st.values():
+        if e.get('end_time'):           # old save: a shop booster ran on the wall clock; what is left of it from now on runs online only
+            e['remaining'] = e.get('remaining', 0) + max(0.0, e['end_time'] - time.time())
+            e['end_time'] = 0
+            p.dirty = True
+    return st
 
 
 def left(p, loot, now=None):
@@ -77,26 +84,23 @@ def mods(p, now=None):
 
 
 def add(p, loot, n=1, seconds=None, hours=None):
-    """n of them from the shop (the time runs in real time; hours: its own duration), or if seconds is given, one dropped by an alien
-    (stops offline). Alias (a booster the client does not know): the equivalents with their own hours."""
+    """n of them from the shop (hours: its own duration), or if seconds is given, one dropped by an alien; both run online only.
+    Alias (a booster the client does not know): the equivalents with their own hours."""
     if loot in ALIAS:
         for other, h in ALIAS[loot]:
             add(p, other, n, hours=h)
         return
-    now = time.time()
     with p.lock:
         e = state(p).setdefault(loot, {'end_time': 0, 'remaining': 0})
         if seconds is None:
             h = hours or B['hour'].get(loot)
-            duration = h * 3600 if h else B['duration_sec']
-            e['end_time'] = max(e.get('end_time', 0), now) + n * duration * SET.multiplier('booster_duration')     # panel: booster duration
-        else:
-            e['remaining'] = e.get('remaining', 0) + seconds * SET.multiplier('booster_duration')
+            seconds = n * (h * 3600 if h else B['duration_sec'])
+        e['remaining'] = e.get('remaining', 0) + seconds * SET.multiplier('booster_duration')     # panel: booster duration
         p.dirty = True
 
 
 def tick(p, now, dt):
-    """Time spent online: the duration of a booster dropped by an alien (once the shop one ends) decreases. -> lootIds whose time ran out."""
+    """Time spent online: the boosters' remaining time decreases. -> lootIds whose time ran out."""
     gone = []
     with p.lock:
         for loot, e in list(state(p).items()):

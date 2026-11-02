@@ -24,6 +24,16 @@ def candidates(bot):
     return bot._candidates
 
 
+def ship_affinity(bot, ship):
+    """How much the bot likes flying this ship (power factor): its ship family (taste) +25%, every other ship a lasting personal liking of
+    -8%..+8% (from the name). Without it every bot ended on the Citadel, the ship with the highest power score and an 80,000 U price, and
+    nothing else counted as better afterwards (player report 2026-11-02: "every bot is a Citadel")."""
+    if PS.taste(bot.k['personality']) in ship:
+        return 1.25
+    import zlib
+    return 0.92 + 0.16 * (zlib.crc32(('%s|%s' % (bot.name, ship)).encode()) % 1000) / 999.0
+
+
 def _candidates(bot):
     e = bot.k['gear']
     shield_share = bot.shield_share()
@@ -46,9 +56,13 @@ def _candidates(bot):
         if filler:                                        # the drone's empty slots get filled by the laser to be bought later
             y['laser'][filler[0]] = y['laser'].get(filler[0], 0) + filler[1]
         new_values = K.values(y, shield_share)
-        increase = new_values['power'] - base + 0.02 * (new_values['speed'] - base_values['speed']) * (0.5 + bot.o('risk'))    # speed is not in power: it helps with escaping and hunting
-        if loot.startswith('ship_'):                     # taste: affinity to the ship family it likes (so that not everyone converges on the same ship)
-            increase *= 1.35 if PS.taste(bot.k['personality']) in loot else 0.9
+        power = new_values['power'] - base
+        if loot.startswith('ship_'):                     # taste: the power as the bot weighs it on the ship it likes (not everyone converges on one ship);
+            # lean: aliens are hunted for income, the kill speed decides it and HP beyond survival adds little: a ship that trades damage for
+            # HP (Citadel: 7 lasers, 650,000 HP) counts a little less, one that trades HP for damage a little more
+            lean = (new_values['dps'] / max(1.0, new_values['ehp'])) / max(1e-9, base_values['dps'] / max(1.0, base_values['ehp']))
+            power = new_values['power'] * lean ** 0.15 * ship_affinity(bot, loot) - base * ship_affinity(bot, e['ship'])
+        increase = power + 0.02 * (new_values['speed'] - base_values['speed']) * (0.5 + bot.o('risk'))    # speed is not in power: it helps with escaping and hunting
         if filler:                                        # efficiency together with the lasers' money (the share falling on the drone's price)
             lf = K.price(filler[0])
             credit_equiv = lambda c: c[1] * (EXCHANGE_RATE if c[0] == 'U' else 1)
@@ -74,10 +88,8 @@ def _candidates(bot):
         if sum(e.get('drone', {}).values()) < K.ITEMS['max_drones'] and K.price(loot, n):
             missing = max(0, d.get('slot', 1) - backup)
             attempt(loot, n, (best, missing) if best and missing else None)
-    current = K.ITEMS['ships'].get(e['ship'], {})
-    for loot, g in K.ships().items():
-        if loot != e['ship'] and g['hp'] + 20000 * (g['laser'] + g['generators']) > current.get('hp', 0) + 20000 * (
-                current.get('laser', 0) + current.get('generators', 0)):
+    for loot in K.ships():
+        if loot != e['ship']:
             attempt(loot)
     wanted = bot.k.get('savings')
     if wanted and not any(c[3] == wanted for c in out) and (wanted.startswith('ship_') or any(

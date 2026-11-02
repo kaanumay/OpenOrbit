@@ -231,7 +231,11 @@ async function seApply(...ops) {
   SE.busy = true; document.body.classList.add('se-busy');
   const v = await act(() => api('/api/editor/apply', { id: SE.slot, ops }));
   SE.busy = false; document.body.classList.remove('se-busy');
-  if (v && SE.slot) { SE.v = v; seRender(); return true; }
+  if (v && SE.slot) {
+    SE.v = v; seRender();
+    if (!v.discarded) return true;
+    toast(T('The save changed after it was opened in the editor (the game was played or a backup restored): the old draft was discarded.'), 'info', 7000);
+  }
   return false;
 }
 

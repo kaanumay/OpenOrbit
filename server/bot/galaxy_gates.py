@@ -179,6 +179,10 @@ def grant_reward(bot, gate, speed=1.0):
         if n:
             s[loot] = s.get(loot, 0) + n
     st = state(bot)
+    for c in o.get('chance') or ():                  # the gate's laser chance (LF-4: Epsilon first run sure, Kappa, Hades): the bots' only source of
+        loot = c.get('item', '')                     # lasers above the shop's LF-3 (player report 2026-11-02: rich generals with weak lasers)
+        if loot in K.ITEMS['lasers'] and (c.get('first_guaranteed') and gate not in st.get('done', ()) or random.random() < c.get('probability', 0)):
+            bot.add(loot, c.get('count', 1))
     if gate != 'kronos':
         st['kronos'] = min(GATES['kronos']['part'], st['kronos'] + 1)
         if st['kronos'] >= GATES['kronos']['part'] and 'kronos' not in st['built']:

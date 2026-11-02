@@ -16,7 +16,9 @@ the clanless state. The player whose application is accepted gets JoinClanComman
 Ship tag ClanTagChangedCommand (the ship of userId).
 Diplomacy: alliance (1) and non-aggression (2) with the other clan's approval (ClanEditDiploOfferRequest 'allow'/'deny'), war (3) at once,
 the request to end a war (0) with approval. The clan relation of ships (ShipCreateCommand.clanDiplomacy) depends on the viewer (relation;
-shared_maps). Tax: a rate of the member's alien reward (player_profile.gain) goes to the treasury as credits.
+shared_maps). Tax: a rate of the credits the member earns (player_profile.gain; TAXED: the earning sources forum 127471 lists: aliens,
+players, ore, quests, gates, boxes; player report 2026-11-02: only alien rewards were taxed) goes to the treasury; the window's
+"income/day" is today's tax (income_day).
 """
 import copy, json, os, random, secrets, sys, threading, time
 
@@ -272,8 +274,28 @@ def clan_relation(a, b):
         return next((d['type'] for d in (k or {}).get('diplomacy', ()) if d['clan'] == b and not is_war_over(d)), 0)
 
 
+TAXED = ('bonus_abschussAlien', 'bonus_abschussPlayer', 'quest_won', 'galaxy_gate_done', 'collect_bonusbox', 'sell_ore')
+
+
+def taxed(reason):
+    """Is a credit gain with this account history reason earned income (clan tax), not a refund, payout or transfer?"""
+    return reason in TAXED or str(reason).startswith('sellOre_')
+
+
+def add_income(k, n):
+    """Today's tax income of the clan (the window's "income/day"; under LOCK)."""
+    day = time.strftime('%Y-%m-%d')
+    if k.get('income_day') != day:
+        k.update(income=0, income_day=day)
+    k['income'] = int(k.get('income', 0)) + n
+
+
+def income_today(k):
+    return int(k.get('income', 0)) if k.get('income_day') == time.strftime('%Y-%m-%d') else 0
+
+
 def tax(p, credits):
-    """The clan's tax from an alien reward (player_profile.gain: outside the lock) -> credits going to the treasury."""
+    """The clan's tax from earned credits (player_profile.gain: outside the lock) -> credits going to the treasury."""
     if credits <= 0 or not p.d['pilot'].get('clanId'):
         return 0
     with LOCK:
@@ -283,7 +305,7 @@ def tax(p, credits):
         tax = credits * int(k['tax']) // 100
         if tax:
             k['treasury'] += tax
-            k['income'] = int(k.get('income', 0)) + tax
+            add_income(k, tax)
             for x in profiles().values():               # treasury of the copies (one profile record in single player)
                 s = x.d.get('clan')
                 if s and s.get('id') == k['id']:
@@ -594,7 +616,7 @@ class Clan:
         return [m for m in k['messages'] if m.get('recipient') in (None, me) and me not in m.get('deleted_by', ())]
 
     def tax_cmd(self):
-        return mod('ClanTaxInfoCommand', income=int(self.k.get('income', 0)),
+        return mod('ClanTaxInfoCommand', income=income_today(self.k),
                    logList=[mod('ClanTaxLogCommand', **x) for x in self.k['treasury_log'][:50]])
 
     def apply_cmd(self, b):

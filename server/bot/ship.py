@@ -740,8 +740,8 @@ def hit_npc(w, n, m, dmg, now, atype, once=(), shield=False, ammo=None):
     _broadcast(w, msgs, n.id, m.id)
     if m.hp <= 0:
         kill_npc(w, m, n, now)
-    elif m.bot_target is None and not m.engaged and m.d['damage'] > 0:
-        m.bot_target = n.id                     # the alien turns on the bot
+    elif m.bot_target is None and m.d['damage'] > 0:
+        m.bot_target = n.id                     # the alien turns on the bot (if it fights the player too: the nearer one, npc_to_bot)
         m.next_think = now
 
 
@@ -896,17 +896,47 @@ def can_attack_bot(w, n, m, now):
 
 
 # ------------------------------------------------------------------------------------------------------------ the alien's reply to the bot
+def notice_bot(w, m, now, hero_dist):
+    """An aggressive alien notices a bot ship within its notice distance that is nearer than the player (hero_dist; inf if the player cannot be
+    attacked) and turns on it (npc_to_bot) -> did it. Before, only the player's distance was checked: aliens attacked bots only when hit."""
+    if now < m.bot_scan:
+        return False
+    m.bot_scan = now + 1.0
+    mx, my = m.mover.pos(now)
+    reach = min(hero_dist, m.d.get('notice_distance', WD.COMBAT['npc_notice_distance']) * WD.SET.multiplier('npc_notice'))
+    best = None
+    for t in list(w.npcs.values()):
+        if t.bot is None or not t.alive:
+            continue
+        tx, ty = t.mover.pos(now)
+        d = math.hypot(tx - mx, ty - my)
+        if d < reach and (best is None or d < best[0]) and not w.in_peace(tx, ty):
+            best = (d, t)
+    if best is None:
+        return False
+    m.bot_target, m.next_think = best[1].id, now
+    return True
+
+
 def npc_to_bot(w, m, now):
-    """The alien the bot hit turns on the bot (if it is not fighting the player): chases and fires -> handled or not (the rest of think is skipped)."""
+    """The alien the bot hit (or noticed: notice_bot) turns on the bot: chases and fires -> handled or not (the rest of think is skipped). If it
+    fights the player too, the nearer of the two (player report 2026-11-02: aliens almost never attacked bots, a bot's hit was ignored while
+    the alien was after the player, and an alien that got to the player dropped the bot for good)."""
     t = w.npcs.get(m.bot_target)
-    if m.engaged or t is None or not t.alive or t.bot is None:
+    if t is None or not t.alive or t.bot is None:
         m.bot_target = None
         return False
-    if now < m.next_think and now < m.next_shot:
-        return True
     tx, ty = t.mover.pos(now)
     mx, my = m.mover.pos(now)
     dist = math.hypot(tx - mx, ty - my)
+    if m.engaged:
+        hx, hy = w.hero_pos(now)
+        if not w.hero_dead and math.hypot(hx - mx, hy - my) <= dist:
+            return False                        # the player is nearer: the bot stays in mind for later
+        m.engaged = False                       # the bot is nearer: the laser on the player stops
+        w.alien_ceasefire(m)
+    if now < m.next_think and now < m.next_shot:
+        return True
     post = w.ward_of(m)
     if dist > 2500 or (post and w.leashed(m, post, tx, ty, now)):
         # a guard (Cubikon's Protegits) does not chase the bot away from its summoner all the way to the portal: the same as the player's leash (world.leashed)

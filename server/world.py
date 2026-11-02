@@ -214,6 +214,7 @@ class Mover:
 class NPC:
     bot = None                              # bot ship (bot/ship.BotShip): looks like a player, its mind is ship.think
     bot_target = None                        # the id of the bot ship this alien answers with (ship.npc_to_bot)
+    bot_scan = 0.0                           # next look for a bot ship nearby (aggressive alien: ship.notice_bot)
 
     def __init__(self, uid, tip, x, y, wave=False):
         self.id, self.tip, self.d = uid, tip, CFG['types'][tip]
@@ -4205,6 +4206,9 @@ class World:
         tied = bool(post) and self.leashed(n, post, hx, hy, now)       # guard: the player is far from its summoner
         if hunt and not n.engaged and not spared and now >= n.next_think:
             n.engaged = True                    # the player is reachable again (respawned, cloaking ended, EMP passed …)
+        if (not hunt and not n.engaged and not tied and self.aggressive(n) and not getattr(n, 'passive', False) and now >= n.blocked
+                and not self.in_peace(nx, ny) and BG.notice_bot(self, n, now, float('inf') if spared else dist)):
+            return                              # a bot ship nearer than the player: attacks it (from the next think: npc_to_bot)
         if (self.aggressive(n) and not getattr(n, 'passive', False) and not spared
                 and dist < n.d.get('notice_distance', COMBAT['npc_notice_distance']) * SET.multiplier('npc_notice')
                 and not self.in_peace(nx, ny)

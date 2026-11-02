@@ -541,11 +541,12 @@ class Profile:
 
     # ---------------------------------------------------------------- in-game changes (world simulation)
     def gain(self, ep=0, honor=0, credits=0, uridium=0, reason=None, detail='', count=0):
-        """Adds the rewards -> new totals and level (EP table: data/levels.json). The clan's tax from an alien reward's credits goes to
-        the treasury (clan.tax; before the lock: the clan record's lock)."""
-        if credits > 0 and reason == 'bonus_abschussAlien' and self.d['pilot'].get('clanId'):
+        """Adds the rewards -> new totals and level (EP table: data/levels.json). The clan's tax from earned credits (clan.taxed: aliens,
+        players, ore, quests, gates, boxes) goes to the treasury (clan.tax; before the lock: the clan record's lock)."""
+        if credits > 0 and self.d['pilot'].get('clanId'):
             import clan as KL
-            credits -= KL.tax(self, credits)
+            if KL.taxed(reason):
+                credits -= KL.tax(self, credits)
         with self.lock:
             p = self.d['pilot']
             p['ep'] = p.get('ep', 0) + ep

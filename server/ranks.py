@@ -139,8 +139,8 @@ def rank_for(points):
 # ------------------------------------------------------------ company ranking (bot players)
 # The real system (darkorbitwiki guides/ranks; ranks.json ranks): the rank depends on the place in the company, Chief General 1, General 2, Basic
 # General 3, Chief Colonel 5, Colonel 20 people; the rest by percentage (Basic Colonel 1% ... Basic Space Pilot 20%). While a bot pack is in the world
-# this ranking is used (player request 2026-10-30); the thresholds stay as a ceiling: in a small company (tens of bots per pack)
-# low-scoring pilots must not become generals. Without bots, only the thresholds as before.
+# this ranking alone decides the rank (player request 2026-10-30; owner request 2026-11-02: no threshold ceiling, the rules apply from the first day
+# whatever the level, so the company's best pilot is Chief General even when everyone is new). Without bots, only the thresholds as before.
 RANKING_SEC = 30
 _RANKING = {}                        # company -> (timestamp, [(points, uid)])
 _LOCAL = threading.local()        # while the account runs: community.all_() updates the bots' profiles, which asks for the rank
@@ -218,11 +218,21 @@ def points_to_pass(p, rank, now=None):
     return others[k][0] if 0 <= k < len(others) else None
 
 
+def points_below(p, rank, now=None):
+    """While bots exist, the points of the best company pilot at `rank` or lower (the "rank below yours has approx. X points" line) or None."""
+    if _bots() is None:
+        return None
+    now = now or time.time()
+    others = sorted((x for x in _company(int(p.d['pilot'].get('factionId') or 0), now) if x[1] != p.user_id), reverse=True)
+    n = len(others) + 1
+    k = min((i for i in range(n) if place_rank(i, n) <= rank), default=0)
+    return others[k - 1][0] if 1 <= k <= len(others) else None      # those places are below the player: others[k - 1] holds place k
+
+
 def rank_of(p, points, now=None):
-    """The player's rank: by thresholds; while bots exist also the place in the company (the smaller of the two)."""
-    r = rank_for(points)
+    """The player's rank: while bots exist the place in the company alone (no threshold ceiling); without bots by thresholds."""
     s = company_rank(p.user_id, int(p.d['pilot'].get('factionId') or 0), points, now)
-    return r if s is None else min(r, s)
+    return rank_for(points) if s is None else s
 
 
 def daily_rank(p, now=None, force=False):
@@ -330,13 +340,16 @@ def ranking_points(p, now=None):
     b = breakdown(p, now)
     rank = rank_of(p, b['rankPoints'], now)
     nxt = R['thresholds'][rank] if rank < len(R['thresholds']) else b['rankPoints']
-    rival = points_to_pass(p, rank + 1, now) if rank < len(R['thresholds']) else None
-    if rival is not None:
-        nxt = max(nxt, int(rival) + 1)                  # one must pass the pilot at that rank's boundary in the company
+    below = R['thresholds'][rank - 2] if rank > 1 else 0
+    if _bots() is not None:                             # company ranking: one must pass the pilot at that rank's boundary in the company
+        rival = points_to_pass(p, rank + 1, now) if rank < len(R['thresholds']) else None
+        nxt = int(rival) + 1 if rival is not None else b['rankPoints']
+        low = points_below(p, rank - 1, now) if rank > 1 else None
+        below = int(low) if low is not None else 0
     loot = p.ship()['lootId']
     out = _zero_points()
     out.update(b, yourRanking=rank, aboveRanking=min(rank + 1, 21), abovePoints=max(0, nxt - b['rankPoints']),
-               belowRanking=max(rank - 1, 1), belowPoints=R['thresholds'][rank - 2] if rank > 1 else 0,
+               belowRanking=max(rank - 1, 1), belowPoints=below,
                shipsCategoryName=R['ship_points'].get(loot, {}).get('name', loot.replace('ship_', '').title()))
     return out
 

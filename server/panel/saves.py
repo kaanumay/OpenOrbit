@@ -603,11 +603,16 @@ class Saves:
         return dict(v, read_only=False, discarded=stale)
 
     def editor_apply(self, slot, ops):
-        """Apply the operations to the draft (save_editor.OPS) -> the new view."""
+        """Apply the operations to the draft (save_editor.OPS) -> the new view. If the save changed after the draft was opened, the draft is
+        discarded and the save's view returned (discarded) without applying: the operations refer to the old draft (player report 2026-11-02:
+        the draft was silently replaced by the save, a design added in it was gone -> "eqt_error_generic", and it never reached the game)."""
         self.guard(slot, 'edit it')
         if not isinstance(ops, list) or not ops:
             raise SaveError(_('No changes.'))
         with self.lock:
+            if os.path.isfile(self.draft(slot)) and not self._draft_valid(slot):
+                self.editor_discard(slot)
+                return dict(self.run_tool('read', self.profile(slot), tool='save_editor.py'), read_only=False, discarded=True)
             self._ensure_draft(slot)
             v = self.run_tool('apply', self.draft(slot), json.dumps(ops), self.profile(slot), tool='save_editor.py')
             return dict(v, read_only=False, discarded=False)
