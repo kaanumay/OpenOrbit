@@ -64,6 +64,7 @@
   "clan_member": ["bin in [{tag}], frag {leader}", "bewirb dich bei [{tag}], {leader} macht die bewerbungen"],
   "no_clan": ["hab keinen clan", "bin grad clanlos", "such selber einen"],
   "applied_to_clan": ["beworben", "ok bewerbung ist raus", "beworben, nimm mich"],
+  "used_in_gate": ["bin im gate", "mache grad ein gate", "im galaxietor"],
   "used_in": ["auf {map}", "{map}", "farm auf {map}"],
   "coming": ["komme", "bin unterwegs", "auf dem weg nach {map}"],
   "cant_come": ["da kann ich nicht hin", "komm auf die map nicht drauf", "kann grad nicht"],

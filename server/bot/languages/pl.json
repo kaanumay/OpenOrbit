@@ -64,6 +64,7 @@
   "clan_member": ["jestem w [{tag}], pytaj {leader}", "aplikuj do [{tag}], {leader} przyjmuje"],
   "no_clan": ["nie mam klanu", "na razie bez klanu", "sam szukam"],
   "applied_to_clan": ["zaaplikowalem", "ok podanie wyslane", "zaaplikowalem, przyjmij"],
+  "used_in_gate": ["jestem w bramie", "robię bramę", "w bramie galaktycznej"],
   "used_in": ["na {map}", "{map}", "farmie na {map}"],
   "coming": ["lece", "juz ide", "lece na {map}"],
   "cant_come": ["nie moge tam wleciec", "nie wejde na ta mape", "teraz nie moge"],

@@ -387,6 +387,7 @@
    "new-ish pilot (lvl {lv}) looking for a chill clan to farm and chat with",
    "lvl {lv}, I do quests and farming, would like to team up with some people"
   ],
+  "used_in_gate": ["in a gate", "doing a gate rn", "im in a galaxy gate"],
   "used_in": [
    "on {map}",
    "{map}",

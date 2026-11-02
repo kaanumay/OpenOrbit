@@ -196,6 +196,8 @@ def _duel(y, b, name, who, game_map, now):
 def _follow(y, b, name, who, game_map, text, now):
     here = H.name(b.game_map)
     if _WHERE.search(text or ''):
+        if not re.match(r'^[1-5]-[1-8]$', str(here)):         # a gate / instance map has no name people use ("on 499")
+            return _result('followup', None, 'He asks where you are: you are inside a galaxy gate. Tell him.', ('used_in_gate', {}))
         return _result('followup', None, 'He asks where you are: you are on %s. Tell him (just the map, no status report).' % here,
                       ('used_in', {'map': here}))
     o = _person(name)

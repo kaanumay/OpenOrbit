@@ -354,6 +354,7 @@
    "yeni sayılırım (lvl {lv}), sohbet edip birlikte farm yapacak bir klan arıyorum",
    "lvl {lv}, görev ve farm yapıyorum, birlikte takılacak insanlar arıyorum"
   ],
+  "used_in_gate": ["kapıdayım", "galaksi kapısındayım", "kapı yapıyorum şu an"],
   "used_in": [
    "{map} deyim",
    "{map}",

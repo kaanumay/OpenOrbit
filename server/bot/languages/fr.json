@@ -64,6 +64,7 @@
   "clan_member": ["je suis chez [{tag}], demande a {leader}", "postule chez [{tag}], c'est {leader} qui gere"],
   "no_clan": ["pas de clan", "sans clan pour l'instant", "j'en cherche un aussi"],
   "applied_to_clan": ["postule", "ok candidature envoyee", "postule, accepte moi"],
+  "used_in_gate": ["dans une porte", "je fais une porte là", "en porte galactique"],
   "used_in": ["sur {map}", "{map}", "je farm sur {map}"],
   "coming": ["j'arrive", "en route", "j'arrive sur {map}"],
   "cant_come": ["je peux pas y aller", "je peux pas entrer sur cette map", "je peux pas la"],

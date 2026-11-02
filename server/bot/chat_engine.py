@@ -15,6 +15,7 @@ from . import interaction as IX
 from . import speech as SPC
 from . import moderation as MOD
 from . import admin_warnings as AW
+from . import talk as TALK
 
 EVENT_SEC = 5.0
 RECRUIT_CLAN_SEC = 7200.0                   # between recruitment ads of the same clan (two hours)
@@ -41,7 +42,7 @@ def user(b):
 
 def channel_path(b, channel):
     if channel == 'global':
-        return '/room/global/yerel/'
+        return '/room/global/local/'
     if channel == 'company':
         return '/room/faction/%d/' % b.company
     if channel == 'clan':
@@ -138,12 +139,15 @@ class ChatEngine:
         if self.chat is None:
             return
         if recipient:
+            TALK.state(self).meta.pop((b.uid, text), None)
             self.chat.bot_whisper(recipient, text, 'bot%d' % b.uid, user(b))
             return
         route = channel_path(b, channel)
         if route:
             self.chat.broadcast(route, text, 'bot%d' % b.uid, user(b))
         MOD.moderate(self, b.name, text, channel, now)       # bots obey the rule too (a rude bot can be muted)
+        if route and not (self.llm is not None and self.llm.ready):
+            TALK.heard_bot(self, b, channel, text, now, route=route)     # other bots may answer it (Normal mode)
 
     def incoming_chat(self, route, msg, who):
         """From the chat thread: the player's room message (processed on the tick)."""
@@ -176,9 +180,10 @@ class ChatEngine:
         else:
             self.template_room(g[1], g[2], g[3], now)
 
-    def listeners(self, channel, who):
+    def listeners(self, channel, who, alive=True):
+        """The bots hearing the channel (alive=False: those waiting to respawn too; they can still chat)."""
         fac = int(who.get('factionId') or 0)
-        out = [b for b in self.bots if b.online and b.dead_until <= self.now]
+        out = [b for b in self.bots if b.online and (b.dead_until <= self.now or not alive)]
         if channel == 'company':
             out = [b for b in out if b.company == fac]
         elif channel == 'clan':
@@ -198,6 +203,9 @@ class ChatEngine:
             return
         kind, game_map = SPC.intent(msg)
         listener = self.listeners(channel, who)
+        if kind not in IX.INTENTS and kind != 'assist':
+            TALK.on_human(self, channel, msg, who, self.listeners(channel, who, alive=False), now, route=route)      # chat: greetings, questions, small talk, insults
+            return
         mentioned = [b for b in listener if NS.is_mentioned(b.name, msg)]
         for b in mentioned:
             b.memory.event(name, 'chat', now)
@@ -217,8 +225,14 @@ class ChatEngine:
         if kind == 'assist' and game_map:
             self.help_call(name, who, game_map, listener, channel, now)
         elif kind in ('group', 'clan', 'quest', 'duel', 'special', 'gate'):
-            for b in self.open_call(kind, name, who, game_map, msg, listener, now):
+            called = self.open_call(kind, name, who, game_map, msg, listener, now)
+            for b in called:
                 self.answer_request(b, kind, name, who, game_map, msg, channel, now)
+            if not called and kind == 'clan':                # no clan bot here: someone may still talk about clans
+                TALK.on_human(self, channel, msg, who, self.listeners(channel, who, alive=False), now, route=route)
+            elif not called and kind in ('group', 'quest') and listener and random.random() < 0.5:     # nobody takes it: "busy, later"
+                b = max(listener, key=lambda b: b.o('sociability') * b.r.random())
+                TALK.say(self, b, 'group_busy', channel, now, meta=dict(kind='react', reply_to=name))
         elif kind == 'followup' and channel == 'group':              # in a group chat "follow me / come 2-4": the group's bots
             for b in listener[:3]:
                 self.answer_request(b, kind, name, who, game_map, msg, channel, now)
@@ -260,7 +274,7 @@ class ChatEngine:
                 incoming.append(b)
                 B.force(b, 'assist', plan={'map': int(m), 'name': name}, pay=1.2, duration=900, now=now)
                 b.memory.event(name, 'i_helped', now)
-                if not required and not silent:
+                if not required and not silent and not TALK.help_reply(self, b, name, H.name(m), channel, now):
                     self.speak(b, channel, SPC.template(b, 'going_to_help', map=H.name(m)), now=now)
         return incoming
 
@@ -317,6 +331,9 @@ class ChatEngine:
         name = who.get('userId', '')
         kind, game_map = SPC.intent(msg)
         kind = IX.offer_reply(b, name, msg, now) or kind       # "shall we group?" -> "sure": group request
+        if kind not in IX.INTENTS and kind != 'assist':
+            TALK.on_human(self, 'whisper', msg, who, [b], now, whisper_bot=b)
+            return
         b.memory.event(name, 'chat', now)
         if kind in IX.INTENTS and kind != 'assist':
             self.answer_request(b, kind, name, who, game_map, msg, 'whisper', now)
@@ -352,9 +369,9 @@ class ChatEngine:
         kind = o['type']
         if kind == 'witness':
             if o.get('sub') == 'boss' and o.get('who') and str(o['who']).lower() != b.name.lower():
-                self.speak(b, 'company', SPC.template(b, 'witness_boss', who=o['who']), now=now + b.r.uniform(2, 8))
+                TALK.witness(self, b, 'boss', now, who=o['who'])
             elif o.get('sub') == 'player_died' and o.get('name'):
-                self.speak(b, 'company', SPC.template(b, 'witness_death', name=o['name']), now=now + b.r.uniform(2, 10))
+                TALK.witness(self, b, 'death', now, name=o['name'])
             return
         if kind == 'diplomacy' and (o.get('accept') or not o.get('incoming')) and o.get('form') in (0, 1, 3) and b.r.random() < 0.4 + 0.5 * talk:
             state = {0: 'peace', 1: 'alliance', 3: 'war_declared'}[o['form']]
@@ -364,12 +381,12 @@ class ChatEngine:
                        SPC.template(b, state, clan=o.get('clan', ''), tag=o.get('tag') or o.get('clan', '')), now=now + b.r.uniform(5, 30))
             return
         if kind == 'i_killed_boss' and b.r.random() < 0.3 * talk:
-            self.speak(b, 'company', SPC.template(b, 'i_killed_boss'), now=now + b.r.uniform(2, 8))
+            TALK.event_line(self, b, 'i_killed_boss', now)
             return
         if kind == 'level' and b.r.random() < 0.25 * talk:
-            self.speak(b, 'company', SPC.template(b, 'level', level=o.get('level')), now=now)
+            TALK.event_line(self, b, 'level', now, level=o.get('level'))
         elif kind == 'new_ship' and b.r.random() < 0.45 * talk:
-            self.speak(b, 'global', SPC.template(b, 'new_ship', ship=str(o.get('item', '')).replace('ship_', '').title()), now=now)
+            TALK.event_line(self, b, 'new_ship', now, channel='global' if b.r.random() < 0.4 else 'company')
         elif kind in ('death', 'i_killed_player') and now - self.__dict__.setdefault('_last_whisper', {}).get(
                 str(o.get('killer') or o.get('name') or '').lower(), 0) < 60:
             pass                                         # at most one whisper per minute to the same player (so consecutive kills do not rain whispers)
@@ -427,7 +444,9 @@ class ChatEngine:
                 IX.make_offer(b, 'group', k.name, now)
             if self.llm is not None and self.llm.ready and self.llm.special(self, b, k.name, purpose):
                 continue
-            self.speak(b, 'whisper', SPC.template(b, purpose, name=k.name, map=H.name(b.game_map)), recipient=k.name, now=now + b.r.uniform(2, 10))
+            if not TALK.private(self, b, k.name, purpose, now):
+                self.speak(b, 'whisper', SPC.template(b, purpose, name=k.name, map=H.name(b.game_map)), recipient=k.name,
+                           now=now + b.r.uniform(2, 10))
 
     def group_banter_line(self, now):
         """A bot in a group with a human now and then writes to the group chat (where are we going, nice kill ...): once every 4-8 minutes."""
@@ -448,7 +467,8 @@ class ChatEngine:
             b = max(members, key=lambda b: b.o('talkativeness') * b.r.random())
             if self.llm is not None and self.llm.ready and self.llm.group_banter_line(self, b, k.name):
                 continue
-            self.speak(b, 'group', SPC.template(b, 'group_banter'), now=now)
+            if TALK.say(self, b, 'group_line', 'group', now, delay=0) is None:
+                self.speak(b, 'group', SPC.template(b, 'group_banter'), now=now)
 
     def rude(self):
         return int(self.setting('rude_chat', 1) or 0)
@@ -574,6 +594,8 @@ class ChatEngine:
         ad and complaints. Within the channel limit; the same line, the same bot and the same clan's ad are not repeated often."""
         if self.llm is not None and self.llm.ready:
             return                                   # in Advanced mode the model does the spontaneous chat (llm._bot_chat)
+        if self.permission('chat'):
+            TALK.spontaneous(self, now)               # bots open topics and answer each other (bot/talk)
         is_open = [b for b in self.bots if b.online and b.dead_until <= now]
         if not is_open or random.random() > 0.065 * min(1.0, len(is_open) / 10.0):
             return
@@ -590,23 +612,13 @@ class ChatEngine:
                 if m and self.speak(b, 'global', m, now=now) is not None:
                     self.wrote(b, m, now)
                     return
-        if b.archetype == 'trader' and k < 0.4:
-            m, channel = self.new_text(b, 'trade', now, item='LF-3'), 'global'
-        elif b.o('sociability') > 0.6 and k < 0.35:
-            m, channel = self.new_text(b, 'group_search', now, map=H.name(b.game_map)), 'company'
+        if b.archetype == 'trader' and k < 0.25:              # auction talk (talk engine: the bot's own style, any item)
+            item = b.r.choice(('LF-3', 'B02', 'iris', 'havoc', 'x4', 'A03', 'goli'))
+            if TALK.say(self, b, 'tell_trade', 'global', now, slots=dict(item=item), meta=dict(kind='opener', depth=1), delay=0) is not None:
+                self.wrote(b, 'trade', now)
+                return
+            m, channel = self.new_text(b, 'trade', now, item=item), 'global'
         else:
-            channel, r = b.r.choice(('global', 'company')), b.r.random()
-            m = None
-            if r < 0.4:
-                d = self.status_line(b, now)
-                m = self.new_text(b, d[0], now, **d[1]) if d else None
-            elif r < 0.75:
-                if self.start_dialog(b, is_open, channel, now):
-                    return
-            elif r < 0.8 and now - self._last_complaint >= COMPLAINT_SEC:
-                self._last_complaint = now
-                m = self.new_text(b, 'complaint', now)
-            if m is None:
-                m = self.new_text(b, 'general', now)
+            return                                   # the rest of the small talk: talk.spontaneous
         if m and self.speak(b, channel, m, now=now) is not None:
             self.wrote(b, m, now)

@@ -97,7 +97,7 @@ def moderate(y, name, msg, channel, now, rol='chatter'):
     delay = m.r.uniform(2, 8)
     if k['warning'] == 0:
         k['warning'], k['warning_time'] = 1, now
-        y.speak(m, channel, SPC.template(m, 'mod_uyari_' + rule, name=name), now=now + delay, priority=True)
+        y.speak(m, channel, SPC.template(m, 'mod_warning_' + rule, name=name), now=now + delay, priority=True)
         return 'warning'
     k['warning'] = 0
     k['mutes'] += 1

@@ -404,13 +404,18 @@ class Manager(ChatEngine):
         self.on_map.setdefault(b.game_map, set()).add(b)
         b._event_time = now
         if not silent and self.mode != 'simple' and b.r.random() < 0.25 * b.o('talkativeness'):
-            self.speak(b, b.r.choice(('global', 'company')), SPC.template(b, 'greeting'), now=now + b.r.uniform(5, 40))
+            from . import talk as TALK                     # others may greet back (bot/talk)
+            if TALK.say(self, b, 'hello', b.r.choice(('global', 'company')), now, delay=b.r.uniform(5, 40),
+                        meta=dict(kind='event', depth=1, acts=['greet'], react='greet_back')) is None:
+                self.speak(b, b.r.choice(('global', 'company')), SPC.template(b, 'greeting'), now=now + b.r.uniform(5, 40))
         for d in list(self.worlds):
             d.bot_online(b, True)
 
     def exit(self, b, now):
         if b.r.random() < 0.15 * b.o('talkativeness'):
-            self.speak(b, 'global', SPC.template(b, 'exit'), now=now, immediate=True)
+            from . import talk as TALK
+            if TALK.say(self, b, 'leaving', 'global', now, delay=0, meta=dict(kind='event', depth=1, acts=['bye'], react='bye_reply')) is None:
+                self.speak(b, 'global', SPC.template(b, 'exit'), now=now, immediate=True)
             self.chat_tick(now)
         b.online = False
         b.next_login = now + b.r.uniform(15, 120) * 60          # after leaving it does not come in for a while

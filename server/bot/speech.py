@@ -85,11 +85,11 @@ _GREETING = re.compile(r'\b(selam|slm|sa|merhaba|mrb|hi|hello|hey|yo|selamun|nab
 # report 2026-10-30); with a map, "2-1e gelsene" is follow (_GEL)
 _HELP = re.compile(r'(yard[ıi]m|help|destek|imdat|kurtar|sald[ıi]r[ıi]yor|vuruyor|attack)', re.I)
 _COME = re.compile(r'\bgel(in|sene|senize|ir ?misin|ebilir ?misin)?\b', re.I)
-_GROUP = re.compile(r'\b(grup|group|party|parti|team|tak[ıi]m|together|team up|duo|join me|birlikte|beraber)\b', re.I)
+_GROUP = re.compile(r'\b(grup|group|party|parti|team ?up|teaming|tak[ıi]m (kural[ıi]m|kurmak|olal[ıi]m|ol)|together|duo|join me|birlikte|beraber)\b', re.I)
 _CLAN = re.compile(r'\b(clan|clans|klan|klana|klanin|klanım|klanim|guild|recruit\w*)\b', re.I)
 _FRIEND = re.compile(r'\b(add me|add u|adding (you|u)|friend ?req\w*|be friends|friend me|ekle beni|arkada[sş] ?ol\w*|arkada[sş]l[ıi]k)\b',
                       re.I)
-_FOLLOW = re.compile(r"\b(come (to|here|over|with)|follow me|where (are|r) (you|u)|where u at|wya|meet (me|at|on)|nerdesin|neredesin|"
+_FOLLOW = re.compile(r"\b(come (to|here|over|with)|follow me|where (are|r) (you|u)(?! from)|where u at|wya|meet (me|at|on)|nerdesin|neredesin|"
                     r"gel (buraya|yan[ıi]ma)|beni takip)\b", re.I)
 _DUEL = re.compile(r'\b(duel|duels|duello|1v1|1 v 1|1vs1|fight me|pvp me|come fight|who wants to fight|kapışalım|kapisalim|'
                      r'kapış|dövüşelim|dovusalim|vs at)\b', re.I)

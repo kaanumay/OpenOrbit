@@ -186,7 +186,7 @@ function btLlmWarning(wizard = false) {
     h('b', null, T('Advanced mode can put a heavy load on your computer.')),
     h('div', null, T("The bots' chat and decisions come from the Qwen3 4B (Q4_K_M) language model running on your computer: about 2.5 GB download, 4 GB of free memory and a powerful CPU or graphics card required. The game may slow down on weak computers.")),
     h('div', { style: { marginTop: '6px' } }, T("If your computer can't handle it, pick a provider like OpenAI, Claude, Gemini or DeepSeek with your API key, or your own local LLM server (Ollama, LM Studio), on the Advanced tab; bots can then also speak their own languages.")),
-    h('div', { style: { marginTop: '6px' } }, T("If your computer can't handle it, Normal mode still gives a very advanced bot experience: bots still decide by personality, progress, found clans and chat using templates.")),
+    h('div', { style: { marginTop: '6px' } }, T("If your computer can't handle it, Normal mode still gives a very advanced bot experience: bots still decide by personality, progress, found clans and chat like real players: they read what you write, answer with real game knowledge and talk to each other.")),
     wizard ? h('div', { class: 'small muted', style: { marginTop: '6px' } }, T("You'll install and test the model from the Advanced tab after the pack is created.")) : null));
 }
 
@@ -529,8 +529,8 @@ function btChat(d) {
     btRow(T('Channel density'), T("Maximum bot lines per minute in global and company chat (so chat doesn't get flooded)."),
       btSlider(a.chat_min, v => btSetting('chat_min', v), { min: 0, max: 30, step: 1, fmt: v => T('{0}/min', v) })),
     h('div', { class: 'alert info' }, icon('info'), h('div', null, d.mode === 'advanced'
-      ? T("In Advanced mode, bots talk using the language model; if the model can't keep up, they fall back to template sentences.")
-      : T('In Normal mode, bots talk with template sentences based on the situation and their personality: they greet, write when they level up, and reply to calls for help and whispers.')))),
+      ? T("In Advanced mode, bots talk using the language model; if the model can't keep up, the Normal mode chat takes over.")
+      : T('In Normal mode, bots read what is written and answer like real players: game questions with real game knowledge, personal questions with their own lasting story, each in their own typing style. They also talk to each other, greet, and reply to calls for help and whispers.')))),
     btModeration(d));
 }
 
@@ -928,7 +928,7 @@ function btUsage(u) {
     h('div', null, T('{0} requests · {1} input tokens ({2}% cached) · {3} output tokens', fmtN(s.request || 0), fmtN(s.input || 0), pay, fmtN(s.output || 0))),
     h('div', { class: 'muted' }, [u.provider, u.cap ? T('Hourly limit: {0} / {1} requests', fmtN(s.request || 0), fmtN(u.cap)) : T('No hourly limit'),
       u.duration_min < 60 ? T('in the last {0} minutes', u.duration_min) : null].filter(Boolean).join(' · ')),
-    u.at_limit ? h('div', { style: { color: 'var(--warn)' } }, T('Limit reached: for now bots chat with templates and play by rules.')) : null);
+    u.at_limit ? h('div', { style: { color: 'var(--warn)' } }, T('Limit reached: for now bots chat as in Normal mode and play by rules.')) : null);
 }
 
 function btAdvanced(d) {
@@ -948,7 +948,7 @@ function btLlmCard(d) {
         btUsage(d.llm_usage)),
       btRow(T('Bots thinking at the same time'), T("The model's parallel slots: requests are processed in batches. Higher means more bots talk at once, but the computer is strained more."),
         btNumber(a.llm_batch, v => btSetting('llm_batch', v), { min: 1, max: 16 })),
-      btRow(T('Chat with model'), T('If off, bots talk with templates as in Normal mode; the model is only used for decisions.'), btKey(a.llm_chat, v => btSetting('llm_chat', v))),
+      btRow(T('Chat with model'), T('If off, bots talk as in Normal mode; the model is only used for decisions.'), btKey(a.llm_chat, v => btSetting('llm_chat', v))),
       btRow(T('Review decisions (minutes)'), T('Each bot consults the model about its situation this often, in minutes (0: never). Shorter is livelier but heavier.'),
         btNumber(a.llm_decision_min, v => btSetting('llm_decision_min', v), { min: 0, max: 120 })),
       // the tool loop only for providers other than the built-in model (bot/agent.py)
@@ -956,7 +956,7 @@ function btLlmCard(d) {
         btKey(a.llm_agent, v => btSetting('llm_agent', v))),
       btRow(T('Max steps per thought'), T('How many times at most the model is asked in one thought (several tools each time). Most thoughts finish in 1-2 requests; a higher value means more requests.'),
         btNumber(a.llm_agent_steps, v => btSetting('llm_agent_steps', v), { min: 1, max: 10 })),
-      btRow(T('Hourly request limit'), T('At most this many requests per hour go to a provider other than the built-in model (chat, memories and decisions included; 0: no limit). At the limit bots chat with templates and play by rules; this caps spending.'),
+      btRow(T('Hourly request limit'), T('At most this many requests per hour go to a provider other than the built-in model (chat, memories and decisions included; 0: no limit). At the limit bots chat as in Normal mode and play by rules; this caps spending.'),
         btNumber(a.llm_hourly, v => btSetting('llm_hourly', v), { min: 0, max: 20000 }))));
 }
 

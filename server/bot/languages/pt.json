@@ -64,6 +64,7 @@
   "clan_member": ["to no [{tag}], fala com {leader}", "aplica no [{tag}], quem aceita e o {leader}"],
   "no_clan": ["nao tenho clan", "sem clan no momento", "to procurando um tambem"],
   "applied_to_clan": ["apliquei", "ok, mandei a aplicacao", "apliquei, me aceita"],
+  "used_in_gate": ["numa gate", "fazendo uma gate agora", "tô num portal galáctico"],
   "used_in": ["no {map}", "{map}", "farmando no {map}"],
   "coming": ["to indo", "a caminho", "indo pro {map}"],
   "cant_come": ["nao consigo ir ai", "nao entro nesse mapa", "agora nao da"],
