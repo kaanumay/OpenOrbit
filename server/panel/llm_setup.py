@@ -96,7 +96,7 @@ class LlmSetup:
             p = os.path.join(self.folder(), MODEL['name'] + '.part')
             d['partial'] = os.path.getsize(p) if os.path.isfile(p) else 0
         pk = platform_key()
-        d.update(test=t, size=MODEL['size'] + (SERVERS[pk]['size'] if pk else 0), platform=pk, destekli=bool(pk),
+        d.update(test=t, size=MODEL['size'] + (SERVERS[pk]['size'] if pk else 0), platform=pk, supported=bool(pk),
                  memory_gb=memory_gb(), min_memory_gb=MIN_MEMORY_GB, cores=os.cpu_count(), model=MODEL['name'], version=VERSION,
                  last_test=k.get('test') if k else None)
         return d

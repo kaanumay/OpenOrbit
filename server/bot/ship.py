@@ -147,6 +147,7 @@ def tick(w, now):
             continue
         x, yy = spawn_point(w, b)
         n = BotShip(b, x, yy, now)
+        resume(n, now)
         if b.__dict__.pop('in_place_repair', None):       # repair on the spot: 10% of HP, no shield, 10 s protection (like the player's)
             n.hp, n.shield = max(1, int(n.hp * K.ITEMS['death_screen']['in_place_hp_ratio'])), 0
             n.immune_until = now + K.ITEMS['death_screen']['in_place_protection_sec']
@@ -199,6 +200,7 @@ def gate_tick(w, now, y):
         x, yy = int(hx + math.cos(a) * random.uniform(150, 400)), int(hy + math.sin(a) * random.uniform(150, 400))
         x, yy = max(300, min(w.map_w - 300, x)), max(300, min(w.map_h - 300, yy))
         n = BotShip(b, x, yy, now)
+        resume(n, now)
         w.npcs[n.id] = n
         b.body = n
         b.event('entered_gate', gate=str(getattr(getattr(w, 'gate', None), 'key', '') or w.map_id))
@@ -226,12 +228,32 @@ def spawn_point(w, b):
     return w.random_spot()
 
 
+CARRY = ('last_damage', 'immune_until', 'leech_end', 'rocket_ready', 'salvo_ready', 'mine_ready')
+
+
+def resume(n, now):
+    """A ship spawning again (after a jump, a gate, the player's map change): HP, shield and cooldowns carry over from the last ship
+    (player report 2026-11-02: jumping through a portal refilled the bot's HP), regenerated for the time it was away as in think."""
+    c = n.bot.__dict__.pop('carry', None)
+    if c is None:
+        return
+    from . import extras as EX
+    d = n.bot.value()
+    n.__dict__.update(c['state'])
+    idle = max(0.0, now - max(c['t'], n.last_damage + COMBAT_SEC))
+    rep = EX.repair_sec(n.bot)
+    n.hp = min(d['hp'], c['hp'] + d['hp'] * max(REGEN_RATE, 1.0 / rep if rep else 0) * idle)
+    n.shield = min(d['shield'], c['shield'] + d['shield'] * REGEN_RATE * 2 * idle)
+
+
 def remove(w, n):
     """The ship leaves the map (exit, jump, after death): position to the save, the bot to the abstract simulation."""
     n.alive = False
     b = n.bot
     x, y = n.mover.pos(time.time())
     b.k['x'], b.k['y'] = int(x), int(y)
+    b.carry = dict(t=time.time(), hp=n.hp, shield=n.shield,
+                   state={k: v for k, v in n.__dict__.items() if k in CARRY or k.startswith('cd_')})     # resume; cleared on death
     if b.body is n:
         b.body = None
     b.last_abstract = time.time()

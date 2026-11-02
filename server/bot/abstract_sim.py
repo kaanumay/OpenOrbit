@@ -189,6 +189,7 @@ def death(bot, y, reason='npc', killer=None, now=None):
     repair = pick_repair(bot, y, killer)
     bot.event('death', now, reason=reason, killer=killer, map=H.name(bot.game_map), repair=repair)
     bot.en_route = None
+    bot.__dict__.pop('carry', None)                 # the next ship is repaired (ship.resume)
     bot.dead_until = now + bot.r.uniform(*DEATH_WAIT)
     if y is not None and y.mode == 'simple':
         y.bot_died(bot, killer)
