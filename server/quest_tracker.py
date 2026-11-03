@@ -147,13 +147,13 @@ def cond_update(cid, value, active, completed):
         'QuestConditionStateModule', currentValue=value, active=active, completed=completed)})
 
 
-def advance(p, root, vals, kind, kw, map_id=None, notify=True, fn=measure):
-    """Advances a quest's conditions with the event (values in vals, under the lock; fn: measurement, for main quests Quests.matches)
-    -> (messages, whether completed)."""
+def advance(p, root, vals, kind, kw, map_id=None, notify=True, fn=measure, only=None):
+    """Advances a quest's conditions with the event (values in vals, under the lock; fn: measurement, for main quests Quests.matches;
+    only: measure just these condition ids) -> (messages, whether completed)."""
     before = evaluate(root, vals)[0]
     changed = []
     for c in conditions(root):
-        if not before[c['id']][0]:
+        if not before[c['id']][0] or only is not None and c['id'] not in only:
             continue
         inc = fn(c, kind, kw, map_id)
         if not inc or not during_event(c):
@@ -182,6 +182,16 @@ def advance(p, root, vals, kind, kw, map_id=None, notify=True, fn=measure):
                 msgs.append(cond_update(c['id'], v, True, False))
             if moved:
                 msgs.append(cond_update(c['id'], v, *after[c['id']]))
+    # Conditions that just became active (the next step of an ordered quest) measure the current state once: "Travel to 1-2" while
+    # already on 1-2, "Reach level N" at that level. Only the woken conditions, so an already running map counter is not counted twice.
+    woke = {c['id'] for c in conditions(root) if after[c['id']][0] and not before[c['id']][0]}
+    if woke and not done:
+        state = [('level', {'value': p.d['pilot'].get('level', 1)})] + ([('map', {'map': map_id})] if map_id is not None else [])
+        for k, w in state:
+            more, done = advance(p, root, vals, k, w, map_id, notify, fn, woke)
+            msgs += more
+            if done:
+                break
     return msgs, done
 
 
