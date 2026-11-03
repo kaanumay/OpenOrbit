@@ -3019,6 +3019,7 @@
 "on": "açık",
 "on by calendar": "takvimde açık",
 "on by calendar · {0} left": "takvimde açık · {0} kaldı",
+"kept open by the Battle Pass · {0} left": "Battle Pass açık tutuyor · {0} kaldı",
 "parts {0}/{1}": "parça {0}/{1}",
 "patient": "sabırlı",
 "pilot name": "pilot adı",

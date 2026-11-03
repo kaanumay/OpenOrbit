@@ -369,12 +369,29 @@ def _period_text(a, b, lang):
     return '%d%s %s – %d%s %s' % (da, '.' * (lang == 'de'), months[ma - 1], db, '.' * (lang == 'de'), months[mb - 1])
 
 
+def running_pass(vals, sel, now):
+    """The active save's running Battle Pass (event key, end, profile record) or None: same rule as battle_pass.BattlePass.kept (closed in
+    the panel stops; one started outside its calendar period runs only while the event is on by hand or its period comes)."""
+    import event_calendar as CAL
+    slot = SAV.active()
+    bp = (read_json(SAV.profile(slot), {}) if slot else {}).get('battle_pass') or {}
+    ev = bp.get('period', '').rsplit('-', 1)[0]
+    end = (bp.get('start') or 0) + vals.get('battle_pass_duration', SET.DEFAULTS['battle_pass_duration']) * 86400
+    if ev not in CAL.EVENTS or end <= now or sel.get(ev) == 'off':
+        return None
+    if sel.get(ev) != 'on' and CAL.period(ev, bp['start']) is None and CAL.period(ev, now) is None:
+        return None
+    return ev, end, bp
+
+
 def event_list():
     import event_calendar as CAL
     lang = D.current()
     now = time.time()
     t = datetime.datetime.fromtimestamp(now)
-    sel = game_settings().get('events') or {}
+    vals = game_settings()
+    sel = vals.get('events') or {}
+    run = running_pass(vals, sel, now)
     out = []
     for key, e in CAL.EVENTS.items():
         yearly = 'periods' in e
@@ -398,6 +415,7 @@ def event_list():
             best = next((s for s, f in spans if s > t), None)
             nxt = (best - t).days + 1 if best else None
         st = sel.get(key)
+        kept = bool(run) and run[0] == key and st != 'off'   # a running pass keeps its event open (event_calendar._on)
         kinds = e.get('kinds', [])
         features = [f for f, has in (('pass', 'BattlePass' in kinds), ('map', bool(e.get('map') or e.get('map_extra') or 'NpcEvent' in kinds)),
                                      ('gate', 'gate_reward' in e), ('currency', 'currency' in e), ('decor', 'decor' in e)) if has]
@@ -406,13 +424,15 @@ def event_list():
         out.append({'key': key, 'name': _(e.get('name', key)), 'type': 'yearly' if yearly else 'weekly', 'time': when,
                     'category': category, 'features': features,
                     'in_calendar': per is not None, 'time_left_sec': int(per[1] - now) if per else None, 'next_day': nxt,
-                    'state': st, 'enabled': (st == 'on') if st else per is not None,
+                    'state': st, 'enabled': (st == 'on') if st else per is not None or kept,
+                    'pass_left_sec': int(run[1] - now) if kept and st != 'on' else None,
                     'description': _(EVENT_DESCRIPTIONS.get(key, '')),
                     'conflicting': sorted(_(CAL.EVENTS[j].get('name', j)) for j in CAL.CONFLICTS[key])})
-    # conflict (event_calendar.resolve): of those open at the same time, the one opened by hand stays, otherwise the one that started first
+    # conflict (event_calendar.resolve, _rank): of those open at the same time, the one opened by hand stays, then the one kept open by the
+    # Battle Pass, otherwise the one that started first
     rows = {x['key']: x for x in out}
     on = {k for k, x in rows.items() if x['enabled']}
-    keep = CAL.resolve(on, lambda k: (rows[k]['state'] != 'on', (CAL.period(k, now) or (0,))[0], k))
+    keep = CAL.resolve(on, lambda k: (0 if rows[k]['state'] == 'on' else 1 if run and run[0] == k else 2, (CAL.period(k, now) or (0,))[0], k))
     for k in on - keep:
         rows[k]['enabled'] = False
         rows[k]['suppressed_by'] = next(rows[j]['name'] for j in sorted(keep, key=lambda j: rows[j]['name']) if j in CAL.CONFLICTS[k])
@@ -427,16 +447,14 @@ def pass_status(evs):
     now, vals = time.time(), game_settings()
     days = lambda k: vals.get(k, SET.DEFAULTS[k])
     slot = SAV.active()
-    p = read_json(SAV.profile(slot), {}) if slot else {}
-    season, bp = p.get('season') or {}, p.get('battle_pass') or {}
+    season = (read_json(SAV.profile(slot), {}) if slot else {}).get('season') or {}
     s_end = season.get('start', 0) + days('season_duration') * 86400
     out = {'season': {'name': EG.season(season['period'])['name'], 'left_sec': int(s_end - now)} if season.get('period') and s_end > now else None,
            'season_days': days('season_duration'), 'pass_days': days('battle_pass_duration'), 'pass': None}
     names = {e['key']: e for e in evs}
-    ev = bp.get('period', '').rsplit('-', 1)[0]
-    b_end = (bp.get('start') or 0) + days('battle_pass_duration') * 86400
-    if ev in names and b_end > now and names[ev]['state'] != 'off':
-        out['pass'] = {'name': names[ev]['name'], 'left_sec': int(b_end - now), 'bought': bool(bp.get('purchased'))}
+    run = running_pass(vals, vals.get('events') or {}, now)
+    if run and run[0] in names:
+        out['pass'] = {'name': names[run[0]]['name'], 'left_sec': int(run[1] - now), 'bought': bool(run[2].get('purchased'))}
     passes = [e for e in evs if e['category'] == 'pass']
     out['pass_open'] = next((e['name'] for e in passes if e['enabled']), None)
     soon = sorted((e for e in passes if e['next_day'] is not None and e['state'] != 'off'), key=lambda e: e['next_day'])

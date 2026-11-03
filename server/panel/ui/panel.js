@@ -1190,7 +1190,8 @@ function drawEventList() {
     const status = e.enabled ? badge(e.state === 'on' && !e.in_calendar ? T('On (manual)') : T('On'), 'ok')
       : e.suppressed_by ? badge(T('Off (conflict: {0})', e.suppressed_by), 'err')
       : badge(e.state === 'off' && e.in_calendar ? T('Off (manual)') : T('Off'), e.state === 'off' ? 'err' : '');
-    const cal = e.in_calendar ? (e.time_left_sec != null ? T('on by calendar · {0} left', fmtDur(e.time_left_sec)) : T('on by calendar'))
+    const cal = e.pass_left_sec != null && e.enabled ? T('kept open by the Battle Pass · {0} left', fmtDur(e.pass_left_sec))
+      : e.in_calendar ? (e.time_left_sec != null ? T('on by calendar · {0} left', fmtDur(e.time_left_sec)) : T('on by calendar'))
       : (e.next_day != null ? T('by calendar in {0} days', e.next_day) : T('off by calendar now'));
     const clash = e.conflicting.filter(n => !(e.category === 'pass' && passNames.has(n)));      // the pass rule is explained once, in the group
     return h('div', { class: 'ev-card' + (e.enabled ? ' on' : e.suppressed_by ? ' blocked' : '') },

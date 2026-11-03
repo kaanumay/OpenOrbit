@@ -3019,6 +3019,7 @@
 "on": "activé",
 "on by calendar": "activé selon le calendrier",
 "on by calendar · {0} left": "activé selon le calendrier · reste {0}",
+"kept open by the Battle Pass · {0} left": "maintenu ouvert par le Battle Pass · reste {0}",
 "parts {0}/{1}": "pièces {0}/{1}",
 "patient": "patient",
 "pilot name": "nom du pilote",
