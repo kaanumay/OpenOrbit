@@ -171,6 +171,7 @@ def rocket(w, other, now):
     w.abilities.reveal()
     w.items.reveal()
     w.last_combat = w.last_pvp = other.last_pvp = now
+    w.attacked(now)                                     # a miss too (world.attacked)
     w.stop_repair()
     w.p.ach('shot', weapon='ROCKET_LAUNCHER')
     mods = w.p.mods()

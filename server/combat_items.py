@@ -837,7 +837,7 @@ class Items:
             sh = min(n.shield, int(hp * n.d.get('shield_absorb', _N['combat']['npc_shield_absorb'])))
             hp = min(max(0, n.hp - 1), hp - sh)
         if sh or hp:
-            w.hit_npc(n.id, 0, ATTACK_MINE, split=(int(sh), int(hp)))
+            w.hit_npc(n.id, 0, ATTACK_MINE, split=(int(sh), int(hp)), reactive=True)       # laid earlier: not an attack (world.attacked)
         if not n.alive:
             return
         if 'slow' in cfg:
@@ -1171,6 +1171,7 @@ class Items:
                                 * SET.multiplier('rocket_cooldown'))                                               # panel
         p.ach('shot', weapon='ROCKET_LAUNCHER')
         self.launcher_cd = now + LAUNCHER_COOLDOWN            # recording (2026-10-27, 117 shots): exactly 3.0 s counter after a shot
+        w.attacked(now, LAUNCHER_COOLDOWN + ROCKET_FLIGHT)    # a miss too
         menu = S['launcher']['menu']
         self.send([('MenuItemTimerCommand', dict(activatable=False, timerState=mod('TimerStateModule', timerStateValue=2),
                                                  maxTime=int(LAUNCHER_COOLDOWN * 1000), time=int(LAUNCHER_COOLDOWN * 1000), menuItemId=menu))])
@@ -1222,6 +1223,7 @@ class Items:
         w.abilities.reveal()
         self.reveal()
         w.last_combat = now
+        w.attacked(now, ROCKET_FLIGHT)                        # a miss too
         w.stop_repair()
         p.ach('shot', weapon='ROCKET_LAUNCHER')
         hit = random.random() < w.rocket_hit(rocket)

@@ -103,7 +103,7 @@ class Abilities:
             return False
         if (w.abilities.cloaked(now) or w.items.cloaked()) and not (n is not None and n.engaged):      # an attacking alien ignores cloaking
             return False
-        return not w.in_peace(*w.hero_pos(now)) or bool(n is not None and w.npc_retaliating(n))
+        return not w.in_peace(*w.hero_pos(now)) or bool(n is not None and w.npc_retaliating(n, now))
 
     def adopt(self, parent, child):
         """What the alien spawned/summoned: does not respawn; counts as the wave's alien at the gate (the wave does not end until it dies)."""

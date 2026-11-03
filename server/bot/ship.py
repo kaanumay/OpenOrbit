@@ -911,12 +911,18 @@ def notice_bot(w, m, now, hero_dist):
             continue
         tx, ty = t.mover.pos(now)
         d = math.hypot(tx - mx, ty - my)
-        if d < reach and (best is None or d < best[0]) and not w.in_peace(tx, ty):
+        if d < reach and (best is None or d < best[0]) and not _in_peace(w, tx, ty, t.bot):
             best = (d, t)
     if best is None:
         return False
     m.bot_target, m.next_think = best[1].id, now
     return True
+
+
+def fighting(w, n):
+    """The bot is fighting: its target is a living ship on the map (an alien or a bot; world.hero_fighting for the pilot)."""
+    t = w.npcs.get(n.target)
+    return t is not None and t.alive
 
 
 def npc_to_bot(w, m, now):
@@ -943,9 +949,9 @@ def npc_to_bot(w, m, now):
         # a guard (Cubikon's Protegits) does not chase the bot away from its summoner all the way to the portal: the same as the player's leash (world.leashed)
         m.bot_target = None
         return False
-    if w.in_peace(tx, ty) and t.id not in m.attackers:
-        # safe zone: the player's rule (world.npc_retaliating), it enters only after an alien the bot hit; summoned
-        # helpers were rushing into the zone and firing
+    if _in_peace(w, tx, ty, t.bot) and not fighting(w, t):
+        # safe zone (the zones that protect this bot: its company's): the player's rule (world.npc_retaliating): the zone is void only
+        # while the bot keeps fighting there; a bot that is not fighting (fled, ceased fire) is let go by every alien after it
         m.bot_target = None
         w.alien_ceasefire(m)
         w.stop_npc_motion(m, now)

@@ -432,7 +432,7 @@ class World:
         self.gate_lives = None         # HP left when dying at a gate (the death screen's text)
         self.near_gate = None
         self.gate_peace = False        # in the safe zone around a portal (BeaconCommand.inPeaceArea)
-        self.peace_void = False        # an alien the player attacked in a safe zone is fighting them: the zone is void for them
+        self.peace_void = False        # the player keeps fighting in a safe zone with an alien after him: the zone is void for him
         self.entered = time.time()     # entering the map (in 4-5 the portal DMZ for a while)
         self.station_inside = None     # in the station zone (BeaconCommand.inStation); None: sent on the first step
         self.jumping = False
@@ -440,6 +440,7 @@ class World:
         self.repairing = False
         self.next_repair = 0.0
         self.last_combat = 0.0         # last shot or damage taken (the repair robot works out of combat)
+        self.attack_until = 0.0        # the pilot's last offensive action keeps him fighting until then (attacked; the safe zone's rule)
         self.last_pvp = 0.0            # last PvP shot fired at or taken from a player (player_combat.py; portal lock in 4-X)
         self.next_shield = 0.0
         self.next_form_shield = 0.0    # the formation's shield refill/drain (form_shield_tick)
@@ -1649,9 +1650,9 @@ class World:
         s = self.station_at(hx, hy)
         inside = bool(s)
         ready = self.in_station(now)
-        # if the alien the player attacked is also hitting them in the safe zone, the zone does not apply to them: the "Demilitarized zone" text
-        # is not shown (player report 2026-10-28, real game)
-        void = any(n.alive and self.npc_retaliating(n) for n in self.npcs.values())
+        # if the player keeps fighting in the safe zone while an alien chases him, the zone does not apply to him: the "Demilitarized zone"
+        # text is not shown (player report 2026-10-28, real game)
+        void = any(n.alive and self.npc_retaliating(n, now) for n in self.npcs.values())
         if (gid == self.near_gate and peace == self.gate_peace and inside == self.station_inside and void == self.peace_void
                 and ready == getattr(self, 'equip_ready', None)):
             return
@@ -1909,6 +1910,7 @@ class World:
                      * (1 + self.p.mods().get('rocket_cooldown', 0))                               # 3D Ring +%25, 3D Dome -%25, Demon -%5
                      * EX.rocket_factor(self.p) * SET.multiplier('rocket_cooldown'))                          # R0K-T01: halved; panel
             ms = self.abilities.rocket_ms(ms, now)                  # Rapid Fire (Tartarus)
+            self.attacked(now, ms / 1000 + COMBAT['rocket_flight_sec'])      # a miss too: fighting until the next rocket could fly
             self.rocket_ready = now + ms / 1000
             hit = random.random() < self.rocket_hit(rocket)
             self.send(self.ammo_msgs(rocket) + [self.rocket_msg(uid, hit, ITEMS['rockets'].get(rocket, {}).get('uid', 1)),
@@ -2257,10 +2259,11 @@ class World:
                                                             star=0, isNew=False, hangarId=0, extAttributes=[], inventoryItemAttributes=[])})
 
     def hit_npc(self, uid, dmg, atype, shield_only=False, attacker=None, hull_only=False, split=None, strike=False, cannon=0,
-                engage=True, source_asset=False, ammo=None):
+                engage=True, source_asset=False, ammo=None, reactive=False):
         """A hit by the hero (or the P.E.T.): the shield absorbs 70% of the damage (from the recording), the rest goes to HP. Ammo like SAB-50
         hits only the shield. split=(to the shield, to the hull): damage with a fixed ratio like a mine (no absorption). engage=False: the hitter is not
-        the player (the Clan Battle Station's satellites): the alien does not turn on the player. ammo: the laser's or rocket's ammo; if the type has
+        the player (the Clan Battle Station's satellites): the alien does not turn on the player. reactive: damage the pilot did not fire (a mine
+        laid earlier, reflected or mirrored damage): not an attack of his (attacked). ammo: the laser's or rocket's ammo; if the type has
         'ammo_only' only that ammo does damage (Referee-Bot: CBO-100 and CBR; the P.E.T., mines and abilities cannot hit it either)."""
         with self.lock:
             n = self.npcs.get(uid)
@@ -2322,10 +2325,8 @@ class World:
             # summoning and vanishing at an HP threshold (alien.py); reversed controls and EMPs answer only the pilot's own hit, not the P.E.T.'s or a
             # battle station's (a Boss Saimon hit by the base reversed the controls of a pilot who wasn't attacking it: player report 2026-11-02)
             self.alien.on_hit(n, dmg, attacker, now, to_player=engage and not attacker)
-            if engage and not attacker:                  # the pilot's own hit lets this NPC fight on inside a protected zone; the P.E.T.'s does not
-                if getattr(n, 'station_retaliation', None) is None:
-                    n.station_retaliation = {}
-                n.station_retaliation[self.hid] = now    # keep each player's permission on a shared NPC
+            if engage and not attacker and not reactive:
+                self.attacked(now)                       # his own hit (laser, rocket, ability, technology, cannon): he is fighting
             if engage:
                 tag_alien(n, ('h', self.hid), now)                # the first to fire tags (a miss too; the P.E.T.'s hit is also its owner's)
                 record_damage(n, ('h', self.hid), dmg)
@@ -3587,7 +3588,7 @@ class World:
             dmg = int(raw * max(0.0, 1 + m.get('laser_taken', 0)))                              # Spectrum
             self.npc_hit_tick(n, dmg, now)
             if raw - dmg >= 1 and n.alive and SA.effect(self.p, 'reflect_laser', now):
-                self.hit_npc(n.id, int(raw - dmg), 1)  # Spectrum Plus Prismatic Reflecting: the reduced damage goes to the attacker
+                self.hit_npc(n.id, int(raw - dmg), 1, reactive=True)  # Spectrum Plus Prismatic Reflecting: the reduced damage goes to the attacker
             self.alien.after_shot(n, now, True)        # slowing shot (alien.py)
         else:
             self.last_combat = now
@@ -3627,7 +3628,7 @@ class World:
         if dmg and killer is not None and getattr(killer, 'alive', False):
             back = SA.effect(self.p, 'mirror', now) or self.hero_effects.ability('mirror', now)       # Berserker Revenge (Mimesis Chest's too): the damage returns to the attacker
             if back:
-                self.hit_npc(killer.id, int(raw * back), 1)
+                self.hit_npc(killer.id, int(raw * back), 1, reactive=True)
             heal = SA.effect(self.p, 'absorb_hp', now) or self.hero_effects.ability('absorb_hp', now)  # Orcus Assimilate (Mimesis Chest's too): the alien damage turns into HP
             if heal:
                 self.p.set_hull(hp=g.get('hitPoints', 0) + dmg * heal)
@@ -4061,7 +4062,6 @@ class World:
         if n.engaged and not self.hero_dead:
             self.send(self.combat_state(COMBAT_ESCAPED, now))        # "You escaped the attack."
         n.engaged = False
-        n.station_retaliation = {}
         n.flee = flee
         n.park = None
         n.next_think = now
@@ -4137,14 +4137,24 @@ class World:
         px, py = post.mover.pos(now)
         return math.hypot(hx - px, hy - py) > n.guard[1].get('leash', n.guard[1]['radius'][1] + self.npc_range(n))
 
-    def npc_retaliating(self, n):
-        """In a protected zone (station, portal, layout safe zone) only the NPC the pilot attacked in this encounter keeps fighting him."""
-        permissions = getattr(n, 'station_retaliation', None) or {}
-        when = permissions.get(self.hid)
-        if when is not None and when < max(self.entered, self.death_time):
-            permissions.pop(self.hid, None)     # a previous map visit or life grants no permission
+    def npc_retaliating(self, n, now=None):
+        """In a protected zone (station, portal, layout safe zone) the zone is void for a pilot who keeps fighting (hero_fighting): every
+        alien chasing him fights on. Once he stops attacking they all let go (user decision 2026-11-03; before, only the alien he had hit kept
+        fighting him, and that one for the whole encounter)."""
+        return bool(n.engaged and self.hero_fighting(now))
+
+    def attacked(self, now, reload_sec=0.0):
+        """The pilot's own offensive action: any hit of his on a ship (hit_npc), and the shots that can miss where they are fired (rocket,
+        launcher, special rocket, Particle Cannon and Drive, PvP rocket). He counts as fighting until that weapon could fire again, at least
+        out_of_combat_sec: one who keeps firing rockets fights on between two of them, one who stopped is let go after the window."""
+        self.attack_until = max(self.attack_until, now + max(ITEMS['out_of_combat_sec'], reload_sec + 1.0))
+
+    def hero_fighting(self, now=None):
+        """The pilot is fighting: his laser attack runs (not cancelled) or an offensive action of his is recent (attacked). The P.E.T.'s
+        fight is not his (forum: the P.E.T. does not take the aggro)."""
+        if self.hero_dead or self.jumping:
             return False
-        return bool(n.engaged and when is not None)
+        return self.attacking or (time.time() if now is None else now) < self.attack_until
 
     def hero_in_peace(self, hx, hy):
         """in_peace(hero): in the step's alien loop every alien asks about the same position, computed once per position."""
@@ -4178,7 +4188,7 @@ class World:
         hx, hy = self.hero_pos(now)
         nx, ny = n.mover.pos(now)
         dist = math.hypot(hx - nx, hy - ny)
-        retaliating = self.npc_retaliating(n)
+        retaliating = self.npc_retaliating(n, now)
         # protected zone (station, portal, layout safe zone): nobody attacks the pilot, except the alien he attacked (permission set in hit_npc)
         zoned = self.hero_in_peace(hx, hy) and not retaliating
         cloaked = self.abilities.cloaked(now) or self.items.cloaked()
@@ -4255,7 +4265,7 @@ class World:
                 # within the map: so an alien does not leave the map while the player is at the edge or outside the boundary (radiation)
                 tx = min(max(tx, 300), self.map_w - 300)
                 ty = min(max(ty, 300), self.map_h - 300)
-                follows = retaliating and self.hero_in_peace(hx, hy)      # the alien the pilot attacked follows him into the zone
+                follows = retaliating and self.hero_in_peace(hx, hy)      # the pilot fights on in the zone: the chasing alien follows him in
                 if not hunt and not follows and (self.path_near_zone(nx, ny, tx, ty, allow_station=retaliating)
                                                  or (self.near_zone(tx, ty, 0) and not (retaliating and self.station_at(tx, ty)
                                                                                        and not self.near_gate_peace(tx, ty)))):

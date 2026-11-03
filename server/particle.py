@@ -466,6 +466,7 @@ class Shot:
         e = row['element']
         self.cool(COOLDOWN_CANNON, C['interval_sec'] * max(0.1, 1 + p.mods().get('cannon_cooldown', 0)), now)    # Supercharge Plus -%50
         w.last_combat = now
+        w.attacked(now, C['interval_sec'])                       # a miss too (world.attacked)
         hit = random.random() < C['hit'] * (1 + a.get('cannon_hit_chance_' + e, 0) / 100.0 + p.mods().get('cannon_hit', 0))   # Lepus
         msgs = w.ammo_msgs(slug) + [('CannonAttackCommand', dict(cannonType=row['cannonType'], hit=hit, attackerId=w.hid, attackedId=n.id))]
         w.send(msgs)
@@ -545,6 +546,7 @@ class Shot:
         p.use_ammo(gsp, len(ids))
         self.cool(COOLDOWN_DRIVE, DR['cooldown_sec'], now)
         w.last_combat = now
+        w.attacked(now, DR['cooldown_sec'])                      # a miss too (world.attacked)
         shot, vm = DR['effect'][str(best)]
         x, y = n.mover.pos(now)
         import ship_ability as SA
