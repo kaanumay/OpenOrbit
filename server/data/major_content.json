@@ -1372,7 +1372,7 @@
     "name": "-=[ Medic Mimesis ]=-",
     "model": "287",
     "npc_id": 243,
-    "hp": 2450000,
+    "hp": 2437500,
     "shield": 1625000,
     "damage": 15500,
     "speed": 300,

@@ -1,5 +1,5 @@
 {
- "_description": "Alien abilities (roadmap Phase 4; applied by alien.py and world.py). The key is the client's npcId (npc.json npc_id, gates.json npc_id): the same alien comes with the same ability on the map and in the gate. Source belgeler/wiki/aliens.md (wiki); where the wiki gives no numbers, see the '_adaptation' note. Fields: summon_on_hit {type, count, max_count, cooldown_sec, first_cooldown_sec (on the first hit after calm_sec (15) without being hit, the summon happens this long afterwards), calm_sec, interval_sec (the swarm comes out in succession at this interval), guard {radius: [min, max], leash (if absent, max + firing range)} (summoned ones roam around the summoner; also while attacking, keeping the player within their range; if the player is farther from the summoner than the leash, they stop chasing)}, regeneration {hp_sec, shield_per_sec, cooldown_sec}, spawn_on_death [{type, count}], invulnerable_while_summons_live, repair_while_summons_alive {hp_sec}, anger {attacker, duration_sec, damage_multiplier, extra_summon, repair_hp_per_sec}, summon_at_hp_threshold [{ratio, type, count}], cloak_breaker {range}, slowing_shots {speed | ratio, sec, range}, multi_target {hp_ratio}, rocket {damage, cooldown_sec, launcher, count, type (old rocket id; 1 if absent)}, singularity {damage_per_sec, maximum, duration_sec, range, cooldown_sec, visual (vortex; present if absent)}, explode_on_contact {damage, radius}, disappear {damage, fake, distance, explosion, explosion_radius, fake_lifetime_sec, hp_sec, shield_per_sec}, sticky_bomb {damage, interval_sec, delay_sec, group}, speed_skill {speed, shield_ratio}, capsules {count, interval_sec, collect_ms, harvest_distance, hp, shield, damage}, summons_scatter_on_death {lifetime_sec}, kamikaze_threshold {ratio, wait_sec, approach_sec, radius, damage_hp_ratio}, reverse_controls {shield_ratio | hp_ratio, sec}. improvement {hp_sec | hp_ratio, cooldown_sec, range, target [name fragments; if absent, every alien]} (repairs the hull of nearby aliens, not itself), follow {target (name fragment), radius [min, max]} (roams around that alien in the guard pattern), periodic_summon {cooldown_sec, summons [{type, count, max_count}]} (summons even if not hit while fighting), drop_mine {mine, hp_ratio, cooldown_sec, max_count, target, radius [min, max]} (while its HP is below hp_ratio and it is fighting, it drops a mine: at the alien's position, or around the player if target is true; it does not drop a new one while max_count mines are alive), periodic_emp {cooldown_sec, range}, death_beam {damage, interval_sec, distance} (while fighting, when the player is farther than distance from the Overlord, damage once every interval_sec), emp_on_shield_down (bool: EMP every time the shield runs out), critical_emp {hp_ratio} (once), reverse_shot {sec, cooldown_sec} (a laser that hits reverses the controls), player_speed {extra, hp_ratio} (speed equal to the player's; if hp_ratio is present, only at that HP), explode_on_contact.at_edge (the remaining share of the damage at the edge of the explosion radius; full on contact), sticky_bomb.damage can be [min, max]. Top-level \"low_hp\": low-HP escape and parking of map strays (alien.low_health; ratio, return_ratio, edge_margin, regeneration, range_boost).",
+ "_description": "Alien abilities (roadmap Phase 4; applied by alien.py and world.py). The key is the client's npcId (npc.json npc_id, gates.json npc_id): the same alien comes with the same ability on the map and in the gate. Source belgeler/wiki/aliens.md (wiki); where the wiki gives no numbers, see the '_adaptation' note. Fields: summon_on_hit {type, count, max_count, cooldown_sec, first_cooldown_sec (on the first hit after calm_sec (15) without being hit, the summon happens this long afterwards), calm_sec, interval_sec (the swarm comes out in succession at this interval), guard {radius: [min, max], leash (if absent, max + firing range)} (summoned ones roam around the summoner; also while attacking, keeping the player within their range; if the player is farther from the summoner than the leash, they stop chasing)}, regeneration {hp_sec, shield_per_sec, cooldown_sec}, spawn_on_death [{type, count}], invulnerable_while_summons_live, repair_while_summons_alive {hp_sec}, anger {attacker, duration_sec, damage_multiplier, extra_summon, repair_hp_per_sec}, summon_at_hp_threshold [{ratio, type, count}], cloak_breaker {range}, slowing_shots {speed | ratio, sec, range}, multi_target {hp_ratio}, rocket {damage, cooldown_sec, launcher, count, type (old rocket id; 1 if absent), rockets [special rocket ids: each shot one at random, its items.json effect on the player]}, singularity {damage_per_sec, maximum, duration_sec, range, cooldown_sec, visual (vortex; present if absent), emp_clears (the player's EMP ends it)}, explode_on_contact {damage, radius, inverse_absorb (the shield takes the hull's share), cloak_breaks_lock}, disappear {damage, fake, distance, explosion, explosion_radius, fake_lifetime_sec, hp_sec, shield_per_sec}, sticky_bomb {damage, interval_sec, delay_sec, group}, speed_skill {speed, shield_ratio}, capsules {count, interval_sec, collect_ms, harvest_distance, hp, shield, damage}, summons_scatter_on_death {lifetime_sec}, kamikaze_threshold {ratio, wait_sec, approach_sec, radius, damage_hp_ratio}, reverse_controls {shield_ratio | hp_ratio, sec}, flee_repair {ratios} (flees and repairs like low_hp once below each HP ratio). improvement {hp_sec | hp_ratio, cooldown_sec, range, target [name fragments; if absent, every alien]} (repairs the hull of nearby aliens, not itself), follow {target (name fragment), radius [min, max]} (roams around that alien in the guard pattern), periodic_summon {cooldown_sec, summons [{type, count, max_count}]} (summons even if not hit while fighting), drop_mine {mine, hp_ratio, cooldown_sec, max_count, target, radius [min, max]} (while its HP is below hp_ratio and it is fighting, it drops a mine: at the alien's position, or around the player if target is true; it does not drop a new one while max_count mines are alive), periodic_emp {cooldown_sec, range}, death_beam {damage, interval_sec, distance} (while fighting, when the player is farther than distance from the Overlord, damage once every interval_sec), emp_on_shield_down (bool: EMP every time the shield runs out), critical_emp {hp_ratio} (once), reverse_shot {sec, cooldown_sec} (a laser that hits reverses the controls), player_speed {extra, hp_ratio} (speed equal to the player's; if hp_ratio is present, only at that HP), explode_on_contact.at_edge (the remaining share of the damage at the edge of the explosion radius; full on contact), sticky_bomb.damage can be [min, max]. Top-level \"low_hp\": low-HP escape and parking of map strays (alien.low_health; ratio, return_ratio, edge_margin, regeneration, range_boost).",
  "skills": {
   "13": {
    "_name": "Cubikon",
@@ -377,14 +377,15 @@
   },
   "235": {
    "_name": "Cloning Mimesis",
-   "summon_on_hit": {
-    "type": "event_cloned_mimesis",
-    "count": 3,
-    "max_count": 3,
-    "cooldown_sec": 30
-   },
-   "_source": "aliens.md: creates 3 clones (Cloned Mimesis), the clones do nothing",
-   "_adaptation": "when hit, at most 3 clones, 30 s cooldown"
+   "summon_at_hp_threshold": [
+    {
+     "ratio": 1.0,
+     "type": "event_cloned_mimesis",
+     "count": 3
+    }
+   ],
+   "_source": "forum board-en 127094 (SC Mimesis Mutiny NPC stats, 2021): spawns 3 clones once; aliens.md: the clones (Cloned Mimesis)",
+   "_adaptation": "on the first hit"
   },
   "237": {
    "_name": "Terror Mimesis",
@@ -393,31 +394,50 @@
      "ratio": 0.5,
      "type": "event_kamikaze_mimesis",
      "count": 5
+    },
+    {
+     "ratio": 0.25,
+     "type": "event_kamikaze_mimesis",
+     "count": 5
     }
    ],
-   "_source": "aliens.md: at 50% HP summons 5 Kamikaze Mimesis"
+   "flee_repair": {
+    "ratios": [
+     0.5,
+     0.25
+    ]
+   },
+   "_source": "forum board-en 127094 (SC Mimesis Mutiny NPC stats, 2021): flees to repair below 50% and 25% HP, launching Kamikaze Mimesis each time; aliens.md: 5 Kamikaze Mimesis",
+   "_adaptation": "the flight and the repair are the low_hp ones (edge point, regenerates while not hit)"
   },
   "238": {
    "_name": "Kamikaze Mimesis",
    "explode_on_contact": {
     "damage": 20000,
-    "radius": 500
+    "radius": 500,
+    "inverse_absorb": true,
+    "cloak_breaks_lock": true
    },
-   "_source": "aliens.md: does not fire lasers, explodes when it nears your ship (20,000 bomb damage)",
+   "_source": "aliens.md: does not fire lasers, explodes when it nears your ship (20,000 bomb damage); forum board-en 127094 (SC Mimesis Mutiny NPC stats, 2021): ~20K blast, the shield/hull split is the inverse of the generators' (80/20 -> 20/80), EMP or cloaking breaks its lock, does not despawn",
    "_adaptation": "explosion distance 500, comes without a reward"
   },
   "239": {
    "_name": "Reflector Mimesis",
    "singularity": {
-    "damage_per_sec": 10000,
-    "maximum": 100000,
+    "damage_per_sec": 18000,
+    "maximum": 180000,
     "duration_sec": 10,
     "range": 800,
-    "cooldown_sec": 30,
-    "visual": false
+    "cooldown_sec": 16,
+    "visual": false,
+    "emp_clears": true
    },
-   "_source": "aliens.md: laser and radiation damage (10,000 per second for 10 s)",
-   "_adaptation": "range 800, 30 s cooldown; the singularity's vortex is not shown"
+   "_source": "forum board-en 127094 (SC Mimesis Mutiny NPC stats, 2021): 18K DPS for 10 s (180K), 6 s cooldown, removable with EMP; below 50% HP reverses nearby enemies' direction; aliens.md: laser and radiation damage",
+   "_adaptation": "range 800; the cooldown counts from the start (10 s + 6 s); reversed controls 5 s, once (like Boss StreuneR); the vortex is not shown",
+   "reverse_controls": {
+    "hp_ratio": 0.5,
+    "sec": 5
+   }
   },
   "38": {
    "_name": "Uber StreuneR",
@@ -658,6 +678,18 @@
    },
    "_source": "Official Turkish forum 127347 (??? map): Uber Protegits slow down",
    "_adaptation": "Saboteur's slowing shot (speed 120, 5 s, range 300)"
+  },
+  "233": {
+   "_name": "Hexor Mimesis",
+   "rocket": {
+    "rockets": [
+     "ammunition_specialammo_dcr-250",
+     "ammunition_specialammo_r-ic3"
+    ],
+    "cooldown_sec": 15
+   },
+   "_source": "forum board-en 127094 (SC Mimesis Mutiny NPC stats, 2021): slow and ice rockets, cooldown unknown",
+   "_adaptation": "one rocket every 15 s, at random a DCR-250 (speed -30%, 5 s) or an R-IC3 (frozen 2 s); no rocket damage"
   }
  },
  "capsule_types": [

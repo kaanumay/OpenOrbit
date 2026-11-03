@@ -3585,6 +3585,8 @@ class World:
         roll = random.random()
         if roll < aim * (1 - m.get('evasion', 0)):
             raw = n.d['damage'] * random.uniform(0.8, 1.0) * self.alien.laser_factor(n, now)      # recording: x0.8-1.0; rage, DMG capsule
+            if random.random() < n.d.get('double_chance', 0):
+                raw *= 2                         # Cloning Mimesis (forum 127094): 30-38K, sometimes doubled to 70K+
             dmg = int(raw * max(0.0, 1 + m.get('laser_taken', 0)))                              # Spectrum
             self.npc_hit_tick(n, dmg, now)
             if raw - dmg >= 1 and n.alive and SA.effect(self.p, 'reflect_laser', now):
@@ -3610,7 +3612,8 @@ class World:
         if dmg > 0 and not self.hero_dead:
             self.send(self.hurt_hero(dmg, n, now=time.time()))
 
-    def hurt_hero(self, dmg, killer=None, atype=1, msgs=None, now=None, cause=None, source_player=None, shield_only=False, source_asset=False):
+    def hurt_hero(self, dmg, killer=None, atype=1, msgs=None, now=None, cause=None, source_player=None, shield_only=False, source_asset=False,
+                  inverse_absorb=False):
         """Damage to the player (the alien's laser, rocket, bomb, singularity, explosion): Fortify, Insta-Shield; the shield absorbs at the generators'
         ratio, the nano hull melts after the shield and before the hull; Anti-AI base; test invulnerability. -> messages
         (AttackHitCommand; if HP runs out, the death screen)."""
@@ -3643,6 +3646,8 @@ class World:
         absorption = self.p.d.get('shield_absorb', 0.8)
         if source_player:
             absorption = max(0.0, absorption - source_player.p.mods().get('shield_penetration', 0))
+        if inverse_absorb:
+            absorption = round(1 - absorption, 6)   # Kamikaze Mimesis (forum 127094): 80/20 shields take its blast 20/80
         to_shield = min(sh, dmg if shield_only else int(dmg * absorption))   # the shield generators' absorption ratio (esyalar.json)
         if shield_only:
             dmg = to_shield

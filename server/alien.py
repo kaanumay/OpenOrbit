@@ -83,7 +83,7 @@ class Abilities:
     def __init__(self, world):
         import world as world_module                # world imports this module; the values are taken when the world is built
         self.w = world
-        self.S, self.CFG, self.Mover = world_module.COMBAT, world_module.CFG, world_module.Mover
+        self.S, self.CFG, self.Mover, self.ITEMS = world_module.COMBAT, world_module.CFG, world_module.Mover, world_module.ITEMS
         self.capsules = {}          # capsule id -> {x, y, type, owner}
         self.next_capsule = CAPSULE_BASE
         self.hero_dots = []         # singularities on the player: {npc, end_time, remaining, damage_per_sec, next}
@@ -385,7 +385,7 @@ class Abilities:
                     BG.bot_damage(w, h, int(dmg), uid, time.time(), npc=w.npcs.get(uid) or n)
             w.later(delay, at) if delay else at()
         r = d.get('rocket')
-        if r and now >= n.ab.get('rocket', 0) and aliens <= w.npc_range(n):
+        if r and r.get('damage') and now >= n.ab.get('rocket', 0) and aliens <= w.npc_range(n):     # effect-only rockets: player only
             n.ab['rocket'] = now + r.get('cooldown_sec', 8)
             if random.random() < self.S['rocket_hit_chance']:
                 from legacy_protocol import legacy
@@ -484,6 +484,9 @@ class Abilities:
         m = w.p.mods()
         hit = random.random() < self.S['rocket_hit_chance'] * (1 - m.get('evasion', 0)) * (1 - n.effect.accuracy_loss(now))
         flight = self.S['rocket_flight_sec']
+        special = self.ITEMS['rockets'][random.choice(r['rockets'])] if r.get('rockets') else None    # Hexor: DCR-250 / R-IC3
+        if special:
+            r = dict(r, type=special['uid'], damage=special.get('damage', 0))
         if r.get('launcher'):
             import combat_items as CIT
             kind = CIT.LAUNCHER_AMMO.get('ammunition_rocketlauncher_eco-10', {}).get('type', 1)
@@ -503,7 +506,11 @@ class Abilities:
                 w.send([('AttackMissedCommand', dict(attackType=mod('AttackTypeModule', attackTypeValue=0), targetUserId=w.hid,
                                                      skillColorId=0))])
                 return
-            w.send(w.hurt_hero(dmg, w.npcs.get(uid) or n, atype=0))
+            if dmg > 0:
+                w.send(w.hurt_hero(dmg, w.npcs.get(uid) or n, atype=0))
+            if special:                                   # the special rocket's effect on the player (slow 30% 5 s / frozen 2 s)
+                for kind, (val, sec) in special.get('effect', {}).items():
+                    w.hero_effect(kind, sec, val, source='rocket_%s' % n.tip)
         w.later(flight, land)
 
     def singularity(self, n, now):
@@ -517,19 +524,22 @@ class Abilities:
         if visual and not any(d_.get('visual') for d_ in self.hero_dots):
             self.w.send([self.singularity_visual(True)])    # live test H30: there was damage, no visual
         self.hero_dots.append(dict(npc=n.id, end_time=now + t['duration_sec'], remaining=t['maximum'], damage_per_sec=t['damage_per_sec'], next=now + 1.0,
-                                   range=rng, visual=visual))
+                                   range=rng, visual=visual, emp=bool(t.get('emp_clears'))))
         self.w.log('   %s singularity started' % n.d['name'])
 
     def kamikaze(self, n, now):
         """Kamikaze Mimesis: explodes when it gets within yaricap of the player (bomb damage) and leaves without a reward."""
         t, w = n.behavior['explode_on_contact'], self.w
+        if t.get('cloak_breaks_lock') and n.engaged and (w.abilities.cloaked(now) or w.items.cloaked()):
+            n.engaged = False                                # forum 127094: cloaking (like EMP) breaks the Kamikaze's lock
+            return
         if not n.engaged or not self.hero_open(now, n) or self.dist(n, now) > t['radius']:
             return
         dmg = t['damage']
         if 'at_edge' in t:         # Seeker Rocket: damage by the distance at the moment of explosion (full on contact, "kenarda" of it at the edge of yaricap)
             dmg = int(dmg * (1 - (1 - t['at_edge']) * min(1.0, self.dist(n, now) / t['radius'])))
         boom = [('ShipDestroyedCommand', dict(destroyedUserId=n.id, explosionTypeId=0))] if n.id in w.visible else []
-        w.send(w.hurt_hero(dmg, n, atype=0) + boom + w.remove_npc(n))
+        w.send(w.hurt_hero(dmg, n, atype=0, inverse_absorb=bool(t.get('inverse_absorb'))) + boom + w.remove_npc(n))
         w.log('   %s exploded: %d damage' % (n.d['name'], dmg))
 
     def threshold_kamikaze(self, n, now):
@@ -777,7 +787,14 @@ class Abilities:
         if n.effect.frozen(now):
             return st['state'] if st else None
         if st is None:
-            if not (0 < n.hp < n.d['hp'] * LOW['ratio']) or not self.flees(n):
+            fr = n.behavior.get('flee_repair')
+            if fr:                         # Terror Mimesis (forum 127094): flees to repair once below each HP threshold
+                crossed = [r for r in fr['ratios'] if 0 < n.hp <= n.d['hp'] * r and 'flee_%s' % r not in n.ab]
+                if not crossed or n.summoned or n.d['speed'] <= 0:
+                    return None
+                for r in crossed:
+                    n.ab['flee_%s' % r] = now
+            elif not (0 < n.hp < n.d['hp'] * LOW['ratio']) or not self.flees(n):
                 return None
             st = n.ab['flee'] = dict(state='flee', target=self.flee_spot(n, now), reload=0.0)
             self.flee_move(n, st, now)

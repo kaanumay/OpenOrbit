@@ -973,6 +973,7 @@ class Items:
                 n.next_shot = max(getattr(n, 'next_shot', 0), now + c['daze_sec'])
                 n.blocked = max(getattr(n, 'blocked', 0), now + c['daze_sec'])     # so the attacking type does not lock again at once
                 reset += 1
+        w.alien.hero_dots = [d_ for d_ in w.alien.hero_dots if not d_.get('emp')]     # forum 127094: EMP removes the Reflector's radiation
         if w.hero_effects.get('slow') or w.hero_effects.get('speed_limit'):
             w.hero_effects.remove('slow')                             # EMP removes slowdowns (aliens.md: Slowdown Orb)
             w.hero_effects.remove('speed_limit')
