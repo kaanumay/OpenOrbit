@@ -66,7 +66,8 @@ class Pilot:
     def reset_run(self, now):
         """Everything one run of the bot (Start .. Stop) keeps."""
         self.mode = None                # the activity (see the module's docstring)
-        self.target = None
+        self.target = None              # the main target (the ship flies to it)
+        self.shot = None                # what the lasers fire at: the main target, or an alien attacking the ship on the way
         self.pause_until = 0.0
         self.view = {}                  # the last step's view for the status file (written outside the world lock)
         self.base_ammo = None           # the normal laser ammo to come back to after an RSB-75 / RCB-140 shot
@@ -161,9 +162,10 @@ class Pilot:
 
     def drop_target(self, only_ours=False):
         """Stop firing. only_ours: only if the bot's own target is being fired at (a manual attack of the player stays)."""
-        if self.target is not None and (not only_ours or self.act.attacking(self.target)):
+        ours = [t for t in (self.target, self.shot) if t is not None]
+        if ours and (not only_ours or any(self.act.attacking(t) for t in ours)):
             self.act.stop_attack()
-        self.target = None
+        self.target = self.shot = None
 
     def stop(self, reason, home=True):
         """Stop the bot on its own (a stop condition, death, a mode's end): with go_home it first flies to the base (tasks/stop.home)."""
@@ -268,7 +270,9 @@ class Pilot:
         if why:
             self.state, self.reason = 'paused', why
             if why == 'manual':
-                self.target = act.player_target() or self.target      # the player picked a target by hand: keep it on resume
+                pick = act.player_target()          # the player picked a target by hand: keep it on resume (not the attacker fired at)
+                if pick is not None and pick != self.shot:
+                    self.target = pick
             return
         self.state, self.reason = 'running', ''
         if not self.homing:
@@ -436,20 +440,23 @@ class Pilot:
             TRAVEL.busy(self)
             self.box_track = None
             self.mode, self.target = 'fight', it['id']
+            shot = B.defend_shot(s, cfg, it, self.shot, cfg['defend'])    # the main target out of range: an attacker in range meanwhile
             leech = self.sab_target(s, cfg, it)
-            if leech is not None:                   # SAB-50: the main target while it has shield, else a shielded attacker in range
+            if leech is not None:                   # SAB-50: the main target in range while it has shield, else a shielded attacker in range
                 if leech['id'] != it['id']:
                     self.track = None               # the main target takes no damage meanwhile: not a stuck target
-                act.attack(leech['id'])
+                fire = leech
                 self.sab_ammo()
             else:
-                act.attack(it['id'])
+                fire = shot
                 self.leave_sab()
-            p = B.kite_point(s, cfg, it, B.threats(s, cfg, it['id']))
+            self.shot = fire['id']
+            act.attack(fire['id'])
+            p = B.kite_point(s, cfg, it, B.threats(s, cfg, it['id']))    # the ship flies to the main target
             if p:
                 act.move_to(p[0], p[1], now)
             if leech is None and not self.sab_low:  # SAB-50 phase: no RSB-75 / RCB-140 until the shield is back up
-                self.slow_ammo(d <= s['R'], now)
+                self.slow_ammo(B.dist(hx, hy, fire['x'], fire['y']) <= s['R'], now)
             if cfg['rockets']:
                 act.fire_rocket(it['id'], d, now)
             if cfg['launcher'] and d <= s['R']:
