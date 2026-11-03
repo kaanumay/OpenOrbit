@@ -30,7 +30,7 @@ def go(bot, target, y=None, now=None):
         from . import extras as EX
         cpu = EX.jump(bot, target)
         if cpu and EX.use(bot, cpu):
-            jump_to(bot, target, y)
+            jump_to(bot, target, y, now)
             bot.en_route = None
             bot.ist('jump_cpu')
             return True
@@ -51,15 +51,18 @@ def journey(bot, y, now=None):
     if bot.body is not None:            # concrete: the ship flies to the portal, govde makes the jump
         return True
     if now >= bot.en_route_time:
-        jump_to(bot, bot.en_route.pop(0), y)
+        jump_to(bot, bot.en_route.pop(0), y, now)
         bot.en_route_time = now + jump_duration(bot)
     return bool(bot.en_route)
 
 
-def jump_to(bot, target, y):
+def jump_to(bot, target, y, now=None):
+    """Moves the bot to the target map; its position there is unknown until a ship appears, so where and when it arrived is kept
+    (ship.spawn_point places the ship by the time since: from a gate or mode map it comes to its station, not a portal)."""
     old = bot.k['map']
     bot.k['map'] = int(target)
     bot.k['x'] = bot.k['y'] = 0
+    bot.arrival = (int(old) if int(old) in K.MAPS else None, now or (y.now if y is not None else time.time()))
     seen = bot.k.setdefault('seen', [])
     if int(target) not in seen:
         seen.append(int(target))
@@ -217,7 +220,8 @@ def death(bot, y, reason='npc', killer=None, now=None):
     if y is not None:
         y.bot_died(bot, killer)
     if target != bot.game_map:
-        jump_to(bot, target, y)
+        jump_to(bot, target, y, now)
+    bot.arrival = (None, bot.dead_until)             # respawns at the station when the death wait is over
     bot.next_decision = bot.dead_until
 
 

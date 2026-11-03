@@ -35,7 +35,8 @@ LASER_RANGE = WD.COMBAT['laser_range']
 COMBAT_SEC = 8.0                                 # regenerates this long after the last damage
 REGEN_RATE = 0.02                               # outside combat, the share of max HP+shield per second
 JUMP_SEC = H.JUMP_DELAY_SEC
-ARRIVAL_SEC = 10.0                 # a jumping bot that is hulled within this time spawns at the arrival portal (it has flown off afterwards)
+TAKEOFF_SEC = 4.0                  # typical wait after arriving on a map before setting off (BotShip.takeoff's mode)
+WANDER = 3000                      # a grinding bot that has flown farther than this since it arrived can be anywhere on the map
 COMBAT_INTERVAL = WD.COMBAT['laser_interval_sec']
 
 
@@ -147,8 +148,8 @@ def tick(w, now):
             b.body = None                                # a ship deleted from outside (debugging, a crashed world): so the bot does not freeze
         if uid in var or count >= limit or b.body is not None:
             continue
-        x, yy = spawn_point(w, b)
-        n = BotShip(b, x, yy, now)
+        x, yy, since = spawn_point(w, b, now)
+        n = BotShip(b, x, yy, since)                     # its takeoff wait counts from its arrival, not from the player's
         resume(n, now)
         if b.__dict__.pop('in_place_repair', None):       # repair on the spot: 10% of HP, no shield, 10 s protection (like the player's)
             n.hp, n.shield = max(1, int(n.hp * K.ITEMS['death_screen']['in_place_hp_ratio'])), 0
@@ -210,24 +211,40 @@ def gate_tick(w, now, y):
         w.send(msgs)
 
 
-def spawn_point(w, b):
-    arrival = getattr(b, 'arrival', None)
-    b.arrival = None
-    # only one that just jumped spawns at the portal: those that jumped while the player was away and stayed abstract all came out of the portal together when the player arrived
-    # (player report: waiting at the portal on 2-1 and moving to 2-2, 10-20 bots came out of the portal at the same time as the player)
-    if arrival is not None and time.time() - arrival[1] < ARRIVAL_SEC:
-        gx, gy = H.arrival(arrival[0], int(w.map_id), b.company)
-        a, r = random.uniform(0, 2 * math.pi), random.uniform(80, 280)      # scattered around the portal (not on top of each other)
-        return int(gx + math.cos(a) * r), int(gy + math.sin(a) * r)
+def spawn_point(w, b, now=None):
+    """Where the bot's ship appears -> (x, y, since); since: when it came onto the map (its takeoff wait counts from there).
+    A known position (it was a ship on this map, portal repair) stays. Otherwise it came onto the map while abstract (portal jump, death at
+    the station, login) and is where it would be after the time since: at the arrival portal or the station just after, later on its way
+    to the next portal of its route or, when grinding, anywhere on the map. Before, it was always at the station or portal as if it had just
+    arrived (player reports: 2026-10-31 bots came out of the portal with the player; 2026-11-03 on 2-1 the 20-30 bots that had arrived
+    while the player was away waited at the station and all flew to the bottom-left portal at once when the player came)."""
+    now = now or time.time()
+    arrival, b.arrival = getattr(b, 'arrival', None), None
     x, y = b.k.get('x') or 0, b.k.get('y') or 0
     if 300 < x < w.map_w - 300 and 300 < y < w.map_h - 300:
-        return int(x), int(y)
+        return int(x), int(y), now
+    src, since = arrival or (None, now)
     s = w.station
-    if s and s.get('type') == b.company:          # newly entered or returned to base: around its own station (like the real game)
-        a, r = random.uniform(0, 2 * math.pi), random.uniform(250, 1300)
-        return (int(max(400, min(w.map_w - 400, s['posX'] + math.cos(a) * r))),
-                int(max(400, min(w.map_h - 400, s['posY'] + math.sin(a) * r))))
-    return w.random_spot()
+    if src is not None:
+        (ox, oy), scatter = H.arrival(src, int(w.map_id), b.company), (80, 280)
+    elif arrival is not None and s and s.get('type') == b.company:
+        (ox, oy), scatter = (s['posX'], s['posY']), (250, 1300)
+    else:                                                # unknown since when (server start: in the middle of its session)
+        x, y = w.random_spot()
+        return x, y, since
+    flown = max(0.0, now - since - TAKEOFF_SEC) * b.value()['speed'] * 0.8      # routes curve, it lingers at boxes
+    a, r = random.uniform(0, 2 * math.pi), random.uniform(*scatter)
+    g = next((g for g in H.gates(w.map_id, b.company) if g['target'] == b.en_route[0]), None) if b.en_route else None
+    if g is not None:                                    # on its way to the next portal (it jumps when its abstract time comes)
+        f = min(0.85, flown / max(1.0, math.hypot(g['x'] - ox, g['y'] - oy)))
+        ox, oy = ox + (g['x'] - ox) * f, oy + (g['y'] - oy) * f
+    elif flown > WANDER:
+        x, y = w.random_spot()
+        return x, y, since
+    else:
+        r += flown
+    return (int(max(400, min(w.map_w - 400, ox + math.cos(a) * r))),
+            int(max(400, min(w.map_h - 400, oy + math.sin(a) * r))), since)
 
 
 CARRY = ('last_damage', 'immune_until', 'leech_end', 'rocket_ready', 'salvo_ready', 'mine_ready')
@@ -259,6 +276,9 @@ def remove(w, n):
     if b.body is n:
         b.body = None
     b.last_abstract = time.time()
+    g = next((g for g in H.gates(w.map_id, b.company) if g['target'] == b.en_route[0]), None) if b.en_route else None
+    if g is not None:              # left mid-route (the player left the map): the abstract jump waits for the rest of the flight to the portal
+        b.en_route_time = time.time() + math.hypot(g['x'] - x, g['y'] - y) / max(1.0, b.value()['speed'])
     return w.remove_npc(n) + ([('AttackAbortLaserCommand', {'uid': n.id})] if n.fire else [])
 
 
@@ -1295,9 +1315,8 @@ def portala(w, n, now, urgent=False):
             target = b.en_route[-1]
             w.send(remove(w, n))
             with y.lock:
-                S.jump_to(b, target, y)
+                S.jump_to(b, target, y, time.time())
                 b.en_route = None
-                b.arrival = (int(w.map_id), time.time())
                 b.ist('jump_cpu')
             return
     g = next((g for g in H.gates(w.map_id, b.company) if g['target'] == b.en_route[0]), None)
@@ -1332,8 +1351,7 @@ def portala(w, n, now, urgent=False):
     w.send(remove(w, n))
     if y is not None:
         with y.lock:
-            S.jump_to(b, target, y)
-            b.arrival = (int(w.map_id), time.time())
+            S.jump_to(b, target, y, time.time())
             b.en_route_time = time.time() + S.jump_duration(b)
 
 

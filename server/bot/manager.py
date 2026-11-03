@@ -397,7 +397,9 @@ class Manager(ChatEngine):
     def entry(self, b, now, silent=False):
         if b.game_map not in K.MAPS:                  # it had exited at a gate (or on a closed map): returns to base
             b.k['map'] = K.ev(b.company)
+            b.k['x'] = b.k['y'] = None
             b.plan = {}
+        b.arrival = None if silent else (None, now)        # if its position is unknown it logs in at its station (silent: server start, mid-session)
         b.online = True
         PL.on_login(b, now)                                # session theme, the day's form, wallet top-up
         b.session_end = PL.cap_session(b, now, now + PS.session_min(b.k['personality'], b.r) * 60 * PL.session_factor(b)
