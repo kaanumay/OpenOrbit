@@ -3359,9 +3359,11 @@ class World:
             self.send([self.selection(n)])
 
     def npc_shield_regen(self, n, now):
-        """Every alien refills its shield by itself, also in combat (COMBAT npc_shield_regen of the maximum per second); HP does not (player
-        report 2026-11-02: only Cubikon regenerated, and only its HP)."""
-        if now < n.next_shield_regen:
+        """Every alien refills its shield by itself out of combat (COMBAT npc_shield_regen of the maximum per second); HP does not (player
+        report 2026-11-02: only Cubikon regenerated, and only its HP). In combat (chasing/attacking the player or a bot ship, or hit within
+        regen_cooldown_sec) it does not refill (user decision 2026-11-03)."""
+        if (now < n.next_shield_regen or n.engaged or n.bot_target is not None
+                or now - n.last_hit < ITEMS['regen_cooldown_sec']):
             return
         n.next_shield_regen = now + 1.0
         n.shield = min(n.d['shield'], n.shield + max(1, int(n.d['shield'] * COMBAT.get('npc_shield_regen', 0.0025))))

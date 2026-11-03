@@ -9876,7 +9876,7 @@
   "_rocket_hit": "if the rocket has no hit chance of its own, the base (items.json rockets.<id>.hit: R-310 70%, PLT-2026 80%, PLT-2021 90%, PLT-3030 65%, BDR-1211 100%; special ammo this base, adaptation); raised by the Heat-Seeking Missiles ability (rocket_hit_chance) and the DMG-H01 booster (hit), lowered by effects like PLD-8",
   "npc_shield_absorb": 0.7,
   "npc_shield_regen": 0.0025,
-  "_npc_shield_regen": "Share of the shield maximum an alien refills per second by itself, also in combat; HP does not refill (wiki: most aliens do not regenerate health but their shield regenerates; real recording 2026-10-27: Boss Sibelon median 0.25%/s between hits, Plagued Kristallin and Cubikon back to a full shield out of view with HP unchanged)",
+  "_npc_shield_regen": "Share of the shield maximum an alien refills per second by itself, only out of combat (not chasing/attacking, not hit for regen_cooldown_sec; user decision 2026-11-03); HP does not refill (wiki: most aliens do not regenerate health but their shield regenerates; real recording 2026-10-27: Boss Sibelon median 0.25%/s between hits, Plagued Kristallin and Cubikon back to a full shield out of view with HP unchanged)",
   "_npc_shield_absorb": "Default shield absorb ratio; if the type has a shield_absorb value, that one applies (fandom: Aider Streuner, Kristallon, Uber Kristallon 90%, Cubikon 80%, Uber Annihilator 85%, Uber Interceptor 60%)",
   "npc_hit_chance": 0.7,
   "npc_range": 450,
