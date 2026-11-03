@@ -45,6 +45,7 @@ import tips as IP
 import shared_maps as OH
 import skill_tree as SKL
 import player_combat as PVP
+import player_profile as PF
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 CFG = DATA.load('npc.json')
@@ -155,6 +156,11 @@ def tag_owner(n, now):
 
 CARGO_BOXES = ('FROM_SHIP', 'CANDY_CARGO', 'TURKEY_CARGO')     # the alien's cargo box (CANDY_CARGO: in Halloween's CandyCargo, recording; TURKEY_CARGO: at Thanksgiving)
 AUTO_REFINE = (4, 5, 6)       # products of automatic refining (laboratory recipes, in this order): Prometid, Duranium, Promerium
+
+
+def refine_recipes():
+    """Automatic refining's recipes [(product, {input: count})] (player_profile.refine_ores / cargo_take)."""
+    return [(t, {int(k): v for k, v in ITEMS['lab']['recipes'][str(t)].items()}) for t in AUTO_REFINE]
 
 
 def attack_type(v):
@@ -1447,18 +1453,9 @@ class World:
         applied (H84); until 2026-10-18 it worked only when the cargo was full and without Promerium (user report). -> messages"""
         if not self.p.gameplay('autoRefinement'):
             return []
-        recipes = [(t, {int(k): v for k, v in ITEMS['lab']['recipes'][str(t)].items()}) for t in AUTO_REFINE]
-        have = {k: self.p.ore_count(k) for t, r in recipes for k in [t, *r]}
-        start, made, more = dict(have), {}, True
-        while more:                 # one unit at a time in turn: the shared Endurium is split between the two products, new Prometid/Duranium goes into Promerium
-            more = False
-            for t, r in recipes:
-                if all(have[k] >= v for k, v in r.items()):
-                    for k, v in r.items():
-                        have[k] -= v
-                    have[t] += 1
-                    made[t] = made.get(t, 0) + 1
-                    more = True
+        recipes = refine_recipes()
+        start = {k: self.p.ore_count(k) for t, r in recipes for k in [t, *r]}
+        have, made = PF.refine_ores(start, recipes)
         if not made:
             return []
         used = {k: start[k] - have[k] for k in have if have[k] < start[k]}
@@ -1988,25 +1985,26 @@ class World:
                 return False                                # the P.E.T. does not collect someone else's cargo
             boost = 1 + (self.pet.proto('box') if by_pet and self.pet else 0)
             m = self.p.mods()          # pilot skills: Tractor Beam I/II (cargo/bonus box), Luck (bonus box uridium)
-            pre = []
+            pre, plan = [], {}
             cargo_box = b['tip'] in CARGO_BOXES
             if cargo_box:                                       # auto-refining first (if the setting is on): room is made
                 pre = self.auto_refine()
-            if cargo_box and self.p.cargo_free() < 1 and any(int(k) in self.p.CARGO_ORES for k in b['contents']):
-                self.send(pre + [legacy('0|A|STM|loadfull')] + self.p.hint(IP.FULL_CARGO))     # cargo full: the box stays in place
-                return False
+                mult = boost * (1 + m.get('cargo_box', 0))
+                want = {int(k): int(v * mult) for k, v in b['contents'].items()}
+                # what fits once auto-refined, in proportion (PF.cargo_take); the part that does not fit stays in the box (the box is not deleted)
+                plan = PF.cargo_take({o['oreType']['typeValue']: o['count'] for o in self.p.d['ores']}, want,
+                                     self.p.cargo_used() + self.p.cargo_free(), refine_recipes() if self.p.gameplay('autoRefinement') else ())
+                if any(t in self.p.CARGO_ORES for t in want) and not any(plan.get(t) for t in want if t in self.p.CARGO_ORES):
+                    self.send(pre + [legacy('0|A|STM|loadfull')] + self.p.hint(IP.FULL_CARGO))     # cargo full: the box stays in place
+                    return False
             if b['tip'] in LOOT.BOXES and not b.get('event'):
                 return False if by_pet else self.open_booty(h, b)
-            ores, left, free = {}, {}, self.p.cargo_free()
-            if cargo_box:                                   # ores are taken as much as fits in the cargo; the part that does not fit stays in the box (the box is not deleted)
-                mult = boost * (1 + m.get('cargo_box', 0))
+            ores, left = {}, {}
+            if cargo_box:
                 for k, v in sorted(b['contents'].items()):
-                    take = want = int(v * mult)
-                    if int(k) in self.p.CARGO_ORES:            # Xenomit takes no space: all of it is taken
-                        take = min(want, free)
-                        free -= take
-                        if take < want and v - math.ceil(take / mult - 1e-9) > 0:     # what was taken (base unit) is deducted from the box
-                            left[k] = v - math.ceil(take / mult - 1e-9)
+                    take = plan.get(int(k), 0)
+                    if take < want[int(k)] and v - math.ceil(take / mult - 1e-9) > 0:     # what was taken (base unit) is deducted from the box
+                        left[k] = v - math.ceil(take / mult - 1e-9)
                     if take > 0:
                         ores[int(k)] = take
             if left:

@@ -191,6 +191,61 @@ DEFAULT_SHIP_INIT = dict(userId=1, userName='Pilot', typeId='ship_goliath', spee
                          ep=100000, honourPoints=1000, level=12, credits=1000000, uridium=50000, dailyRank=1, refreshMap=True, modifier=[])
 
 
+def refine_ores(have, recipes):
+    """Auto-refining's outcome on {ore type: count} with recipes [(product, {input: count})] (world.auto_refine, bot cargo boxes): one unit
+    at a time in turn, so the shared Endurium is split between the two products and new Prometid/Duranium goes into Promerium.
+    -> (counts after refining, {product: units made})"""
+    have, made, more = dict(have), {}, True
+    while more:
+        more = False
+        for t, r in recipes:
+            if all(have.get(k, 0) >= v for k, v in r.items()):
+                for k, v in r.items():
+                    have[k] -= v
+                have[t] = have.get(t, 0) + 1
+                made[t] = made.get(t, 0) + 1
+                more = True
+    return have, made
+
+
+def cargo_take(cargo, want, capacity, recipes=()):
+    """How much of a cargo box to take: cargo {ore type: count} now, want {ore type: count} in the box, capacity the cargo area, recipes
+    auto-refining's (none: the setting is off) -> {ore type: count taken} that fits once refined. Not in key order: 1,500 Prometium filled
+    the cargo first and the Endurium/Terbium that would have refined it stayed on the ground (user report 2026-11-03). The largest equal
+    share of every ore that fits, then each type topped up while it still fits (twice: Endurium taken late lets more Prometium in).
+    Xenomit takes no space: all of it (it is also Promerium's input)."""
+    space = sorted(t for t in want if t in Profile.CARGO_ORES and want[t] > 0)
+    take = {t: n for t, n in want.items() if t not in Profile.CARGO_ORES}
+
+    def fits(extra):
+        have = dict(cargo)
+        for t, n in list(take.items()) + list(extra.items()):
+            have[t] = have.get(t, 0) + n
+        have = refine_ores(have, recipes)[0] if recipes else have
+        return sum(n for t, n in have.items() if t in Profile.CARGO_ORES) <= capacity
+
+    def largest(lo, hi, extra):
+        """The largest x in [lo, hi] with fits(extra(x)); lo fits. The space is not monotone (more Endurium can refine the Prometium
+        down), so only what was checked is taken."""
+        if fits(extra(hi)):
+            return hi
+        while hi - lo > 1:
+            mid = (lo + hi) // 2
+            lo, hi = (mid, hi) if fits(extra(mid)) else (lo, mid)
+        return lo
+
+    if not space or not fits({}):
+        return take
+    top = max(want[t] for t in space)
+    share = largest(0, top, lambda s: {t: want[t] * s // top for t in space})
+    got = {t: want[t] * share // top for t in space}
+    for _ in range(2):
+        for t in space:
+            got[t] = largest(got[t], want[t], lambda n: {**got, t: n})
+    take.update({t: n for t, n in got.items() if n > 0})
+    return take
+
+
 class Profile:
     # single-player rule: everyone is Premium (the account in the recording was not; H72). Its advantages from the client's texts: rocket cooldown halved and
     # repair robot x2 (world), P.E.T. repair free (pet), exit 5 s (game.LOGOUT_SEC). Ship repair at the panel's repair price.

@@ -1626,7 +1626,7 @@ def collect_box(w, n, now):
         n.next_think = now + random.uniform(0.3, 1.0)
         return True
     if k['tip'] in WD.CARGO_BOXES:                     # ores as many as fit; what does not fit stays in the box (like the player)
-        claimed = b.add_cargo(k.get('contents') or {})
+        claimed = b.add_cargo(k.get('contents') or {}, refine=True)
         remaining = {t: int(v) - claimed.get(int(t), 0) for t, v in (k.get('contents') or {}).items() if int(v) - claimed.get(int(t), 0) > 0}
         b.ist('cargo_box')
         owner_tag = k.get('owner_tag')

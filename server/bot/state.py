@@ -243,10 +243,26 @@ class Bot:
         k = self.k.get('cargo') or {}
         return sum(v for t, v in k.items() if int(t) in K.CARGO_ORE) / max(1, K.cargo_capacity(self.k['gear']))
 
-    def add_cargo(self, contents):
-        """Takes ores into the cargo as far as they fit -> what was taken {type: count}."""
+    def add_cargo(self, contents, refine=False):
+        """Takes ores into the cargo as far as they fit -> what was taken {type: count}. refine (a cargo box): a box that does not fit raw
+        is taken like a player with auto-refining, in proportion to what fits once refined (PF.cargo_take), and the cargo is refined; a
+        box that fits is not refined (refined ore sells for less, lab.py)."""
         cargo = self.k.setdefault('cargo', {})
         empty = K.cargo_capacity(self.k['gear']) - sum(v for t, v in cargo.items() if int(t) in K.CARGO_ORE)
+        if refine and sum(int(v) for t, v in contents.items() if int(t) in K.CARGO_ORE) > empty:
+            from . import lab as LB
+            recipes = [(p, LB.RECIPES[p]) for p in (LB.PROMETID, LB.DURANIUM, LB.PROMERIUM)]
+            have = {int(t): v for t, v in cargo.items()}
+            claimed = {t: n for t, n in PF.cargo_take(have, {int(t): int(v) for t, v in contents.items()},
+                                                      K.cargo_capacity(self.k['gear']), recipes).items() if n > 0}
+            for t, n in claimed.items():
+                have[t] = have.get(t, 0) + n
+            have, made = PF.refine_ores(have, recipes)
+            cargo.clear()
+            cargo.update({str(t): n for t, n in have.items() if n > 0})
+            if made:
+                self.ist('refining', sum(made.values()))
+            return claimed
         claimed = {}
         for t, v in sorted(contents.items(), key=lambda x: -K.ore_prices(0).get(int(x[0]), 0)):   # valuables first
             n = int(v) if int(t) not in K.CARGO_ORE else max(0, min(int(v), empty))
