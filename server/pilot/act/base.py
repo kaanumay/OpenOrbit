@@ -16,12 +16,15 @@ import map_links as H
 import settings as SET
 import world as W
 
+from .. import brain as BR, walls as WALLS
+
 MOVE_EVERY = 0.6              # at most one move order per 0.6 s (the client's own autopilot uses the same throttle)
 SAME_POINT = 50               # a new order closer than this to the last one while still flying there is not sent
 OWN_MOVE_SEC = 6.0            # a MoveRequest to one of our destinations within this time is ours (hero_move), not the player's click
 OWN_MOVE_DIST = 90
 ON_TOP = 40                   # a box / ore this close is under the ship
 RADIATION_REACH = 600         # how far past the map's edge a radiation quest may take the ship
+WAY_BUDGET = 0.04             # s per step for working out the ways around walls of the targets and boxes compared (pilot/walls.length)
 
 
 class Base:
@@ -32,6 +35,8 @@ class Base:
         self.mode = mode
         self.last_move = 0.0
         self.sent = []                                # [(x, y, time)] destinations ordered recently
+        self.path = None                              # the way around walls: {map, goal, points (corners left), all, zones}
+        self.zones = ()                               # the immobile aliens' firing zones to keep out of (snapshot, brain.static_zones)
         self.tried = {}                               # Combat: item -> when it last refused
         self.last_jump_try = 0.0                      # Travel: the last jump asked
         self.portal_goal = self.route_goal = None     # Travel: the portal / route of the last order (Travel.heading, the panel's map)
@@ -55,7 +60,7 @@ class Base:
                 engaged=bool(n.engaged) and not passive, aggressive=w.aggressive(n) and not passive,
                 notice=n.d.get('notice_distance', W.COMBAT['npc_notice_distance']) * SET.multiplier('npc_notice'),
                 fire_range=w.npc_range(n), hp=n.hp, hp_max=n.d.get('hp', 1), shield=getattr(n, 'shield', 0), shield_max=n.d.get('shield', 0),
-                ok=self.attackable(n, now, ammo), forbidden=n.tip in forbid,
+                ok=self.attackable(n, now, ammo), forbidden=n.tip in forbid, static=n.speed() <= 0 and n.d.get('damage', 0) > 0,
                 allowed=hunted(n),
                 priority=n.tip in (cfg.get('priority') or ())))
         if cfg.get('pvp') is not None:                        # a PvP quest: the enemy-company pilots are the targets (act/players.py)
@@ -88,7 +93,20 @@ class Base:
         ores = [dict(hash=h, tip=o['tip'], x=o['x'], y=o['y']) for h, o in w.ores.items() if not o.get('busy')]
         return dict(hero=(hx, hy), R=w.laser_range(), hp=g.get('hitPoints', 0), hp_max=g.get('hitMax', 0), shield=g.get('shield', 0),
                     shield_max=g.get('shieldMax', 0), bounds=(w.map_w, w.map_h), map=int(w.map_id),
-                    in_peace=w.in_peace(hx, hy), npcs=npcs, boxes=boxes, safe=safe, ores=ores)
+                    in_peace=w.in_peace(hx, hy), npcs=npcs, boxes=boxes, safe=safe, ores=ores, **self.wall_view(hx, hy, now, npcs, cfg))
+
+    def wall_view(self, hx, hy, now, npcs, cfg):
+        """The immobile aliens' firing zones ('statics', kept for move_to) and, with walls or such zones, for brain.py: 'way' (x, y) -> the
+        distance flown there around them, 'walled' (x, y) -> inside a wall (a zone is no wall: brain.py weighs it), 'clear' (ax, ay, bx, by)
+        -> no wall nor zone on the line."""
+        w = self.w
+        m, mw, mh = w.map_id, w.map_w, w.map_h
+        zones = self.zones = tuple(BR.static_zones(npcs, cfg['threat_margin']))
+        if not WALLS.has(m, zones):
+            return dict(statics=zones)
+        deadline = time.perf_counter() + WAY_BUDGET
+        return dict(statics=zones, way=lambda x, y: WALLS.length(m, mw, mh, hx, hy, x, y, now, deadline, zones),
+                    walled=lambda x, y: WALLS.blocked(m, x, y), clear=lambda ax, ay, bx, by: WALLS.clear(m, ax, ay, bx, by, zones))
 
     def hunted(self, cfg):
         """-> whether an alien is a target of the hunt (cfg: Pilot.hunt_cfg): the mode hunts, the map's list (empty: all; in a galaxy
@@ -160,12 +178,57 @@ class Base:
 
     # ------------------------------------------------------------ moving
     def move_to(self, x, y, now=None, outside=False):
-        """outside: the point may be beyond the map's edge (the radiation zone, for a quest that asks for it)."""
+        """outside: the point may be beyond the map's edge (the radiation zone, for a quest that asks for it). On a map with walls the ship
+        flies around them (pilot/walls.py): the order goes to the next corner of the way, follow() takes the ship on to the next ones."""
         now = time.time() if now is None else now
         w = self.w
         lo = -RADIATION_REACH if outside else 0
         x = max(lo, min(w.map_w - lo, int(x)))
         y = max(lo, min(w.map_h - lo, int(y)))
+        if outside or not WALLS.has(w.map_id, self.zones):
+            self.path = None
+            return self._go(x, y, now)
+        hx, hy = w.hero_pos(now)
+        p = self.path
+        zones = WALLS.own(self.zones, x, y)
+        if (p is None or p['map'] != w.map_id or p['zones'] != zones or math.hypot(p['goal'][0] - x, p['goal'][1] - y) >= SAME_POINT
+                or not self._on_path(hx, hy)):
+            pts = WALLS.route(w.map_id, w.map_w, w.map_h, hx, hy, x, y, zones)
+            self.path = p = dict(map=w.map_id, goal=(x, y), points=pts, all=list(pts), zones=zones)
+        nx, ny = p['points'][0]
+        return self._go(int(nx), int(ny), now)
+
+    def _on_path(self, hx, hy):
+        """The kept way still holds from where the ship is: the corners already in reach (or passed) dropped, the next one in sight."""
+        pts = self.path['points']
+        zones = [z for z in self.path['zones'] if not WALLS.in_zone(hx, hy, (z,))]      # inside one: the way starts by leaving it
+        while len(pts) > 1 and WALLS.clear(self.w.map_id, hx, hy, *pts[1], zones):
+            pts.pop(0)
+        return WALLS.clear(self.w.map_id, hx, hy, *pts[0], zones)
+
+    def follow(self, now):
+        """Every step: on a way around walls, once a corner is reached (or the next one is in sight) on to the next one, without waiting
+        for the task to give the order again (it would stop at every corner)."""
+        p = self.path
+        if p is None or len(p['points']) < 2 or p['map'] != self.w.map_id:
+            return
+        if not self.sent or not any(math.hypot(self.sent[-1][0] - a, self.sent[-1][1] - b) < SAME_POINT for a, b in p['all']):
+            self.path = None                          # another order came since (the player, a jump): the way is no longer ours
+            return
+        hx, hy = self.w.hero_pos(now)
+        first = p['points'][0]
+        if self._on_path(hx, hy) and p['points'][0] != first:
+            self._go(int(p['points'][0][0]), int(p['points'][0][1]), now)
+
+    def way(self, now):
+        """The way the ship is on, for the panel's map: the corners left and the goal, or None (a straight flight)."""
+        p = self.path
+        if p is None or p['map'] != self.w.map_id or not self.flying(now):
+            return None
+        return [[int(a), int(b)] for a, b in p['points']]
+
+    def _go(self, x, y, now):
+        w = self.w
         if self.sent:
             lx, ly, _ = self.sent[-1]
             hx, hy = w.hero_pos(now)

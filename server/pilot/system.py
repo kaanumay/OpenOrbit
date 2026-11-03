@@ -31,7 +31,7 @@ from . import brain as B
 from . import config as C
 from .stats import Stats, text
 from .tasks import economy as ECON, modes as MODES, players as PLAYERS, quests as QUESTS, recover as RECOVER, stop as STOP, support as SUPPORT
-from .tasks import gates as GATES, travel as TRAVEL
+from .tasks import gates as GATES, lure as LURE, travel as TRAVEL
 
 STEP = 0.25
 CATALOG_SEC = 10              # the panel's lists (maps, owned items) are refreshed this often
@@ -83,6 +83,7 @@ class Pilot:
         self.quests_finished = set()    # the quests completed in this run (the 'quest' event)
         self.ignored, self.box_ignored = {}, {}         # alien id / box hash -> until when it is left alone
         self.track = None               # (target id, lowest HP + shield seen, since when): track_target
+        self.lure = None                # drawing a target out of an immobile alien's zone (tasks/lure.py)
         self.box_track = None           # (box hash, since when, shortest distance seen): track_box
         self.set_mode(None)
 
@@ -269,6 +270,7 @@ class Pilot:
                 self.target = act.player_target() or self.target      # the player picked a target by hand: keep it on resume
             return
         self.state, self.reason = 'running', ''
+        act.follow(now)                             # around a wall: on to the next corner
         if not self.homing:
             r = STOP.check(self, now)
             if r:
@@ -433,9 +435,10 @@ class Pilot:
             self.box_track = None
             self.mode, self.target = 'fight', it['id']
             act.attack(it['id'])
-            p = B.kite_point(s, cfg, it, B.threats(s, cfg, it['id']))
-            if p:
-                act.move_to(p[0], p[1], now)
+            if not LURE.run(self, s, cfg, it, now):     # deep in an immobile alien's zone: drawn out of it first
+                p = B.kite_point(s, cfg, it, B.threats(s, cfg, it['id']))
+                if p:
+                    act.move_to(p[0], p[1], now)
             self.slow_ammo(d <= s['R'], now)
             if cfg['rockets']:
                 act.fire_rocket(it['id'], d, now)
@@ -540,6 +543,7 @@ class Pilot:
             self.trail.append([x, y])
         r.update(trail=list(self.trail), marks=list(self.marks),
                  intent=dict(target=self.target, **self.act.heading(now)) if self.running else {})
+        r['hero']['way'] = self.act.way(now) if self.running else None       # the corners left around the walls
         return r
 
     def _mtime(self):
