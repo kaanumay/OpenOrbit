@@ -398,7 +398,13 @@ def event_list():
             best = next((s for s, f in spans if s > t), None)
             nxt = (best - t).days + 1 if best else None
         st = sel.get(key)
+        kinds = e.get('kinds', [])
+        features = [f for f, has in (('pass', 'BattlePass' in kinds), ('map', bool(e.get('map') or e.get('map_extra') or 'NpcEvent' in kinds)),
+                                     ('gate', 'gate_reward' in e), ('currency', 'currency' in e), ('decor', 'decor' in e)) if has]
+        category = ('weekly' if not yearly else 'pass' if 'pass' in features else 'map' if 'map' in features or 'decor' in features
+                    else 'special')
         out.append({'key': key, 'name': _(e.get('name', key)), 'type': 'yearly' if yearly else 'weekly', 'time': when,
+                    'category': category, 'features': features,
                     'in_calendar': per is not None, 'time_left_sec': int(per[1] - now) if per else None, 'next_day': nxt,
                     'state': st, 'enabled': (st == 'on') if st else per is not None,
                     'description': _(EVENT_DESCRIPTIONS.get(key, '')),
@@ -412,6 +418,116 @@ def event_list():
         rows[k]['suppressed_by'] = next(rows[j]['name'] for j in sorted(keep, key=lambda j: rows[j]['name']) if j in CAL.CONFLICTS[k])
     out.sort(key=lambda x: (x['type'] != 'yearly', not x['enabled'], x['name'].lower()))
     return out
+
+
+def pass_status(evs):
+    """The Events page's pass cards from the active save's profile (season.py, battle_pass.py): the running season and Battle Pass with the
+    seconds left; the Battle Pass also names the event with a pass that would start it now, or the next one by calendar."""
+    import event_appearances as EG
+    now, vals = time.time(), game_settings()
+    days = lambda k: vals.get(k, SET.DEFAULTS[k])
+    slot = SAV.active()
+    p = read_json(SAV.profile(slot), {}) if slot else {}
+    season, bp = p.get('season') or {}, p.get('battle_pass') or {}
+    s_end = season.get('start', 0) + days('season_duration') * 86400
+    out = {'season': {'name': EG.season(season['period'])['name'], 'left_sec': int(s_end - now)} if season.get('period') and s_end > now else None,
+           'season_days': days('season_duration'), 'pass_days': days('battle_pass_duration'), 'pass': None}
+    names = {e['key']: e for e in evs}
+    ev = bp.get('period', '').rsplit('-', 1)[0]
+    b_end = (bp.get('start') or 0) + days('battle_pass_duration') * 86400
+    if ev in names and b_end > now and names[ev]['state'] != 'off':
+        out['pass'] = {'name': names[ev]['name'], 'left_sec': int(b_end - now), 'bought': bool(bp.get('purchased'))}
+    passes = [e for e in evs if e['category'] == 'pass']
+    out['pass_open'] = next((e['name'] for e in passes if e['enabled']), None)
+    soon = sorted((e for e in passes if e['next_day'] is not None and e['state'] != 'off'), key=lambda e: e['next_day'])
+    out['pass_next'] = {'name': soon[0]['name'], 'days': soon[0]['next_day']} if soon else None
+    return out
+
+
+def events_page(evs=None):
+    evs = event_list() if evs is None else evs
+    return {'events': evs, 'passes': pass_status(evs)}
+
+
+def seasons_api(switch=None):
+    """The Season Pass seasons of the active save (season.catalog); switch: play that season (the running one is paused; profile_tool
+    changes the save file after a 'before' backup). While the game uses the save the seasons can be seen (from the game when it runs on
+    this save) but not changed (user request 2026-11-03): busy. Missing banners are downloaded in the background (fetch_banners)."""
+    slot = SAV.active()
+    if not slot:
+        raise Error(_('No saves yet: create a new save on the Saves page.'))
+    days = str(game_settings().get('season_duration', SET.DEFAULTS['season_duration']))
+    busy = SAV.in_use(slot)
+    r = None
+    if MANAGER.running() and MANAGER.slot == slot:
+        try:
+            r = game_channel('/season')
+        except Error:                                 # not logged in yet: the save file
+            pass
+    r = r or SAV.run_tool('seasons', SAV.profile(slot), days)
+    if switch is not None:
+        row = next((s for s in r['seasons'] if s['id'] == switch), None)
+        if not row or row['state'] == 'running':
+            raise Error(_('Season not found.') if not row else _('This season is already running.'))
+        if row['state'] == 'finished':
+            raise Error(_('%s is over for this save: its time ran out.', row['name']))
+        if busy:
+            raise Error(_('Close the game first: the season can only be changed while the game is closed.'))
+        SAV.backup(slot, 'before', _('Before changing the season'))
+        r = SAV.run_tool('season', SAV.profile(slot), switch, days)
+        log('Season Pass: %s %s (%s)' % (r.get('how'), switch, row['name']))
+    BANNERS['names'] = {x['id']: x['banner'] for x in r['seasons'] if x.get('banner')}
+    out = season_banners()
+    for x in r['seasons']:
+        x['banner'] = out['banners'].get(x['id'])
+    return {'seasons': r['seasons'], 'max_level': r['max_level'], 'busy': busy, 'how': r.get('how'), 'banners_loading': out['loading']}
+
+
+def season_banner(name):
+    """A Season Pass banner in the CDN copy (server/cdn: web.py or fetch_banners) -> path (None if absent)."""
+    if not re.fullmatch(r'[\w.-]+\.jpg', name):
+        return None
+    p = os.path.join(SERVER, 'cdn', 'do_img', 'global', 'events', 'seasonPass', name)
+    return p if os.path.isfile(p) else None
+
+
+# The game server downloads a season's banner only when the game's Season Pass window asks for it (web.py cdn_fetch); the season picker
+# fetches the missing ones itself from the official CDN, in the background (user request 2026-11-03). A failed one is not retried while the
+# panel runs (no internet, not on the CDN).
+CDN_OFFICIAL = 'https://darkorbit-22.bpsecure.com/'
+BANNERS = {'names': {}, 'missing': set(), 'thread': None}
+
+
+def fetch_banners(names):
+    def run():
+        for n in names:
+            p = os.path.join(SERVER, 'cdn', 'do_img', 'global', 'events', 'seasonPass', n + '.jpg')
+            try:
+                with urlopen(Request(CDN_OFFICIAL + 'do_img/global/events/seasonPass/%s.jpg' % n, headers={'User-Agent': 'Mozilla/5.0'}),
+                             timeout=8) as r:
+                    data = r.read()
+            except Exception as e:
+                BANNERS['missing'].add(n)
+                log('season banner could not be downloaded: %s (%r)' % (n, e))
+                continue
+            os.makedirs(os.path.dirname(p), exist_ok=True)
+            with open(p + '.part', 'wb') as fh:
+                fh.write(data)
+            os.replace(p + '.part', p)
+    BANNERS['thread'] = threading.Thread(target=run, daemon=True)
+    BANNERS['thread'].start()
+
+
+def season_banners():
+    """Season -> banner address (None until it is in the CDN copy) and whether missing ones are still downloading; starts the download."""
+    names = BANNERS['names']
+    have = {sid: '/season_banner/%s.jpg' % n for sid, n in names.items() if season_banner(n + '.jpg')}
+    todo = [n for sid, n in names.items() if sid not in have and n not in BANNERS['missing']]
+    running = bool(BANNERS['thread'] and BANNERS['thread'].is_alive())
+    if todo and not running:
+        fetch_banners(todo)
+        running = True
+    return {'banners': have, 'loading': running}
 
 
 SESSION_NAMES = {'vortex': 'Vortex session', 'world_boss': 'Boss fight', 'kristallon': 'Apotheosis window',
@@ -1535,7 +1651,11 @@ def h_get(path, q):
     if path == '/api/settings':
         return api_settings()
     if path == '/api/events':
-        return event_list()
+        return events_page()
+    if path == '/api/seasons':
+        return seasons_api()
+    if path == '/api/season_banners':                # the picker asks again while banners download
+        return season_banners()
     if path == '/api/saves':
         return {'entries': SAV.list(), 'active': SAV.active(), 'trash': SAV.deleted(), 'companies': COMPANIES}
     if path == '/api/save_profile':
@@ -1769,7 +1889,9 @@ def h_post(path, b):
         write_json(TEMPLATES, user)
         return api_settings()
     if path == '/api/events':
-        return set_events(b)
+        return events_page(set_events(b))
+    if path == '/api/seasons':
+        return seasons_api(str(b.get('season') or ''))
     # ---- saves
     if path == '/api/saves/new':
         sid = SAV.create(b.get('name'), b.get('pilot'), b.get('company'), b.get('credits'), b.get('uridium'), b.get('level'), b.get('honor'),
@@ -2017,6 +2139,11 @@ class Handler(BaseHTTPRequestHandler):
             return self._send(200, {'panel': 'darkorbit', 'version': VERSION, 'pid': os.getpid()})
         if u.path.startswith('/api/'):
             return self._api(h_get, {k: v[0] for k, v in parse_qs(u.query).items()})
+        if u.path.startswith('/season_banner/'):
+            p = season_banner(u.path[len('/season_banner/'):])
+            if not p:
+                return self._send(404, b'none', 'text/plain')
+            return self._send(200, open(p, 'rb').read(), 'image/jpeg', {'Cache-Control': 'max-age=3600'})
         if u.path.startswith('/game_images/'):
             p = game_image(u.path[len('/game_images/'):])
             if not p:

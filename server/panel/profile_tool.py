@@ -11,6 +11,10 @@
   python -I profile_tool.py reset <profile.json> <section,section>
       reset state: hints, ui (window and bar positions), game_settings, active_quests, history (logbook and account
       history)
+  python -I profile_tool.py seasons <profile.json> <season length in days>
+      the Season Pass seasons and their state (season.catalog)
+  python -I profile_tool.py season <profile.json> <season id> <season length in days>
+      play that season (season.switch_state: the running one is paused with its progress and time; a finished one cannot be picked)
   python -I profile_tool.py entries
       the lootIds that can be given (the client's item data and the server's item tables)
 Output: on the last line JSON {'ok': true, ...} or {'ok': false, 'error': '...'}.
@@ -95,6 +99,23 @@ def home_base(path):
         json.dump(d, fh, ensure_ascii=False, indent=1)
     os.replace(tmp, path)
     return {'map': mid, 'position': pos}
+
+
+def seasons(path, days):
+    import season as SZN
+    d = json.load(open(path, encoding='utf8'))
+    return SZN.catalog(d.get('season') or {}, length=int(days) * 86400)
+
+
+def season(path, sid, days):
+    import season as SZN
+    d = json.load(open(path, encoding='utf8'))
+    how = SZN.switch_state(d.setdefault('season', {}), sid, time.time())
+    tmp = path + '.tmp'
+    with open(tmp, 'w', encoding='utf8', newline='\n') as fh:
+        json.dump(d, fh, ensure_ascii=False, indent=1)
+    os.replace(tmp, path)
+    return dict(SZN.catalog(d['season'], length=int(days) * 86400), how=how)
 
 
 def known_loots():
@@ -187,9 +208,13 @@ def main(argv):
         return give(args[1], json.loads(args[2]))
     if args[:1] == ['reset'] and len(args) == 3:
         return reset(args[1], [x for x in args[2].split(',') if x])
+    if args[:1] == ['seasons'] and len(args) == 3:
+        return seasons(args[1], args[2])
+    if args[:1] == ['season'] and len(args) == 4:
+        return season(args[1], args[2], args[3])
     if args[:1] == ['entries'] and len(args) == 1:
         return {'items': sorted(known_loots().items())}
-    raise ValueError('usage: profile_tool.py new <path> <pilot> <company> | home_base <path> | give <path> <json> | reset <path> <sections> | entries')
+    raise ValueError('usage: profile_tool.py new <path> <pilot> <company> | home_base <path> | give <path> <json> | reset <path> <sections> | seasons <path> <days> | season <path> <id> <days> | entries')
 
 
 if __name__ == '__main__':

@@ -29,12 +29,16 @@ the record's refreshInfo reports the next price). When the level is at the maxim
 in the shop (resource_gold-pass 400,000 U) or from a package; Extra Gold Pass after the Gold Pass.
 Save-specific season (developer note 2026-10-28; player report: when the real calendar's season ended on 25.10 the ticket "closed"):
 the season starts from day 1 at the save's first login and lasts the panel's season_duration days (independent of the calendar; when the duration changes it applies to the running season too);
-a single season at a time. In place of the ended season the next one: if the save was created "progressive" (profile 'progressive', the panel's new
-save window) starting from the first season (2023-05 Mobius), moving to the next each time a season ends, up to the newest; seasons added later
-open when their turn comes, if all were played the newest repeats. Otherwise always the newest season. The season's id is the season of its designs
+a single season at a time. In place of the ended season the next one not finished: if the save was created "progressive" (profile 'progressive',
+the panel's new save window) the oldest, starting from the first season (2023-05 Mobius) up to the newest; seasons added later open when
+their turn comes, if all were finished the newest repeats. Otherwise the newest. The panel can switch to any season not finished (switch_state):
+the running one is paused with its progress and remaining time ('saved') and continues when picked again; a season whose time ran out is
+finished for the save ('results') and cannot be picked again. The panel changes the season only while the game is closed
+(profile_tool.py); 'begin' makes the next login apply a Gold Pass waiting in storage. The season's id is the season of its designs
 (event_appearances.SEASONS); the achievement group and the end of timed recipes come from this season (ACTIVE). The calendar functions (season_id ...)
 remain to know the real game's seasons.
-In the profile: season {period, start, played, points, gold, ext, claimed, day, daily, week, weekly, value, done, seasonal, renewal, pending [[captain, count]]}.
+In the profile: season {period, start, played, points, gold, ext, claimed, day, daily, week, weekly, value, done, seasonal, renewal, pending [[captain, count]],
+saved {season: the paused season's own keys + used}, results {season: {level, gold}}}.
 """
 import datetime, json, os, random, threading, time
 
@@ -209,14 +213,84 @@ def seasons(now=None):
     return ids + [cur] if cur > ids[-1] else ids
 
 
-def next_season(played, progressive, now=None):
-    """The next season: in progressive mode the first season not yet played (the newest if none), otherwise the newest."""
-    ids = seasons(now)
-    return next((i for i in ids if i not in played), ids[-1]) if progressive else ids[-1]
+def next_season(done, progressive, now=None):
+    """The next season among those not finished (done): in progressive mode the oldest, otherwise the newest; if every season is finished
+    the newest again."""
+    ids = [i for i in seasons(now) if i not in done]
+    return (ids[0] if progressive else ids[-1]) if ids else seasons(now)[-1]
 
 
 def duration():
     return max(1, int(SET.get('season_duration'))) * 86400
+
+
+# Choosing the season (user request 2026-11-03: a save made before the progressive option can go back to the first season or any one in
+# between): the panel switches the running season; the one left is paused in 'saved' with its progress and the time it used, and continues
+# from there when picked again. A season whose time ran out is finished for the save ('results': its last level) and cannot be picked again.
+SHARED = ('played', 'saved', 'results', 'pending')        # kept in the season state when the running season changes
+
+
+def finished(st):
+    """Seasons the save played to the end: started, but neither running nor paused."""
+    return set(st.get('played', [])) - {st.get('period')} - set(st.get('saved', {}))
+
+
+def begin(st, sid, now, pending=None):
+    """Makes sid the running season: a paused one continues with its progress and remaining time, otherwise it starts from day 1 ->
+    True if it was resumed. 'begin' asks Season.ensure to apply the Gold Pass waiting in storage."""
+    keep = {k: st[k] for k in SHARED if k in st}
+    if pending is not None:
+        keep['pending'] = pending
+    snap = keep.get('saved', {}).pop(sid, None)
+    st.clear()
+    st.update(keep)
+    if snap:
+        used = snap.pop('used', 0)
+        st.update(snap, period=sid, start=now - used)
+    else:
+        st.update(period=sid, start=now, points=0, gold=False, ext=False, claimed={k: [] for k, g, e in TRACKS}, value={}, done=[],
+                  seasonal=pool(SEASON, False) + pool(SEASON, True), renewal={'day': 0, 'week': 0})
+    st.setdefault('played', [])
+    if sid not in st['played']:
+        st['played'].append(sid)
+    st['begin'] = True
+    return bool(snap)
+
+
+def switch_state(st, sid, now):
+    """The panel's season choice on the season state: the running season is paused (progress and the time it used are kept) and sid runs
+    -> 'resumed' | 'started'. ValueError: unknown, already running or finished season."""
+    if sid not in seasons(now):
+        raise ValueError('Unknown season.')
+    if sid == st.get('period'):
+        raise ValueError('This season is already running.')
+    if sid in finished(st):
+        raise ValueError('This season is over for this save.')
+    if st.get('period'):
+        snap = {k: v for k, v in st.items() if k not in SHARED + ('period', 'start', 'begin')}
+        snap['used'] = max(0, now - st.get('start', now))
+        st.setdefault('saved', {})[st['period']] = snap
+    return 'resumed' if begin(st, sid, now) else 'started'
+
+
+def catalog(st, now=None, length=None):
+    """The seasons for the panel [{id, name, no, state: running | paused | new | finished, level, gold, left_sec, ship, banner (the season's own
+    window image, if it has one)}] (oldest first;
+    left_sec of a new season is its whole length); length: the season's length in seconds (the panel's season_duration)."""
+    now = time.time() if now is None else now
+    length = duration() if length is None else length
+    fin, saved, results = finished(st), st.get('saved', {}), st.get('results', {})
+    out = []
+    for i, sid in enumerate(seasons(now)):
+        d = st if sid == st.get('period') else saved.get(sid)
+        state = 'running' if d is st else 'paused' if d else 'finished' if sid in fin else 'new'
+        used = now - st.get('start', now) if d is st else d.get('used', 0) if d else 0
+        r = results.get(sid, {}) if state == 'finished' else {}
+        out.append({'id': sid, 'name': EG.season(sid)['name'], 'no': i + 1, 'state': state, 'ship': bool(EG.season(sid)['ship']),
+                    'banner': S['images'].get(sid),
+                    'level': level_of(d.get('points', 0)) if d else r.get('level'), 'gold': bool((d or r).get('gold')),
+                    'left_sec': int(max(0, length - used)) if state != 'finished' else None})
+    return {'seasons': out, 'max_level': MAX_LEVEL}
 
 
 def points_of(qid):
@@ -264,18 +338,20 @@ class Season:
                 st.setdefault('played', [st['period']])
                 self.p.dirty = True
         if not st.get('period') or self.ended(now):
-            wait, played = [], list(st.get('played', []))
+            wait = []
             if st.get('period'):
                 ended, wait = self.close_season()
                 msgs += ended
-            sid = next_season(played, bool(self.p.d.get('progressive')), now)
+                with self.p.lock:
+                    st.setdefault('results', {})[st['period']] = {'level': self.level(), 'gold': bool(st.get('gold'))}
             with self.p.lock:
-                st.clear()
-                st.update(period=sid, start=now, played=played + [sid], points=0, gold=False, ext=False,
-                          claimed={k: [] for k, g, e in TRACKS}, value={}, done=[], seasonal=pool(SEASON, False) + pool(SEASON, True),
-                          renewal={'day': 0, 'week': 0}, pending=wait)
+                done = finished(st) | ({st['period']} if st.get('period') else set())      # the season that just ended is finished too
+                sid = next_season(done, bool(self.p.d.get('progressive')), now)
+                resumed = begin(st, sid, now, wait)
                 self.p.dirty = True
-            self.log('   Season Pass season started: %s (%s, %d days)' % (sid, EG.season(sid)['name'], duration() // 86400))
+            self.log('   Season Pass season %s: %s (%s, %d days)' % ('resumed' if resumed else 'started', sid, EG.season(sid)['name'],
+                                                                 duration() // 86400))
+        if st.pop('begin', False):
             msgs += self.activate_items()
         ACTIVE.update(sid=st['period'], end_time=self.end())
         # quest ids that were removed from the pool (the pool was renewed per the wiki): the list is drawn again, old progress is deleted

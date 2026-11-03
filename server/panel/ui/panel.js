@@ -1063,36 +1063,157 @@ function paintEff(parent) {          // the effective multiplier of the sub-sett
 const fmtMult = x => (Math.round(x * 100) / 100).toLocaleString(LOC());
 
 // ================================================================== EVENTS
-async function renderEvents(list) {
-  const r = list || await act(() => api('/api/events')); if (!r || S.page !== 'events') return;
-  const set = (key, v) => act(() => api('/api/events', { changes: { [key]: v } })).then(x => x && renderEvents(x));
-  const bulk = (to, kind) => act(() => api('/api/events', { all: to, kind }), T('Updated.')).then(x => x && renderEvents(x));
-  const row = e => {
-    const state = e.state || 'calendar';
+// Top: the three kinds of pass (which one comes with an event and which runs all the time); below: the events by category (tabs with
+// counts, a filter for what is on now, search) as cards. Data: /api/events {events, passes} (panel.py events_page).
+const EVF = { cat: 'all', show: 'all', q: '', data: null };
+const EV_CATS = [
+  ['pass', N('Battle Pass events'), 'star', N('Each of these brings its own Battle Pass (quests, keys and a key exchange). A save runs one Battle Pass at a time, so only one of them is on at once: the one you turned on, otherwise the one that started first.')],
+  ['map', N('Map events'), 'globe', N('Event aliens, boxes and decorations on the maps, often with their own currency. Events that use the same map decoration or cargo box cannot run together.')],
+  ['special', N('Modes, gates and special days'), 'zap', N('Event modes and gates, shops, rankings and one-off days.')],
+  ['weekly', N('Weekly bonus days'), 'clock', N('Discounts and bonuses on certain days and hours of the week (local time). Choose "On" to keep one always active.')],
+];
+const EV_FEAT = { pass: [N('Battle Pass'), 'orange'], map: [N('On the maps'), 'info'], gate: [N('Gate rewards'), ''], currency: [N('Event currency'), ''],
+  decor: [N('Map decoration'), ''] };
+const EV_SHOW = [['all', N('All')], ['on', N('On now')], ['off', N('Off')]];
+
+async function renderEvents(data) {
+  const r = data || await act(() => api('/api/events')); if (!r || S.page !== 'events') return;
+  EVF.data = r;
+  const p = r.passes;
+  const passCard = (cls, kind, title, now, text, foot) => h('div', { class: 'pass-card ' + cls },
+    h('div', { class: 'kind' }, kind), h('h3', null, title), h('div', { class: 'now' }, now), h('p', null, text), foot);
+  const bp = p.pass ? [T('{0} · {1} left', p.pass.name, fmtDur(p.pass.left_sec)), p.pass.bought ? badge(T('Bought'), 'ok') : null]
+    : p.pass_open ? T('{0}: starts once you are in the game.', p.pass_open)
+    : p.pass_next ? T('Next: {0} in {1} days', p.pass_next.name, p.pass_next.days) : T('No event with a pass is coming up.');
+  $('#content').replaceChildren(h('div', { class: 'stack' },
+    h('div', { class: 'pass-grid' },
+      passCard('season', T('Always on · not an event'), 'Season Pass',
+        p.season ? T('Season {0} · {1} left', p.season.name, fmtDur(p.season.left_sec)) : T('Starts once you are in the game.'),
+        T('Daily, weekly and season missions with a reward track. Seasons follow one another ({0} days each); the switches on this page do not affect it.', p.season_days),
+        h('div', { class: 'row wrap' }, btn(T('Choose season'), seasonPicker, 'sm', 'star'), btn(T('Season length'), () => go('settings'), 'sm ghost', 'sliders'))),
+      passCard('battle', T('Comes with an event'), 'Battle Pass', bp,
+        T('Quests and keys of one event. It starts when an event marked Battle Pass opens and lasts {0} days, even if the event ends sooner.', p.pass_days),
+        btn(T('Show Battle Pass events'), () => { EVF.cat = 'pass'; EVF.show = 'all'; renderEvents(EVF.data); }, 'sm ghost', 'star')),
+      passCard('mode', T('Always on · monthly'), T("Voyagers' and Trinity passes"), T('Reset at the start of each month'),
+        T("Score tracks of Voyagers' Ascent and Trinity Trials, filled by playing those modes; they do not depend on events."), null)),
+    h('div', { class: 'alert info' }, icon('info'), h('div', null, T("Event aliens, boxes and discounts on the map change while the game is running; the client's event icons and windows update when you re-enter the game (changing maps or logging out and in is enough).")),
+      btn(T('Show on calendar'), () => go('calendar'), 'sm', 'agenda')),
+    h('div', { class: 'card' },
+      h('div', { class: 'ev-bar' },
+        h('div', { class: 'ev-tabs' }, [['all', N('All events'), 'calendar'], ...EV_CATS].map(([k, t, ic]) => {
+          const list = k === 'all' ? r.events : r.events.filter(e => e.category === k), on = list.filter(e => e.enabled).length;
+          return h('button', { class: 'ev-tab' + (EVF.cat === k ? ' on' : ''), type: 'button', onclick: () => { EVF.cat = k; renderEvents(EVF.data); } },
+            icon(ic), h('span', null, T(t)), h('b', null, list.length), on ? h('i', { title: T('{0} on now', on) }, on) : null);
+        })),
+        h('div', { class: 'row wrap' },
+          h('div', { class: 'seg' }, EV_SHOW.map(([k, t]) => h('button', { class: EVF.show === k ? 'on info' : '', onclick: () => { EVF.show = k; renderEvents(EVF.data); } }, T(t)))),
+          h('input', { class: 'input', style: { width: '190px' }, placeholder: T('Search events…'), value: EVF.q,
+            oninput: e => { EVF.q = e.target.value; drawEventList(); } }),
+          btn(T('All by calendar'), () => setEvents({ all: 'calendar' }, true), 'sm', 'undo'),
+          btn(T('Turn all events off'), () => setEvents({ all: 'off' }, true), 'sm', 'power'))),
+      h('div', { id: 'ev-list' }))));
+  drawEventList();
+}
+// ---- Season Pass seasons (/api/seasons; season.catalog): the save plays one season at a time; picking another pauses the running one
+// with its level and remaining time; a season whose time ran out is finished and cannot be picked again
+const SEASON_ROMAN = n => [[10, 'X'], [9, 'IX'], [5, 'V'], [4, 'IV'], [1, 'I']].reduce((o, [v, r]) => { while (n >= v) { o += r; n -= v; } return o; }, '');
+const SEASON_STATE = { running: [N('Playing now'), 'ok'], paused: [N('Paused'), 'warn'], new: [N('Not started'), 'info'], finished: [N('Finished'), ''] };
+async function seasonPicker() {
+  const r = await act(() => api('/api/seasons')); if (!r) return;
+  let d = r;                                            // the list shown (the poll below fills its banners)
+  const body = h('div', { class: 'stack' });
+  const m = modal({ title: T('Season Pass seasons'), wide: true, body,
+    sub: T('Pick the season to play. The one you leave is paused: its level and remaining time are kept and you can continue it later. A season whose time runs out is finished and cannot be played again with this save.'),
+    foot: [btn(T('Close'), () => m.close(), 'primary')], onclose: () => { if (S.page === 'events') renderEvents(); } });
+  const pick = async (list, s) => {
+    if (list.busy) {                                       // the season changes only while the game is closed (the server keeps writing the save)
+      const w = modal({ title: T('Close the game first'), body: h('div', null, T('The season can only be changed while the game is closed. Close the game, then pick the season again.')),
+        foot: [btn(T('OK'), () => w.close(), 'primary')] });
+      return;
+    }
+    const cur = list.seasons.find(x => x.state === 'running');
+    const text = [cur ? T('{0} is paused at level {1} with {2} left.', cur.name, cur.level, fmtDur(cur.left_sec)) : null,
+      s.state === 'paused' ? T('{0} continues from level {1} with {2} left.', s.name, s.level, fmtDur(s.left_sec))
+        : T('{0} starts from level 0 and lasts {1} days.', s.name, Math.round(s.left_sec / 86400))].filter(Boolean).join(' ');
+    if (!await confirmBox(T('Play season {0}?', SEASON_ROMAN(s.no) + ' · ' + s.name), text, { ok: s.state === 'paused' ? T('Continue') : T('Start') })) return;
+    const x = await act(() => api('/api/seasons', { season: s.id }), T('{0} is now the running season.', s.name));
+    if (x) { d = Object.assign(x, { banners_loading: d.banners_loading }); draw(d); }
+  };
+  const tile = (d, s) => {
+    const [label, cls] = SEASON_STATE[s.state];
+    const month = new Date(+s.id.slice(0, 4), +s.id.slice(5) - 1, 1).toLocaleDateString(LOC(), { month: 'long', year: 'numeric' });
+    return h('div', { class: 'sp-tile ' + s.state, style: { '--h': (190 + s.no * 41) % 360 } },
+      h('div', { class: 'sp-art' + (s.banner ? ' banner' : ''), style: s.banner ? { '--img': `url("${s.banner}")` } : null }, h('span', { class: 'sp-no' }, SEASON_ROMAN(s.no)),
+        s.ship ? h('span', { class: 'sp-ship', title: T('A ship design at the end of the Gold track') }, icon('ship')) : null),
+      h('div', { class: 'sp-info' },
+        h('div', { class: 'row between', style: { width: '100%' } }, h('div', { class: 'sp-name' }, s.name), badge(T(label), cls)),
+        h('div', { class: 'muted small' }, month),
+        s.level != null ? h('div', { class: 'sp-level' }, h('div', { class: 'sp-bar' }, h('i', { style: { width: Math.round(100 * s.level / d.max_level) + '%' } })),
+          T('Level {0} / {1}', s.level, d.max_level), s.gold ? h('b', null, ' · Gold') : null) : null,
+        s.left_sec != null ? h('div', { class: 'sp-time' }, icon('clock'), s.state === 'new' ? T('Lasts {0} days', Math.round(s.left_sec / 86400)) : T('{0} left', fmtDur(s.left_sec))) : null,
+        s.state === 'paused' ? btn(T('Continue'), () => pick(d, s), 'sm primary', 'play')
+          : s.state === 'new' ? btn(T('Start'), () => pick(d, s), 'sm', 'play') : null));
+  };
+  const draw = d => body.replaceChildren(
+    d.busy ? h('div', { class: 'alert warning' }, icon('alert'), h('div', null, T('The game is open: you can look at the seasons, but to change the season close the game first.')))
+      : h('div', { class: 'alert info' }, icon('info'), h('div', null, T('The change is written to the save; you will find it the next time you enter the game.'))),
+    nowStrip(d), h('div', { class: 'sp-grid' }, d.seasons.map(s => tile(d, s))));
+  const nowStrip = d => {
+    const cur = d.seasons.find(s => s.state === 'running'), n = k => d.seasons.filter(s => s.state === k).length;
+    return h('div', { class: 'sp-now' + (cur && cur.banner ? ' banner' : ''), style: cur && cur.banner ? { '--img': `url("${cur.banner}")` } : null },
+      cur ? h('span', { class: 'sp-now-no', style: { '--h': (190 + cur.no * 41) % 360 } }, SEASON_ROMAN(cur.no)) : null,
+      h('div', { style: { flex: 1 } }, h('div', { class: 'kind' }, T('Playing now')), cur
+        ? h('div', null, h('b', null, cur.name), ' · ', T('Level {0} / {1}', cur.level, d.max_level), ' · ', T('{0} left', fmtDur(cur.left_sec)))
+        : h('div', { class: 'muted' }, T('No season yet: it starts the next time you enter the game.'))),
+      h('div', { class: 'row wrap' }, badge(T('{0} paused', n('paused')), 'warn'), badge(T('{0} finished', n('finished'))), badge(T('{0} not started', n('new')), 'info')));
+  };
+  draw(r);
+  // banners missing from the CDN copy download in the background (panel.py fetch_banners): they appear as they arrive
+  const poll = async () => {
+    if (!d.banners_loading || !body.isConnected) return;
+    const b = await api('/api/season_banners').catch(() => null); if (!b || !body.isConnected) return;
+    if (d.seasons.some(s => (b.banners[s.id] || null) !== s.banner)) { d = { ...d, seasons: d.seasons.map(s => ({ ...s, banner: b.banners[s.id] || null })) }; draw(d); }
+    d.banners_loading = b.loading; setTimeout(poll, 1500);
+  };
+  setTimeout(poll, 1500);
+}
+const setEvents = (body, note) => act(() => api('/api/events', body), note ? T('Updated.') : null).then(x => x && renderEvents(x));
+
+function drawEventList() {
+  const box = $('#ev-list'); if (!box || !EVF.data) return;
+  const q = EVF.q.trim().toLocaleLowerCase(LOC());
+  const shown = EVF.data.events.filter(e => (EVF.show === 'all' || e.enabled === (EVF.show === 'on'))
+    && (!q || (e.name + ' ' + e.description).toLocaleLowerCase(LOC()).includes(q)))
+    .sort((a, b) => b.enabled - a.enabled || (a.next_day ?? 1e9) - (b.next_day ?? 1e9) || a.name.localeCompare(b.name, LOC()));
+  const passNames = new Set(EVF.data.events.filter(e => e.category === 'pass').map(e => e.name));
+  const card = e => {
     const status = e.enabled ? badge(e.state === 'on' && !e.in_calendar ? T('On (manual)') : T('On'), 'ok')
       : e.suppressed_by ? badge(T('Off (conflict: {0})', e.suppressed_by), 'err')
       : badge(e.state === 'off' && e.in_calendar ? T('Off (manual)') : T('Off'), e.state === 'off' ? 'err' : '');
     const cal = e.in_calendar ? (e.time_left_sec != null ? T('on by calendar · {0} left', fmtDur(e.time_left_sec)) : T('on by calendar'))
       : (e.next_day != null ? T('by calendar in {0} days', e.next_day) : T('off by calendar now'));
-    return h('div', { class: 'ev-row' },
-      h('div', null, h('div', { class: 'name' }, e.name, status), h('div', { class: 'help muted small' }, e.description),
-        h('div', { class: 'when' }, '📅 ', e.time, ' · ', cal),
-        e.conflicting && e.conflicting.length ? h('div', { class: 'help muted small' }, T('Cannot run together with: {0}', e.conflicting.join(', '))) : null),
-      h('div', { class: 'seg' }, [['calendar', T('By calendar'), 'info'], ['on', T('On'), 'ok'], ['off', T('Off'), 'err']].map(([k, t, c]) =>
-        h('button', { class: (state === k ? 'on ' : '') + c, onclick: () => set(e.key, k === 'calendar' ? null : k) }, t))));
+    const clash = e.conflicting.filter(n => !(e.category === 'pass' && passNames.has(n)));      // the pass rule is explained once, in the group
+    return h('div', { class: 'ev-card' + (e.enabled ? ' on' : e.suppressed_by ? ' blocked' : '') },
+      h('div', { class: 'ev-head' }, h('div', { class: 'name' }, e.name), status),
+      e.features.length ? h('div', { class: 'ev-tags' }, e.features.map(f => badge(T(EV_FEAT[f][0]), EV_FEAT[f][1]))) : null,
+      e.description ? h('p', { class: 'ev-desc' }, e.description) : null,
+      h('div', { class: 'when' }, icon('calendar'), h('span', null, e.time)),
+      clash.length ? h('div', { class: 'when' }, icon('alert'), h('span', null, T('Cannot run together with: {0}', clash.join(', ')))) : null,
+      h('div', { class: 'ev-foot' }, h('span', { class: 'muted small' }, cal),
+        h('div', { class: 'seg' }, [['calendar', T('By calendar'), 'info'], ['on', T('On'), 'ok'], ['off', T('Off'), 'err']].map(([k, t, c]) =>
+          h('button', { class: ((e.state || 'calendar') === k ? 'on ' : '') + c, onclick: () => setEvents({ changes: { [e.key]: k === 'calendar' ? null : k } }) }, t)))));
   };
-  const yearly = r.filter(e => e.type === 'yearly'), weekly = r.filter(e => e.type === 'weekly');
-  $('#content').replaceChildren(h('div', { class: 'stack' },
-    h('div', { class: 'alert info' }, icon('info'), h('div', null, T("Event aliens, boxes and discounts on the map change while the game is running; the client's event icons and windows update when you re-enter the game (changing maps or logging out and in is enough).")),
-      btn(T('Show on calendar'), () => go('calendar'), 'sm', 'agenda'), btn(T('Turn all events off'), () => bulk('off'), 'sm', 'power')),
-    h('div', { class: 'card' }, h('div', { class: 'row between wrap' }, h('h2', null, icon('calendar'), T('Yearly events')),
-      h('div', { class: 'row wrap' }, btn(T('All by calendar'), () => bulk('calendar', 'yearly'), 'sm'), btn(T('Turn all on'), () => bulk('on', 'yearly'), 'sm'), btn(T('Turn all off'), () => bulk('off', 'yearly'), 'sm'))),
-      h('p', { class: 'desc' }, T('They open by the real date; you can turn any event on or off at any time. Several events can run at once; of events that conflict (Battle Pass, map decoration, cargo box) only one: the one you turned on, otherwise the one that started first.')),
-      yearly.map(row)),
-    h('div', { class: 'card' }, h('div', { class: 'row between wrap' }, h('h2', null, icon('clock'), T('Weekly events')),
-      h('div', { class: 'row wrap' }, btn(T('All by calendar'), () => bulk('calendar', 'weekly'), 'sm'), btn(T('Turn all on'), () => bulk('on', 'weekly'), 'sm'), btn(T('Turn all off'), () => bulk('off', 'weekly'), 'sm'))),
-      h('p', { class: 'desc' }, T('They run on certain days and hours of the week (local time). Choose "On" to keep them always active.')),
-      weekly.map(row))));
+  const groups = EV_CATS.filter(([k]) => EVF.cat === 'all' || EVF.cat === k).map(([k, t, ic, d]) => {
+    const list = shown.filter(e => e.category === k); if (!list.length) return null;
+    const all = EVF.data.events.filter(e => e.category === k);
+    const bulk = v => setEvents({ changes: Object.fromEntries(all.map(e => [e.key, v])) }, true);
+    return h('section', { class: 'ev-sec' },
+      h('div', { class: 'row between wrap' }, h('h2', null, icon(ic), T(t), h('span', { class: 'cnt' }, list.length)),
+        h('div', { class: 'row wrap' }, btn(T('All by calendar'), () => bulk(null), 'sm'), btn(T('Turn all off'), () => bulk('off'), 'sm'))),
+      h('p', { class: 'desc' }, T(d)),
+      h('div', { class: 'ev-grid' }, list.map(card)));
+  }).filter(Boolean);
+  box.replaceChildren(...(groups.length ? groups : [h('div', { class: 'empty' }, art('empty_event'), h('div', null, T('No matching events.')))]));
 }
 
 // ================================================================== EVENT CALENDAR (event_schedule.py, /api/takvim)

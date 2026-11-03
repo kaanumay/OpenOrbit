@@ -36,6 +36,8 @@ Safe zone: in game equipment changes only at the station (with the panel's "Hang
   POST /auction/auto {type, loot, maximum}  auto-bid rule (maximum 0: off; auction.auto)
   POST /auction/alarm {type, loot, when_outbid, min}  alarm rule (removed if both are empty)
   GET  /auction/events?last=<no>  events after this number (the panel's notifications)
+  GET  /season   the seasons of the Season Pass (season.catalog: running, paused, new, finished); the panel changes the season
+                 only while the game is closed (profile_tool.py season)
 """
 import json, os, secrets, threading, time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -472,6 +474,13 @@ def events(game, q):
     return {'events': [o for o in s.social.auction.d['events'] if o['no'] > last]}
 
 
+def season_list(game):
+    import season as SZN
+    s = session(game)
+    s.season.ensure()
+    return SZN.catalog(s.season.st)
+
+
 def start(game, folder, log=print):
     key = secrets.token_hex(16)
 
@@ -511,6 +520,8 @@ def start(game, folder, log=print):
                 return self._handle(lambda: auction(game))
             if u.path == '/auction/events':
                 return self._handle(lambda: events(game, q))
+            if u.path == '/season':
+                return self._handle(lambda: season_list(game))
             self._reply(404, {'error': 'none'})
 
         def do_POST(self):
