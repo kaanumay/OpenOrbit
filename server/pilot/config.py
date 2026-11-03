@@ -182,6 +182,8 @@ BLOCKS = {
         'key': ('str', '', 30),                    # galaxy_gates.GATES key (alpha, beta ...)
         'min_lives': ('int', 1, 0, 10),            # buy lives up to this before going in / after a death
         'life_budget': ('int', 0, 0, 10 ** 8),     # uridium for lives per session
+        'build_budget': ('int', 0, 0, 10 ** 9),    # uridium for the generator's spins per session (a gate whose parts are missing)
+        'leave_lives': ('int', 0, 0, 10),          # once the gate's lives are down to this (after a death), leave it for 'then'; 0: off
         'repeat': ('bool', False),                 # once completed, again if the parts are complete again
         'then': ('choice', 'stop', THEN),          # the gate is done, not built, out of lives or out of reach
     },

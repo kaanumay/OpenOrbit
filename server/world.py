@@ -2020,6 +2020,7 @@ class World:
             if foreign and not b.get('stolen'):             # someone else's box: penalty once (on a partial take the box stays on the ground)
                 b['stolen'] = True
                 msgs += self.cargo_penalty(b['owner_tag'])
+                msgs += self.quest('steal')                  # "Steal cargo boxes from your opponents" (quest condition 24)
                 BG.on_box_taken(b['owner_tag'], self.p.d['pilot'].get('userName', ''))
             if cargo_box:
                 totals = self.p.add_ores(ores)
@@ -2322,8 +2323,11 @@ class World:
                     n.at_floor(n)
             if dmg > 0 and getattr(n, 'damage_hook', None):      # Ö4: the fight's damage counter (progress rewards)
                 n.damage_hook(dmg)
-            if dmg > 0 and not attacker:
-                self.p.ach('damage', count=dmg, npc=n.d.get('npc_id'))
+            if dmg > 0 and not attacker:                          # a player bot is a player: DAMAGE_PLAYERS quests, "don't damage players"
+                if n.bot is not None:
+                    self.p.ach('damage_player', count=dmg)
+                else:
+                    self.p.ach('damage', count=dmg, npc=n.d.get('npc_id'))
             # summoning and vanishing at an HP threshold (alien.py); reversed controls and EMPs answer only the pilot's own hit, not the P.E.T.'s or a
             # battle station's (a Boss Saimon hit by the base reversed the controls of a pilot who wasn't attacking it: player report 2026-11-02)
             self.alien.on_hit(n, dmg, attacker, now, to_player=engage and not attacker)

@@ -2,7 +2,7 @@
 resupply, enemy pilots, after a death, stop conditions) run in every mode.
   hunt    hunts the chosen aliens on the Hunt maps (travel), collects boxes; ore between fights and selling if the ore block says so
   gate    a galaxy gate end to end (tasks/gates.py); off the gate map it does not hunt, it only fights back
-  quest   the active quests lead the hunt (tasks/quests.py): their aliens, their maps, the quest giver
+  quest   the active quests lead the bot (tasks/quests.py): their aliens, maps, points, ore, the quest giver; it hunts only for them
   mining  harvests the chosen ores on the Mining maps and sells the cargo at the base; it does not hunt, it only fights back
 A mode with nothing left to do (gate done / not built / out of lives, no quest to play) goes on with its 'then' setting: stop, or another
 mode (Pilot.mode_end; the running mode is Pilot.run_mode, the chosen one stays in the settings). Inside any gate map the waves are fought."""
@@ -23,16 +23,22 @@ def allows(pilot, what):
     m, c = current(pilot), pilot.cfg
     if m == 'hunt':
         return what in ('hunt', 'boxes', 'roam') or (what == 'harvest' and c['ore']['harvest']) or (what == 'sell' and c['ore']['sell'])
-    if m == 'quest':
-        return what in ('hunt', 'boxes', 'roam')
+    if m == 'quest':                                        # only a goal of aliens hunts; an ore goal harvests and sells, cargo boxes sell
+        g = pilot.quest_goal
+        return (what in ('boxes', 'roam') or (what == 'hunt' and QUESTS.hunts(pilot))
+                or (what == 'harvest' and bool(g) and g['kind'] == 'ore')
+                or (what == 'sell' and bool(g) and (g['kind'] == 'ore' or g['box'] == 'cargo')))
     if m == 'mining':
         return what in ('harvest', 'sell', 'roam')
     return False                                            # gate mode off the gate map: only its trip
 
 
 def ore_settings(pilot):
-    """The ore settings of the running mode: Mining's own block, else Hunt's (ore)."""
-    return pilot.cfg['mining'] if current(pilot) == 'mining' else pilot.cfg['ore']
+    """The ore settings of the running mode: Mining's own block, else Hunt's (ore); a quest's ore goal harvests only its ore."""
+    m, g = current(pilot), pilot.quest_goal
+    if m == 'quest' and g and g['kind'] == 'ore':
+        return dict(pilot.cfg['ore'], types=g['harvest'] or [g['ore']])
+    return pilot.cfg['mining'] if m == 'mining' else pilot.cfg['ore']
 
 
 def maps(pilot, now):

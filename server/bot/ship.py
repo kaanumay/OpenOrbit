@@ -963,19 +963,20 @@ def npc_to_bot(w, m, now):
             return False                        # the player is nearer: the bot stays in mind for later
         m.engaged = False                       # the bot is nearer: the laser on the player stops
         w.alien_ceasefire(m)
+    if _in_peace(w, tx, ty, t.bot) and not fighting(w, t):
+        # safe zone (the zones that protect this bot: its company's): the player's rule (world.npc_retaliating): the zone is void only
+        # while the bot keeps fighting there; a bot that is not fighting (fled, ceased fire) is let go by every alien after it, at once
+        # (checked before the wait for the next think: test_bot_safe failed when its second call fell inside that wait)
+        m.bot_target = None
+        w.alien_ceasefire(m)
+        w.stop_npc_motion(m, now)
+        return False
     if now < m.next_think and now < m.next_shot:
         return True
     post = w.ward_of(m)
     if dist > 2500 or (post and w.leashed(m, post, tx, ty, now)):
         # a guard (Cubikon's Protegits) does not chase the bot away from its summoner all the way to the portal: the same as the player's leash (world.leashed)
         m.bot_target = None
-        return False
-    if _in_peace(w, tx, ty, t.bot) and not fighting(w, t):
-        # safe zone (the zones that protect this bot: its company's): the player's rule (world.npc_retaliating): the zone is void only
-        # while the bot keeps fighting there; a bot that is not fighting (fled, ceased fire) is let go by every alien after it
-        m.bot_target = None
-        w.alien_ceasefire(m)
-        w.stop_npc_motion(m, now)
         return False
     if now >= m.next_think:
         m.next_think = now + 1.0

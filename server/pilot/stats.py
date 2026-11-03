@@ -6,7 +6,7 @@ import time
 from collections import deque
 
 KEYS = ('kills', 'boxes', 'deaths', 'revives', 'jumps', 'ep', 'honor', 'credits', 'uridium', 'spent_credits', 'spent_uridium', 'sales', 'gates',
-        'spent_uridium_gates')
+        'spent_uridium_gates', 'spent_uridium_build')
 CURVE = ('kills', 'credits', 'uridium', 'ep', 'honor')     # sampled for the panel's curves
 SAMPLE_SEC = 60
 SAMPLES = 240                 # four hours at one sample a minute (older samples are thinned out, see sample())

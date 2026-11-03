@@ -42,6 +42,7 @@ const PIL_MODE = {
   fight: N('Fighting'), box: N('Collecting a box'), roam: N('Patrolling'), gate: N('Going to the next wave'), flee: N('Going to a safe zone'),
   repair: N('Repairing'), idle: N('Waiting'), travel: N('Flying to the hunting map'), home: N('Going to the base before stopping'), sell: N('Going to sell the cargo'),
   ore: N('Harvesting ore'), hide: N('Hiding from an enemy pilot'), quest: N('Going to a quest giver'), gate_trip: N('Going to the galaxy gate'),
+  quest_point: N("Flying to the quest's point"), quest_trade: N('Going to the 5-2 trader'),
 };
 const PIL_REASON = {
   dead: N('Your ship is destroyed.'), jumping: N('Jumping through a portal.'), manual: N('You moved the ship: resuming in {0} s.'),
@@ -50,7 +51,7 @@ const PIL_REASON = {
 const PIL_STOP = {
   time: N('Time limit reached.'), kills: N('Number of aliens reached.'), ammo: N('Out of laser ammo.'), dead: N('Ship destroyed (no repair left).'),
   players: N('Enemy pilot nearby.'), gate_done: N('Galaxy gate completed.'), gate_not_built: N('The galaxy gate is not built.'),
-  gate_lives: N('No life left for the galaxy gate.'), gate_no_route: N('No route to the galaxy gate.'), gate_none: N('No galaxy gate chosen.'),
+  gate_lives: N('No life left for the galaxy gate.'), gate_lives_low: N("The gate's lives fell to the limit set: the gate is kept for later."), gate_no_route: N('No route to the galaxy gate.'), gate_none: N('No galaxy gate chosen.'),
   no_quest: N('No quest to play.'), quest_done: N('The chosen quest is done.'), quest_gone: N('The chosen quest is no longer accepted.'),
 };
 // the journal's lines: the server sends the English template and its values (server/pilot, Pilot.note); each one is listed here so the
@@ -64,8 +65,13 @@ const PIL_NOTES = [N('Started in {0} mode.'), N('Stopped.'), N('Stopped: {0}'), 
   N('Entering the {0}.'), N('Enemy pilot nearby: {0}.'), N('Leaving the map for {0}.'), N('Enemy pilot nearby but no safe zone on this map: carrying on.'),
   N('Quest: {0} ({1}).'), N('No quest to play.'), N('Quest handed in: {0}.'), N('Quest taken: {0}.'), N('No quest to take here.'), N('Ship destroyed.'),
   N('Repaired at the base ({0}/{1}).'), N('Used {0}.'), N('Shield low: switched to config {0}.'), N('P.E.T. repaired ({0} U).'), N('P.E.T. launched.'),
-  N('No route to {0}: staying here.'), N('Flying to {0}.'), N('Nothing left to do here: on to {0}.')];
-const PIL_QKIND = { q_kill: N('aliens to destroy'), q_visit: N('a map to visit'), q_giver: N('back to the quest giver') };
+  N('No route to {0}: staying here.'), N('Flying to {0}.'), N('Nothing left to do here: on to {0}.'),
+  N('{0}: {1}/{2} parts ({3} U spent on spins).')];
+const PIL_QKIND = { q_kill: N('aliens to destroy'), q_visit: N('a map to visit'), q_giver: N('back to the quest giver'),
+  q_point: N('a point to reach'), q_travel: N('a distance to fly'), q_stay: N('time to spend on a map'), q_boxes: N('bonus boxes to collect'),
+  q_ore: N('ore to collect'), q_grind: N('any aliens to destroy'), q_gate: N('a galaxy gate'), q_pvp: N('enemy pilots'),
+  q_act: N('an action (laboratory, slot bar, Skylab, Assembly)'), q_asset: N('a station object to visit'), q_egate: N('the starter gate'),
+  q_die: N('losing the ship'), q_mine: N('mines to lay') };
 const PIL_WHEN = [['hp', N('HP below (%)')], ['shield', N('Shield below (%)')], ['fight', N('While fighting')], ['big', N('Target HP at least')], ['always', N('As soon as ready')]];
 // A mode's "then" setting: what the bot does when the mode has nothing left to do.
 const PIL_THEN = [['stop', N('Stop')], ['hunt', N('Switch to Hunt')], ['quest', N('Switch to Quests')], ['mining', N('Switch to Mining')]];
@@ -1073,14 +1079,16 @@ PILC.push({ id: 'gates', tab: 'mode:gate', order: 10, build: () => {
   const cur = gates.find(g => g.key === pilGet('gates.key'));
   const label = g => g.name + ' · ' + (g.ready ? T('ready, {0} lives', g.lives) : g.built ? T('built') : T('parts {0}/{1}', g.parts, g.need));
   return pilCard('star', T('Galaxy gate'),
-    T('Prepares the gate, buys lives, enters through its portal on X-1 and plays every wave; on the other maps it does not hunt. After a death it repairs at the base and goes back in. Careful: when the last life is lost the gate and its parts are gone.'),
+    T("Builds the gate with the Galaxy Gate Generator's spins when parts are missing (free energy first, then uridium within the build budget), prepares it, buys lives, enters through its portal on X-1 and plays every wave; on the other maps it does not hunt. After a death it repairs at the base and goes back in. Careful: when the last life is lost the gate and its parts are gone."),
     gates.length ? pilFields(field(T('Gate'), pilSelect('gates.key', [['', T('Choose…')], ...gates.map(g => [g.key, label(g)])])),
-      field(T('Keep at least (lives)'), pilNum('gates.min_lives', 0, 10)), field(T('Lives budget (U)'), pilNum('gates.life_budget', 0, 1e8, 1000))) : pilNoGame(),
+      field(T('Keep at least (lives)'), pilNum('gates.min_lives', 0, 10)), field(T('Lives budget (U)'), pilNum('gates.life_budget', 0, 1e8, 1000)),
+      field(T('Build budget (U)'), pilNum('gates.build_budget', 0, 1e9, 1000)),
+      field(T('Leave the gate at (lives, 0: never)'), pilNum('gates.leave_lives', 0, 10))) : pilNoGame(),
     cur ? h('div', { class: 'pil-gauges', style: { margin: '0 0 12px' } },
       pilGauge(T('Waves'), cur.wave, cur.waves, 'var(--accent)', (cur.wave + 1) + ' / ' + cur.waves),
       pilGauge(T('Parts'), cur.parts, cur.need, 'var(--violet)', cur.parts + ' / ' + cur.need),
       pilGauge(T('Lives'), cur.lives, Math.max(cur.lives, 10), 'var(--ok)', String(cur.lives))) : null,
-    pilCheck('gates.repeat', T('Once completed, play it again if its parts are complete again')),
+    pilCheck('gates.repeat', T("Once completed, play it again (built again within the build budget)")),
     h('p', { class: 'desc', style: { marginTop: '12px' } }, T('When the gate is done or cannot be played (not built, no life left, no route):')),
     pilThen('gates', 'gate'));
 } });
@@ -1100,7 +1108,7 @@ function pilQuestPick() {
 PILC.push({ id: 'quests', tab: 'mode:quest', order: 10, build: () => {
   const chosen = pilGet('quests.qid');
   return pilCard('note', T('Quests'),
-    T('The active quests lead the hunt: the bot hunts the aliens of the quest on its maps; "visit a map" and "return to the quest giver" are done too.'),
+    T("The active quests lead the bot: it hunts only the aliens a quest asks for, on its maps; it also visits maps and coordinates (the pirate and Blacklight maps and LoW too), covers distances, collects boxes and ore (refined, or from the aliens that drop it), plays galaxy gates (built within the Galaxy gate budget), fights enemy pilots (with the player bots on), uses the laboratory, slot bar, Skylab and Assembly, and returns to the quest giver. Quests against the clock come first; the quests' restrictions (forbidden aliens or ammo, no death) are kept."),
     pilFields(field(T('Quest to play'), pilQuestPick())),
     (PIL.cat.quests || []).length ? null : h('p', { class: 'muted small' }, T('No accepted quest: take one in the game (or let the bot take one below).')),
     chosen ? h('p', { class: 'muted small' }, T('Only this quest is played; no other quest is taken.'))

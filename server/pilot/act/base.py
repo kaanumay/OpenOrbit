@@ -21,6 +21,7 @@ SAME_POINT = 50               # a new order closer than this to the last one whi
 OWN_MOVE_SEC = 6.0            # a MoveRequest to one of our destinations within this time is ours (hero_move), not the player's click
 OWN_MOVE_DIST = 90
 ON_TOP = 40                   # a box / ore this close is under the ship
+RADIATION_REACH = 600         # how far past the map's edge a radiation quest may take the ship
 
 
 class Base:
@@ -42,6 +43,7 @@ class Base:
         g = w.p.d['ship']
         npcs = []
         ammo = self.laser_ammo()
+        hunted, forbid = self.hunted(cfg), cfg.get('forbid') or ()
         for n in w.npcs.values():
             if not self.visible_alien(n):
                 continue
@@ -53,20 +55,25 @@ class Base:
                 engaged=bool(n.engaged) and not passive, aggressive=w.aggressive(n) and not passive,
                 notice=n.d.get('notice_distance', W.COMBAT['npc_notice_distance']) * SET.multiplier('npc_notice'),
                 fire_range=w.npc_range(n), hp=n.hp, hp_max=n.d.get('hp', 1), shield=getattr(n, 'shield', 0), shield_max=n.d.get('shield', 0),
-                ok=self.attackable(n, now, ammo),
-                allowed=not cfg['aliens'] or n.tip in cfg['aliens'] or bool(w.gate),     # in a galaxy gate every wave alien
+                ok=self.attackable(n, now, ammo), forbidden=n.tip in forbid,
+                allowed=hunted(n),
                 priority=n.tip in (cfg.get('priority') or ())))
+        if cfg.get('pvp') is not None:                        # a PvP quest: the enemy-company pilots are the targets (act/players.py)
+            npcs += self.pvp_targets(now, cfg['pvp'])
         cargo_room = w.p.cargo_free() >= 1
         boxes = []
+        steal = cfg.get('steal')
         for h, b in w.boxes.items():
-            if not w.own(b) or b.get('keyed'):
+            tag = b.get('owner_tag')
+            stolen = steal and tag is not None and not w.own_tag(tag) and b.get('tip') in self.cargo_box_types()    # a steal quest
+            if (not w.own(b) and not stolen) or b.get('keyed'):
                 continue
             tip = b.get('tip')
             if b.get('event'):
                 kind = 'event'
             elif tip == 'BONUS_BOX':
                 kind = 'bonus'
-            elif tip in self.cargo_box_types() and cargo_room and (not SET.get('cargo_ownership') or w.own_tag(b.get('owner_tag'))):
+            elif tip in self.cargo_box_types() and cargo_room and (stolen or not SET.get('cargo_ownership') or w.own_tag(b.get('owner_tag'))):
                 kind = 'cargo'
             else:
                 continue
@@ -82,6 +89,13 @@ class Base:
         return dict(hero=(hx, hy), R=w.laser_range(), hp=g.get('hitPoints', 0), hp_max=g.get('hitMax', 0), shield=g.get('shield', 0),
                     shield_max=g.get('shieldMax', 0), bounds=(w.map_w, w.map_h), map=int(w.map_id),
                     in_peace=w.in_peace(hx, hy), npcs=npcs, boxes=boxes, safe=safe, ores=ores)
+
+    def hunted(self, cfg):
+        """-> whether an alien is a target of the hunt (cfg: Pilot.hunt_cfg): the mode hunts, the map's list (empty: all; in a galaxy
+        gate every wave alien), never one an active quest forbids."""
+        gate, aliens, forbid = bool(self.w.gate) or bool(getattr(self.w, 'low', None)), cfg['aliens'], cfg.get('forbid') or ()     # LoW too
+        hunting = cfg.get('hunting', True) and cfg.get('pvp') is None            # a PvP quest hunts pilots, not aliens
+        return lambda n: hunting and (not aliens or n.tip in aliens or gate) and n.tip not in forbid
 
     @staticmethod
     def visible_alien(n):
@@ -145,11 +159,13 @@ class Base:
         return w.target if w.attacking and w.target in w.npcs else None
 
     # ------------------------------------------------------------ moving
-    def move_to(self, x, y, now=None):
+    def move_to(self, x, y, now=None, outside=False):
+        """outside: the point may be beyond the map's edge (the radiation zone, for a quest that asks for it)."""
         now = time.time() if now is None else now
         w = self.w
-        x = max(0, min(w.map_w, int(x)))
-        y = max(0, min(w.map_h, int(y)))
+        lo = -RADIATION_REACH if outside else 0
+        x = max(lo, min(w.map_w - lo, int(x)))
+        y = max(lo, min(w.map_h - lo, int(y)))
         if self.sent:
             lx, ly, _ = self.sent[-1]
             hx, hy = w.hero_pos(now)

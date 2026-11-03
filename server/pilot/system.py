@@ -31,7 +31,7 @@ from . import brain as B
 from . import config as C
 from .stats import Stats, text
 from .tasks import economy as ECON, modes as MODES, players as PLAYERS, quests as QUESTS, recover as RECOVER, stop as STOP, support as SUPPORT
-from .tasks import travel as TRAVEL
+from .tasks import gates as GATES, travel as TRAVEL
 
 STEP = 0.25
 CATALOG_SEC = 10              # the panel's lists (maps, owned items) are refreshed this often
@@ -41,6 +41,8 @@ BOX_IGNORE_SEC = 300
 TRAIL = 300                   # the ship's trail on the panel's map: one point a second (5 minutes)
 TRAIL_STEP = 40               # a new point only after this many units of flight
 MARKS = 60                    # where aliens were destroyed / the ship died, on this map
+QUEST_FLEE_HP, QUEST_RESUME_HP = 50, 95         # an active quest fails on death: the ship flees at half its HP
+AWAY_RESUME = 25              # with no safe zone on the map, back to work this many % above the flee threshold
 
 
 class Pilot:
@@ -77,6 +79,7 @@ class Pilot:
         self.danger_until = 0.0         # enemy pilots seen: hidden until then
         self.no_shelter = None          # the map already noted as having no safe zone to hide in
         self.ended = set()              # the modes that ended in this run (a 'then' back to one of them stops the bot: no ping-pong)
+        self.quests_finished = set()    # the quests completed in this run (the 'quest' event)
         self.ignored, self.box_ignored = {}, {}         # alien id / box hash -> until when it is left alone
         self.track = None               # (target id, lowest HP + shield seen, since when): track_target
         self.box_track = None           # (box hash, since when)
@@ -87,13 +90,17 @@ class Pilot:
         self.run_mode = mode
         self.errand = ''                # going somewhere (travel, home, sell, quest, gate_trip): see fight_or_collect
         self.hunt_map, self.empty_since, self.gate_done = None, None, False
-        self.quest_goal = self.quest_maps = self.quest_aliens = None      # Quests mode: the quest's aliens and maps (tasks/quests.py)
+        self.quest_goal = self.quest_maps = self.quest_aliens = None      # Quests mode: the quest's goal, maps, aliens (tasks/quests.py)
+        self.quest_rules = None                                           # and the active quests' restrictions
+        self.quest_skip = {}                                              # (quest, condition) -> until when it is set aside
+        self.act_at, self.asset_out = 0.0, False                          # a one-off action's last try; out of a station object's reach
         self.quest_at = self.quest_block = 0.0
 
     # ------------------------------------------------------------ extra-events hooks
     def attach(self, world):
         self.world = world
         self.act = A.Actions(world, self.cfg['move_mode'], self.session)
+        self.act.gate_ok = lambda key: GATES.can_build(self, key)          # Quests mode: a gate it may build and play
         self.target = None
         self.track = self.box_track = None
         self.empty_since = None                     # a new map: its own empty-map timer
@@ -122,6 +129,8 @@ class Pilot:
         return []
 
     def event(self, kind, kw):
+        if kind == 'quest' and self.running:
+            self.quests_finished.add(int(kw.get('id', 0)))
         if self.running:
             self.stats.event(kind, kw)
             if kind == 'gate' and not kw.get('dispatch'):
@@ -274,8 +283,11 @@ class Pilot:
         if label:
             self.mode, self.errand = label, ''
             return
-        if self.mode in ('flee', 'repair') or hp < cfg['flee_hp']:
-            if hp >= cfg['resume_hp']:
+        if self.mode in ('flee', 'repair') or hp < hunt['flee_hp']:
+            resume = hunt['resume_hp']
+            if self.no_shelter == s['map']:         # no safe zone (a galaxy gate, LoW, an enemy map): the attackers follow and the
+                resume = min(resume, hunt['flee_hp'] + AWAY_RESUME)     # robot repairs only between their shots (live test, Alpha's last
+            if hp >= resume:                        # wave: 9 minutes of running from six Protegits at 54 % HP, the wave never moved)
                 self.mode = None
                 self.note('Repaired: back to work.')
             else:
@@ -283,17 +295,42 @@ class Pilot:
         self.fight_or_collect(s, hunt, now)
 
     def hunt_cfg(self, now):
-        """The settings for this map: the aliens to hunt (Quests mode: the active quest's; otherwise this map's list, empty: all), its
-        priority aliens, its drawn areas and what is left alone for now (brain.py)."""
+        """The settings for this map: the aliens to hunt (this map's list, empty: all), its priority aliens, its drawn areas and what is
+        left alone for now (brain.py). 'hunting': whether the mode takes new targets at all. Quests mode (tasks/quests.py): the quest's
+        aliens, its restrictions (forbidden aliens, no laser: no fight at all, no rocket, no death: flees earlier), the boxes and the
+        patrol its goal needs."""
         m = str(self.act.map_id())
         z = self.cfg['zones'].get(m) or {}
         for d in (self.ignored, self.box_ignored):
             if len(d) > 200:
                 for k in [k for k, t in d.items() if t <= now]:
                     del d[k]
-        return dict(self.cfg, aliens=self.quest_aliens or self.cfg['aliens'].get(m, []), priority=self.cfg['priority'].get(m, []),
-                    work=z.get('work'), avoid=z.get('avoid') or [],
-                    ignore={k for k, t in self.ignored.items() if t > now}, ignore_boxes={k for k, t in self.box_ignored.items() if t > now})
+        out = dict(self.cfg, aliens=self.cfg['aliens'].get(m, []), priority=self.cfg['priority'].get(m, []), hunting=MODES.allows(self, 'hunt'),
+                   forbid=(), work=z.get('work'), avoid=z.get('avoid') or [],
+                   ignore={k for k, t in self.ignored.items() if t > now}, ignore_boxes={k for k, t in self.box_ignored.items() if t > now})
+        g, r = self.quest_goal, self.quest_rules
+        if MODES.current(self) == 'quest' and g and r is not None:
+            out.update(forbid=r['forbid'], aliens=QUESTS.aliens(self, int(m)) if out['hunting'] else [])
+            if r['no_laser']:
+                out.update(defend=False, clear_path=False)
+            if r['no_rocket'] or r['no_laser']:
+                out.update(rockets=False, launcher=False)
+            if r['no_death']:
+                out.update(flee_hp=max(out['flee_hp'], QUEST_FLEE_HP), resume_hp=max(out['resume_hp'], QUEST_RESUME_HP))
+            if g['box']:
+                out['boxes'] = dict(out['boxes'], **{g['box']: True})
+            if g['kind'] in ('travel', 'boxes', 'ore', 'pvp'):
+                out['roam'] = True                  # a distance to fly, boxes, ore or pilots to find: the patrol is the work
+            if g['kind'] == 'pvp':
+                out['pvp'] = g['pvp']
+                out['steal'] = g['box'] == 'steal'
+            if g['action'] == 'rockets':
+                out['rockets'] = True
+            if g.get('hidden'):                     # flying cloaked: a shot would reveal the ship
+                out.update(defend=False, clear_path=False, rockets=False, launcher=False)
+            if g['kind'] == 'die':                  # a quest that wants the ship destroyed: no flight, no fight back
+                out.update(flee_hp=0, resume_hp=5, defend=False, clear_path=False)
+        return out
 
     def safety(self, s, cfg, now):
         act = self.act
@@ -414,7 +451,9 @@ class Pilot:
             act.collect(it['hash'], now)               # flies onto the box, takes it there
             return
         self.box_track = None
-        g = act.gate_portal() if MODES.current(self) == 'gate' else None      # Galaxy gate mode only: in another mode the player picks
+        qg = self.quest_goal if MODES.current(self) == 'quest' else None
+        playing = MODES.current(self) == 'gate' or (qg and qg['kind'] in ('gate', 'egate'))
+        g = act.gate_portal() if playing else None      # Galaxy gate mode or a quest's gate: in another mode the player picks
         if g is not None:                           # galaxy gate, wave over: on to the next wave
             if self.mode != 'gate':
                 self.note('Wave cleared: going to the next wave portal.')

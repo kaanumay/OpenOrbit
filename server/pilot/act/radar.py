@@ -24,7 +24,7 @@ class Radar:
         g = w.p.d['ship']
         dest = [int(w.hero.x1), int(w.hero.y1)] if w.hero.t1 > now else None
         ammo = self.laser_ammo()
-        ignore = cfg.get('ignore') or ()
+        ignore, hunted = cfg.get('ignore') or (), self.hunted(cfg)
         types, npcs = {}, []
         for n in list(w.npcs.values()):
             if not self.visible_alien(n):
@@ -38,7 +38,7 @@ class Radar:
             passive = getattr(n, 'passive', False)
             f = ((NPC_AGGRESSIVE if w.aggressive(n) and not passive else 0) | (NPC_ENGAGED if n.engaged and not passive else 0)
                  | (NPC_OK if self.attackable(n, now, ammo) else 0)
-                 | (NPC_HUNTED if not cfg['aliens'] or n.tip in cfg['aliens'] or w.gate else 0)
+                 | (NPC_HUNTED if hunted(n) else 0)
                  | (NPC_PRIORITY if n.tip in (cfg.get('priority') or ()) else 0) | (NPC_IGNORED if n.id in ignore else 0))
             hp_max = max(1, n.d.get('hp', 1))
             npcs.append([n.id, n.tip, int(x), int(y), vx, vy, max(0, min(100, round(100 * n.hp / hp_max))), f])

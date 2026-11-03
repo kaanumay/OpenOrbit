@@ -35,7 +35,8 @@ class Gates:
         return dict(key=key, name=GG.GATES[key]['name'], built=bool(g.built(key)), ready=bool(G.get('ready')), lives=int(G.get('hp', 0)),
                     wave=int(G.get('wave', 0)), waves=len(GG.GATES[key]['waves']), parts=len(G.get('parts', [])),
                     need=GG.GATES[key]['part'], life_price=g.life_price(key), lives_bought=int(G.get('lives_bought', 0)),
-                    max_bought=len(GG.K['life_prices']))
+                    max_bought=len(GG.K['life_prices']), energy=int(g.d['energy']), spin_price=int(g.energy_price()[0]),
+                    producible=not GG.GATES[key].get('not_producible'))
 
     def gate_prepare(self, key):
         """The builder's PREPARE JUMP (Gates.setup): the gate's portal appears on X-1 -> whether the gate is ready."""
@@ -43,6 +44,17 @@ class Gates:
         msgs = g.setup({'gateId': GG.GATES[key]['uid']})
         self.session.send(msgs, 'auto mode: gate prepared')
         return bool(g.gate(key).get('ready'))
+
+    def gate_spin(self, key, n):
+        """n spins in the Galaxy Gate Generator (Gates.spin: free energy first, then uridium; it stops once the gate is built) -> the uridium
+        paid, or None when it refused."""
+        g = self.gate_book()
+        before = g.money()
+        msgs = g.spin({'gateId': GG.GATES[key]['uid'], 'spinAmount': n})
+        self.session.send(msgs, 'auto mode: gate spins')
+        if any(m[0] == 'GalaxyGateBuilderMultiEnergyCommand' and m[1].get('errorCode') for m in msgs if isinstance(m, tuple)):
+            return None
+        return before - g.money()
 
     def gate_buy_life(self, key):
         """One more life (Gates.buy_life, uridium) -> the price paid, or None."""

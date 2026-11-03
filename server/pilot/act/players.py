@@ -1,8 +1,15 @@
 """Auto Mode: other pilots on the hero's map that could attack it: players on a shared map (friend server, shared_maps.py) and the player
 bots (server/bot, World.npcs entries with n.bot). Read only: nothing is sent (player_combat.attack_error has a side effect, the friendly
 fire warning, so the same rules are read here without it)."""
+import time
+
 import clan as KL
+import world as W
+import bot.manager as MGR
 import bot.ship as BG
+from bot import society as SOC
+
+DAILY_KILLS = 11              # the same pilot destroyed more than this today gives nothing and counts for no quest (player_combat.on_kill)
 
 
 class Players:
@@ -27,6 +34,44 @@ class Players:
             x, y = n.mover.pos(now)
             out.append(dict(id=n.id, name=getattr(b, 'name', ''), x=x, y=y, kind='bot',
                             attacking=getattr(n, 'target', None) == w.hid and bool(getattr(n, 'fire', False))))
+        return out
+
+    # ------------------------------------------------------------ PvP quests (player bots of another company)
+    @staticmethod
+    def pvp_on():
+        """The player bots are running (OO_BOT): without them single player has no pilot to fight."""
+        return MGR.ACTIVE is not None
+
+    def pvp_maps(self, companies=()):
+        """The maps where enemy-company bots are online now (most first) -> [map]; companies: only those (str ids)."""
+        y, me = MGR.ACTIVE, int(self.p.d['pilot'].get('factionId') or 1)
+        if y is None:
+            return []
+        count = {m: sum(1 for b in s if b.company != me and b.dead_until <= y.now and (not companies or str(b.company) in companies))
+                 for m, s in list(y.on_map.items())}
+        return [m for m, n in sorted(count.items(), key=lambda x: -x[1]) if n]
+
+    def pvp_targets(self, now, companies=()):
+        """The player bots of another company on this map the hero may attack now (bot/ship.attack_error) -> [snapshot npc dicts]."""
+        w, me = self.w, int(self.p.d['pilot'].get('factionId') or 1)
+        daily = (self.p.d.get('pvp_daily') or {}).get('victim', {})
+        out = []
+        for n in list(w.npcs.values()):
+            b = n.bot
+            if b is None or not n.alive or b.company == me or (companies and str(b.company) not in companies):
+                continue
+            try:
+                if daily.get(str(SOC.profile(b).user_id), 0) >= DAILY_KILLS:
+                    continue
+            except Exception:
+                pass
+            x, y = n.mover.pos(now)
+            px, py = n.mover.pos(now + 0.6)
+            firing = getattr(n, 'target', None) == w.hid and bool(getattr(n, 'fire', False))
+            out.append(dict(id=n.id, tip='pvp', name=getattr(b, 'name', ''), x=x, y=y, px=px, py=py, engaged=firing, aggressive=False,
+                            notice=W.COMBAT['npc_notice_distance'], fire_range=W.COMBAT['npc_notice_distance'], hp=n.hp,
+                            hp_max=max(1, n.d.get('hp', n.hp) or 1), shield=getattr(n, 'shield', 0), shield_max=n.d.get('shield', 0),
+                            ok=not BG.attack_error(w, n, now), forbidden=False, allowed=True, priority=False))
         return out
 
     def player_hostile(self, o):

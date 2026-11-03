@@ -84,6 +84,8 @@ def measure(c, kind, kw, map_id=None):
     if t == 23 and kind == 'loot' and kw.get('box'):         # [company, ship, alien, ?, ore]: the filters do not know the box's source
         ore = m[4] if len(m) > 4 else '0'
         return int(kw.get('amount', 0)) if not any(x not in ('', '0') for x in m[:3]) and ore in ('', '0', OLD_ORE.get(kw.get('loot'))) else 0
+    if t == 24 and kind == 'steal':                 # STEAL_CARGO: a cargo box of another pilot taken (World.take_box)
+        return 1
     if t == 27 and kind == 'kill' and kw.get('avatar', 'NPC') == 'NPC':
         return 1 if not m or str(kw.get('npc')) in m else 0
     if t == 29 and kind == 'damage':

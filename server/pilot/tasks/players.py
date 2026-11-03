@@ -11,8 +11,9 @@ from . import travel as TRAVEL
 def run(pilot, s, now):
     """-> a label while the bot hides (it took the ship), else None."""
     c = pilot.cfg['players']
-    if not c['enabled'] or pilot.homing:
-        return None
+    g = pilot.quest_goal
+    if not c['enabled'] or pilot.homing or (g and g['kind'] == 'pvp' and pilot.run_mode == 'quest'):
+        return None                                 # a PvP quest: the enemy pilots are what the bot is after
     hx, hy = s['hero']
     near = [o for o in pilot.act.hostiles(now)
             if o['attacking'] or (not c['attack_only'] and B.dist(o['x'], o['y'], hx, hy) <= c['distance'])]

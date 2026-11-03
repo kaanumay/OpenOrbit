@@ -2,10 +2,11 @@
 
 Snapshot: {'hero': (x, y), 'R': laser range, 'hp', 'hp_max', 'shield', 'shield_max', 'bounds': (w, h), 'map': id, 'in_peace': bool,
            'npcs': [{'id', 'tip', 'name', 'x', 'y', 'px', 'py' (predicted position), 'engaged' (chasing/firing at the hero), 'aggressive',
-                     'notice' (aggression distance), 'fire_range', 'hp', 'hp_max', 'ok' (attackable), 'allowed' (in the hunt list),
-                     'priority' (taken first)}],
+                     'notice' (aggression distance), 'fire_range', 'hp', 'hp_max', 'ok' (attackable), 'allowed' (a target of the hunt),
+                     'forbidden' (an active quest fails if it is destroyed: never fired at), 'priority' (taken first)}],
            'boxes': [{'hash', 'x', 'y', 'kind'}], 'safe': [(x, y, radius)], 'ores': [{'hash', 'tip', 'x', 'y'}]}
-Order of priorities in decide(): an alien attacking the hero, the current target, a nearby box, a new target, patrol.
+Order of priorities in decide(): a hunted alien attacking the hero, the current target, (HP at least DEFEND_HP) a target of the hunt,
+another alien attacking the hero, a nearby box, a new target, patrol.
 Movement in a fight: kiting at the edge of the laser range (kite_min..kite_max of R): stay still inside the band, otherwise the best point of a
 ring around the target, scored by the threats (aliens attacking the hero, aggressive aliens nearby), the map edges and the distance to fly.
 Areas drawn on the panel's map (cfg 'work': one rectangle, 'avoid': rectangles; Pilot.hunt_cfg puts this map's in): new targets, boxes and
@@ -18,6 +19,7 @@ EDGE = 400                  # keep this far from the map edge (radiation)
 RING_POINTS = 16
 DANGER_W, PATH_W = 4000, 1500   # a point's score: its depth in threat zones and the depth of the way there, against the distance to fly
 PRIORITY_W = 4000           # a priority alien counts as this much closer than it is
+DEFEND_HP = 50              # % HP: below it the aliens attacking the ship are fought back before the hunt's targets
 
 
 def dist(ax, ay, bx, by):
@@ -108,17 +110,34 @@ def nearest(items, x, y):
 def decide(s, cfg, current_id, hunt=True, boxes=True, defend=True):
     """-> ('fight', npc) | ('box', box) | ('roam', None). hunt=False (on the way somewhere, or a mode that does not hunt): only aliens
     attacking the hero (and the current target while it fights back) and nearby boxes; no new target. boxes=False: no box.
-    defend=False: the aliens attacking the hero are not fought for that reason (only if they are targets of the hunt)."""
+    defend=False: the aliens attacking the hero are not fought for that reason (only if they are targets of the hunt).
+    The hunt's own aliens attacking come first. While the HP is at least DEFEND_HP the hunt's targets come before the other aliens
+    attacking the ship (live test on 2-3 in Quests mode: every alien there is aggressive, the bot fought back one after another and never
+    reached the quest's Boss aliens with its HP full); below it those are fought back first."""
     hx, hy = s['hero']
     by_id = {n['id']: n for n in s['npcs']}
     ignore = cfg.get('ignore') or ()
-    attackers = [n for n in s['npcs'] if n['ok'] and n['engaged'] and n['id'] not in ignore and (defend or (hunt and n['allowed']))]
+
+    def fightable(n):
+        return n is not None and n['ok'] and n['id'] not in ignore and not n.get('forbidden')
+
+    attackers = [n for n in s['npcs'] if fightable(n) and n['engaged'] and (defend or (hunt and n['allowed']))]
     cur = by_id.get(current_id)
-    if (cur is not None and cur['ok'] and cur['id'] not in ignore
-            and ((cur['engaged'] and (defend or (hunt and cur['allowed']))) or (hunt and not attackers))):
-        return 'fight', cur                                  # keep the target, unless something else attacks while it does not
+    cur = cur if fightable(cur) else None
+    own = [n for n in attackers if hunt and n['allowed']]
+    if own:
+        return 'fight', cur if cur in own else nearest(own, hx, hy)
+    press = hunt and hp_pct(s) >= DEFEND_HP
+    if cur is not None and hunt and cur['allowed'] and (press or not attackers):
+        return 'fight', cur                                  # keep the hunt's target
+    if press and attackers:
+        t = pick_target(s, cfg)
+        if t is not None:
+            return 'fight', t
     if attackers:
-        return 'fight', nearest(attackers, hx, hy)
+        return 'fight', cur if cur in attackers else nearest(attackers, hx, hy)
+    if cur is not None and hunt:
+        return 'fight', cur                                  # a target the player picked by hand stays while nothing attacks
     thr = threats(s, cfg, None)
     box = pick_box(s, cfg, thr) if boxes else None
     if box is not None:
@@ -133,7 +152,7 @@ def pick_aggressive(s, cfg):
     """On the way somewhere (clear_path): the nearest aggressive alien close enough to engage the ship (its notice distance plus the
     margin), whatever the hunt list says; None if there is none."""
     hx, hy = s['hero']
-    near = [n for n in s['npcs'] if n['ok'] and n['aggressive'] and not n['engaged'] and n['id'] not in (cfg.get('ignore') or ())
+    near = [n for n in s['npcs'] if n['ok'] and n['aggressive'] and not n['engaged'] and n['id'] not in (cfg.get('ignore') or ()) and not n.get('forbidden')
             and dist(n['x'], n['y'], hx, hy) <= n['notice'] + cfg['threat_margin']]
     return nearest(near, hx, hy)
 
