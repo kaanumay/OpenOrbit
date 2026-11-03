@@ -120,7 +120,13 @@ TOP = {
     'launcher': ('bool', True),                    # fire the rocket launcher at the target once it is fully loaded
     'roam': ('bool', True),                        # patrol the map when there is nothing to do
     'slow_ammo': ('subset', [], SLOW_AMMO),        # RCB-140 / RSB-75 fired each time their shared 3 s cooldown ends, then the normal ammo again
+    'sab': ('block', None, {                       # SAB-50 (shield leech) while the ship's shield is low
+        'enabled': ('bool', False),
+        'start_pct': ('int', 30, 0, 99),           # % shield: below it, SAB-50 on the shielded aliens
+        'stop_pct': ('int', 80, 1, 100),           # % shield: back to the normal ammo once it is reached again
+    }),
 }
+SAB_AMMO = 'ammunition_laser_sab-50'
 
 # Settings blocks, one per feature card (same kinds as TOP).
 BLOCKS = {
@@ -268,6 +274,8 @@ def clean(d):
         out['kite_max'] = min(0.99, out['kite_min'] + 0.03)
     if out['resume_hp'] <= out['flee_hp']:
         out['resume_hp'] = min(100, out['flee_hp'] + 5)
+    if out['sab']['stop_pct'] <= out['sab']['start_pct']:
+        out['sab']['stop_pct'] = min(100, out['sab']['start_pct'] + 5)
     return out
 
 
