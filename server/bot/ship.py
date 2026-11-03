@@ -20,6 +20,7 @@ import math, random, time
 
 import world as WD
 import map_links as H
+import map_layout as ML
 from legacy_protocol import legacy
 from . import catalog as K
 from . import abstract_sim as S
@@ -993,6 +994,8 @@ def think(w, n, now):
     b.k['x'], b.k['y'] = int(nx), int(ny)
     if b.__dict__.get('exit_request') and not any(now - t < 6 for t in n.attacker.values()):
         return go_logout(w, n, now)                     # session over: flies to the station or portal and leaves there
+    if getattr(n, 'shelter', None) is not None and sheltering(w, n, now, d):
+        return                                           # fled: no box, goal or fight until it has recovered in its shelter
     if (n.target is None and not any(now - t < 6 for t in n.attacker.values()) and not b.en_route
             and (b.target is None or b.target.name != 'gate') and collect_box(w, n, now)):
         return                                           # picks up a box on its route (on every job; when not fighting)
@@ -1003,10 +1006,10 @@ def think(w, n, now):
     from . import active_items as AC
     if AC.combat(w, n, now, d, ratio, attackers):         # Insta-Shield, Backup Shields, Battle Repair, Smart Bomb, Energy Leech
         ratio = (n.hp + n.shield) / max(1, d['hp'] + d['shield'])
-    # 1) danger: HP is low and it is being hit -> flee
+    # 1) danger: HP is low and it is being hit -> flee (to a shelter; it keeps fleeing there until it has recovered: sheltering)
     in_gate = is_gate_world(w)
-    if attackers and ratio < 0.18 + 0.32 * (1 - b.o('risk')) + PL.flee_shift(b) and not in_gate:
-        return flee(w, n, now)                           # (survival skill: unaware pilots flee late; cowards early, kamikazes hardly)
+    if attackers and ratio < 0.18 + 0.32 * (1 - b.o('risk')) + PL.flee_shift(b) and not in_gate and flee(w, n, now):
+        return                                           # (survival skill: unaware pilots flee late; cowards early, kamikazes hardly)
     # 2) portal yolunda
     if b.en_route and not attackers and not in_gate:
         return portala(w, n, now)
@@ -1020,8 +1023,8 @@ def think(w, n, now):
             n.target = u                                  # an alien hit: retaliate
         else:
             opponent = _power(w, u)
-            if opponent / max(0.5, d['power']) > 1.3 + b.o('risk') + 0.5 * b.mood['anger'] and ratio < 0.9:
-                return flee(w, n, now)
+            if opponent / max(0.5, d['power']) > 1.3 + b.o('risk') + 0.5 * b.mood['anger'] and ratio < 0.9 and flee(w, n, now):
+                return
             n.target = u
             b.memory.event(_name(w, u), 'insult', now, multiplier=0.3)
     # 4) PvP opportunity
@@ -1175,9 +1178,35 @@ def call_defense(w, n, uid, now):
         m.intent_time = now
 
 
+SHELTER_RESUME = 0.9            # a fled bot leaves its shelter at this HP+shield ratio (recover's "full")
+SHELTER_HIT_SEC = 3.0           # still hit this recently inside a portal's zone: it jumps
+
+
+def shelters(w, b):
+    """The zones that protect this bot ship on this map, (x, y, radius): its company's station, its company's portals and the layout's safe
+    zones; the same zones as world.in_pvp_peace for its company (none on an enemy company's map or a war map)."""
+    out = []
+    s = w.home_station(b.company)
+    if s:
+        out.append((s['posX'], s['posY'], s['peaceRadius']))
+    r = ML.gate_peace_radius(w.map_id, H.GATE_PEACE_RADIUS)
+    out += [(g['x'], g['y'], r) for g in w.peace_gates(b.company)]
+    return out + [tuple(z) for z in ML.safe_zones(w.map_id)]
+
+
+def _exits(w, b):
+    """The portals it can jump through to escape (free, to a map it may enter)."""
+    return [g for g in H.gates(w.map_id, b.company) if not g.get('fee') and g['target'] in K.MAPS
+            and K.can_enter(g['target'], b.company, b.level)]
+
+
 def flee(w, n, now):
-    """Flee: to the nearest portal (or to the station if at its own base); on arrival it jumps and leaves the map. While fleeing from the player it
-    drops a mine behind (if in stock and the cooldown is over; not in a safe zone or on starting maps)."""
+    """Flee like a pilot does: stop fighting and go to the nearest zone that protects it (shelters). There the aliens let go of a ship that is
+    not fighting (npc_to_bot) and players cannot attack it; it stays and recovers (sheltering) and goes on with its job. It escapes through a
+    portal only when no zone protects it on this map (an enemy company's or a war map) or when it is still being hit inside a portal's zone;
+    simple mode bots do not change maps. While fleeing from a player it drops a mine behind (not in a safe zone or on starting maps).
+    User report 2026-11-03: it used to head for a portal and jump even on its own map, where the portal's zone already protects it.
+    -> is it fleeing (False: nowhere to go, no zone and no portal it may enter: cornered, it fights back)."""
     b = n.bot
     n.target = None
     nx, ny = n.mover.pos(now)
@@ -1187,25 +1216,55 @@ def flee(w, n, now):
         if b.o('risk') < 0.6:
             AC.cloak(w, n, now)                         # cloaking CPU
         drop_mine(w, n, nx, ny, now)
-    gs = [g for g in H.gates(w.map_id, b.company) if not g.get('fee') and g['target'] in K.MAPS
-          and K.can_enter(g['target'], b.company, b.level)]
-    s = w.station
-    if s and s.get('type') == b.company:
-        sx, sy = s['posX'], s['posY']
-        if not gs or math.hypot(sx - nx, sy - ny) < min(math.hypot(g['x'] - nx, g['y'] - ny) for g in gs):
-            _go_to(w, n, sx, sy, now)
-            return
-    if not gs:
-        return
-    g = min(gs, key=lambda g: math.hypot(g['x'] - nx, g['y'] - ny))
     y = MGR.ACTIVE
-    if y is not None and y.mode == 'simple':
-        _go_to(w, n, g['x'] + random.uniform(-200, 200), g['y'] + random.uniform(-200, 200), now)    # simple: to the portal's safe zone
-        return
+    jumps = y is None or y.mode != 'simple'
+    sh = getattr(n, 'shelter', None)
+    if sh is None:
+        zones = shelters(w, b)
+        sh = n.shelter = min(zones, key=lambda z: math.hypot(z[0] - nx, z[1] - ny) - z[2]) if zones else 'portal'
+        b.event('fled', map=H.name(w.map_id))
+    if sh != 'portal':
+        cx, cy, r = sh
+        d = math.hypot(nx - cx, ny - cy)
+        if d > r * 0.8:
+            k = r * 0.5 / max(1.0, d)
+            _go_to(w, n, cx + (nx - cx) * k, cy + (ny - cy) * k, now)      # straight in, on its near side
+            return True
+        gate = next((g for g in _exits(w, b) if (g['x'], g['y']) == (cx, cy)), None)
+        if not (jumps and gate and now - n.last_damage < SHELTER_HIT_SEC):
+            return True                                              # in the shelter: waits (the hits stop, it recovers)
+        sh = n.shelter = 'portal'                                    # still hit inside a portal's zone: jumps like a pilot would
+        b.en_route = [gate['target']]
+    gs = _exits(w, b)
+    if not gs:
+        n.shelter = None
+        return False
+    g = min(gs, key=lambda g: math.hypot(g['x'] - nx, g['y'] - ny))
+    if not jumps:
+        _go_to(w, n, g['x'] + random.uniform(-200, 200), g['y'] + random.uniform(-200, 200), now)    # simple: no zone protects it here
+        return True
     if not b.en_route or b.en_route[0] != g['target']:
         b.en_route = [g['target']]
-        b.event('fled', map=H.name(w.map_id))
     portala(w, n, now, urgent=True)
+    return True
+
+
+def sheltering(w, n, now, d):
+    """A fled bot (n.shelter) keeps fleeing until it has recovered (SHELTER_RESUME) and nobody hits it: a heal over the flee threshold
+    (Backup Shields, Battle Repair) or a pause in the hits no longer turns it back on the aliens (user report 2026-11-03) -> handled."""
+    if is_gate_world(w):
+        n.shelter = None
+        return False
+    attackers = [u for u, t in n.attacker.items() if now - t < 6]
+    ratio = (n.hp + n.shield) / max(1, d['hp'] + d['shield'])
+    if attackers:
+        from . import active_items as AC
+        if AC.combat(w, n, now, d, ratio, attackers):     # Insta-Shield, Backup Shields, Battle Repair … while fleeing too
+            ratio = (n.hp + n.shield) / max(1, d['hp'] + d['shield'])
+    if ratio >= SHELTER_RESUME and not attackers:
+        n.shelter = None
+        return False
+    return flee(w, n, now)
 
 
 def drop_mine(w, n, x, y, now):
