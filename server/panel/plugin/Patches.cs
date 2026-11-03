@@ -30,6 +30,7 @@ public class Plugin : BasePlugin
         Apply("otomatik pilot kaçışı", () => AutopilotEscape.Apply(h));
         Apply("sohbet moderatörü rengi", () => ModeratorColor.Apply(h));
         Apply("otomatik kuşanma ayarı", () => AutoEquip.Apply(h));
+        Apply("gemi motor izi", () => ShipTrail.Apply(h));
         Apply("görev metinleri", () => QuestTexts.Apply(h));
         Apply("eski yükseltme sistemi", () =>
         {
@@ -301,5 +302,30 @@ static class AutoEquip
         parts.Add("AEQ");
         parts.Add(is_open ? "1" : "0");
         NetConnectionHelper.SendLegacyModule(parts);
+    }
+}
+
+// Engine trail streak (player report 2026-11-03): ship models come from an object pool (AAObjectPoolComponentSystem) and keep the position
+//   they were released at; their TrailRenderer is cleared only in EnableClearTrail.OnEnable, before AfterUnitCreateCreateUnitView.RunAsync
+//   moves the model to the new ship (ShipComponent.set_RealPosition). A ship that appeared drew one long trail from where the last ship of the
+//   same model had left (bots log out at their station and jump at portals: a line towards the base or a portal; reproduced live by
+//   removing a Piranha on the left of the screen and creating another one on the right). T1: after ResetShipTrail (the end of the
+//   creation, after the move) the ship's trails are cleared.
+static class ShipTrail
+{
+    internal static void Apply(Harmony h)
+    {
+        MethodBase target = AccessTools.Method(typeof(ShipComponentSystem), nameof(ShipComponentSystem.ResetShipTrail));
+        Plugin.Find(target);
+        h.Patch(target, postfix: new HarmonyMethod(typeof(ShipTrail), nameof(After)));
+    }
+
+    static void After(ShipComponent self)
+    {
+        var go = self?.GameObject;
+        if (go == null)
+            return;
+        foreach (var trail in go.GetComponentsInChildren<TrailRenderer>(true))
+            trail.Clear();
     }
 }
