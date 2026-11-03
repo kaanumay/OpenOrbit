@@ -4268,7 +4268,12 @@ class World:
                 # within the map: so an alien does not leave the map while the player is at the edge or outside the boundary (radiation)
                 tx = min(max(tx, 300), self.map_w - 300)
                 ty = min(max(ty, 300), self.map_h - 300)
-                follows = retaliating and self.hero_in_peace(hx, hy)      # the pilot fights on in the zone: the chasing alien follows him in
+                # the pilot fights on in the zone: the chasing alien follows him in. An asteroid without a dockable station (empty,
+                # rival) is no safe zone: its circle only keeps roaming aliens out, a chasing one follows the pilot inside (player
+                # report 2026-11-03: aliens stopped at the edge and could all be shot from inside)
+                import cbs
+                follows = (retaliating and self.hero_in_peace(hx, hy)) or (
+                    not self.hero_in_peace(hx, hy) and any(math.hypot(hx - sx, hy - sy) <= r for sx, sy, r in cbs.exclusion_zones(self.map_id)))
                 if not hunt and not follows and (self.path_near_zone(nx, ny, tx, ty, allow_station=retaliating)
                                                  or (self.near_zone(tx, ty, 0) and not (retaliating and self.station_at(tx, ty)
                                                                                        and not self.near_gate_peace(tx, ty)))):
