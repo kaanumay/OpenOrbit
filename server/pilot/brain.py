@@ -12,13 +12,22 @@ ring around the target, scored by the threats (aliens attacking the hero, aggres
 Areas drawn on the panel's map (cfg 'work': one rectangle, 'avoid': rectangles; Pilot.hunt_cfg puts this map's in): new targets, boxes and
 ore are taken only inside the work area and never inside an area to avoid; movement keeps out of the areas to avoid and inside the work area
 (the same weight as a threat zone). cfg 'ignore': alien ids left alone for now (no damage for a while, Pilot.track_target); 'ignore_boxes':
-box hashes the ship could not collect."""
+box hashes the ship could not collect.
+Walls (snapshot 'way', 'walled', 'clear'; only on a map with walls, act/base.wall_view): targets and boxes are compared by the distance
+really flown around the walls (a near one behind a wall comes after a farther one in direct reach), movement points are never inside a wall
+and a point the ship cannot fly straight to costs more.
+Immobile aliens (Mindfire Behemoth, Invoke XVI: 'static'; snapshot 'statics', their firing range plus the margin): always a threat zone, not
+fought in. A target that can be fired at from outside its zone is (kite_point keeps out of it); one deep inside needs a lure
+(tasks/lure.py), only with the HP at LURE_HP or more, and comes after the others."""
 import math, random
 
 EDGE = 400                  # keep this far from the map edge (radiation)
 RING_POINTS = 16
 DANGER_W, PATH_W = 4000, 1500   # a point's score: its depth in threat zones and the depth of the way there, against the distance to fly
 PRIORITY_W = 4000           # a priority alien counts as this much closer than it is
+WAY_CHECK = 6               # on a map with walls: the distance flown around them is worked out for this many best candidates
+LURE_HP = 70                # % HP: below it the ship does not go into an immobile alien's zone to draw a target out
+LURE_W = 6000               # a target only a lure can reach counts as this much farther
 DEFEND_HP = 50              # % HP: below it the aliens attacking the ship are fought back before the hunt's targets
 
 
@@ -26,14 +35,47 @@ def dist(ax, ay, bx, by):
     return math.hypot(ax - bx, ay - by)
 
 
+def walled(s, x, y):
+    """The point is inside a wall (a map with walls only)."""
+    f = s.get('walled')
+    return bool(f) and f(x, y)
+
+
+def wall_cost(s, ax, ay, bx, by):
+    """1 when a wall stands on the straight line a -> b (the ship flies around it), else 0."""
+    f = s.get('clear')
+    return 0 if not f or f(ax, ay, bx, by) else 1
+
+
+def by_way(s, items, key):
+    """The best of items by key(item, distance): by the straight distance, then (a map with walls) the WAY_CHECK best again by the
+    distance really flown."""
+    if not items:
+        return None
+    hx, hy = s['hero']
+    ranked = sorted(items, key=lambda it: key(it, dist(it['x'], it['y'], hx, hy)))
+    way = s.get('way')
+    if not way:
+        return ranked[0]
+    return min(ranked[:WAY_CHECK], key=lambda it: key(it, way(it['x'], it['y'])))
+
+
+def static_zones(npcs, margin):
+    """The firing zones of the immobile aliens that are not targets of the hunt: [(x, y, radius)]."""
+    return [(n['x'], n['y'], n['fire_range'] + margin) for n in npcs if n.get('static') and not n['allowed']]
+
+
 def threats(s, cfg, target_id):
-    """[(x, y, radius)] to keep away from: aliens attacking the hero (their firing range), aggressive ones not attacking yet (their notice distance)."""
+    """[(x, y, radius)] to keep away from: aliens attacking the hero (their firing range), aggressive ones not attacking yet (their notice
+    distance), the immobile ones always (their firing range)."""
     m = cfg['threat_margin']
     out = []
     for n in s['npcs']:
         if n['id'] == target_id:                    # an alien that cannot be attacked still shoots
             continue
-        if n['engaged']:
+        if n.get('static') and not n['allowed']:
+            out.append((n['x'], n['y'], n['fire_range'] + m))
+        elif n['engaged']:
             out.append((n['x'], n['y'], n['fire_range'] + m))
         elif cfg['avoid_aggressive'] and n['aggressive']:
             out.append((n['x'], n['y'], n['notice'] + m))
@@ -161,25 +203,55 @@ def pick_target(s, cfg):
     """The allowed alien with the best score: its distance, plus (avoid_aggressive) a penalty for standing inside other aggressive aliens'
     zones. A group next to the ship is taken before a lone alien across the map (player report: it killed one of four Lordakium sitting
     side by side near aggressive aliens, then flew off to a "clear" one far away); a clear target nearly as close is still preferred.
-    Only inside the drawn work area and outside the areas to avoid; a priority alien counts as PRIORITY_W closer."""
-    hx, hy = s['hero']
+    Only inside the drawn work area and outside the areas to avoid; a priority alien counts as PRIORITY_W closer. Behind walls: by_way."""
     ignore = cfg.get('ignore') or ()
     cand = [n for n in s['npcs'] if n['ok'] and n['allowed'] and n['id'] not in ignore and takes(n['x'], n['y'], cfg)]
-    if not cand:
-        return None
 
-    def score(n):
-        d = dist(n['x'], n['y'], hx, hy) - (PRIORITY_W if n.get('priority') else 0)
+    zones = s.get('statics') or ()
+    if zones:                                       # inside an immobile alien's zone: from outside it, else a lure (enough HP)
+        lure_ok = hp_pct(s) >= LURE_HP
+        cand = [n for n in cand if lure_ok or not needs_lure(s, cfg, n)]
+
+    def score(n, d):
+        d -= PRIORITY_W if n.get('priority') else 0
+        if zones and danger(n['x'], n['y'], zones):
+            d += DANGER_W * danger(n['x'], n['y'], zones) + (LURE_W if needs_lure(s, cfg, n) else 0)
         return d + DANGER_W * danger(n['x'], n['y'], threats(s, cfg, n['id'])) if cfg['avoid_aggressive'] else d
-    return min(cand, key=score)
+    return by_way(s, cand, score)
+
+
+def in_statics(s, x, y):
+    return any(dist(x, y, zx, zy) < r for zx, zy, r in s.get('statics') or ())
+
+
+def outside_spot(s, cfg, t):
+    """The point of the firing band around t (kite_min..kite_max of the laser range) nearest to the ship, outside every immobile alien's
+    zone and every wall, or None."""
+    R, (hx, hy) = s['R'], s['hero']
+    best, best_d = None, None
+    for f in (cfg['kite_min'] + cfg['kite_max']) / 2, cfg['kite_max'], cfg['kite_min']:
+        for k in range(RING_POINTS * 2):
+            a = 2 * math.pi * k / (RING_POINTS * 2)
+            x, y = t['x'] + math.cos(a) * f * R, t['y'] + math.sin(a) * f * R
+            if in_bounds(x, y, s['bounds']) and not in_statics(s, x, y) and not walled(s, x, y):
+                d = dist(x, y, hx, hy)
+                if best_d is None or d < best_d:
+                    best, best_d = (x, y), d
+    return best
+
+
+def needs_lure(s, cfg, t):
+    """t sits in an immobile alien's zone so deep that it cannot be fired at from outside."""
+    return in_statics(s, t['x'], t['y']) and outside_spot(s, cfg, t) is None
 
 
 def pick_box(s, cfg, thr):
     hx, hy = s['hero']
     ignore = cfg.get('ignore_boxes') or ()
     boxes = [b for b in s['boxes'] if cfg['boxes'].get(b['kind']) and dist(b['x'], b['y'], hx, hy) <= cfg['box_radius']
-             and danger(b['x'], b['y'], thr) == 0 and b['hash'] not in ignore and takes(b['x'], b['y'], cfg)]
-    return nearest(boxes, hx, hy)
+             and danger(b['x'], b['y'], thr) == 0 and b['hash'] not in ignore and takes(b['x'], b['y'], cfg)
+             and not walled(s, b['x'], b['y'])]
+    return by_way(s, boxes, lambda b, d: d)
 
 
 def kite_point(s, cfg, t, thr):
@@ -197,12 +269,14 @@ def kite_point(s, cfg, t, thr):
     for k in range(RING_POINTS):
         a = base + 2 * math.pi * k / RING_POINTS
         x, y = tx + math.cos(a) * ideal, ty + math.sin(a) * ideal
-        if not in_bounds(x, y, s['bounds']):
+        if not in_bounds(x, y, s['bounds']) or walled(s, x, y) or in_statics(s, x, y):
             continue
-        score = ((danger(x, y, thr) + area_cost(x, y, cfg)) * DANGER_W
+        score = ((danger(x, y, thr) + area_cost(x, y, cfg) + wall_cost(s, hx, hy, x, y)) * DANGER_W
                  + (path_danger(hx, hy, x, y, thr) + path_area_cost(hx, hy, x, y, cfg)) * PATH_W + dist(hx, hy, x, y))
         if best_score is None or score < best_score:
             best, best_score = (x, y), score
+    if best is None and s.get('statics'):              # the ideal ring is in an immobile alien's zone: the band's edge outside it
+        best = outside_spot(s, cfg, t)
     if best is None:                                   # target at the map edge: straight toward it, up to the ideal distance
         f = max(0.0, d - ideal) / d if d else 0.0
         best = (hx + (t['x'] - hx) * f, hy + (t['y'] - hy) * f)
@@ -239,8 +313,10 @@ def roam_point(s, cfg, rnd=random):
         a, r = rnd.uniform(0, 2 * math.pi), rnd.uniform(2500, 6000)
         x = max(lo_x, min(hi_x, hx + math.cos(a) * r))
         y = max(lo_y, min(hi_y, hy + math.sin(a) * r))
+        if walled(s, x, y):
+            continue
         score = ((danger(x, y, thr) + area_cost(x, y, cfg)) * DANGER_W
-                 + (path_danger(hx, hy, x, y, thr) + path_area_cost(hx, hy, x, y, cfg)) * PATH_W)
+                 + (path_danger(hx, hy, x, y, thr) + path_area_cost(hx, hy, x, y, cfg) + wall_cost(s, hx, hy, x, y)) * PATH_W)
         if best_score is None or score < best_score:
             best, best_score = (x, y), score
     return best
@@ -258,6 +334,8 @@ def away_point(s, cfg, rnd=random):
         a = rnd.uniform(0, 2 * math.pi)
         x = max(EDGE + 200, min(s['bounds'][0] - EDGE - 200, hx + math.cos(a) * 4000))
         y = max(EDGE + 200, min(s['bounds'][1] - EDGE - 200, hy + math.sin(a) * 4000))
+        if walled(s, x, y):
+            continue
         d = min(dist(x, y, n['x'], n['y']) for n in att) - 2000 * area_cost(x, y, cfg)
         if best_d is None or d > best_d:
             best, best_d = (x, y), d

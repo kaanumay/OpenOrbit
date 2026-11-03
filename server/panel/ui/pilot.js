@@ -719,9 +719,10 @@ function pilDraw(now) {
     ctx.strokeStyle = 'rgba(185,199,218,.22)'; ctx.lineWidth = 1; ctx.setLineDash([2, 5]); ctx.stroke(); ctx.setLineDash([]);
   }
   if (hero.dest) {
-    const dx = X(hero.dest[0]), dy = Y(hero.dest[1]);
+    const way = hero.way && hero.way.length ? hero.way : [hero.dest];       // around walls: through the corners left, to the goal
+    const end = way[way.length - 1], dx = X(end[0]), dy = Y(end[1]);
     ctx.strokeStyle = 'rgba(64,223,255,.55)'; ctx.lineWidth = 1.25; ctx.setLineDash([5, 5]);
-    ctx.beginPath(); ctx.moveTo(hx, hy); ctx.lineTo(dx, dy); ctx.stroke(); ctx.setLineDash([]);
+    ctx.beginPath(); ctx.moveTo(hx, hy); for (const [x, y] of way) ctx.lineTo(X(x), Y(y)); ctx.stroke(); ctx.setLineDash([]);
     ctx.save(); ctx.translate(dx, dy); ctx.rotate(Math.PI / 4); ctx.strokeStyle = '#40dfff'; ctx.strokeRect(-3.5, -3.5, 7, 7); ctx.restore();
   }
   if (targetPos) {
