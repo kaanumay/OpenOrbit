@@ -64,6 +64,10 @@ class Quests:
                 out.append(dict(id=qid, name=QU.QUESTS[qid].get('name', str(qid)), playable=self.quest_goal(qid) is not None))
         return sorted(out, key=lambda x: x['name'])
 
+    @staticmethod
+    def quest_name(qid):
+        return QU.QUESTS.get(int(qid), {}).get('name', str(qid))
+
     def quest_active(self, qid):
         q = self.quest_book()
         return q is not None and str(qid) in q.st['active']

@@ -34,6 +34,7 @@ class Travel:
     def enter_portal(self, g, now):
         """Fly to portal g and jump once there -> 'moving' | 'jumping' | 'blocked'."""
         w = self.w
+        self.portal_goal = (g.get('gateId'), now)             # the panel's map marks the portal the ship is heading for
         if w.near_gate == g['gateId']:
             if now - self.last_jump_try < JUMP_RETRY_SEC:
                 return 'blocked'
@@ -51,10 +52,20 @@ class Travel:
         r = self.route(dest)
         if not r or len(r) < 2:
             return 'no_route'
+        self.route_goal = (r, now)                             # the maps on the way, for the panel
         g = self.portal_to(r[1])
         if g is None:
             return 'no_route'
         return self.enter_portal(g, now)
+
+    def heading(self, now, fresh=2.0):
+        """Where the ship is going between maps, for the panel: {'portal': gateId, 'route': [map names]} (orders of the last seconds)."""
+        out = {}
+        if self.portal_goal and now - self.portal_goal[1] <= fresh:
+            out['portal'] = self.portal_goal[0]
+        if self.route_goal and now - self.route_goal[1] <= fresh:
+            out['route'] = [H.name(m) for m in self.route_goal[0]]
+        return out
 
     def home_map(self):
         """The company's base map (X-1)."""

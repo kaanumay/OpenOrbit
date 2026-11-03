@@ -1,11 +1,8 @@
 """Auto Mode: ore (World.harvest / sell_ore, the cargo), ammo purchases (Shop.buy, silent like the auto-buy CPUs)."""
-import math
-
 import world as W
 from bot import catalog as K
 
 SELL_ORES = tuple(sorted(K.CARGO_ORE - {8}))     # ores that fill the cargo (not Xenomit); Palladium goes to the 5-2 trader as gate energy
-HARVEST_DIST = 200            # World.harvest takes it within ores.harvest_distance (300)
 
 
 class Economy:
@@ -21,13 +18,13 @@ class Economy:
         return out
 
     def harvest(self, h, now):
-        """Fly to ore h and harvest it once close -> whether the harvest started."""
+        """Fly onto ore h and harvest it once there (Base.arrived; World.harvest takes it within ores.harvest_distance) -> whether the
+        harvest started."""
         w = self.w
         o = w.ores.get(h)
         if not o or o.get('busy'):
             return False
-        hx, hy = w.hero_pos(now)
-        if math.hypot(o['x'] - hx, o['y'] - hy) <= HARVEST_DIST:
+        if self.arrived(o['x'], o['y'], now, W.ITEMS['ores']['harvest_distance'] - 50):
             w.harvest({'itemHash': h})
             return bool(o.get('busy'))
         self.move_to(o['x'], o['y'], now)

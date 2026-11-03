@@ -1244,7 +1244,8 @@ class Pet:
         return (g.get('range', 0) + g.get('heat_range', 0) * self.heat_lv()) * self.range_bonus()
 
     def collect_step(self, now, g):
-        """Automatic collector: go to the nearest box/ore in range, collect on arrival. True if it did something."""
+        """Automatic collector: go to the nearest box/ore in range of the P.E.T. (its radar range, AI-R), collect on arrival; only boxes
+        it may take (someone else's cargo, booty boxes are skipped: it used to hover over them for good). True if it did something."""
         w = self.w
         if self.task:
             kind, h = self.task
@@ -1262,11 +1263,11 @@ class Pet:
                     w.later(ORE_DELAY, lambda: w.finish_harvest(h))
             return True
         rng = self.gear_range(g)
-        hx, hy = w.hero_pos(now)
+        hx, hy = self.pos(now)
         if g == AUTO_LOOT:
             full = self.p.cargo_free() < 1
             cands = [(h, b) for h, b in w.boxes.items() if not (full and b['tip'] in ('FROM_SHIP', 'CANDY_CARGO', 'TURKEY_CARGO')) and not b.get('keyed')
-                     and w.own(b)]
+                     and w.pet_can_take(b)]
         else:
             if self.p.cargo_free() < 1:
                 return False

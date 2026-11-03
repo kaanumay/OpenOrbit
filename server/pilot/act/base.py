@@ -20,6 +20,7 @@ MOVE_EVERY = 0.6              # at most one move order per 0.6 s (the client's o
 SAME_POINT = 50               # a new order closer than this to the last one while still flying there is not sent
 OWN_MOVE_SEC = 6.0            # a MoveRequest to one of our destinations within this time is ours (hero_move), not the player's click
 OWN_MOVE_DIST = 90
+ON_TOP = 40                   # a box / ore this close is under the ship
 
 
 class Base:
@@ -32,6 +33,7 @@ class Base:
         self.sent = []                                # [(x, y, time)] destinations ordered recently
         self.tried = {}                               # Combat: item -> when it last refused
         self.last_jump_try = 0.0                      # Travel: the last jump asked
+        self.portal_goal = self.route_goal = None     # Travel: the portal / route of the last order (Travel.heading, the panel's map)
 
     # ------------------------------------------------------------ reading
     def snapshot(self, now, cfg):
@@ -46,15 +48,14 @@ class Base:
             x, y = n.mover.pos(now)
             px, py = n.mover.pos(now + 0.6)
             passive = getattr(n, 'passive', False)
-            inv = self.immune(n, now, ammo)
-            tag = W.tag_owner(n, now)
             npcs.append(dict(
                 id=n.id, tip=n.tip, name=n.d.get('name', n.tip), x=x, y=y, px=px, py=py,
                 engaged=bool(n.engaged) and not passive, aggressive=w.aggressive(n) and not passive,
                 notice=n.d.get('notice_distance', W.COMBAT['npc_notice_distance']) * SET.multiplier('npc_notice'),
-                fire_range=w.npc_range(n), hp=n.hp, hp_max=n.d.get('hp', 1),
-                ok=not inv and w.own_tag(tag) and not (n.bot_target is not None and w.npcs.get(n.bot_target) is not None),
-                allowed=not cfg['aliens'] or n.tip in cfg['aliens'] or bool(w.gate)))     # in a galaxy gate every wave alien
+                fire_range=w.npc_range(n), hp=n.hp, hp_max=n.d.get('hp', 1), shield=getattr(n, 'shield', 0), shield_max=n.d.get('shield', 0),
+                ok=self.attackable(n, now, ammo),
+                allowed=not cfg['aliens'] or n.tip in cfg['aliens'] or bool(w.gate),     # in a galaxy gate every wave alien
+                priority=n.tip in (cfg.get('priority') or ())))
         cargo_room = w.p.cargo_free() >= 1
         boxes = []
         for h, b in w.boxes.items():
@@ -65,7 +66,7 @@ class Base:
                 kind = 'event'
             elif tip == 'BONUS_BOX':
                 kind = 'bonus'
-            elif tip in W.CARGO_BOXES and cargo_room and (not SET.get('cargo_ownership') or w.own_tag(b.get('owner_tag'))):
+            elif tip in self.cargo_box_types() and cargo_room and (not SET.get('cargo_ownership') or w.own_tag(b.get('owner_tag'))):
                 kind = 'cargo'
             else:
                 continue
@@ -86,6 +87,16 @@ class Base:
     def visible_alien(n):
         """An alien of the map (not a player bot, not friendly, not hidden) still alive."""
         return n.bot is None and n.alive and not n.d.get('friendly') and not getattr(n, 'hidden', False)
+
+    @staticmethod
+    def cargo_box_types():
+        return W.CARGO_BOXES
+
+    def attackable(self, n, now, ammo):
+        """The ship's lasers can hurt it now and it is the hero's to take: not immune, not tagged by someone else, not fighting a player bot."""
+        w = self.w
+        return (not self.immune(n, now, ammo) and w.own_tag(W.tag_owner(n, now))
+                and not (n.bot_target is not None and w.npcs.get(n.bot_target) is not None))
 
     def immune(self, n, now, ammo):
         """Takes no damage from the ship's lasers now (World.hit_npc's rules): its own protection, a status effect, guarded by its summons
@@ -109,6 +120,17 @@ class Base:
     def flying(self, now):
         """The ship is still flying to the last point ordered."""
         return bool(self.sent) and self.w.hero.t1 > now
+
+    def hero_pos(self, now):
+        return self.w.hero_pos(now)
+
+    def target_hp(self, uid):
+        """The alien's HP + shield (whether the bot is hurting it), None if gone."""
+        n = self.w.npcs.get(uid)
+        return n.hp + getattr(n, 'shield', 0) if n is not None and n.alive else None
+
+    def box_there(self, h):
+        return h in self.w.boxes
 
     def target_alive(self, uid):
         n = self.w.npcs.get(uid)
@@ -169,10 +191,31 @@ class Base:
         if self.w.attacking:
             self.w.laser_stop()
 
-    def collect(self, h):
+    def arrived(self, x, y, now, reach):
+        """The ship is on (x, y): right on it, or sent there and stopped within reach of it (the client's last point can fall a little
+        short). A player's click flies the ship onto the object and the client asks for it on arrival; the server itself hands it over
+        within its pick-up distance (World.box_near: 250), so asking on the way made the box vanish while the ship was still flying to it
+        (user report)."""
+        hx, hy = self.w.hero_pos(now)
+        d = math.hypot(x - hx, y - hy)
+        if d <= ON_TOP:
+            return True
+        ordered = bool(self.sent) and math.hypot(self.sent[-1][0] - x, self.sent[-1][1] - y) < SAME_POINT    # sent there, now stopped
+        return ordered and d <= reach and self.w.hero.t1 <= now
+
+    def collect(self, h, now=None):
+        """Fly onto box h and take it once there -> whether it was asked for."""
+        now = time.time() if now is None else now
         w = self.w
-        if h in w.boxes and (not w.collect_wish or w.collect_wish[0] != h):
-            w.collect({'itemHash': h})            # taken now if near, otherwise on arrival (World.collect_tick)
+        b = w.boxes.get(h)
+        if b is None:
+            return False
+        if not self.arrived(b['x'], b['y'], now, W.COMBAT['harvest_distance']):
+            self.move_to(b['x'], b['y'], now)
+            return False
+        if not w.collect_wish or w.collect_wish[0] != h:
+            w.collect({'itemHash': h})
+        return True
 
     def set_ammo(self, loot):
         if loot and self.w.p.d['selected'].get('laser') != loot and self.w.p.ammo(loot) > 0:

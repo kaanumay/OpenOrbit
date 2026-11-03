@@ -23,13 +23,15 @@ def update(pilot, now):
     if qid and not pilot.act.quest_active(qid):          # the chosen quest is done (or was cancelled)
         done = pilot.act.quest_done(qid)
         pilot.quest_goal = pilot.quest_maps = pilot.quest_aliens = None
-        pilot.note('chosen quest %s' % ('done' if done else 'no longer accepted'))
         pilot.mode_end('quest_done' if done else 'quest_gone')
         return
     g = pilot.act.quest_goal(qid or None)
     old = pilot.quest_goal
     if (g and g['qid'], g and g['kind']) != (old and old['qid'], old and old['kind']):
-        pilot.note('quest: %s (%s)' % (g['name'], g['kind']) if g else 'no quest to play')
+        if g:
+            pilot.note('Quest: {0} ({1}).', g['name'], 'q_' + g['kind'])
+        else:
+            pilot.note('No quest to play.')
     pilot.quest_goal = g
     pilot.quest_maps = g['maps'] if g and g['kind'] in ('kill', 'visit') else None
     pilot.quest_aliens = g['aliens'] if g and g['kind'] == 'kill' else None
@@ -57,14 +59,14 @@ def goal(pilot, s, now):
         return 'quest'
     if hand_in:
         act.hand_in()
-        pilot.note('quest handed in: %s' % g['name'])
+        pilot.note('Quest handed in: {0}.', g['name'])
         pilot.quest_block = now + HANDED_SEC
     else:
         qid = act.accept_quest()
         if qid:
-            pilot.note('quest taken: %s' % qid)
+            pilot.note('Quest taken: {0}.', act.quest_name(qid))
         else:
-            pilot.note('no quest to take here')
+            pilot.note('No quest to take here.')
             pilot.quest_block = now + BLOCK_SEC
             pilot.mode_end('no_quest')
     pilot.quest_at = 0.0                            # read the quests again at once

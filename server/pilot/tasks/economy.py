@@ -24,29 +24,29 @@ def sell_goal(pilot, s, now):
     st = act.go_to_station(now, act.sell_maps())
     if st == 'no_route':
         pilot.sell_block = now + SELL_FAIL_SEC
-        pilot.note('cargo full but no station within reach')
+        pilot.note('Cargo full but no station within reach.')
         return None
     if st != 'here':
         return 'sell'
     earned = act.sell_all()
     if earned > 0:
         pilot.stats.add('sales')
-        pilot.note('cargo sold: %d credits' % earned)
+        pilot.note('Cargo sold: {0} credits.', earned)
     if wants_sale(pilot, now):                      # nothing could be sold here: not again for a while
         pilot.sell_block = now + SELL_FAIL_SEC
     return None
 
 
-def harvest(pilot, s, now):
-    """An ore to harvest near the ship -> a label, or None."""
+def harvest(pilot, s, cfg, now):
+    """An ore to harvest near the ship (inside the drawn work area, out of the areas to avoid; cfg: Pilot.hunt_cfg) -> a label, or None."""
     from . import modes as MODES
     c = MODES.ore_settings(pilot)
     if not MODES.allows(pilot, 'harvest') or pilot.act.cargo_free() < 1:
         return None
     hx, hy = s['hero']
-    thr = B.threats(s, pilot.cfg, None)
+    thr = B.threats(s, cfg, None)
     ores = [o for o in s['ores'] if (not c['types'] or o['tip'] in c['types']) and B.dist(o['x'], o['y'], hx, hy) <= c['radius']
-            and B.danger(o['x'], o['y'], thr) == 0]
+            and B.danger(o['x'], o['y'], thr) == 0 and B.takes(o['x'], o['y'], cfg)]
     o = B.nearest(ores, hx, hy)
     if o is None:
         return None
@@ -68,11 +68,11 @@ def supply(pilot, now):
         cost = affordable(pilot, loot, r['amount'])
         if cost is None or not act.buy(loot, r['amount']):
             pilot.supply_fail[loot] = now + SUPPLY_FAIL_SEC
-            pilot.note('could not buy %s (budget or money)' % loot)
+            pilot.note('Could not buy {0} (budget or money).', loot)
             continue
         cur, n = cost
         pilot.stats.add('spent_' + cur, n)
-        pilot.note('bought %d %s (%d %s)' % (r['amount'], loot, n, cur))
+        pilot.note('Bought {0} {1} for {2} credits.' if cur == 'credits' else 'Bought {0} {1} for {2} uridium.', r['amount'], loot, n)
 
 
 def affordable(pilot, loot, amount):

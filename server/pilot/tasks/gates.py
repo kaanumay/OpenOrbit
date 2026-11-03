@@ -19,7 +19,7 @@ def lives(pilot, key):
             break
         pilot.stats.add('spent_uridium', paid)
         pilot.stats.add('spent_uridium_gates', paid)
-        pilot.note('%s: life bought (%d U)' % (info['name'], paid))
+        pilot.note('{0}: life bought ({1} U).', info['name'], paid)
         info = act.gate_info(key)
     return bool(info) and info['lives'] > 0
 
@@ -28,7 +28,6 @@ def goal(pilot, s, now):
     """Galaxy gate mode, off the gate map: prepare, buy lives, fly to the X-1 portal and jump -> a label (it took the ship) or None."""
     key, act = pilot.cfg['gates']['key'], pilot.act
     if not key:
-        pilot.note('Galaxy gate mode: no gate chosen')
         pilot.mode_end('gate_none')
         return 'gate_trip'
     if act.in_gate():
@@ -44,16 +43,16 @@ def goal(pilot, s, now):
         if not pilot.cfg['gates']['repeat'] or not info['built']:
             pilot.mode_end('gate_done')
             return 'gate_trip'
-        pilot.note('%s completed: once more' % info['name'])
+        pilot.note('{0} completed: playing it again.', info['name'])
     if not info['ready']:
         if not info['built']:
-            pilot.note('%s: parts %d/%d, the gate cannot be prepared' % (info['name'], info['parts'], info['need']))
+            pilot.note('{0}: {1}/{2} parts, the gate cannot be prepared.', info['name'], info['parts'], info['need'])
             pilot.mode_end('gate_not_built')
             return 'gate_trip'
         if not act.gate_prepare(key):
             pilot.mode_end('gate_not_built')
             return 'gate_trip'
-        pilot.note('%s prepared' % info['name'])
+        pilot.note('{0} prepared.', info['name'])
     if not lives(pilot, key):
         pilot.mode_end('gate_lives')
         return 'gate_trip'
@@ -71,5 +70,5 @@ def goal(pilot, s, now):
         pilot.mode_end('gate_no_route')
         return 'gate_trip'
     if act.enter_portal(g, now) == 'jumping':
-        pilot.note('entering the %s' % info['name'])
+        pilot.note('Entering the {0}.', info['name'])
     return 'gate_trip'

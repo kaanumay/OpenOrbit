@@ -42,7 +42,7 @@ def holds(rule, pilot, s):
 def rules(pilot, s, now):
     for r in pilot.cfg['support']['rules']:
         if holds(r, pilot, s) and pilot.act.use_item(r['item'], now):
-            pilot.note('used %s' % r['item'])
+            pilot.note('Used {0}.', r['item'])
 
 
 def config(pilot, s, now):
@@ -54,7 +54,7 @@ def config(pilot, s, now):
         return
     pilot.config_at = now
     if act.switch_config(other):
-        pilot.note('shield low: switched to config %d' % other)
+        pilot.note('Shield low: switched to config {0}.', other)
 
 
 def pet(pilot, s, now):
@@ -72,13 +72,13 @@ def pet(pilot, s, now):
                 pilot.pet_at = now + PET_FAIL_SEC
             else:
                 pilot.stats.add('spent_uridium', cost)
-                pilot.note('P.E.T. repaired (%d U)' % cost)
+                pilot.note('P.E.T. repaired ({0} U).', cost)
         return
     if not st['active']:
         if st['relaunch'] or st['fuel'] <= 0:
             return
         if act.pet_launch(c['gear']):
-            pilot.note('P.E.T. launched')
+            pilot.note('P.E.T. launched.')
         else:
             pilot.pet_at = now + PET_FAIL_SEC
         return

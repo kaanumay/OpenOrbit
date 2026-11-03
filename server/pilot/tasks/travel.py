@@ -22,12 +22,12 @@ def goal(pilot, s, now):
         return None
     st = pilot.act.travel_to(pilot.hunt_map, now)
     if st == 'no_route':
-        pilot.note('no route to %s: staying here' % pilot.act.map_name(pilot.hunt_map))
+        pilot.note('No route to {0}: staying here.', pilot.act.map_name(pilot.hunt_map))
         pilot.hunt_map = s['map']
         return None
     if now - pilot.travel_logged >= TRAVEL_LOG_SEC:
         pilot.travel_logged = now
-        pilot.note('flying to %s' % pilot.act.map_name(pilot.hunt_map))
+        pilot.note('Flying to {0}.', pilot.act.map_name(pilot.hunt_map))
     return 'travel'
 
 
@@ -46,7 +46,7 @@ def idle(pilot, s, now):
         return False
     pilot.empty_since = None
     pilot.hunt_map = maps[(maps.index(s['map']) + 1) % len(maps)]
-    pilot.note('nothing left to do here: on to %s' % pilot.act.map_name(pilot.hunt_map))
+    pilot.note('Nothing left to do here: on to {0}.', pilot.act.map_name(pilot.hunt_map))
     return True
 
 

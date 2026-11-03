@@ -1,35 +1,168 @@
-/* Auto Mode page (pilot.js) */
-.pil-status h2 { display: flex; align-items: center; gap: 8px; margin: 0 6px 0 0; }
-.pil-head { gap: 10px; }
-.pil-col { display: grid; gap: 8px; justify-items: start; }
-.pil-head .input.pil-mode { width: auto; min-width: 150px; }
-.pil-line { gap: 8px; }
-.pil-items { display: flex; flex-wrap: wrap; gap: 6px 18px; margin: 12px 0 4px; font-size: 13px; }
-.pil-item { white-space: nowrap; }
-.pil-item b { font-weight: 650; }
-.pil-more { margin-top: 10px; }
-.pil-more > summary { cursor: pointer; color: var(--muted); font-size: 12.5px; }
-.pil-more > summary:hover { color: var(--text); }
+/* Auto Mode page (pilot.js): the command bar (modes, Start/Stop, what the ship is doing), the tactical map with its right rail (ship,
+   target, session, journal), then the settings in tabs. The map is the page's one loud element; everything around it stays quiet. */
+.pil-page { gap: 14px; }
+
+/* ---- command bar */
+.pil-cmd { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px 18px; align-items: stretch; }
+.pil-modes { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.pil-mode-tile { display: grid; grid-template-columns: 38px minmax(0, 1fr); align-items: center; gap: 4px 10px; padding: 9px 12px; text-align: left;
+  background: rgba(4, 9, 18, .55); border: 1px solid var(--line); border-radius: var(--radius); color: var(--muted); cursor: pointer;
+  transition: border-color .15s, background .15s, color .15s; }
+.pil-mode-tile:hover { border-color: var(--line-2); color: var(--text); }
+.pil-mode-tile .sprite, .pil-mode-tile > svg { grid-row: span 2; width: 38px; height: 38px; }
+.pil-mode-tile > svg { padding: 8px; color: var(--accent); }
+.pil-mode-tile b { font: 600 14px/1.15 var(--display); letter-spacing: .05em; text-transform: uppercase; color: var(--text); }
+.pil-mode-tile small { font-size: 11.5px; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pil-mode-tile.on { border-color: var(--line-hi); color: var(--steel);
+  background: linear-gradient(180deg, rgba(64, 223, 255, .13), rgba(64, 223, 255, .03)); box-shadow: inset 0 -2px 0 var(--accent); }
+.pil-go { display: grid; align-content: center; justify-items: stretch; gap: 6px; min-width: 190px; }
+.pil-go .btn { height: 52px; justify-content: center; font: 650 16px/1 var(--display); letter-spacing: .1em; text-transform: uppercase; }
+.pil-go .btn svg { width: 18px; height: 18px; }
+.pil-go small { text-align: center; color: var(--dim); font-size: 11.5px; }
+.pil-strip { grid-column: 1 / -1; display: flex; align-items: center; flex-wrap: wrap; gap: 8px 12px; padding-top: 10px; border-top: 1px solid var(--line);
+  font-size: 13px; color: var(--muted); min-height: 30px; }
+.pil-strip .pil-state { display: inline-flex; align-items: center; gap: 7px; font: 600 13px var(--display); letter-spacing: .08em; text-transform: uppercase; color: var(--text); }
+.pil-strip .pil-doing { color: var(--text); }
+.pil-strip .pil-note { color: var(--warn); }
+.pil-strip .spacer { flex: 1; }
+
+/* ---- main: map + rail */
+.pil-main { display: grid; grid-template-columns: minmax(0, 1fr) 330px; gap: 14px; align-items: start; }
+@media (max-width: 1180px) { .pil-main { grid-template-columns: minmax(0, 1fr); } }
+.card.pil-scope { padding: 0; overflow: hidden; }
+.pil-bar { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 10px; padding: 9px 12px; border-bottom: 1px solid var(--line); }
+.pil-bar .pil-mapname { display: flex; align-items: baseline; gap: 8px; margin-right: 4px; }
+.pil-bar .pil-mapname b { font: 650 18px/1 var(--display); letter-spacing: .06em; color: var(--text); }
+.pil-bar .pil-mapname span { font-size: 11.5px; color: var(--dim); }
+.pil-bar .seg button { display: inline-flex; align-items: center; gap: 6px; }
+.pil-bar .seg svg, .pil-bar .btn svg { width: 15px; height: 15px; }
+.pil-bar .spacer { flex: 1; }
+.pil-view { position: relative; aspect-ratio: 21 / 13; min-height: 300px; max-height: 72vh; background: #02060d; overflow: hidden; touch-action: none; }
+.pil-view canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; cursor: grab; }
+.pil-view canvas:active { cursor: grabbing; }
+.pil-view[data-tool="work"] canvas, .pil-view[data-tool="avoid"] canvas { cursor: crosshair; }
+.pil-view[data-tool="erase"] canvas { cursor: pointer; }
+.pil-view.hovering canvas { cursor: pointer; }
+.pil-route { position: absolute; left: 10px; top: 10px; display: flex; align-items: center; flex-wrap: wrap; gap: 4px; max-width: 70%; pointer-events: none;
+  font: 600 12px var(--display); letter-spacing: .05em; }
+.pil-route span { padding: 3px 7px; border-radius: 3px; background: rgba(2, 6, 13, .78); border: 1px solid var(--line-2); color: var(--muted); }
+.pil-route span.here { color: var(--accent); border-color: var(--line-hi); }
+.pil-route span.goal { color: var(--amber); border-color: rgba(255, 185, 77, .5); }
+.pil-route svg { width: 12px; height: 12px; color: var(--dim); }
+.pil-toolhint { position: absolute; right: 10px; top: 10px; max-width: 46%; padding: 6px 9px; border-radius: 3px; background: rgba(2, 6, 13, .82);
+  border: 1px solid var(--line-2); color: var(--steel); font-size: 12px; pointer-events: none; }
+.pil-coords { position: absolute; right: 10px; bottom: 8px; color: var(--dim); font: 11px var(--mono); pointer-events: none; }
+.pil-tip { position: absolute; z-index: 4; pointer-events: none; min-width: 150px; max-width: 260px; padding: 8px 10px; border-radius: var(--radius-sm);
+  background: rgba(8, 14, 26, .96); border: 1px solid var(--line-2); box-shadow: var(--shadow); font-size: 12.5px; }
+.pil-tip-head { display: flex; align-items: center; gap: 8px; }
+.pil-tip-head b { font-weight: 650; }
+.pil-tip-ic { width: 26px; height: 26px; flex: none; }
+.pil-tip-row { display: flex; justify-content: space-between; gap: 12px; color: var(--muted); margin-top: 3px; }
+.pil-tip-row span:last-child { color: var(--text); }
+.pil-pop { position: absolute; z-index: 5; width: 250px; padding: 12px; border-radius: var(--radius); background: var(--panel-solid);
+  border: 1px solid var(--line-hi); box-shadow: var(--shadow); display: grid; gap: 10px; }
+.pil-pop-head { display: flex; align-items: center; gap: 10px; }
+.pil-pop-head b { font: 600 14px/1.2 var(--display); letter-spacing: .03em; }
+.pil-pop-head small { display: block; color: var(--muted); }
+.pil-pop .pil-x { position: absolute; right: 6px; top: 4px; }
+.pil-legend { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 8px 12px; border-top: 1px solid var(--line); }
+.pil-chip { display: inline-flex; align-items: center; gap: 6px; padding: 3px 9px 3px 7px; border-radius: 3px; border: 1px solid var(--line);
+  background: transparent; color: var(--muted); font-size: 12px; cursor: pointer; }
+.pil-chip:hover { color: var(--text); border-color: var(--line-2); }
+.pil-chip.off { opacity: .42; }
+.pil-chip.off .pil-sw { filter: grayscale(1); }
+.pil-sw { width: 10px; height: 10px; flex: none; border-radius: 50%; background: var(--c); box-shadow: 0 0 6px var(--c); }
+.pil-sw.sq { border-radius: 2px; background: transparent; border: 1.5px dashed var(--c); box-shadow: none; }
+.pil-sw.ring { background: transparent; border: 2px solid var(--c); }
+.pil-legend .spacer { flex: 1; }
+.pil-legend .muted { font-size: 11.5px; }
+
+/* ---- right rail */
+.pil-rail { display: grid; gap: 14px; }
+.pil-rail .card { padding: 14px; }
+.pil-rail h3 { margin: 0 0 10px; display: flex; align-items: center; gap: 8px; font: 600 12.5px/1.2 var(--display); letter-spacing: .1em;
+  text-transform: uppercase; color: var(--muted); }
+.pil-rail h3 svg { width: 15px; height: 15px; color: var(--accent); }
+.pil-rail h3 .spacer { flex: 1; }
+.pil-rail h3 small { font: 12px var(--font); letter-spacing: 0; text-transform: none; color: var(--dim); }
+.pil-ship { display: grid; grid-template-columns: 58px minmax(0, 1fr); gap: 12px; align-items: center; }
+.pil-ship-name { font: 600 14px/1.2 var(--display); letter-spacing: .04em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pil-ship-sub { color: var(--muted); font-size: 12px; margin-bottom: 6px; }
+.pil-gauges { display: grid; gap: 6px; margin-top: 12px; }
+.pil-gauge { display: grid; grid-template-columns: 62px minmax(0, 1fr) auto; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); }
+.pil-gauge b { color: var(--text); font: 600 12px var(--display); letter-spacing: .03em; min-width: 46px; text-align: right; }
+.pil-track { height: 6px; border-radius: 3px; background: rgba(110, 160, 220, .12); overflow: hidden; }
+.pil-track > i { display: block; height: 100%; width: 0; border-radius: 3px; background: var(--c); transition: width .5s ease; }
+.pil-target { display: grid; grid-template-columns: 48px minmax(0, 1fr); gap: 12px; align-items: center; }
+.pil-target-name { font: 600 14px/1.2 var(--display); letter-spacing: .03em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pil-range { position: relative; height: 18px; margin-top: 10px; }
+.pil-range .rail { position: absolute; left: 0; right: 0; top: 8px; height: 2px; background: rgba(110, 160, 220, .18); }
+.pil-range .band { position: absolute; top: 5px; height: 8px; border-radius: 2px; background: rgba(62, 229, 155, .22); border: 1px solid rgba(62, 229, 155, .45); }
+.pil-range .edge { position: absolute; top: 2px; width: 1px; height: 14px; background: var(--muted); }
+.pil-range .mark { position: absolute; top: 3px; width: 12px; height: 12px; margin-left: -6px; transform: rotate(45deg); background: var(--amber);
+  box-shadow: 0 0 8px rgba(255, 185, 77, .7); transition: left .5s ease; }
+.pil-range-legend { display: flex; justify-content: space-between; font-size: 11.5px; color: var(--dim); }
+.pil-idle { display: flex; align-items: center; gap: 12px; color: var(--muted); font-size: 13px; }
+.pil-idle svg { width: 26px; height: 26px; color: var(--dim); flex: none; }
+.pil-tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.pil-tile { position: relative; padding: 9px 10px 4px; border-radius: var(--radius-sm); background: rgba(4, 9, 18, .55); border: 1px solid var(--line); min-width: 0; }
+.pil-tile > span { display: block; font-size: 11.5px; color: var(--muted); }
+.pil-tile > b { display: block; font: 600 19px/1.15 var(--display); letter-spacing: .02em; color: var(--text); overflow: hidden; text-overflow: ellipsis; }
+.pil-tile > small { display: block; font-size: 11.5px; color: var(--dim); }
+.pil-spark { display: block; width: 100%; height: 30px; margin-top: 2px; overflow: visible; }
+.pil-spark-tip { position: absolute; right: 8px; top: 8px; font-size: 11px; color: var(--steel); pointer-events: none; }
+.pil-facts { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 14px; margin-top: 10px; font-size: 12px; color: var(--muted); }
+.pil-facts > div { display: flex; justify-content: space-between; gap: 8px; min-width: 0; }
+.pil-facts > div:last-child:nth-child(odd) { grid-column: 1 / -1; }
+.pil-facts b { color: var(--text); font-weight: 600; white-space: nowrap; }
+.pil-journal { list-style: none; margin: 0; padding: 0; display: grid; gap: 1px; font-size: 12.5px; max-height: 260px; overflow: auto; }
+.pil-journal li { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 8px; padding: 4px 2px; border-bottom: 1px solid rgba(110, 160, 220, .06); }
+.pil-journal time { color: var(--dim); font: 11.5px var(--mono); padding-top: 1px; }
+.pil-journal li.new { animation: pil-in .8s ease; }
+@keyframes pil-in { from { background: rgba(64, 223, 255, .14); } to { background: transparent; } }
+
+/* ---- settings */
 .pil-tabs { align-self: flex-start; }
 .pil-tabs button { display: inline-flex; align-items: center; gap: 6px; }
 .pil-tabs svg { width: 14px; height: 14px; }
-.pil-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 10px 18px; }
-.pil-kv { display: grid; gap: 3px; min-width: 0; }
-.pil-kv b { font-weight: 650; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .pil-cards { grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); align-items: start; }
 .pil-cards .card h2 { display: flex; align-items: center; gap: 8px; }
 .pil-fields { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; margin: 4px 0 12px; }
+.pil-col { display: grid; gap: 8px; justify-items: start; }
 .pil-check { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; }
 .pil-checks { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px 14px; margin-top: 10px; }
-.pil-checks .badge { margin-left: auto; }
 .pil-chips { gap: 6px; margin-bottom: 8px; }
 .pil-chips .pill { gap: 6px; }
 .pil-x { background: none; border: 0; color: inherit; cursor: pointer; font-size: 15px; line-height: 1; padding: 0 2px; opacity: .7; }
 .pil-x:hover { opacity: 1; }
-.pil-stats { margin-top: 12px; display: grid; gap: 10px; }
-.pil-journal { list-style: none; margin: 0; padding: 0; display: grid; gap: 3px; font-size: 12.5px; max-height: 170px; overflow: auto; }
 .pil-rules { display: grid; gap: 8px; margin: 6px 0 10px; }
 .pil-rule { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .pil-rule .input { min-width: 0; width: auto; flex: 1 1 140px; }
 .pil-rule .input.num { flex: 0 0 96px; }
 .pil-rule .pil-x { flex: 0 0 auto; }
+.pil-aliens-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 6px; margin-top: 10px; }
+.pil-alien { display: grid; grid-template-columns: auto 28px minmax(0, 1fr) auto auto; align-items: center; gap: 8px; padding: 5px 8px;
+  border: 1px solid var(--line); border-radius: var(--radius-sm); background: rgba(4, 9, 18, .4); font-size: 13px; cursor: pointer; }
+.pil-alien:hover { border-color: var(--line-2); }
+.pil-alien.off { opacity: .5; }
+.pil-alien .sprite { width: 28px; height: 28px; }
+.pil-alien-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pil-alien-name small { display: block; color: var(--dim); font-size: 11px; }
+.pil-alien .badge { font-size: 10.5px; }
+.pil-star { background: none; border: 0; padding: 2px; color: var(--dim); cursor: pointer; display: inline-flex; }
+.pil-star svg { width: 16px; height: 16px; }
+.pil-star.on { color: var(--amber); }
+.pil-star.on svg { fill: currentColor; filter: drop-shadow(0 0 4px rgba(255, 185, 77, .6)); }
+.pil-areas { display: grid; gap: 6px; margin: 4px 0 10px; }
+.pil-area { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+.pil-area .pil-sw { box-shadow: none; }
+.pil-area span:nth-child(2) { flex: 1; }
+
+@media (max-width: 900px) {
+  .pil-cmd { grid-template-columns: minmax(0, 1fr); }
+  .pil-modes { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pil-track > i, .pil-range .mark { transition: none; }
+  .pil-journal li.new { animation: none; }
+}

@@ -1080,6 +1080,12 @@ class World:
         """Whether this hero can see and collect the box (ownerless or their own)."""
         return b.get('owner') in (None, self.hid)
 
+    def pet_can_take(self, b):
+        """Whether the P.E.T.'s collector may take the box: not Vortex of Greed boxes (Ö4), booty boxes or someone else's cargo."""
+        if not self.own(b) or b.get('no_pet') or (b['tip'] in LOOT.BOXES and not b.get('event')):
+            return False
+        return not (b['tip'] in CARGO_BOXES and not self.own_tag(b.get('owner_tag')) and SET.get('cargo_ownership'))
+
     def cargo_hidden(self, b):
         """Someone else's cargo box and the player's "other players' cargo boxes" setting (displayPenaltyCargoboxes) is off: none is
         sent, the ones seen are removed (view loop). The client applies the setting only at the moment it is changed and still drew a
@@ -1978,11 +1984,9 @@ class World:
         collected by your P.E.T.")."""
         with self.lock:
             b = self.boxes.get(h)
-            if not b or not self.own(b) or (by_pet and b.get('no_pet')):      # the P.E.T. cannot collect Vortex of Greed boxes (Ö4)
+            if not b or not self.own(b) or (by_pet and not self.pet_can_take(b)):
                 return False
             foreign = b['tip'] in CARGO_BOXES and not self.own_tag(b.get('owner_tag')) and SET.get('cargo_ownership')
-            if foreign and by_pet:
-                return False                                # the P.E.T. does not collect someone else's cargo
             boost = 1 + (self.pet.proto('box') if by_pet and self.pet else 0)
             m = self.p.mods()          # pilot skills: Tractor Beam I/II (cargo/bonus box), Luck (bonus box uridium)
             pre, plan = [], {}

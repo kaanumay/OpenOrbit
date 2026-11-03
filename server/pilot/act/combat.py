@@ -1,6 +1,9 @@
-"""Auto Mode: combat support. Ship abilities (ship_ability.py, World.abilities), technologies (technology.py, World.tech), the config
-switch (Shop.switch_config, as game.py's "S|CFG|n" handler does it) and the P.E.T. (pet.py, World.pet)."""
+"""Auto Mode: combat support. Rockets and the rocket launcher (World.rocket and combat_items' launcher, as the AROL-X / RL-LB1 CPUs fire
+them), ship abilities (ship_ability.py, World.abilities), technologies (technology.py, World.tech), the config switch (Shop.switch_config,
+as game.py's "S|CFG|n" handler does it) and the P.E.T. (pet.py, World.pet)."""
+import combat_items as CIT
 import pet as PETM
+import world as W
 import ship_ability as SA
 import technology as TECH
 
@@ -11,6 +14,35 @@ GEARS = {PETM.PASSIVE: 'Passive', PETM.GUARD: 'Guard', PETM.AUTO_LOOT: 'Auto-loo
 
 
 class Combat:
+    # ------------------------------------------------------------ rockets
+    def rocket(self):
+        return self.p.d['selected'].get('rocket')
+
+    def set_rocket(self, loot):
+        """Select a rocket type (like a click on its slot) when it is in stock."""
+        if loot and self.rocket() != loot and self.p.ammo(loot) > 0:
+            self.w.menu_action({'menuItemId': loot, 'actionType': 0})
+
+    def fire_rocket(self, uid, dist, now):
+        """The selected rocket at the target once it is ready and in rocket range (World.rocket checks the rest) -> whether it went."""
+        w, r = self.w, self.rocket()
+        if not r or self.p.ammo(r) <= 0 or dist > W.COMBAT['rocket_range'] or w.hero_dead or w.jumping:
+            return False
+        if not (w.items.ready(CIT.item_cooldown(r)[0], now) if CIT.special(r) else now >= w.rocket_ready):
+            return False
+        w.rocket({'targetId': uid})
+        return True
+
+    def fire_launcher(self, uid, now):
+        """The rocket launcher (RL-LB1 / HST) once it is fully loaded -> whether it fired."""
+        p, w = self.p, self.w
+        cap = CIT.capacity(p)
+        n = w.npcs.get(uid)
+        if not cap or n is None or CIT.loaded(p)[1] < cap or now < getattr(w.items, 'launcher_cd', 0):
+            return False
+        w.items.launcher_fire(now, n)
+        return True
+
     # ------------------------------------------------------------ abilities and technologies
     def owned_abilities(self):
         return [i for i in SA.ship_items(self.p) if i in SA.ABILITIES]

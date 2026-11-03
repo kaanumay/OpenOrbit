@@ -1,5 +1,5 @@
 """Auto Mode settings: defaults, validation, the file the panel writes (pilot.json next to the save slot's profile.json) and the status
-file the bot writes for the panel (<log folder>/pilot_status.json). Standard library only: the panel imports it too."""
+file the bot writes for the panel (<log folder>/pilot_status_<slot>.json). Standard library only: the panel imports it too."""
 import json, os
 
 WHEN = ('hp', 'shield', 'fight', 'big', 'always')
@@ -39,6 +39,11 @@ def _laser_ammo(v):
     return v if v.startswith('ammunition_laser_') else ''
 
 
+def _rocket_ammo(v):
+    v = v if isinstance(v, str) else ''
+    return v if v.startswith(('ammunition_rocket_', 'ammunition_specialammo_')) else ''
+
+
 def _aliens(v):
     """The hunt lists, one per map: {map id: sorted type keys}. The list of before (one for every map) is dropped: it hid aliens of
     other maps."""
@@ -48,6 +53,42 @@ def _aliens(v):
             keep = sorted({str(x) for x in tips if isinstance(x, (str, int)) and not isinstance(x, bool)})
             if keep:
                 out[str(m)] = keep
+    return dict(list(out.items())[:60])
+
+
+MAP_MAX = 42000               # the largest map side (map_layout positions go up to 42000 x 26200)
+MAX_AVOID = 8
+
+
+def _rect(v):
+    """[x0, y0, x1, y1] ordered, inside the map's limits and at least 200 units a side, or None."""
+    if not isinstance(v, (list, tuple)) or len(v) != 4:
+        return None
+    try:
+        x0, y0, x1, y1 = (max(0, min(MAP_MAX, int(a))) for a in v)
+    except (TypeError, ValueError, OverflowError):
+        return None
+    x0, x1 = sorted((x0, x1))
+    y0, y1 = sorted((y0, y1))
+    return [x0, y0, x1, y1] if x1 - x0 >= 200 and y1 - y0 >= 200 else None
+
+
+def _zones(v):
+    """The areas drawn on the Auto Mode map, one entry per map: {map id: {'work': rect (targets, boxes and ore only inside, patrol inside),
+    'avoid': [rect] (never entered, nothing taken inside)}}. A map with neither is dropped."""
+    out = {}
+    for m, z in (v.items() if isinstance(v, dict) else []):
+        if not str(m).isdigit() or not isinstance(z, dict):
+            continue
+        e = {}
+        work = _rect(z.get('work'))
+        if work:
+            e['work'] = work
+        avoid = [r for r in (_rect(a) for a in (z.get('avoid') if isinstance(z.get('avoid'), list) else [])[:MAX_AVOID]) if r]
+        if avoid:
+            e['avoid'] = avoid
+        if e:
+            out[str(m)] = e
     return dict(list(out.items())[:60])
 
 
@@ -69,8 +110,14 @@ TOP = {
     'pause_sec': ('int', 5, 0, 120),               # after a manual move
     'box_radius': ('int', 1500, 0, 20000),         # boxes farther than this are ignored
     'aliens': ('fn', {}, _aliens),                 # map id (text) -> npc.json type keys to hunt on that map; a map without a list: every alien
+    'priority': ('fn', {}, _aliens),               # map id (text) -> type keys taken first when one is around (the map's star in the panel)
+    'zones': ('fn', {}, _zones),                   # map id (text) -> the work area and the areas to avoid drawn on the map
+    'stuck_sec': ('int', 20, 0, 600),              # the target lost no HP / shield for this long: left alone for a while (0: never)
     'boxes': ('block', None, {'bonus': ('bool', True), 'cargo': ('bool', True), 'event': ('bool', True)}),
     'laser_ammo': ('fn', '', _laser_ammo),         # lootId selected when the bot starts; empty: keep the current ammo
+    'rockets': ('bool', True),                     # fire the selected rocket at the target each time it is ready (rocket range)
+    'rocket_ammo': ('fn', '', _rocket_ammo),       # rocket selected when the bot starts; empty: keep the current one
+    'launcher': ('bool', True),                    # fire the rocket launcher at the target once it is fully loaded
     'roam': ('bool', True),                        # patrol the map when there is nothing to do
     'slow_ammo': ('subset', [], SLOW_AMMO),        # RCB-140 / RSB-75 fired each time their shared 3 s cooldown ends, then the normal ammo again
 }
@@ -270,8 +317,10 @@ def path_for(profile_path):
     return os.path.join(os.path.dirname(os.path.abspath(profile_path)), 'pilot.json')
 
 
-def status_path(log_dir):
-    return os.path.join(log_dir, 'pilot_status.json')
+def status_path(log_dir, profile_path):
+    """One status file per save slot: on a multi-session server (extra clients, friend server) every session runs its own bot."""
+    slot = os.path.basename(os.path.dirname(os.path.abspath(profile_path)))
+    return os.path.join(log_dir, 'pilot_status_%s.json' % slot)
 
 
 def read_json(path):

@@ -10,7 +10,9 @@ def dead(pilot, now):
     if pilot.dead_at is None:
         pilot.dead_at, pilot.revive_at = now, 0.0
         pilot.stats.add('deaths')
-        pilot.note('ship destroyed')
+        x, y = pilot.act.hero_pos(now)
+        pilot.mark('death', x, y)
+        pilot.note('Ship destroyed.')
     if not cfg['revive'] or pilot.stats['revives'] >= cfg['max_revives']:
         return pilot.stop('dead')
     if now - pilot.dead_at < REVIVE_DELAY or now - pilot.revive_at < RETRY_SEC:
@@ -18,4 +20,4 @@ def dead(pilot, now):
     pilot.revive_at = now
     if pilot.act.revive():
         pilot.stats.add('revives')
-        pilot.note('repaired at the base (%d/%d)' % (pilot.stats['revives'], cfg['max_revives']))
+        pilot.note('Repaired at the base ({0}/{1}).', pilot.stats['revives'], cfg['max_revives'])

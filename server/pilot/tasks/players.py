@@ -18,7 +18,7 @@ def run(pilot, s, now):
             if o['attacking'] or (not c['attack_only'] and B.dist(o['x'], o['y'], hx, hy) <= c['distance'])]
     if near:
         if now >= pilot.danger_until:
-            pilot.note('enemy pilot nearby: %s' % ', '.join(sorted({o['name'] or '?' for o in near})))
+            pilot.note('Enemy pilot nearby: {0}.', ', '.join(sorted({o['name'] or '?' for o in near})))
         pilot.danger_until = now + c['wait_sec']
         action = c['action']
         if action == 'stop':
@@ -30,7 +30,7 @@ def run(pilot, s, now):
             if others:
                 if pilot.hunt_map == s['map'] or pilot.hunt_map not in others:
                     pilot.hunt_map = others[0]
-                    pilot.note('leaving the map for %s' % pilot.act.map_name(pilot.hunt_map))
+                    pilot.note('Leaving the map for {0}.', pilot.act.map_name(pilot.hunt_map))
                 return None                         # the travel errand takes the ship away
         return hide(pilot, s, now)
     if now < pilot.danger_until and c['action'] != 'map':
@@ -45,7 +45,7 @@ def hide(pilot, s, now):
     if not s['in_peace'] and B.safe_point(s) is None:
         if pilot.no_shelter != s['map']:
             pilot.no_shelter = s['map']
-            pilot.note('enemy pilot nearby but no safe zone on this map: carrying on')
+            pilot.note('Enemy pilot nearby but no safe zone on this map: carrying on.')
         return None
     pilot.drop_target()
     if s['in_peace']:
