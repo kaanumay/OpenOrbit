@@ -61,6 +61,7 @@ class Base:
                 notice=n.d.get('notice_distance', W.COMBAT['npc_notice_distance']) * SET.multiplier('npc_notice'),
                 fire_range=w.npc_range(n), hp=n.hp, hp_max=n.d.get('hp', 1), shield=getattr(n, 'shield', 0), shield_max=n.d.get('shield', 0),
                 ok=self.attackable(n, now, ammo), forbidden=n.tip in forbid, static=n.speed() <= 0 and n.d.get('damage', 0) > 0,
+                damage=n.d.get('damage', 0) * SET.multiplier('npc_damage'),
                 allowed=hunted(n),
                 priority=n.tip in (cfg.get('priority') or ())))
         if cfg.get('pvp') is not None:                        # a PvP quest: the enemy-company pilots are the targets (act/players.py)

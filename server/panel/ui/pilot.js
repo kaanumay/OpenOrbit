@@ -66,7 +66,9 @@ const PIL_NOTES = [N('Started in {0} mode.'), N('Stopped.'), N('Stopped: {0}'), 
   N('Quest: {0} ({1}).'), N('No quest to play.'), N('Quest handed in: {0}.'), N('Quest taken: {0}.'), N('No quest to take here.'), N('Ship destroyed.'),
   N('Repaired at the base ({0}/{1}).'), N('Used {0}.'), N('Shield low: switched to config {0}.'), N('P.E.T. repaired ({0} U).'), N('P.E.T. launched.'),
   N('No route to {0}: staying here.'), N('Flying to {0}.'), N('Nothing left to do here: on to {0}.'),
-  N('{0}: {1}/{2} parts ({3} U spent on spins).')];
+  N('{0}: {1}/{2} parts ({3} U spent on spins).'), N('Shield low ({0} %): SAB-50 on the shielded aliens.'), N('Shield back to {0} %: normal ammo.'),
+  N("{0} is inside an immobile alien\'s zone: drawing it out."), N('{0} did not follow: out of the zone, another try.'),
+  N("{0} does not leave the immobile alien\'s zone: left alone for a while."), N("{0} is inside an immobile alien\'s zone: HP too low to draw it out.")];
 const PIL_QKIND = { q_kill: N('aliens to destroy'), q_visit: N('a map to visit'), q_giver: N('back to the quest giver'),
   q_point: N('a point to reach'), q_travel: N('a distance to fly'), q_stay: N('time to spend on a map'), q_boxes: N('bonus boxes to collect'),
   q_ore: N('ore to collect'), q_grind: N('any aliens to destroy'), q_gate: N('a galaxy gate'), q_pvp: N('enemy pilots'),

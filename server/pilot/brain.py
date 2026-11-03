@@ -19,7 +19,7 @@ really flown around the walls (a near one behind a wall comes after a farther on
 and a point the ship cannot fly straight to costs more.
 Immobile aliens (Mindfire Behemoth, Invoke XVI: 'static'; snapshot 'statics', their firing range plus the margin): always a threat zone, not
 fought in. A target that can be fired at from outside its zone is (kite_point keeps out of it); one deep inside needs a lure
-(tasks/lure.py), only with the HP at LURE_HP or more, and comes after the others."""
+(tasks/lure.py), only when can_lure (HP and the immobile alien's shots), and comes after the others."""
 import math, random
 
 EDGE = 400                  # keep this far from the map edge (radiation)
@@ -28,6 +28,7 @@ DANGER_W, PATH_W = 4000, 1500   # a point's score: its depth in threat zones and
 PRIORITY_W = 4000           # a priority alien counts as this much closer than it is
 WAY_CHECK = 6               # on a map with walls: the distance flown around them is worked out for this many best candidates
 LURE_HP = 70                # % HP: below it the ship does not go into an immobile alien's zone to draw a target out
+LURE_HITS = 4               # a lure only if HP + shield take this many shots of the immobile alien (Mindfire Behemoth: 145k)
 LURE_W = 6000               # a target only a lure can reach counts as this much farther
 
 
@@ -223,8 +224,7 @@ def pick_target(s, cfg):
 
     zones = s.get('statics') or ()
     if zones:                                       # inside an immobile alien's zone: from outside it, else a lure (enough HP)
-        lure_ok = hp_pct(s) >= LURE_HP
-        cand = [n for n in cand if lure_ok or not needs_lure(s, cfg, n)]
+        cand = [n for n in cand if not needs_lure(s, cfg, n) or can_lure(s, cfg, n)]
 
     def score(n, d):
         d -= PRIORITY_W if n.get('priority') else 0
@@ -254,9 +254,18 @@ def outside_spot(s, cfg, t):
     return best
 
 
+def can_lure(s, cfg, t):
+    """The ship may go into the zone around t: HP at LURE_HP or more, and HP + shield take LURE_HITS shots of every immobile alien
+    whose zone t is in."""
+    m = cfg['threat_margin']
+    hit = max((n.get('damage', 0) for n in s['npcs'] if n.get('static') and not n['allowed']
+               and dist(t['x'], t['y'], n['x'], n['y']) < n['fire_range'] + m), default=0)
+    return hp_pct(s) >= LURE_HP and s['hp'] + s.get('shield', 0) >= LURE_HITS * hit
+
+
 def needs_lure(s, cfg, t):
-    """t sits in an immobile alien's zone so deep that it cannot be fired at from outside."""
-    return in_statics(s, t['x'], t['y']) and outside_spot(s, cfg, t) is None
+    """t sits in an immobile alien's zone so deep that it cannot be fired at from outside (an immobile alien itself is never drawn out)."""
+    return not t.get('static') and in_statics(s, t['x'], t['y']) and outside_spot(s, cfg, t) is None
 
 
 def pick_box(s, cfg, thr):

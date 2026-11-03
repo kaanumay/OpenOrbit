@@ -1,9 +1,10 @@
-"""Drawing a target out of an immobile alien's firing zone (Mindfire Behemoth, Invoke XVI; brain.static_zones). A target that can be fired
-at from outside the zone is fought from there (brain.kite_point). One sitting deeper: with the HP at brain.LURE_HP or more, the ship goes
-in just as far as the target notices it or the lasers reach it (whichever is farther from the target), and once the target goes after
-the ship, flies straight out; the target follows and is fought outside. MAX_INSIDE seconds in the zone without the target following is a
-failed try (out again, PAUSE before the next); after TRIES failed tries the target is left alone for GIVE_UP seconds. Lower HP: the target
-is left alone for LOW_HP_SEC and the bot looks for another one."""
+"""Drawing a target out of an immobile alien's firing zone (Mindfire Behemoth, Invoke XVI; brain.static_zones). A target that can be fired at
+from outside the zone is fought from there (brain.kite_point). One sitting deeper: when brain.can_lure (HP at LURE_HP or more, HP + shield
+taking LURE_HITS of the immobile alien's shots), the ship goes in just as far as the target notices it or the lasers reach it (whichever
+is farther from the target), and once the target goes after the ship, flies straight out; the target follows and is fought outside.
+MAX_INSIDE seconds in the zone without the target following is a failed try (out again, PAUSE before the next); after TRIES failed tries
+the target is left alone for GIVE_UP seconds. Lower HP: the target (or a weaker ship) is left alone for LOW_HP_SEC and the bot looks for
+another one."""
 import math
 
 from .. import brain as B
@@ -31,13 +32,16 @@ def exit_point(s, x, y):
 def run(pilot, s, cfg, it, now):
     """-> True when the lure took the ship (no kiting this step), else False (the target can be fought from outside, or no zone)."""
     if not s.get('statics') or not B.needs_lure(s, cfg, it):
-        pilot.lure = None
+        if pilot.lure is not None and pilot.lure['id'] == it['id']:
+            pilot.lure['since'] = None              # at the zone's edge for now: the same lure goes on if it drifts back (one note)
+        else:
+            pilot.lure = None
         return False
     act = pilot.act
     lure = pilot.lure
     if lure is None or lure['id'] != it['id']:
         lure = pilot.lure = dict(id=it['id'], tries=0, since=None, rest=0.0)
-        if B.hp_pct(s) >= B.LURE_HP:
+        if B.can_lure(s, cfg, it):
             pilot.note('{0} is inside an immobile alien\'s zone: drawing it out.', it['name'])
     hx, hy = s['hero']
     inside = B.in_statics(s, hx, hy)
@@ -57,9 +61,9 @@ def run(pilot, s, cfg, it, now):
             pilot.note('{0} did not follow: out of the zone, another try.', it['name'])
     else:
         lure['since'] = None
-    if B.hp_pct(s) < B.LURE_HP and not inside:
+    if not B.can_lure(s, cfg, it) and not inside:
         return leave(pilot, it, now, LOW_HP_SEC, '{0} is inside an immobile alien\'s zone: HP too low to draw it out.')
-    if now < lure['rest'] or B.hp_pct(s) < B.LURE_HP:
+    if now < lure['rest'] or not B.can_lure(s, cfg, it):
         if out:
             act.move_to(out[0], out[1], now)
         return True
