@@ -695,8 +695,9 @@ def auction(y, b, now):
     import auction as MZ
     settle_bot(b, now)
     from . import playstyle as PL
-    if not PL.state(b).get('auction') or b.r.random() > 0.15:
-        return                                         # only in some sessions, and many players hardly ever (playstyle.interest)
+    browse = bool(PL.state(b).get('auction')) and b.r.random() <= 0.15      # only in some sessions, many players hardly ever (playstyle.interest)
+    if not browse and not b.k.get('auction', {}).get('bids'):
+        return                                         # an outbid bid is still defended on every round (not only when browsing)
     from . import loot as LT
     free = b.k['credits'] * (1 - PL.reserve(b)['C']) - b.clan_savings()
     if free < 3 * MZ.D.get('min_bid', 10000):
@@ -713,7 +714,7 @@ def auction(y, b, now):
         importance, lot, end, old = max(defend, key=lambda a: a[0])           # outbid: counter (returns to the window like a player)
     else:
         request = (0.6 if b.archetype == 'trader' else 0.2) * (0.5 + b.o('rivalry')) * (0.6 + 0.8 * b.o('ambition'))
-        if not candidates or b.r.random() > request:
+        if not browse or not candidates or b.r.random() > request:
             return
         weight = [a[0] ** 3 * (1 + (a[1].get('price') or 0) / 50000.0) for a in candidates]      # important and valuable lot first
         importance, lot, end, old = b.r.choices(candidates, weights=weight)[0]
