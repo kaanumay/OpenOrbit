@@ -3508,14 +3508,30 @@
    "ammunition_laser_sbl-100": 114
   },
   "full_set": {
-   "equipment_weapon_laser_lf-3": {
+   "lasers": [
+    "equipment_weapon_laser_lf-3",
+    "equipment_weapon_laser_lf-4",
+    "equipment_weapon_laser_lf-4-hp",
+    "equipment_weapon_laser_lf-4-md",
+    "equipment_weapon_laser_lf-4-pd",
+    "equipment_weapon_laser_lf-4-unstable",
+    "equipment_weapon_laser_lf-5",
+    "equipment_weapon_laser_lf-5-al",
+    "equipment_weapon_laser_lf-5-mf",
+    "equipment_weapon_laser_caucasus",
+    "equipment_weapon_laser_os-l",
+    "equipment_weapon_laser_pr-l",
+    "equipment_weapon_laser_am-l",
+    "equipment_weapon_laser_aa-1"
+   ],
+   "ammunition": {
     "ammunition_laser_lcb-10": 1,
     "ammunition_laser_mcb-25": 1,
     "ammunition_laser_mcb-50": 2
    }
   }
  },
- "_laser_colors_source": "AttackLaserRunCommand.laserColor = the \"type\" of the client's game.xml <lasers> class 0 (each has its own beam, light and sound: 0 red sound 0, 1 blue sound 9, 2 green sound 10, 3 white sound 11, 4 blue absorber sound 13, 5 \"pommes schuss\" sound 39, 8 CBO-100, 10 RB-214, 109 PIB-100, 110 A-BL, 111 RCB-140, 112 IDB-125, 113 VB-142, 114 SBL-100). Rule: wiki (darkorbit.fandom.com Battery/LF-3) and the game forum: x1-x3 red with every laser set; if all of the ship's laser slots are LF-3, x1 and x2 blue, x3 green; LF-4 and others red; x4 (UCB-100) white with every set. In the recording (LF-1 + LCB-10) laserColor 0. full_set: type by ammunition if all slots are filled with this laser.",
+ "_laser_colors_source": "AttackLaserRunCommand.laserColor = the \"type\" of the client's game.xml <lasers> class 0 (each has its own beam, light and sound: 0 red sound 0, 1 blue sound 9, 2 green sound 10, 3 white sound 11, 4 blue absorber sound 13, 5 \"pommes schuss\" sound 39, 8 CBO-100, 10 RB-214, 109 PIB-100, 110 A-BL, 111 RCB-140, 112 IDB-125, 113 VB-142, 114 SBL-100). Rule: wiki (darkorbit.fandom.com Battery/LF-3) and the game forum: x1-x3 red with every laser set; if all of the ship's laser slots are LF-3, x1 and x2 blue, x3 green; x4 (UCB-100) white with every set. In the recording (LF-1 + LCB-10) laserColor 0. full_set: type by ammunition if all slots are filled with lasers of the LF-3 tier or above (full_set.lasers, mixing allowed: e.g. LF-3 + LF-4 stays green with MCB-50; adaptation: the higher tiers keep the LF-3 effect; SL/SLL and LF-1/MP-1/LF-2 are below it).",
  "rockets": {
   "ammunition_rocket_r-310": {
    "damage": 1000,

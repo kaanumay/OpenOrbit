@@ -2854,12 +2854,13 @@ class World:
 
     def laser_color(self, ammo):
         """AttackLaserRunCommand.laserColor: the client's laser type (beam, light and sound; items.json laser_colors). If all the ship's
-        laser slots are filled with the same laser, that set's color (all LF-3: x1/x2 blue, x3 green), otherwise the ammo's (x4 white …)."""
+        laser slots hold LF-3-tier or better lasers (mixed too: LF-3 + LF-4), the full-set color (x1/x2 blue, x3 green), otherwise the ammo's (x4 white …)."""
         laser_colors = ITEMS['laser_colors']
+        full = laser_colors['full_set']
         lasers = self.lasers()
         cap = self.p.ship_row().get('laser', 0)
-        if lasers and len(lasers) >= cap and len(set(lasers)) == 1 and ammo in laser_colors['full_set'].get(lasers[0], {}):
-            return laser_colors['full_set'][lasers[0]][ammo]
+        if lasers and len(lasers) >= cap and set(lasers) <= set(full['lasers']) and ammo in full['ammunition']:
+            return full['ammunition'][ammo]
         return laser_colors['ammunition'].get(ammo, 0)
 
     def skilled_laser(self):

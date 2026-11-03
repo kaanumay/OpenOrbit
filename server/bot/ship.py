@@ -583,9 +583,10 @@ def _color(b, ammo=None):
     laser_colors = K.ITEMS['laser_colors']
     e = b.k['gear']
     c = ammo or e['ammunition']
+    full = laser_colors['full_set']
     lasers = [l for l, k in e['laser'].items() if k]
-    if len(lasers) == 1 and c in laser_colors['full_set'].get(lasers[0], {}):
-        return laser_colors['full_set'][lasers[0]][c]
+    if lasers and set(lasers) <= set(full['lasers']) and c in full['ammunition']:
+        return full['ammunition'][c]
     return laser_colors['ammunition'].get(c, 0)
 
 
