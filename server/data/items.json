@@ -4801,7 +4801,9 @@
  "shield_regen_sec": 0.04,
  "_shield_regen_source": "out of combat, 4% of the shield refills per second. Recording (referans/20261025_152841_gercek): AttributeShieldUpdateCommand steps 1,275/31,875 and 1,785/44,625 = 4%/s; fandom Shield page: 'default rate of 4% every second' (a fraction of max shield)",
  "regen_cooldown_sec": 15,
- "_regen_cooldown_source": "shield refill and the repair robot start this long after the last hit. Recording: from the last hit taken to the first shield step 15.2-16 s, repair robot (BeaconCommand repairRobotActive) 15.2-15.5 s (steps one per second); fandom Shield page: 'out of combat for at least 15 seconds'. The other combat conditions (station, teleport, lab, music, P.E.T.) are in out_of_combat_sec",
+ "_regen_cooldown_source": "shield refill starts this long after the last hit. Recording: from the last hit taken to the first shield step 15.2-16 s, repair robot (BeaconCommand repairRobotActive) 15.2-15.5 s (steps one per second); fandom Shield page: 'out of combat for at least 15 seconds'. The other combat conditions (station, teleport, lab, music, P.E.T.) are in out_of_combat_sec",
+ "repair_cooldown_sec": 5,
+ "_repair_cooldown_source": "user decision 2026-11-03: the repair robot (manual or NC-RRB-X auto) starts 5 s after the last combat; the recording showed 15 s like the shield",
  "loot_types": {
   "equipment_weapon_laser_": "net.bigpoint.darkorbit.asset.weapon.LaserType",
   "equipment_weapon_rocketlauncher_": "net.bigpoint.darkorbit.asset.weapon.HellstormLauncherType",
@@ -4823,7 +4825,7 @@
  ],
  "_damage_random_source": "recording: with 1× LF-1 (65) + LCB-10 (x1), 50–64 damage -> 65 × 0.76–1.0",
  "out_of_combat_sec": 5,
- "_out_of_combat_source": "adaptation: the combat-state window (station operations, teleport, lab shield spending, combat music, P.E.T. shield and repair); ship shield and repair robot use regen_cooldown_sec",
+ "_out_of_combat_source": "adaptation: the combat-state window (station operations, teleport, lab shield spending, combat music, P.E.T. shield and repair); ship shield uses regen_cooldown_sec, repair robot repair_cooldown_sec",
  "death_screen": {
   "portal_uridium": 500,
   "in_place_uridium": 1000,

@@ -3222,7 +3222,7 @@ class World:
         g = self.p.d['ship']
         now = time.time()
         if (not self.repair_rate() or self.hero_dead or g.get('hitPoints', 0) >= g.get('hitMax', 0)
-                or now - self.last_combat < ITEMS['regen_cooldown_sec']):
+                or now - self.last_combat < ITEMS['repair_cooldown_sec']):
             self.send([('UIItemRemoveHighlightCommand', self.repbot_highlight())])     # the failed-attempt reply in the recording
             return
         if not self.repairing:
@@ -3451,7 +3451,7 @@ class World:
             if msgs:
                 self.send(msgs)
         if (EX.has(self.p, 'auto_repair') and not self.repairing and not self.hero_dead and g.get('hitPoints', 0) < g.get('hitMax', 0)
-                and now - self.last_combat >= ITEMS['regen_cooldown_sec'] and self.repair_rate()):
+                and now - self.last_combat >= ITEMS['repair_cooldown_sec'] and self.repair_rate()):
             self.start_repair()
         for loot, cfg in EX.props(self.p, 'auto_pickup'):
             kind = cfg['type']
@@ -3493,7 +3493,7 @@ class World:
 
     def repair_tick(self, now):
         g = self.p.d['ship']
-        if self.hero_dead or now - self.last_combat < ITEMS['regen_cooldown_sec']:
+        if self.hero_dead or now - self.last_combat < ITEMS['repair_cooldown_sec']:
             self.stop_repair()
             return
         if now < self.next_repair:

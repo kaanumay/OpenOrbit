@@ -203,7 +203,7 @@ class Base:
 
     def can_repair(self, now):
         w = self.w
-        return bool(w.repair_rate()) and now - w.last_combat >= W.ITEMS['regen_cooldown_sec']
+        return bool(w.repair_rate()) and now - w.last_combat >= W.ITEMS['repair_cooldown_sec']
 
     def can_heal(self, now):
         """The ship heals here (the repair robot works now or will once out of combat)."""
