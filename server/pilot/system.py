@@ -66,10 +66,13 @@ class Pilot:
     def reset_run(self, now):
         """Everything one run of the bot (Start .. Stop) keeps."""
         self.mode = None                # the activity (see the module's docstring)
-        self.target = None
+        self.target = None              # the main target (the ship flies to it)
+        self.shot = None                # what the lasers fire at: the main target, or an alien attacking the ship on the way
         self.pause_until = 0.0
         self.view = {}                  # the last step's view for the status file (written outside the world lock)
         self.base_ammo = None           # the normal laser ammo to come back to after an RSB-75 / RCB-140 shot
+        self.sab_low = False            # the shield fell below sab.start_pct and is not back to sab.stop_pct yet
+        self.sab_prev = None            # the ammo selected before SAB-50 (None: SAB-50 is not the bot's choice)
         self.start_map = None           # the map where the bot started (the mode's map when its list is empty)
         self.unsafe = {}                # map -> until when it is avoided (enemy pilots)
         self.travel_logged = 0.0
@@ -160,9 +163,10 @@ class Pilot:
 
     def drop_target(self, only_ours=False):
         """Stop firing. only_ours: only if the bot's own target is being fired at (a manual attack of the player stays)."""
-        if self.target is not None and (not only_ours or self.act.attacking(self.target)):
+        ours = [t for t in (self.target, self.shot) if t is not None]
+        if ours and (not only_ours or any(self.act.attacking(t) for t in ours)):
             self.act.stop_attack()
-        self.target = None
+        self.target = self.shot = None
 
     def stop(self, reason, home=True):
         """Stop the bot on its own (a stop condition, death, a mode's end): with go_home it first flies to the base (tasks/stop.home)."""
@@ -267,7 +271,9 @@ class Pilot:
         if why:
             self.state, self.reason = 'paused', why
             if why == 'manual':
-                self.target = act.player_target() or self.target      # the player picked a target by hand: keep it on resume
+                pick = act.player_target()          # the player picked a target by hand: keep it on resume (not the attacker fired at)
+                if pick is not None and pick != self.shot:
+                    self.target = pick
             return
         self.state, self.reason = 'running', ''
         act.follow(now)                             # around a wall: on to the next corner
@@ -318,6 +324,8 @@ class Pilot:
             out.update(forbid=r['forbid'], aliens=QUESTS.aliens(self, int(m)) if out['hunting'] else [])
             if r['no_laser']:
                 out.update(defend=False, clear_path=False)
+            if r['no_laser'] or g.get('hidden'):
+                out['sab'] = dict(out['sab'], enabled=False)
             if r['no_rocket'] or r['no_laser']:
                 out.update(rockets=False, launcher=False)
             if r['no_death']:
@@ -434,12 +442,24 @@ class Pilot:
             TRAVEL.busy(self)
             self.box_track = None
             self.mode, self.target = 'fight', it['id']
-            act.attack(it['id'])
+            shot = B.defend_shot(s, cfg, it, self.shot, cfg['defend'])    # the main target out of range: an attacker in range meanwhile
+            leech = self.sab_target(s, cfg, it)
+            if leech is not None:                   # SAB-50: the main target in range while it has shield, else a shielded attacker in range
+                if leech['id'] != it['id']:
+                    self.track = None               # the main target takes no damage meanwhile: not a stuck target
+                fire = leech
+                self.sab_ammo()
+            else:
+                fire = shot
+                self.leave_sab()
+            self.shot = fire['id']
+            act.attack(fire['id'])
             if not LURE.run(self, s, cfg, it, now):     # deep in an immobile alien's zone: drawn out of it first
-                p = B.kite_point(s, cfg, it, B.threats(s, cfg, it['id']))
+                p = B.kite_point(s, cfg, it, B.threats(s, cfg, it['id']))    # the ship flies to the main target
                 if p:
                     act.move_to(p[0], p[1], now)
-            self.slow_ammo(d <= s['R'], now)
+            if leech is None and not self.sab_low:  # SAB-50 phase: no RSB-75 / RCB-140 until the shield is back up
+                self.slow_ammo(B.dist(hx, hy, fire['x'], fire['y']) <= s['R'], now)
             if cfg['rockets']:
                 act.fire_rocket(it['id'], d, now)
             if cfg['launcher'] and d <= s['R']:
@@ -448,6 +468,7 @@ class Pilot:
                                        shield_max=it.get('shield_max', 0), dist=int(d), range=int(s['R']))
             return
         self.drop_target()
+        self.leave_sab()
         self.track = None
         if kind == 'box':
             if self.track_box(it['hash'], B.dist(*s['hero'], it['x'], it['y']), now):
@@ -498,9 +519,56 @@ class Pilot:
         elif act.slow_fired(cur, now) or cur not in self.cfg['slow_ammo']:
             self.normal_ammo()
 
-    def normal_ammo(self):
-        """Back from RSB-75 / RCB-140 to the normal ammo (the one selected before, else the setting's)."""
+    def sab_target(self, s, cfg, it):
+        """SAB-50 (pilot.json sab): once the ship's shield falls below start_pct and until it is back to stop_pct, the alien to drain ->
+        the main target while it has shield (within laser range), else the nearest alien attacking the ship within laser range that has
+        shield; None: the normal fight (the option is off, the ship has no shield, no SAB-50 in stock, or no shielded alien around)."""
+        c = cfg['sab']
+        if not c['enabled'] or not s['shield_max'] or not self.act.has_ammo(C.SAB_AMMO):
+            self.sab_low = False
+            return None
+        pct = 100.0 * s['shield'] / s['shield_max']
+        if pct < c['start_pct'] and not self.sab_low:
+            self.sab_low = True
+            self.note('Shield low ({0} %): SAB-50 on the shielded aliens.', int(pct))
+        elif pct >= c['stop_pct'] and self.sab_low:
+            self.sab_low = False
+            self.note('Shield back to {0} %: normal ammo.', int(pct))
+        if not self.sab_low:
+            return None
+        hx, hy = s['hero']
+        if it.get('shield', 0) > 0 and B.dist(hx, hy, it['x'], it['y']) <= s['R']:
+            return it
+        ignore = cfg.get('ignore') or ()
+        near = [n for n in s['npcs'] if n['ok'] and n['engaged'] and n.get('shield', 0) > 0 and n['id'] not in ignore
+                and not n.get('forbidden') and B.dist(hx, hy, n['x'], n['y']) <= s['R']]
+        return B.nearest(near, hx, hy)
+
+    def sab_ammo(self):
+        """SAB-50 selected, remembering the normal ammo to come back to (not an RSB-75 / RCB-140 shot)."""
         act = self.act
+        cur = act.laser_ammo()
+        if cur == C.SAB_AMMO:
+            return
+        if self.sab_prev is None:
+            self.sab_prev = self.base_ammo if cur in C.SLOW_AMMO or not cur else cur
+        act.set_ammo(C.SAB_AMMO)
+
+    def leave_sab(self):
+        """Back from SAB-50 to the ammo selected before it (else the setting's), if the bot chose it."""
+        act = self.act
+        prev, self.sab_prev = self.sab_prev, None
+        if act is None or prev is None or act.laser_ammo() != C.SAB_AMMO:
+            return
+        for loot in (prev, self.cfg['laser_ammo']):
+            if loot and loot != C.SAB_AMMO and act.has_ammo(loot):
+                act.set_ammo(loot)
+                return
+
+    def normal_ammo(self):
+        """Back from SAB-50, RSB-75 / RCB-140 to the normal ammo (the one selected before, else the setting's)."""
+        act = self.act
+        self.leave_sab()
         if act is None or act.laser_ammo() not in C.SLOW_AMMO:
             return
         for loot in (self.base_ammo, self.cfg['laser_ammo']):

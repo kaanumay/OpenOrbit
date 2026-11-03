@@ -1154,7 +1154,13 @@ PILC.push({ id: 'combat', tab: 'combat', order: 10, build: () => {
       pilCheck('defend', T('Defend the work map'),
         T('On the map the mode works on (hunting, mining, the quest), fight back against the aliens attacking the ship. Off: it ignores them and goes on.'))),
     h('p', { class: 'desc', style: { marginTop: '12px' } }, T('Fire RCB-140 / RSB-75 each time their 3 s cooldown ends (RCB-140 first), then go back to the normal ammo.')),
-    h('div', { class: 'row wrap', style: { gap: '14px' } }, slowCheck('ammunition_laser_rcb-140', 'RCB-140'), slowCheck('ammunition_laser_rsb-75', 'RSB-75')));
+    h('div', { class: 'row wrap', style: { gap: '14px' } }, slowCheck('ammunition_laser_rcb-140', 'RCB-140'), slowCheck('ammunition_laser_rsb-75', 'RSB-75')),
+    h('p', { class: 'desc', style: { marginTop: '12px' } },
+      T('Below the first shield threshold, fire SAB-50 at shielded aliens (your target first, else an attacker in range) until the shield is back to the second. Needs a shield and SAB-50 in stock.')),
+    h('div', { class: 'row wrap', style: { gap: '14px', alignItems: 'center' } },
+      h('label', { class: 'pil-check' }, h('input', { type: 'checkbox', checked: !!pilGet('sab.enabled'), onchange: e => pilSet('sab.enabled', e.target.checked) }),
+        gameIcon('ammunition_laser_sab-50', 20, null, 'ammo'), h('span', null, T('Use {0}', 'SAB-50')))),
+    pilFields(field(T('Shield below (%)'), pilNum('sab.start_pct', 0, 99, 1)), field(T('Until shield at (%)'), pilNum('sab.stop_pct', 1, 100, 1))));
 } });
 
 // ------------------------------------------------------------ Support
