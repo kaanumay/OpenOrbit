@@ -25,6 +25,7 @@ points are the sum of the members' rank points).
 """
 import json, math, os, threading, time
 import game_data as DATA
+import settings as SET
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 R = DATA.load('ranks.json')            # World Editor: formula and thresholds
@@ -141,6 +142,7 @@ def rank_for(points):
 # General 3, Chief Colonel 5, Colonel 20 people; the rest by percentage (Basic Colonel 1% ... Basic Space Pilot 20%). While a bot pack is in the world
 # this ranking alone decides the rank (player request 2026-10-30; owner request 2026-11-02: no threshold ceiling, the rules apply from the first day
 # whatever the level, so the company's best pilot is Chief General even when everyone is new). Without bots, only the thresholds as before.
+# The Level Based Rank Threshold setting (off by default) brings the threshold ceiling back: capped().
 RANKING_SEC = 30
 _RANKING = {}                        # company -> (timestamp, [(points, uid)])
 _LOCAL = threading.local()        # while the account runs: community.all_() updates the bots' profiles, which asks for the rank
@@ -229,10 +231,17 @@ def points_below(p, rank, now=None):
     return others[k - 1][0] if 1 <= k <= len(others) else None      # those places are below the player: others[k - 1] holds place k
 
 
+def capped(threshold_rank, place):
+    """The rank from the threshold rank and the company place (None: no bots -> thresholds). The Level Based Rank Threshold setting brings
+    back the system before 2026-11-02 (player request 2026-11-03): the thresholds are a ceiling on the place, the smaller of the two."""
+    if place is None:
+        return threshold_rank
+    return min(threshold_rank, place) if SET.get('level_rank_threshold') else place
+
+
 def rank_of(p, points, now=None):
-    """The player's rank: while bots exist the place in the company alone (no threshold ceiling); without bots by thresholds."""
-    s = company_rank(p.user_id, int(p.d['pilot'].get('factionId') or 0), points, now)
-    return rank_for(points) if s is None else s
+    """The player's rank: while bots exist the place in the company (with the setting the thresholds as a ceiling); without bots by thresholds."""
+    return capped(rank_for(points), company_rank(p.user_id, int(p.d['pilot'].get('factionId') or 0), points, now))
 
 
 def daily_rank(p, now=None, force=False):
@@ -343,9 +352,12 @@ def ranking_points(p, now=None):
     below = R['thresholds'][rank - 2] if rank > 1 else 0
     if _bots() is not None:                             # company ranking: one must pass the pilot at that rank's boundary in the company
         rival = points_to_pass(p, rank + 1, now) if rank < len(R['thresholds']) else None
-        nxt = int(rival) + 1 if rival is not None else b['rankPoints']
-        low = points_below(p, rank - 1, now) if rank > 1 else None
-        below = int(low) if low is not None else 0
+        if SET.get('level_rank_threshold'):             # thresholds as a ceiling: the threshold too must be reached, the rank below is its threshold
+            nxt = nxt if rival is None else max(nxt, int(rival) + 1)
+        else:
+            nxt = int(rival) + 1 if rival is not None else b['rankPoints']
+            low = points_below(p, rank - 1, now) if rank > 1 else None
+            below = int(low) if low is not None else 0
     loot = p.ship()['lootId']
     out = _zero_points()
     out.update(b, yourRanking=rank, aboveRanking=min(rank + 1, 21), abovePoints=max(0, nxt - b['rankPoints']),

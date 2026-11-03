@@ -3143,5 +3143,7 @@
 "{0}d {1}h": "{0} g {1} sa",
 "{0}h {1}m": "{0} sa {1} dk",
 "{1} min left for {0}.": "{0} için {1} dk kaldı.",
-"★ rolled more often in the game": "★ oyunda daha sık çıkanlar"
+"★ rolled more often in the game": "★ oyunda daha sık çıkanlar",
+"Level Based Rank Threshold": "Seviye Bazlı Rütbe Eşiği",
+"The old rank system: your rank cannot go above the one your rank points reach on the threshold table, even when your place in the company is higher (the same applies to bots). When off, only the place among the company's pilots decides the rank, so the company's best pilot is Chief General even at a low level. Without bots the thresholds always apply.": "Eski rütbe sistemi: şirketteki sıran daha yüksek olsa bile rütben, rütbe puanlarının eşik tablosunda ulaştığı rütbeyi geçemez (botlar için de aynısı geçerli). Kapalıyken rütbeyi yalnızca şirket pilotları arasındaki sıra belirler; şirketin en iyi pilotu düşük seviyede bile Chief General olur. Bot yokken eşikler her zaman geçerlidir."
 }

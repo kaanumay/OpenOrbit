@@ -3143,5 +3143,7 @@
 "{0}d {1}h": "{0} д {1} ч",
 "{0}h {1}m": "{0} ч {1} мин",
 "{1} min left for {0}.": "До конца {0}: {1} мин.",
-"★ rolled more often in the game": "★ чаще выпадают в игре"
+"★ rolled more often in the game": "★ чаще выпадают в игре",
+"Level Based Rank Threshold": "Порог звания по уровню",
+"The old rank system: your rank cannot go above the one your rank points reach on the threshold table, even when your place in the company is higher (the same applies to bots). When off, only the place among the company's pilots decides the rank, so the company's best pilot is Chief General even at a low level. Without bots the thresholds always apply.": "Старая система званий: твоё звание не может быть выше того, которого достигают твои очки звания по таблице порогов, даже если твоё место в компании выше (то же для ботов). Если выключено, звание определяет только место среди пилотов компании, поэтому лучший пилот компании — Chief General даже на низком уровне. Без ботов пороги действуют всегда."
 }

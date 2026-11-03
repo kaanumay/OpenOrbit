@@ -3143,5 +3143,7 @@
 "{0}d {1}h": "{0} T {1} Std.",
 "{0}h {1}m": "{0} Std. {1} Min.",
 "{1} min left for {0}.": "Noch {1} Min. für {0}.",
-"★ rolled more often in the game": "★ im Spiel häufiger gezogen"
+"★ rolled more often in the game": "★ im Spiel häufiger gezogen",
+"Level Based Rank Threshold": "Levelbasierte Rangschwelle",
+"The old rank system: your rank cannot go above the one your rank points reach on the threshold table, even when your place in the company is higher (the same applies to bots). When off, only the place among the company's pilots decides the rank, so the company's best pilot is Chief General even at a low level. Without bots the thresholds always apply.": "Das alte Rangsystem: Dein Rang kann nicht über den Rang steigen, den deine Rangpunkte in der Schwellentabelle erreichen, auch wenn dein Platz in der Firma höher ist (das gilt auch für Bots). Wenn aus, entscheidet nur der Platz unter den Piloten der Firma über den Rang, sodass der beste Pilot der Firma selbst mit niedrigem Level Chief General ist. Ohne Bots gelten immer die Schwellen."
 }

@@ -3143,5 +3143,7 @@
 "{0}d {1}h": "{0} d {1} h",
 "{0}h {1}m": "{0} h {1} min",
 "{1} min left for {0}.": "Faltam {1} min para {0}.",
-"★ rolled more often in the game": "★ saem com mais frequência no jogo"
+"★ rolled more often in the game": "★ saem com mais frequência no jogo",
+"Level Based Rank Threshold": "Limite de patente por nível",
+"The old rank system: your rank cannot go above the one your rank points reach on the threshold table, even when your place in the company is higher (the same applies to bots). When off, only the place among the company's pilots decides the rank, so the company's best pilot is Chief General even at a low level. Without bots the thresholds always apply.": "O sistema de patentes antigo: a sua patente não pode passar daquela que os seus pontos de patente alcançam na tabela de limites, mesmo quando a sua posição na companhia é mais alta (o mesmo vale para os bots). Desligado, só a posição entre os pilotos da companhia decide a patente, então o melhor piloto da companhia é Chief General mesmo em nível baixo. Sem bots os limites sempre se aplicam."
 }

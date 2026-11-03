@@ -3143,5 +3143,7 @@
 "{0}d {1}h": "{0} d {1} h",
 "{0}h {1}m": "{0} h {1} min",
 "{1} min left for {0}.": "Quedan {1} min para {0}.",
-"★ rolled more often in the game": "★ salen más a menudo en el juego"
+"★ rolled more often in the game": "★ salen más a menudo en el juego",
+"Level Based Rank Threshold": "Umbral de rango por nivel",
+"The old rank system: your rank cannot go above the one your rank points reach on the threshold table, even when your place in the company is higher (the same applies to bots). When off, only the place among the company's pilots decides the rank, so the company's best pilot is Chief General even at a low level. Without bots the thresholds always apply.": "El sistema de rangos antiguo: tu rango no puede superar el que alcanzan tus puntos de rango en la tabla de umbrales, aunque tu puesto en la compañía sea más alto (lo mismo vale para los bots). Desactivado, solo el puesto entre los pilotos de la compañía decide el rango, así que el mejor piloto de la compañía es Chief General incluso con nivel bajo. Sin bots siempre se aplican los umbrales."
 }

@@ -3143,5 +3143,7 @@
 "{0}d {1}h": "{0} j {1} h",
 "{0}h {1}m": "{0} h {1} min",
 "{1} min left for {0}.": "Encore {1} min pour {0}.",
-"★ rolled more often in the game": "★ tirés plus souvent en jeu"
+"★ rolled more often in the game": "★ tirés plus souvent en jeu",
+"Level Based Rank Threshold": "Seuil de grade basé sur le niveau",
+"The old rank system: your rank cannot go above the one your rank points reach on the threshold table, even when your place in the company is higher (the same applies to bots). When off, only the place among the company's pilots decides the rank, so the company's best pilot is Chief General even at a low level. Without bots the thresholds always apply.": "L'ancien système de grades : ton grade ne peut pas dépasser celui que tes points de grade atteignent dans la table des seuils, même si ta place dans la compagnie est plus haute (de même pour les bots). Désactivé, seule la place parmi les pilotes de la compagnie décide du grade : le meilleur pilote de la compagnie est Chief General même à bas niveau. Sans bots, les seuils s'appliquent toujours."
 }

@@ -149,6 +149,11 @@ SCHEMA = [
                                                                    "time (about 2 weeks in the real game).", lo=1, hi=60, default=14, unit='days', limit=365),
     _c('booster_power', 'Booster strength', 'progress', 'The bonus of boosters (damage, HP, shield, EP, honor …) and the cap of each type. x2: a 10% damage '
                                                         'booster gives 20%.', hi=10.0, limit=100.0),
+    _b('level_rank_threshold', 'Level Based Rank Threshold', 'progress', 'The old rank system: your rank cannot go above the one your rank points '
+                                                                         'reach on the threshold table, even when your place in the company is '
+                                                                         'higher (the same applies to bots). When off, only the place among the '
+                                                                         "company's pilots decides the rank, so the company's best pilot is Chief "
+                                                                         'General even at a low level. Without bots the thresholds always apply.'),
     # ---------------------------------------------------------------- world
     _c('box_abundance', 'Bonus box abundance', 'world', 'Number of bonus boxes on the maps (event boxes included).',
        apply_mode='map', hi=10.0, limit=100.0),

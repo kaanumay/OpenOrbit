@@ -113,14 +113,13 @@ def points(bot):
 
 
 def rank(bot):
-    """The displayed rank icon (dailyRank 1-21): the position in the company (ranks.company_rank: Chief General 1 ...; no threshold
-    ceiling, owner request 2026-11-02); by thresholds only when there is no ranking."""
+    """The displayed rank icon (dailyRank 1-21): the position in the company (ranks.company_rank: Chief General 1 ...); by thresholds
+    when there is no ranking, and as a ceiling with the Level Based Rank Threshold setting (ranks.capped)."""
     import ranks as RT
     p = points(bot)
     threshold = RT.R['thresholds']
     r = max(1, min(len(threshold), sum(1 for e in threshold if p >= e)))
-    s = RT.company_rank(bot.uid, bot.company, p)
-    return r if s is None else s
+    return RT.capped(r, RT.company_rank(bot.uid, bot.company, p))
 
 
 # ------------------------------------------------------------------------------------------------------------ session and save

@@ -3143,5 +3143,7 @@
 "{0}d {1}h": "{0} d {1} godz.",
 "{0}h {1}m": "{0} godz. {1} min",
 "{1} min left for {0}.": "Zostało {1} min dla {0}.",
-"★ rolled more often in the game": "★ częściej losowane w grze"
+"★ rolled more often in the game": "★ częściej losowane w grze",
+"Level Based Rank Threshold": "Próg rangi zależny od poziomu",
+"The old rank system: your rank cannot go above the one your rank points reach on the threshold table, even when your place in the company is higher (the same applies to bots). When off, only the place among the company's pilots decides the rank, so the company's best pilot is Chief General even at a low level. Without bots the thresholds always apply.": "Stary system rang: twoja ranga nie może przekroczyć tej, którą twoje punkty rangi osiągają w tabeli progów, nawet gdy twoje miejsce w firmie jest wyższe (to samo dotyczy botów). Gdy wyłączone, o randze decyduje tylko miejsce wśród pilotów firmy, więc najlepszy pilot firmy jest Chief Generałem nawet na niskim poziomie. Bez botów progi obowiązują zawsze."
 }
