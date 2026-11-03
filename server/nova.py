@@ -26,7 +26,7 @@ import json, os, random, threading, time
 
 import inventory as INV
 import galaxy_gates as GALAXY
-from legacy_protocol import stm
+from legacy_protocol import legacy, stm
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 D = json.load(open(os.path.join(HERE, 'data', 'new_systems.json'), encoding='utf8'))['nova']
@@ -168,9 +168,10 @@ class Nova:
                 '%s %.1f%%' % (y['type'], value(y['type'], y['base'], 1)) for y in c['skills'])))
             msgs.append(stm('captain_received_s'))         # "Recruited: N.O.V.A." (not in flashres: CSTM; live test H64)
         if extra:
-            self.p.gain(uridium=extra, reason='aktion_system_back')
+            tot = self.p.gain(uridium=extra, reason='aktion_system_back')
             self.log('   N.O.V.A. roster full: %d U' % extra)
             msgs += self.m.money_msgs() if self.m else []
+            msgs.append(legacy('0|LM|ST|URI|%d|%d' % (extra, tot['uridium'])))     # the log line (the HUD alone said nothing)
         return msgs
 
     # ------------------------------------------------------------ window

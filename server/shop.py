@@ -1376,7 +1376,9 @@ class Shop:
             # It used to give only as much as there was room: Assembly's 5,000 Seprom vanished in a full cargo (user report 2026-10-24)
             t = next(k for k, v in ORES.items() if v == loot)
             if n > 0:
-                msgs += [('AttributeOreCountUpdateCommand', {'oreCountList': self.p.add_ores({t: n})}), self.ore_pack([t])]
+                msgs += [('AttributeOreCountUpdateCommand', {'oreCountList': self.p.add_ores({t: n})}), self.ore_pack([t]),
+                         ('LMCollectResourcesCommand', dict(priorityMode=mod('LogMessengerPriorityModule', priorityModeValue=0),     # the log line
+                                                            contentList=[mod('OreCountModule', oreType=mod('OreTypeModule', typeValue=t), count=n)]))]
         elif loose_item(loot):     # drone / P.E.T. design, P.E.T. gear and protocol (gate, box, Assembly, Pass): into the inventory, fitted in the hangar
             for _ in range(n):
                 iid = self.p.new_item(loot, level if PETM.level_prices(loot) else 1)
@@ -1430,6 +1432,8 @@ class Shop:
             total = self.p.add_resource(loot, n)
             if loot.startswith('resource_'):
                 msgs += self.resource_msgs(loot, total, n)
+            elif design_base(loot):     # design of a ship not owned yet (pending_designs): the box gave nothing visible (player report 2026-11-03)
+                msgs.append(legacy('0|LM|ST|LOT|%s|%d' % (loot, n)))
             if loot in LOOT.KEYS and LOOT.key_line(self.p, LOOT.KEYS[loot]):         # loot key: HUD counter
                 msgs.append(legacy(LOOT.key_line(self.p, LOOT.KEYS[loot])))
             if hidden(loot):        # invisible in the inventory, no system reads it: this reward is lost (test_odul_yollari catches it)

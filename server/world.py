@@ -2386,7 +2386,10 @@ class World:
             import event_points as OP
             return OP.add(self.p, loot.split(':', 1)[1], n, self.grant)
         cur = {'currency_credits': 'credits', 'currency_uridium': 'uridium', 'currency_experience': 'ep', 'currency_honour': 'honor'}
-        n = SET.amount(cur.get(loot, 'collecting'), n, source)                 # the panel's multipliers
+        if not LOOT.unique(loot):           # ships and designs stay at one: below x1 they rounded to 0 and the key bought nothing
+            m = SET.amount(cur.get(loot, 'collecting'), n, source)             # the panel's multipliers
+            # an opened box gives at least one item unless the multiplier is 0 (player report 2026-11-03: "sometimes we get nothing at all")
+            n = max(1, m) if source == 'box' and n > 0 and loot not in cur and SET.multiplier('collecting', source) > 0 else m
         if loot in cur:
             kw = {cur[loot]: n}
             return self.reward_msgs(self.p.gain(reason='collect_bonusbox', **kw), **kw)
