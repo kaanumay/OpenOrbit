@@ -108,7 +108,7 @@ def summary(k):
     row.append('Next station cost: about %s credits (the station share of the budget pays it).' % '{:,}'.format(need(k)))
     empty = sorted(((value(aid, k), aid) for aid in CB.ASTEROIDS if (asteroids.get(str(aid)) or {}).get('state', 'vacant') == 'vacant'), reverse=True)[:6]
     if empty:
-        row.append('Free asteroids (best first; klan_istasyon to target one): %s.' % ', '.join(
+        row.append('Free asteroids (best first; clan_station to target one): %s.' % ', '.join(
             '%s (%s)' % (CB.ASTEROIDS[aid]['name'], H.name(CB.ASTEROIDS[aid]['map'])) for _, aid in empty))
     return '\n'.join(row)
 

@@ -94,6 +94,9 @@ def prepare(y, now):
                 b.k['company'] = owner
             elif owner:
                 b.k['company'] = r.choice([f for f in (1, 2, 3) if f != owner])
+            b.k['simple_company'] = b.k['company']       # load() resets the company from the roster: kept across restarts
+        elif b.k.get('simple_company'):
+            b.k['company'] = b.k['simple_company']
         b.k['map'] = m
         b.k['gear'] = gear(m, power * r.uniform(0.85, 1.15), r)
         lv = CLASS_LEVEL.get(map_class(m), 5) + r.randint(-1, 2)

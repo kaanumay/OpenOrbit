@@ -92,13 +92,22 @@ def badge(loot, level):
 
 
 def spent(p, iid):
-    """Materials spent on the item's upgrades (recycling and Synthesis refund; the Upgrade Hour discount is not counted)."""
+    """Materials spent on the item's upgrades (recycling and Synthesis refund; the Upgrade Hour discount is not counted). Levels collected after
+    the payment was recorded (upgrade_paid) refund what was paid then; the rest is computed with the current settings."""
     k = UP_OF.get(p.d['items'].get(str(iid), ''))
-    out = {}
-    for i in range(item_level(p, iid) if k else 0):
+    lv = item_level(p, iid) if k else 0
+    rec = p.d.get('upgrade_paid', {}).get(str(iid))
+    out, start = (dict(rec['cost']), rec['levels']) if rec and rec['levels'] <= lv else ({}, 0)
+    for i in range(start, lv):
         for loot, a in row_cost(k, i).items():
             out[loot] = out.get(loot, 0) + a
     return out
+
+
+def busy(p, tid, drone=False):
+    """An upgrade (running or waiting to be collected) targets this item/drone: it must not be sold, synthesised or disassembled meanwhile, or the
+    payment is lost."""
+    return any(k.endswith('|%d' % int(tid)) and ('-drone' in k) == drone for k in p.d.get('assembly', {}).get('upgrade', {}))
 
 
 def factor(loot, level, kind):
@@ -235,8 +244,12 @@ class Upgrade:
             self.log('   upgrade: not enough materials %s (missing %s)' % (loot, miss))
             return [self.update(key, tid, now)]
         removed = INV.spend(self.p, need, reason='buy_SPECIAL', detail=key)
+        paid = {}                                        # the rows' price now (refunded later even if the old system is switched meanwhile)
+        for i in range(cur, cur + n):
+            for l, a in row_cost(key, i).items():
+                paid[l] = paid.get(l, 0) + a
         with self.p.lock:
-            self.st['%s|%d' % (key, tid)] = dict(count=n, end_time=now + secs, target=tid, level=cur + n)
+            self.st['%s|%d' % (key, tid)] = dict(count=n, end_time=now + secs, target=tid, level=cur + n, paid=paid)
             self.p.dirty = True
         self.log('   upgrade started: %s %d -> %d (%d s, %s)' % (loot, cur, cur + n, secs, need))
         return INV.update_msgs(self.m, self.p, list(need), removed) + [self.update(key, tid, now)]
@@ -255,6 +268,11 @@ class Upgrade:
         if not t:
             return [self.update(key, tid, now)]
         kind, loot, ref = t
+        if kind == 'item' and 'paid' in b:
+            before = spent(self.p, ref)
+            with self.p.lock:
+                self.p.d.setdefault('upgrade_paid', {})[str(ref)] = dict(levels=b['level'], cost={
+                    l: before.get(l, 0) + b['paid'].get(l, 0) for l in set(before) | set(b['paid'])})
         self.set_level(kind, ref, b['level'])
         self.p.ach('upgrade', item=loot, level=b['level'])
         RT.note(self.p, 'upgraded_item', loot, b['level'])     # logbook: log_message_upgrade_finished (%item% from info, %level%)
@@ -323,7 +341,7 @@ class Upgrade:
         if key not in DIS or not loot or loot not in DIS[key]['items']:
             self.log('   no Disassembly: %s item %s' % (key, iid))
             return [self.update(key, iid)] if key in DIS else []
-        if any(k.endswith('|%d' % iid) and (now or time.time()) < b['end_time'] for k, b in self.st.items()):
+        if busy(self.p, iid):
             self.log('   no Disassembly: item %s is being upgraded' % iid)               # forum 150401
             return [self.update(key, iid)]
         if iid in self.p.equipped_ids():

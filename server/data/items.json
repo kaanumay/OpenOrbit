@@ -6482,7 +6482,7 @@
      "threshold": 300,
      "bonus": {
       "npc": 0.05,
-      "pvp": 0.05,
+      "pvp_damage": 0.05,
       "evasion": 0.05
      },
      "cooldown_sec": 900
@@ -6491,7 +6491,7 @@
      "threshold": 375,
      "bonus": {
       "npc": 0.05,
-      "pvp": 0.15,
+      "pvp_damage": 0.15,
       "laser_hit_chance": 0.1,
       "hp": 0.1
      },

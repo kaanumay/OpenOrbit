@@ -197,10 +197,19 @@ class Assembly:
                            prevBuildCount=b['previous'])
             return mod('AssemblyRecipeReadyToCollectStatusModule', prevBuildCount=b['previous'], buildAmount=b['count'])
         left = self.limit_left(key)
+        if left != 0 and self.owns_results(key):
+            return mod('AssemblyRecipeUnavailableStatusModule', type=ALREADY_OWNS)
         if left == 0:
             kind = ALREADY_USED if T[key]['usage'] in ('USABLE_ONCE', 'USABLE_ONCE_PER_SCHEDULE') else ALREADY_USED_LIMIT
             return mod('AssemblyRecipeUnavailableStatusModule', type=kind)
         return mod('AssemblyRecipeAvailableStatusModule', currentBuildCount=self.build_count(key), isNew=key not in self.st['seen'])
+
+    def owns_results(self, key):
+        """Every unique result (ship, design, formation ...) of the recipe is already owned: building it again would burn the materials."""
+        if not self.m:
+            return False
+        unique = [l for l in T[key]['result'] if self.m.unique_loot(l)]
+        return bool(unique) and all(self.m.owned_unique(l) for l in unique)
 
     def build_count(self, key):
         """The client's "Crafting Limit: <this>/<MaxUses>" counter; reaching MaxUses locks Build. For unlimited recipes MaxUses is the maximum amount of one
@@ -251,6 +260,9 @@ class Assembly:
         if not r or key not in self.visible() or key in self.st['production']:
             self.log('   Assembly: cannot produce %s (%s)' % (key, 'no such recipe' if not r else 'in progress' if key in self.st['production'] else 'not visible'))
             return [self.update(key)] if r else []
+        if self.owns_results(key):
+            self.log('   Assembly: %s - the result is already owned' % key)
+            return [self.update(key)]
         left = self.limit_left(key)
         if left is not None:
             amount = min(amount, left)

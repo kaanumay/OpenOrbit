@@ -58,8 +58,9 @@ def maps(pilot, now):
 
 
 def leave_empty_sec(pilot):
-    m = current(pilot)
-    return pilot.cfg['travel']['leave_empty_sec'] if m == 'hunt' else pilot.cfg['mining']['leave_empty_sec'] if m == 'mining' else 0
+    m, g = current(pilot), pilot.quest_goal
+    grind = m == 'quest' and g and g['kind'] == 'grind' and pilot.quest_maps       # a grind goal rotates the Hunt travel maps
+    return pilot.cfg['travel']['leave_empty_sec'] if m == 'hunt' or grind else pilot.cfg['mining']['leave_empty_sec'] if m == 'mining' else 0
 
 
 def goal(pilot, s, now):

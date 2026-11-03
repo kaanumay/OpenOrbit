@@ -258,6 +258,8 @@ class BattlePass:
         with self.p.lock:
             st['purchased'] = True
             self.p.dirty = True
+        if n > 1:
+            self.p.add_resource(PASS_ITEM, n - 1)                    # the remaining passes are in storage (for the next Battle Pass)
         if keys:
             self.p.add_resource(KEY, keys)
         msgs = self.ticket_rewards(st['collected'])                  # forum 154610: the ticket rewards of earlier targets too

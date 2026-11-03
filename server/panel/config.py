@@ -68,7 +68,10 @@ def clean(key, v):
     if isinstance(d, bool):
         return bool(v)
     if isinstance(d, int):
-        v = int(v)
+        try:
+            v = int(v)
+        except (TypeError, ValueError):
+            raise ValueError('%s: not a number' % key)
         lo, hi = LIMITS.get(key, (v, v))
         return min(hi, max(lo, v))
     if key in ('active_save', 'client_folder'):

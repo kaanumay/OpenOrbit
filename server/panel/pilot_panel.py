@@ -72,9 +72,9 @@ def post(path, b):
             patch = b.get('config')
             if not isinstance(patch, dict):
                 raise ValueError('The settings must be an object.')
-            C.save(p, merge(cur, patch))
+            C.save(p, dict(merge(cur, patch), enabled=C.load(p)['enabled']))     # the bot may have stopped itself since cur was read
         elif path == '/api/pilot/profile':
-            C.save(p, C.profile_action(cur, b.get('action'), b.get('name')))
+            C.save(p, dict(C.profile_action(cur, b.get('action'), b.get('name')), enabled=C.load(p)['enabled']))
         elif path in ('/api/pilot/start', '/api/pilot/stop'):
             cur['enabled'] = path.endswith('/start')
             C.save(p, cur)

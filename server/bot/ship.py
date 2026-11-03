@@ -1013,6 +1013,8 @@ def think(w, n, now):
         n.hp = min(d['hp'], n.hp + d['hp'] * max(k, b.k['personality']['reaction_sec'] / rep if rep else 0))     # repair robot
     nx, ny = n.mover.pos(now)
     b.k['x'], b.k['y'] = int(nx), int(ny)
+    if b.__dict__.get('exit_request') and now < b.session_end:
+        b.exit_request = b.logout_ready = None           # the session was extended / the bot came back online: stale request
     if b.__dict__.get('exit_request') and not any(now - t < 6 for t in n.attacker.values()):
         return go_logout(w, n, now)                     # session over: flies to the station or portal and leaves there
     if getattr(n, 'shelter', None) is not None and sheltering(w, n, now, d):
@@ -1709,7 +1711,8 @@ def recover(w, n, now, d):
     s = w.station
     nx, ny = n.mover.pos(now)
     if s and s.get('type') == b.company and math.hypot(s['posX'] - nx, s['posY'] - ny) < 4000:
-        return rest(w, n, now)
+        rest(w, n, now)
+        return True
     _stop(w, n, now)
     n.next_think = now + random.uniform(2, 4)
     return True

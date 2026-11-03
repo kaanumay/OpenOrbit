@@ -1390,7 +1390,7 @@ class Session:
             with CO.COND:
                 y.session, y.last = None, time.time()
                 if y.finished:
-                    CO.LOCAL_PLAYERS.pop(y.session, None)
+                    CO.LOCAL_PLAYERS.pop(y.token, None)
 
     def payment_click(self):
         """The client's payment button (payment.Listener: connected to 127.0.0.1:443): the shop opens at Extras, the product is written on screen."""

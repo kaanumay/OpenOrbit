@@ -653,7 +653,10 @@ class Brain:
                 backup = job.get('backup')
                 if backup:
                     with self.y.lock:
-                        backup()
+                        try:
+                            backup()
+                        except Exception:
+                            self.log('   bots: could not run the job backup: ' + traceback.format_exc(limit=3))
 
     def ask(self, user, schema, max_count=220, temperature=0.85, system=None):
         self.stats['request'] += 1
@@ -895,7 +898,7 @@ class Brain:
         schema = {'type': 'object', 'properties': {'text': {'type': 'string', 'maxLength': 90},
                                                  'channel': {'type': 'string', 'enum': ['whisper', 'company', 'global', 'none']}},
                 'required': ['text', 'channel']}
-        who = o.get('killer') or o.get('name') or ''
+        who = '' if o['type'] == 'i_killed_boss' else (o.get('killer') or o.get('name') or '')      # a boss alien is no one to whisper to
         k = ('You are %s.\n%s\nThis just happened: you %s.\nDo you type something about it? channel: whisper = private message to %s, '
              'company = company chat, global = global chat, none = say nothing (often the most realistic). text: one short line.') % (
             b.name, persona(b, y), event_text(o), who or '-')

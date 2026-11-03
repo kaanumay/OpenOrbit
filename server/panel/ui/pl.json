@@ -2187,6 +2187,7 @@
 "Server and logs": "Serwer i dzienniki",
 "Server full": "Serwer pełny",
 "Server full (at most %d guests).": "Serwer pełny (najwyżej %d gości).",
+"Another join was in progress: join again.": "Trwało inne dołączanie: dołącz ponownie.",
 "Server full (at most %s guests).": "Serwer pełny (najwyżej %s gości).",
 "Server has room": "Na serwerze jest miejsce",
 "Server is restarting.": "Serwer jest restartowany.",
@@ -3287,5 +3288,7 @@
 "mines to lay": "miny do postawienia",
 "Build budget (U)": "Budżet budowy (U)",
 "Leave the gate at (lives, 0: never)": "Opuść bramę przy (życia, 0: nigdy)",
-"The gate's lives fell to the limit set: the gate is kept for later.": "Życia bramy spadły do ustawionego limitu: brama zostaje na później."
+"The gate's lives fell to the limit set: the gate is kept for later.": "Życia bramy spadły do ustawionego limitu: brama zostaje na później.",
+"The file is not a valid zip.": "Plik nie jest prawidłowym archiwum zip.",
+"The save folder is in use by another program; close it and try again.": "Folder zapisu jest używany przez inny program; zamknij go i spróbuj ponownie."
 }

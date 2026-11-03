@@ -2187,6 +2187,7 @@
 "Server and logs": "Servidor e logs",
 "Server full": "Servidor cheio",
 "Server full (at most %d guests).": "Servidor cheio (no máximo %d convidados).",
+"Another join was in progress: join again.": "Outra entrada estava em andamento: entre novamente.",
 "Server full (at most %s guests).": "Servidor cheio (no máximo %s convidados).",
 "Server has room": "O servidor tem vaga",
 "Server is restarting.": "O servidor está reiniciando.",
@@ -3287,5 +3288,7 @@
 "mines to lay": "minas a colocar",
 "Build budget (U)": "Orçamento de construção (U)",
 "Leave the gate at (lives, 0: never)": "Sair do portal com (vidas, 0: nunca)",
-"The gate's lives fell to the limit set: the gate is kept for later.": "As vidas do portal caíram até ao limite definido: o portal fica guardado para depois."
+"The gate's lives fell to the limit set: the gate is kept for later.": "As vidas do portal caíram até ao limite definido: o portal fica guardado para depois.",
+"The file is not a valid zip.": "O arquivo não é um zip válido.",
+"The save folder is in use by another program; close it and try again.": "A pasta do save está em uso por outro programa; feche-o e tente novamente."
 }

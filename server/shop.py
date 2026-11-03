@@ -208,6 +208,7 @@ REASONS = {
     'prerequisite': ('The prerequisites for the next level of this skill are not met.', 'Bu yeteneğin sonraki seviyesinin ön koşulları karşılanmıyor.'),
     'same_module': ('Only one module of each type (Damage, HP, Shield, Special) can be equipped on a ship.',
                    'Bir gemiye her türden (hasar, can, kalkan, özel) yalnız bir modül takılabilir.'),
+    'upgrading': ('This item is being upgraded. Collect the upgrade first.', 'Bu eşya yükseltiliyor; önce yükseltmeyi teslim al.'),
     'qfc_sale': ('Quantum Fluid Cores cannot be sold. You can recycle them in the Hyperforge (Assembly).',
                   "Quantum Fluid Core satılamaz; Hyperforge'da (Assembly) geri dönüştürebilirsin."),
     'rh_bond_duration': ('Returnees must bond with an active player within 24 hours of logging in.',
@@ -1531,6 +1532,9 @@ class Shop:
                 if iid in equipped:
                     self.log('   no sale: %s is fitted' % loot)
                     return fail('equipped_sale')
+                if UPG.busy(self.p, iid):
+                    self.log('   no sale: %s is being upgraded' % loot)
+                    return fail('upgrading')
                 if loot.startswith(QF.PREFIX):                  # QFC is not sold, it is recycled at the Hyperforge (official FAQ)
                     self.log('   no sale: %s (QFC)' % loot)
                     return fail('qfc_sale')
@@ -1573,6 +1577,8 @@ class Shop:
         x = self.p.drone(f.get('droneId') or 0)
         if not x or DRONES[x['lootId']].get('single'):        # Apis/Zeus are not sold (no "sellable" in the client)
             return [('HangarShipSellDroneCommand', dict(resultId=0, errorMessage=stack_msg('eqt_error_generic'), drones=self.drone_views()))]
+        if UPG.busy(self.p, x['uid'], drone=True):
+            return [('HangarShipSellDroneCommand', dict(resultId=0, errorMessage=self.reason('upgrading'), drones=self.drone_views()))]
         info = DRONES[x['lootId']]
         n = sum(1 for y in self.p.d['drones'] if y['lootId'] == x['lootId'])
         amount = int(info['prices'][min(n, len(info['prices'])) - 1] * ITEMS['sale_ratio'])

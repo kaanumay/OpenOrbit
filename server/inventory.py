@@ -111,7 +111,7 @@ def spend(p, need, reason='buy_SPECIAL', detail=''):
                 p.d['gates']['log_disk'] -= n
                 p.dirty = True
         elif loot.startswith('ammunition_'):
-            p.use_ammo(loot, n, event=False)            # already counted above as 'spend' (no double count)
+            p.use_ammo(loot, n, event=False, paid=True)   # already counted above as 'spend' (no double count)
         elif loot.startswith('tech_'):
             TECH.add(p, loot, -n)
         elif loot.startswith('ship_'):

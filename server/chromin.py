@@ -78,7 +78,7 @@ class Chromin:
             with self.p.lock:
                 self.st['period'] = CAL.period(EVENT)[0] if CAL.period(EVENT) else time.time()
                 self.p.dirty = True
-        if extra:
+        if extra and active():
             cr = int(extra * CREDITS_PER)
             tot = self.p.gain(credits=cr, reason='chromin_compensation')
             msgs += self.m.money_msgs() + [legacy('0|LM|ST|CRE|%d|%d' % (cr, tot['credits']))]

@@ -100,7 +100,7 @@ def roll(loot, rng=random):
     unstable = info['unstable']
     main = rng.choice(POOL.get(info['type'], POOL['DAMAGE']))
     vals = [[main, pick_value(unstable, main, rng)]]
-    vals += [[a, rng.randint(1, max(3, unstable['interval']['caps'][1])) / 100.0] for a in rng.sample([a for a in SECONDARY if a != main], rng.choices((0, 1, 2), (6, 3, 1))[0])]
+    vals += [[a, rng.randint(1, min(3, unstable['interval']['caps'][1])) / 100.0] for a in rng.sample([a for a in SECONDARY if a != main], rng.choices((0, 1, 2), (6, 3, 1))[0])]
     rng.shuffle(vals)                      # in the recording the main attribute may not be first (DMG-XT10: DMG_NPC last)
     pref = list(unstable.get('preference', []))
     rest = [s for s in all_ships() if s not in pref and s not in unstable.get('exclude', ())]      # ships the series does not drop on (forum 162335)

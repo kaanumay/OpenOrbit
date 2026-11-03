@@ -190,9 +190,11 @@ class Connection:
         self.srv, self.sock, self.ep = srv, sock, ep
         self.send_lock = threading.Lock()
         self.handlers = set()             # paths with a registered Message handler
+        self.joined = set()               # '/room/<class>/<name>/' rooms the server put the player in (join): only these can be registered
         self.user = None                  # sender info after authenticate()
         self.lang = None
         self.pending = []                 # announcements whose room is not registered yet (room type, text)
+        self.pending_lock = threading.Lock()
         self.history = []                  # recent message times (flood control)
         self.alive = True
 
@@ -211,6 +213,10 @@ class Connection:
                 self.sock.sendall(data)
         except OSError:
             self.alive = False
+            try:                             # the reader blocked in recv returns -> drop runs
+                self.sock.shutdown(socket.SHUT_RDWR)
+            except OSError:
+                pass
 
     def run(self):
         dec = FrameDecoder(handshake=True)
@@ -323,7 +329,10 @@ class Chat:
             return
         if t == T_REGISTER:
             if m.get('handlerType', 'Message') == 'Message' and m.get('path'):
-                c.handlers.add(m['path'])
+                if m['path'].startswith('/room/') and not self.member(c, m['path']):
+                    self.log('chat: room not joined, registration ignored %s' % m['path'])
+                else:
+                    c.handlers.add(m['path'])
                 if m['path'].startswith('/room/') and rid is not None:
                     c.send({'t': T_RESPONSE, 'requestId': rid})
                     rid = None
@@ -404,8 +413,9 @@ class Chat:
             conns = [x for x in self.conns.values() if x.user and x is not c]
         hits = [(x, p) for x in conns for p in x.handlers if p.lower() == want]
         if not hits:                       # listening under another instance id: the name itself (as with whispers)
-            room_name = '_' + want[len('/userroominvite/'):].split('_', 1)[-1]
-            hits = [(x, p) for x in conns for p in x.handlers if p.lower().startswith('/userroominvite/') and p.lower().endswith(room_name)]
+            room_name = want[len('/userroominvite/'):].split('_', 1)[-1]
+            hits = [(x, p) for x in conns for p in x.handlers if p.lower().startswith('/userroominvite/')
+                    and p.lower()[len('/userroominvite/'):].split('_', 1)[-1] == room_name]
         if not hits:
             return 'user no longer logged in'
         for x, p in hits:
@@ -431,6 +441,7 @@ class Chat:
             del self.rooms[name]
             for x in self.conns.values():
                 x.handlers.discard(self.room_path(name))
+                x.joined.discard(self.room_path(name))
         return None
 
     def room_leave(self, c, name, d):
@@ -438,11 +449,15 @@ class Chat:
         if o:
             o['members'].discard(c.user.get('id'))
         c.handlers.discard(self.room_path(name))
+        c.joined.discard(self.room_path(name))
         return None
+
+    def member(self, c, path):
+        return any(path.startswith(p) for p in c.joined)
 
     def relay(self, c, path, data):
         """The player's room message: to those listening to the room (including themselves) with the sender's info."""
-        if not c.user or not path.startswith('/room/'):
+        if not c.user or not path.startswith('/room/') or not self.member(c, path):
             return
         msg = str(data.get('msg', ''))[:500]
         if not msg:
@@ -472,8 +487,8 @@ class Chat:
             conns = [x for x in self.conns.values() if x.user and x is not c]
         hits = [(x, p) for x in conns for p in x.handlers if p.lower() == want]
         if not hits:                       # listening under another instance id (InstanceID): the name itself
-            room_name = '_' + want[len('/whisper/'):].split('_', 1)[-1]
-            hits = [(x, p) for x in conns for p in x.handlers if p.startswith('/whisper/') and p.lower().endswith(room_name)]
+            room_name = want[len('/whisper/'):].split('_', 1)[-1]
+            hits = [(x, p) for x in conns for p in x.handlers if p.startswith('/whisper/') and p.lower()[len('/whisper/'):].split('_', 1)[-1] == room_name]
         if not hits and c.user and msg and self.bot_whisper_hook is not None and                 self.bot_whisper_hook(want[len('/whisper/'):].split('_', 1)[-1].rstrip('/'), msg, dict(c.user)):
             self.log('chat: whisper -> bot %s: %s' % (path, msg))       # recipient is a bot (bot/chat_engine.incoming_whisper)
             if rid is not None:
@@ -494,10 +509,10 @@ class Chat:
 
     def bot_whisper(self, recipient, msg, ep, user):
         """A bot whispers to a player: to the connections listening to the recipient's own whisper path (like whisper delivery) -> did it arrive."""
-        room_name = '_' + str(recipient).lower() + '/'
+        room_name = str(recipient).lower() + '/'
         with self.lock:
             hits = [(x, p) for x in self.conns.values() if x.user for p in x.handlers
-                    if p.startswith('/whisper/') and p.lower().endswith(room_name)]
+                    if p.startswith('/whisper/') and p.lower()[len('/whisper/'):].split('_', 1)[-1] == room_name]
         for x, p in hits:
             x.send({'t': T_MESSAGE, 'path': p, 'data': {'msg': str(msg)[:500], 'sentAt': str(int(time.time() * 1000))},
                     'endpointObject': {'path': '/endpoint/%s/' % ep, 'endpoint': ep, 'data': user}})
@@ -529,6 +544,7 @@ class Chat:
         return True
 
     def join(self, c, room_type, room_class, name):
+        c.joined.add('/room/%s/%s/' % (room_class, name))
         c.send({'t': T_MESSAGE, 'path': c.path + 'changePredefinedRoom/',
                 'data': {'roomType': room_type, 'roomClass': room_class, 'newRoomName': name},
                 'endpointObject': {'path': c.path, 'endpoint': c.ep, 'data': {}}})
@@ -549,6 +565,7 @@ class Chat:
             for c in self.conns.values():
                 if c.user and c.user.get('id') == who:
                     c.handlers = {p for p in c.handlers if not p.startswith(prefix)}
+                    c.joined.discard(prefix)
 
     def update_user(self, who=None, **kw):
         with self.lock:
@@ -564,11 +581,16 @@ class Chat:
         with self.lock:
             conns = [x for x in self.conns.values() if x.user and who in (None, x.user.get('id'))]
         for c in conns:
-            c.pending.append((room_type, text))
+            with c.pending_lock:
+                c.pending.append((room_type, text))
             n += self.flush(c)
         return n
 
     def flush(self, c):
+        with c.pending_lock:
+            return self._flush(c)
+
+    def _flush(self, c):
         sent, keep = 0, []
         for room_type, text in c.pending:
             paths = [p for p in c.handlers if p.startswith('/room/%s/' % room_type)]

@@ -631,7 +631,7 @@ class Items:
         if any(m['loot'] == loot and math.hypot(m['x'] - x, m['y'] - y) < M['stack_distance'] for m in mines):
             self.send([stm('msg_no_mine_stacking')])
             return
-        if len(mines) >= M['map_limit']:
+        if sum(1 for m in mines if not m.get('area')) >= M['map_limit']:      # 5-1/5-3 minefield mines do not count
             self.send([stm('msg_map_too_many_mine')])
             return
         p.use_ammo(loot, 1)
@@ -1275,7 +1275,7 @@ class Items:
             elif pool and random.random() < r.get('look_chance', 1.0):              # during the event a 30% chance of an event design (wiki)
                 model = str(random.choice(pool))
             else:
-                model = str(random.choice(sorted(models - {int(n.model)})))
+                model = str(random.choice(sorted(models - {int(n.model) if str(n.model).isdigit() else None})))
             vis = lambda on: [('VisualModifierCommand', dict(userId=uid, modifier=25, attribute=0, additionalAttribute=model, count=0,
                                                              activated=on))]
             self.send(vis(True))
@@ -1396,7 +1396,7 @@ class Items:
             self.send([jcpu_list(p), vouchers_msg(p)])
         elif cmd == 'S' and len(parts) > 2 and parts[2].isdigit():
             m = int(parts[2])
-            ok = (has_ajp(p) and m != w.map_id and m in H.NAMES and jump_allowed('equipment_extra_cpu_ajp-01', m)
+            ok = (has_ajp(p) and m != int(w.map_id) and m in H.NAMES and jump_allowed('equipment_extra_cpu_ajp-01', m)
                   and jump_allowed('equipment_extra_cpu_ajp-01', w.map_id) and not ajp_locked(p, m))
             price = ajp_price(p, m, w.map_id) if m in H.NAMES else 0
             self.ajp_target = m if ok else None

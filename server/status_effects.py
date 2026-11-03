@@ -31,14 +31,9 @@ class Effects:
         return e
 
     def get(self, kind, now=None):
-        """Ongoing effects (expired ones are pruned)."""
+        """Ongoing effects (expired ones stay until expired() reports them: the player's speed is recalculated there)."""
         now = now or time.time()
-        lst = [e for e in self.d.get(kind, []) if now < e['end_time']]
-        if lst:
-            self.d[kind] = lst
-        else:
-            self.d.pop(kind, None)
-        return lst
+        return [e for e in self.d.get(kind, []) if now < e['end_time']]
 
     def remove(self, kind=None, source=None):
         for k in ([kind] if kind else list(self.d)):
@@ -53,7 +48,11 @@ class Effects:
         for k in list(self.d):
             if any(now >= e['end_time'] for e in self.d[k]):
                 out.add(k)
-                self.get(k, now)
+                lst = self.get(k, now)
+                if lst:
+                    self.d[k] = lst
+                else:
+                    self.d.pop(k, None)
         return out
 
     # ------------------------------------------------------------ combined values

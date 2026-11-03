@@ -2187,6 +2187,7 @@
 "Server and logs": "Sunucu ve günlükler",
 "Server full": "Sunucu dolu",
 "Server full (at most %d guests).": "Sunucu dolu (en çok %d misafir).",
+"Another join was in progress: join again.": "Başka bir katılma sürüyordu: yeniden katıl.",
 "Server full (at most %s guests).": "Sunucu dolu (en çok %s misafir).",
 "Server has room": "Sunucuda yer var",
 "Server is restarting.": "Sunucu yeniden başlatılıyor.",
@@ -3287,5 +3288,7 @@
 "mines to lay": "döşenecek mayınlar",
 "Build budget (U)": "İnşa bütçesi (U)",
 "Leave the gate at (lives, 0: never)": "Kapıdan çık (can, 0: hiç)",
-"The gate's lives fell to the limit set: the gate is kept for later.": "Kapının canı belirlenen sınıra indi: kapı sonraya saklandı."
+"The gate's lives fell to the limit set: the gate is kept for later.": "Kapının canı belirlenen sınıra indi: kapı sonraya saklandı.",
+"The file is not a valid zip.": "Dosya geçerli bir zip değil.",
+"The save folder is in use by another program; close it and try again.": "Kayıt klasörü başka bir program tarafından kullanılıyor; onu kapatıp tekrar dene."
 }

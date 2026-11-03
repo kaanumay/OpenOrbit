@@ -621,7 +621,7 @@ class World:
             if self.running and not self.hero_dead and not self.jumping and self.on_jump:
                 self.jumping, self.attacking, self.target = True, False, None
                 self.send([('JumpInitiatedCommand', {'mapId': g['target'], 'gateId': g['gateId']})])
-                self.later(H.JUMP_DELAY_SEC, lambda: self.on_jump(g['target'], g))
+                self.later(H.JUMP_DELAY_SEC, lambda: self.hero_dead or self.on_jump(g['target'], g))
         self.later(delay, go)
 
     def schedule(self, delay, kind, value=None):
@@ -1169,7 +1169,9 @@ class World:
             m = {'npc': [], 'bonus_boxes': 0}     # let the loop run anyway: portals, repair, shield
         with self.lock:
             self.load_assets()            # before spawning: quest giver DMZs keep aliens from spawning there (zone_circles)
-            joined = bool(self.shared and self.shared.members)      # another player on the shared map: the aliens, boxes, ores are theirs too
+            joined = bool(self.shared and (self.shared.members or self.shared.starting))      # another player on the shared map: the aliens, boxes, ores are theirs too
+            if self.shared:
+                self.shared.starting.add(self)
             restored = joined or self.restore_state()
             for g in ([] if restored else m['npc']):
                 for _ in range(SET.count('npc_count', g['count'], 'map')):
@@ -1209,6 +1211,7 @@ class World:
         with self.lock:
             if self.shared:
                 self.shared.killer(self)
+                self.shared.starting.discard(self)
             self.check_gates(time.time())     # if it spawned at a portal, jumping should be possible right away
         RUNNING.add(self)
         threading.Thread(target=self.loop, daemon=True).start()
@@ -1222,6 +1225,9 @@ class World:
         BG.detach(self)                        # bot ships are not stored with the map state
         with self.lock:
             self.particle.clear()
+            for o in self.ores.values():           # a harvest cut short: the ore is free again (and stored)
+                if o.get('busy') == (self.hid or True):
+                    o['busy'] = False
         if self.shared is None:
             self.save_state()
         elif not self.shared_released:            # shared map: the last one to leave stores the state (WORLD_CACHE), the containers are emptied
@@ -1426,7 +1432,7 @@ class World:
                                                              hash=h)), legacy('0|A|STM|loadfull')] + self.p.hint(IP.FULL_CARGO))
                 self.log('   cargo full')
                 return
-            o['busy'] = True
+            o['busy'] = self.hid or True               # who harvests it: freed in stop() if the timer never runs
             self.send(pre + [self.beam_msg()])           # collection beam (recording: SLA right after HarvestRequest)
             self.later(ORE['harvest_sec'], lambda: self.finish_harvest(h))
 
@@ -1720,7 +1726,7 @@ class World:
             self.send([('JumpInitiatedCommand', {'mapId': g['target'], 'gateId': g['gateId']})])
             self.log('   portal %d: %s -> %s jump started' % (g['gateId'], H.name(self.map_id), H.name(g['target'])))
             if self.on_jump:
-                self.later(H.JUMP_DELAY_SEC, lambda: self.on_jump(g['target'], g))
+                self.later(H.JUMP_DELAY_SEC, lambda: self.hero_dead or self.on_jump(g['target'], g))     # died in the countdown: no jump
             return True
 
     def resend(self):
@@ -2314,6 +2320,7 @@ class World:
                     loss = min(int(n.shield), want)
                     taken = to_shield if loss >= want else int(round(loss / kh))
                     dmg, to_shield = dmg - taken + loss, loss
+            had = n.hp + n.shield
             n.shield -= to_shield
             n.hp = max(0, n.hp - (dmg - to_shield))
             floor = getattr(n, 'hp_floor', 0)                    # Ö4: Guardian "falls" at 1 HP (phase 1-3)
@@ -2322,7 +2329,7 @@ class World:
                 if getattr(n, 'at_floor', None):
                     n.at_floor(n)
             if dmg > 0 and getattr(n, 'damage_hook', None):      # Ö4: the fight's damage counter (progress rewards)
-                n.damage_hook(dmg)
+                n.damage_hook(dmg if getattr(n, 'count_overkill', False) else max(0, int(had - n.hp - n.shield)))      # dealt damage, not the requested one (an indestructible tower counts it all)
             if dmg > 0 and not attacker:                          # a player bot is a player: DAMAGE_PLAYERS quests, "don't damage players"
                 if n.bot is not None:
                     self.p.ach('damage_player', count=dmg)
@@ -3469,7 +3476,7 @@ class World:
             if now < self.auto_wait.get(kind, 0):
                 continue
             if kind == 'fuel':
-                if self.pet and self.pet.owned and self.pet.d['fuel'] < cfg['threshold']:
+                if self.pet and self.pet.owned and self.pet.active and self.pet.d['fuel'] < cfg['threshold']:
                     self.auto_wait[kind] = now + 10
                     self.pet.buy_fuel(cfg['count'])
                 continue
@@ -3816,7 +3823,7 @@ class World:
 
     def hero_death(self, msgs, killer=None, cause=None, note=None, source_player=None):
         """The player died: explosion + death screen (KillScreenPostCommand). The player respawns when they pick a repair on the screen (kill_screen_repair)."""
-        self.hero_dead = True
+        self.hero_dead, self.jumping = True, False
         try:
             hx, hy = self.hero_pos()
             BG.witness(self, 'player_died', hx, hy, name=self.p.d['pilot'].get('userName', ''),
@@ -4393,8 +4400,9 @@ class World:
     def step(self, now):
         """One step of the loop (0.1 s; under the world lock): timers, view, aliens, boxes … The measuring tool
         (tools/performance.py) calls it without a thread."""
-        due = [t for t in self.timers if t[0] <= now]
-        self.timers = [t for t in self.timers if t[0] > now]
+        self.timers, timers = [], self.timers       # later() from a packet thread appends to one of the two lists, never lost
+        due = [t for t in timers if t[0] <= now]
+        self.timers.extend(t for t in timers if t[0] > now)
         for _, fn in due:
             try:                               # if one fails, the other timers in the same step must not be lost
                 fn()

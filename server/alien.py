@@ -148,7 +148,7 @@ class Abilities:
         n.ab.pop('hidden', None)                                  # Emperor Lordakium is found: the refill stops
         for i, c in enumerate(n.behavior.get('summon_at_hp_threshold', [])):
             key = 'esik_%d' % i
-            if key not in n.ab and n.hp <= n.d['hp'] * c['ratio']:
+            if key not in n.ab and 0 < n.hp <= n.d['hp'] * c['ratio']:
                 n.ab[key] = now
                 self.summon(n, c['type'], c['count'], now)
         t = n.behavior.get('reverse_controls') if to_player else None

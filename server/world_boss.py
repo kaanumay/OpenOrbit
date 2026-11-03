@@ -229,6 +229,12 @@ class WorldBoss:
             import vortex
             vortex.send_home(self, world)                  # window closed (spawned on this map at login): to base
             return []
+        if time.time() < self.st.get('done_end', 0):          # the Fortress already fell / escaped in this window: no second fight
+            self.saved = None
+            world.send([GALAXY.screen('The battle in Treacherous Domain is over for this window.')])
+            import vortex
+            vortex.send_home(self, world)
+            return []
         s = self.saved if self.saved and time.time() < self.saved['end'] else None
         self.saved = None
         if s:
@@ -241,6 +247,12 @@ class WorldBoss:
         self.run = WbRun(self, world, a, b, restore=s)
         world.gate = self.run
         return self.run.enter_msgs()
+
+    def mark_done(self, end):
+        """The battle ended (Fortress killed or escaped): it is not restarted when re-entering until this window ends."""
+        with self.p.lock:
+            self.st['done_end'] = end
+            self.p.dirty = True
 
     def on_kill(self, w, npc, x, y):
         if self.run and self.run.w is w:
@@ -724,6 +736,7 @@ class WbRun:
                 w.later(D.get('harbinger_respawn_sec', 20), lambda: self.phase == 'prep' and self.spawn_harbingers(1))
         elif self.fortress and npc.id == self.fortress.id:
             self.phase, self.ended = 'finished', 'death'
+            self.m.mark_done(self.end)
             self.close_at = min(self.end, time.time() + D['closing_sec'])
             for loot, n in D['last_hit']['rewards']:
                 msgs += self.m.m.prize(loot, n)
@@ -758,6 +771,7 @@ class WbRun:
     def escape(self):
         w, f = self.w, self.fortress
         self.phase, self.ended = 'finished', 'escape'
+        self.m.mark_done(self.end)
         self.close_at = min(self.end, time.time() + D['closing_sec'])
         msgs = [legacy('0|A|STM|log_msg_worldboss_boss_escape')]
         if f and f.alive:

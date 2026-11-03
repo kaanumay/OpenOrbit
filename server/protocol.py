@@ -221,8 +221,8 @@ def decode_message(payload):
     try:
         _steps(buf, m['steps'], out, 0)
         err = None
-    except DecodeError as e:
-        err = str(e)
+    except (DecodeError, ValueError, OverflowError, RecursionError) as e:     # NaN/inf in an int field, a self-nested module
+        err = str(e) or type(e).__name__
     return mid, m['name'].split('.')[-1], out, buf.left, err
 
 

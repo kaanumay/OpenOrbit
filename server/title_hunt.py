@@ -187,7 +187,7 @@ class TitleHunt:
         msgs = []
         for tid in self.held():
             t = self.st['titles'][tid]
-            gained = max(0, now - t['start']) / 60.0
+            gained = min(HOLD_MAX, max(0, now - t['start'])) / 60.0    # offline time between logout and login is not hold time
             with self.p.lock:
                 self.st['points'] += gained
                 self.p.dirty = True

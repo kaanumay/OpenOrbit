@@ -147,7 +147,7 @@ class Apotheosis:
                 st.update(week=wk, level=1, defeats=0, participation=0, last_hit=0, damage=0)
                 self.p.dirty = True
         open_, a, b, nxt = window(now)
-        if open_ and st.get('windowed') != a:
+        if open_ and st.get('windowed') != a and st.get('state') != 'boss':      # a boss fight in progress is not reset by a new window
             with self.p.lock:
                 st.update(windowed=a, points=0, state='collecting')
                 self.p.dirty = True

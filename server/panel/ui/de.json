@@ -2187,6 +2187,7 @@
 "Server and logs": "Server und Protokolle",
 "Server full": "Server voll",
 "Server full (at most %d guests).": "Server voll (höchstens %d Gäste).",
+"Another join was in progress: join again.": "Ein anderer Beitritt lief gerade: tritt erneut bei.",
 "Server full (at most %s guests).": "Server voll (höchstens %s Gäste).",
 "Server has room": "Server hat Platz",
 "Server is restarting.": "Server wird neu gestartet.",
@@ -3287,5 +3288,7 @@
 "mines to lay": "Minen legen",
 "Build budget (U)": "Baubudget (U)",
 "Leave the gate at (lives, 0: never)": "Tor verlassen bei (Leben, 0: nie)",
-"The gate's lives fell to the limit set: the gate is kept for later.": "Die Leben des Tors sind auf das gesetzte Limit gefallen: das Tor bleibt für später."
+"The gate's lives fell to the limit set: the gate is kept for later.": "Die Leben des Tors sind auf das gesetzte Limit gefallen: das Tor bleibt für später.",
+"The file is not a valid zip.": "Die Datei ist kein gültiges ZIP.",
+"The save folder is in use by another program; close it and try again.": "Der Spielstand-Ordner wird von einem anderen Programm verwendet; schließe es und versuche es erneut."
 }

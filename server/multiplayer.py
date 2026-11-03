@@ -91,12 +91,15 @@ def is_open():
 
 
 # ------------------------------------------------------------------ guests
+USER_ID_KEYS = {'who', 'uid', 'sender_id', 'recipient_ids', 'alici_idler', 'memberId', 'newLeaderId'}
+
+
 def convert_ids(x, old, new_):
     """Replaces the player ids in the save (in place): pilot, clan news and message ('kim'), mail (sender_id, alici_idler),
-    auction, clan account (balanceUserId). Only in fields whose name is an id: money and counters are not touched."""
+    auction, clan account (balanceUserId). Only in fields that hold a player id: map, company, clan, quest ids and bids are not touched."""
     if isinstance(x, dict):
         for k, v in x.items():
-            has_id = k == 'who' or k.lower().endswith(('id', 'ids', 'idler'))
+            has_id = k in USER_ID_KEYS or k.lower().endswith(('userid', 'userids'))
             if has_id and v == old and not isinstance(v, bool):
                 x[k] = new_
             elif has_id and isinstance(v, list):
@@ -234,6 +237,8 @@ def login(body, ip, seed, server_uid, main=None):
         return refused(409, 'name', 'There is already a pilot named "%s" on the server: two players with the same name get mixed up in chat, '
                        'mail, groups and clans. Change your pilot name and join again.', d['pilot']['userName'])
     with COND:
+        if any(equal(m.key, key) and not m.finished for m in GUESTS.values()) or                 sum(1 for m in GUESTS.values() if not m.finished) >= SETTINGS['max_count'] or                 name in {_name(m.profile) for m in GUESTS.values() if not m.finished and m.profile is not None}:   # a parallel join got in first
+            return refused(409, 'busy', 'Another join was in progress: join again.')
         uid = _new_uid({server_uid} | {m.uid for m in GUESTS.values()} | {y.uid for y in LOCAL_PLAYERS.values()})
         m = Guest(secrets.token_urlsafe(18), key, uid, d['pilot']['userId'], str(body.get('address') or ''), ip)
         convert_ids(d, m.original_uid, uid)

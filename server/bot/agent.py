@@ -193,7 +193,7 @@ def observe_clan(y, b, arg):
                                        ' You can apply with apply_to_clan (clan name or tag).')
     from . import clan_management as CMG, clan_stations as CBA
     leader = k['leader'] == b.name.lower()
-    out = [CMG.info_summary(k), 'You are the LEADER: you manage everything (klan_* tools).' if leader else
+    out = [CMG.info_summary(k), 'You are the LEADER: you manage everything (clan_* tools).' if leader else
            'Your rights: %s.' % (', '.join(h for h in KL.RIGHTS if KL.right(b.profile, h)) or 'none')]
     if leader or KL.right(b.profile, 'battle_station_build'):
         out.append(CBA.summary(k))

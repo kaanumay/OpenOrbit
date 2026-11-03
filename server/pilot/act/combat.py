@@ -26,8 +26,10 @@ class Combat:
     def fire_rocket(self, uid, dist, now):
         """The selected rocket at the target once it is ready and in rocket range (World.rocket checks the rest) -> whether it went."""
         w, r = self.w, self.rocket()
-        if not r or self.p.ammo(r) <= 0 or dist > W.COMBAT['rocket_range'] or w.hero_dead or w.jumping:
+        if not r or dist > W.COMBAT['rocket_range'] or w.hero_dead or w.jumping:
             return False
+        if self.p.ammo(r) <= 0 and (CIT.special(r) or not w.other_ammo('rocket', r, 1)):
+            return False                                    # empty with nothing to switch to; otherwise World.rocket switches (autoChangeAmmo)
         if not (w.items.ready(CIT.item_cooldown(r)[0], now) if CIT.special(r) else now >= w.rocket_ready):
             return False
         w.rocket({'targetId': uid})

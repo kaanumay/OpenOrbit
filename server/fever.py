@@ -42,10 +42,27 @@ def cfg(now=None):
     return D
 
 
+def _day_slots(ts):
+    """The slots of that day (day 1 = Monday), earliest first."""
+    wd = datetime.datetime.fromtimestamp(ts).isoweekday()
+    return sorted((s for s in cfg(ts).get('days', []) if s['day'] == wd), key=lambda s: _hm(s['start']))
+
+
 def slot_for(now=None):
-    """Today's slot (day 1 = Monday) or None."""
-    t = datetime.datetime.fromtimestamp(time.time() if now is None else now)
-    return next((s for s in cfg(now).get('days', []) if s['day'] == t.isoweekday()), None)
+    """The slot running now, else today's next one, else tomorrow's first (None if there is none)."""
+    now = time.time() if now is None else now
+    t = datetime.datetime.fromtimestamp(now)
+    mins = t.hour * 60 + t.minute + t.second / 60.0
+    slots = _day_slots(now)
+    for s in slots:
+        a, b = _hm(s['start']), _hm(s['bit'])
+        if a <= mins < (b if b > a else b + 1440):
+            return s
+    later = [s for s in slots if _hm(s['start']) > mins]
+    if later:
+        return later[0]
+    tomorrow = _day_slots((t.replace(hour=12, minute=0, second=0, microsecond=0) + datetime.timedelta(days=1)).timestamp())
+    return tomorrow[0] if tomorrow else None
 
 
 def window(now=None):
@@ -58,12 +75,11 @@ def window(now=None):
         return False, 86400
     a, b = _hm(s['start']), _hm(s['bit'])
     b = b if b > a else b + 1440
+    if not any(s is x for x in _day_slots(now)):                    # tomorrow's first slot
+        return False, int((1440 - mins + a) * 60)
     if a <= mins < b:
         return True, int((b - mins) * 60)
-    if mins < a:
-        return False, int((a - mins) * 60)
-    nxt = slot_for((t.replace(hour=12, minute=0, second=0, microsecond=0) + datetime.timedelta(days=1)).timestamp())    # tomorrow
-    return False, int((1440 - mins + (_hm(nxt['start']) if nxt else 1440)) * 60)
+    return False, int((a - mins) * 60)
 
 
 def ship_matches(slot, loot):

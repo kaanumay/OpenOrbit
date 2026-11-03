@@ -42,7 +42,24 @@ class Astral:
         self.p, self.m, self.log = profile, shop, log
         self.world = None
         self.send = None               # message to the session
-        self.pending = None            # rewards awaiting a choice [lootId, level/count]
+
+    @property
+    def pending(self):
+        """Rewards awaiting a choice [lootId, level/count]; kept in the run so a relogin does not forfeit them."""
+        r = self.run
+        return r.get('pending') if r else None
+
+    @pending.setter
+    def pending(self, picks):
+        r = self.run
+        if r is None:
+            return
+        with self.p.lock:
+            if picks is None:
+                r.pop('pending', None)
+            else:
+                r['pending'] = picks
+            self.p.dirty = True
 
     @property
     def st(self):

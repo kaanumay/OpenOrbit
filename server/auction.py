@@ -332,6 +332,12 @@ class Auction:
         if INV.spend(self.p, {'currency_uridium': price}, 'buy_SPECIAL', lot['loot']) is None:
             return [('AuctionQuickBuyCommand', {'success': False, 'stack': stack_msg('not_enough_uridium')})]
         self.log('   auction instant buy: %s x%d (%d U)' % (lot['loot'], lot['count'], price))
+        old = self.bid_rec(lot, now)
+        if old:                                                      # the player's own standing bid on this lot: dropped and refunded
+            with self.p.lock:
+                self.d['bids'].pop('%s|%s' % (lot['type'], lot['loot']), None)
+                self.p.dirty = True
+            self.p.gain(credits=old['bid'], reason='auction_bookMoneyBack', detail=lot['loot'])
         msgs = self.m.reward(lot['loot'], lot['count']) if self.m else []
         return [('AuctionQuickBuyCommand', {'success': True, 'stack': stack_msg('empty')}), self.list_cmd(now)] + \
             (self.m.money_msgs() if self.m else []) + msgs
@@ -454,6 +460,11 @@ class Auction:
                     del self.d['history'][D['history_limit']:]
                 self.log('   auction lost: %s (%s %d credits; %d of the bid back)' % (loot, rname, riv, b['bid']))
                 msgs += self.mail(lot, b, 1) + self.event('lost', lot, price=riv, name=rname)
+                continue
+            if self.owned(lot):                                      # already owned by now (bought, won elsewhere): the bid is not burned
+                self.p.gain(credits=b['bid'], reason='auction_bookMoneyBack', detail=loot)
+                self.log('   auction won but already owned: %s (%d credits back)' % (loot, b['bid']))
+                msgs += self.mail(lot, b, 1)
                 continue
             pl = self.p.d['pilot']
             with self.p.lock:

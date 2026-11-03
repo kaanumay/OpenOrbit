@@ -156,8 +156,12 @@ const pilGet = path => path.split('.').reduce((o, k) => (o == null ? o : o[k]), 
 const pilSave = (values, msg = T('Saved.')) => { PIL.seq++; return act(async () => { PIL.data = await api('/api/pilot', { config: values }); }, msg); };
 const pilSet = (path, v) => { const [a, b] = path.split('.'); return pilSave(b ? { [a]: { [b]: v } } : { [a]: v }); };
 const pilNum = (path, min, max, step = 1, scale = 1) => h('input', { class: 'input num', type: 'number', min, max, step,
-  value: scale === 1 ? pilGet(path) : Math.round(pilGet(path) * scale),
-  onchange: e => { if (e.target.value !== '') pilSet(path, +e.target.value / scale); } });         // an emptied field saves nothing
+  value: scale === 1 ? pilGet(path) : Math.round(pilGet(path) * scale), 'data-pilnum': path + '|' + scale,
+  onchange: e => { if (e.target.value !== '') pilSet(path, +e.target.value / scale).then(pilNumSync); } });         // an emptied field saves nothing
+const pilNumSync = () => document.querySelectorAll('input[data-pilnum]').forEach(i => {      // the server may have adjusted a value (kite_max, resume_hp)
+  const [path, scale] = i.dataset.pilnum.split('|'), v = pilGet(path);
+  if (v != null) i.value = +scale === 1 ? v : Math.round(v * scale);
+});
 const pilCheck = (path, label, title) => h('label', { class: 'pil-check', title: title || null },
   h('input', { type: 'checkbox', checked: !!pilGet(path), onchange: e => pilSet(path, e.target.checked) }), h('span', null, label));
 const pilSelect = (path, options, cast = String) => h('select', { class: 'input', onchange: e => pilSet(path, cast(e.target.value)) },
@@ -382,11 +386,12 @@ function pilRailSession(card, s) {
       : h('p', { class: 'muted small' }, T('Press Start: the totals and their curves appear here.')));
 }
 
+const pilSig = e => JSON.stringify(e || []);       // a journal entry's identity: a new note at the cap can share the second
 function pilRailJournal(card, journal) {
-  if (card._n === journal.length && card._last === (journal[journal.length - 1] || [])[0]) return;
+  if (card._n === journal.length && card._last === pilSig(journal[journal.length - 1])) return;
   const fresh = card._n == null ? 0 : Math.max(0, journal.length - card._n);
   card._n = journal.length;
-  card._last = (journal[journal.length - 1] || [])[0];
+  card._last = pilSig(journal[journal.length - 1]);
   const fmt = t => new Date(t * 1000).toLocaleTimeString(LOC(), { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
   const line = e => typeof e[1] === 'string' && Array.isArray(e[2]) ? T(e[1], ...e[2].map(pilArg)) : String(e[1] ?? '');     // [time, template, values]
   pilFill(card, h('h3', null, icon('note'), T('Journal')),

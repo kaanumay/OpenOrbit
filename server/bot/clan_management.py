@@ -139,7 +139,7 @@ def setup_ranks(b, k, kl):
         return False
     names = [a.strip() for a in (raw(b, 'clan_ranks') or 'Officer|Veteran|Member|Recruit').split('|') if a.strip()][:4]
     if len(names) < 4:
-        names += ['Member', 'Recruit'][len(names) - 2:]
+        names += ['Officer', 'Veteran', 'Member', 'Recruit'][len(names):]
     tiers = [0, 1, 2, 3]
     if b.r.random() < 0.35:                               # some leaders do not open the senior rank
         tiers.remove(1)

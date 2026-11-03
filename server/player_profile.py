@@ -450,33 +450,37 @@ class Profile:
         with self.lock:
             if not (self.dirty or force):
                 return
-            os.makedirs(os.path.dirname(self.path), exist_ok=True)
-            # the world and the session write to the profile without a lock: if the dict's size changes while encoding ("dictionary changed size during
-            # iteration") it is retried; the file is written only when the text is complete
-            for k in range(5):
-                try:
-                    text = self._text()
-                    break
-                except RuntimeError:
-                    if k == 4:
-                        raise
-                    time.sleep(0.01)
-            tmp = self.path + '.tmp'
-            with open(tmp, 'w', encoding='utf8') as fp:
-                fp.write(text)
-                fp.flush()
-                os.fsync(fp.fileno())           # so that no half/empty profile is left in a power cut
-            # Windows: if the target file is open in another process at that moment (antivirus scanner, backup) os.replace gives "Access denied";
-            # it is retried a few times (live: a 10 s save error had dropped the session)
-            for k in range(6):
-                try:
-                    os.replace(tmp, self.path)
-                    break
-                except PermissionError:
-                    if k == 5:
-                        raise
-                    time.sleep(0.05 * (k + 1))
-            self.dirty = False
+            self.dirty = False                  # before the snapshot: a change flagged while writing stays flagged
+            try:
+                os.makedirs(os.path.dirname(self.path), exist_ok=True)
+                # the world and the session write to the profile without a lock: if the dict's size changes while encoding ("dictionary changed size during
+                # iteration") it is retried; the file is written only when the text is complete
+                for k in range(5):
+                    try:
+                        text = self._text()
+                        break
+                    except RuntimeError:
+                        if k == 4:
+                            raise
+                        time.sleep(0.01)
+                tmp = self.path + '.tmp'
+                with open(tmp, 'w', encoding='utf8') as fp:
+                    fp.write(text)
+                    fp.flush()
+                    os.fsync(fp.fileno())           # so that no half/empty profile is left in a power cut
+                # Windows: if the target file is open in another process at that moment (antivirus scanner, backup) os.replace gives "Access denied";
+                # it is retried a few times (live: a 10 s save error had dropped the session)
+                for k in range(6):
+                    try:
+                        os.replace(tmp, self.path)
+                        break
+                    except PermissionError:
+                        if k == 5:
+                            raise
+                        time.sleep(0.05 * (k + 1))
+            except BaseException:
+                self.dirty = True
+                raise
 
     # ---------------------------------------------------------------- generation
     @property
@@ -700,14 +704,15 @@ class Profile:
     def ammo(self, loot_id):
         return self.d['ammunition'].get(loot_id, 0)
 
-    def use_ammo(self, loot_id, n=1, event=True):
-        """Spend n; None if short. event=False: the 'ammo' event is not emitted (the payment of inventory.spend emits its own 'spend' event)."""
+    def use_ammo(self, loot_id, n=1, event=True, paid=False):
+        """Spend n; None if short. event=False: the 'ammo' event is not emitted (the payment of inventory.spend emits its own 'spend' event).
+        paid=True: a cost (crafting ...), taken even with infinite ammo."""
         with self.lock:
             have = self.d['ammunition'].get(loot_id, 0)
             if have < n:
                 return None
             import settings as SET
-            used = 0 if SET.get('infinite_ammo') else n     # panel: infinite ammo (not consumed)
+            used = 0 if SET.get('infinite_ammo') and not paid else n     # panel: infinite ammo (not consumed)
             self.d['ammunition'][loot_id] = have - used
             self.dirty = True
         if event:
@@ -1009,8 +1014,9 @@ class Profile:
         """A new ship (two empty configs) -> shipId. Ids are given after those in the recording."""
         with self.lock:
             g = self.d['ships']
-            sid = max(int(k) for k in g) + 1
-            hid = max(s['hangarId'] for s in g.values()) + 1
+            sid = max(self.d.get('next_ship', 0), max(int(k) for k in g) + 1)           # ids are never reused after a ship is removed
+            hid = max(self.d.get('next_hangar', 0), max(s['hangarId'] for s in g.values()) + 1)
+            self.d['next_ship'], self.d['next_hangar'] = sid + 1, hid + 1
             g[str(sid)] = {'lootId': loot_id, 'hangarId': hid, 'configs': {'1': {}, '2': {}}, 'active_config': 1, 'favorite': False,
                            'drone_config': {'1': {}, '2': {}}}
             self.dirty = True

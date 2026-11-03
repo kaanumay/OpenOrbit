@@ -315,6 +315,7 @@ def _dl_pct(st):
 
 
 _dialog_lock = threading.Lock()
+_settings_lock = threading.RLock()            # settings.json / templates read-modify-write sequences (ThreadingHTTPServer)
 
 
 def dialog(kind, **kw):
@@ -596,6 +597,11 @@ def settings_summary(values):
 
 
 def set_events(body):
+    with _settings_lock:
+        return _set_events(body)
+
+
+def _set_events(body):
     vals = game_settings()
     ev = dict(vals.get('events') or {})
     import event_calendar as CAL
@@ -1452,6 +1458,9 @@ def world_post(path, b):
     if path == '/api/world/delete':
         did = b.get('id')
         WLD.remove(did)
+        pack = BT.world_pack(did)                   # a new world reusing the id must not inherit the bot pack
+        if pack:
+            BT.assign(pack, None)
         for k in SAV.list():                        # saves whose default is this world go back to standard
             if k.get('world') == did:
                 SAV.set_meta(k['id'], world=None)
@@ -1820,6 +1829,8 @@ def h_post(path, b):
             raise Error(_('No save.'))
         if MULTI.live():
             raise Error(_("The server can't be restarted while extra clients are open: close them first."))
+        if FRD.active():
+            raise Error(_("You are on a friend's server: leave it first."))
         friend_env = FRD.host_env() if MANAGER.running() and MANAGER.friend else None       # the mode is kept (Host, multi-client)
         multi = None if friend_env else (multi_env() if (MANAGER.running() and MANAGER.multi) or multi_wanted(slot) else None)
         MANAGER.stop_servers()
@@ -1858,11 +1869,12 @@ def h_post(path, b):
         return MANAGER.foreign_ports()
     # ---- game settings
     if path == '/api/settings':
-        vals = game_settings()
-        for k, v in (b.get('values') or {}).items():
-            if k in SET.BY_KEY:
-                vals[k] = v
-        SET.write(settings_file(), vals)
+        with _settings_lock:
+            vals = game_settings()
+            for k, v in (b.get('values') or {}).items():
+                if k in SET.BY_KEY:
+                    vals[k] = v
+            SET.write(settings_file(), vals)
         write_legacy_upgrade()
         return api_settings()
     if path == '/api/settings/copy':             # another save's settings (event choices included) to the active save
@@ -1874,11 +1886,12 @@ def h_post(path, b):
         write_legacy_upgrade()
         return api_settings()
     if path == '/api/settings/reset':
-        vals = game_settings()
-        keys = b.get('keys') or list(SET.BY_KEY)
-        for k in keys:
-            vals.pop(k, None)
-        SET.write(settings_file(), vals)
+        with _settings_lock:
+            vals = game_settings()
+            keys = b.get('keys') or list(SET.BY_KEY)
+            for k in keys:
+                vals.pop(k, None)
+            SET.write(settings_file(), vals)
         write_legacy_upgrade()
         return api_settings()
     if path == '/api/settings/presets':
@@ -1887,24 +1900,27 @@ def h_post(path, b):
         preset = SET.PRESETS.get(name, {}).get('values') if name in SET.PRESETS else (user.get(name) or {}).get('values')
         if preset is None:
             raise Error(_('Preset not found.'))
-        vals = {k: v for k, v in game_settings().items() if k not in SET.BY_KEY}     # event choices stay
-        vals.update(preset)
-        SET.write(settings_file(), vals)
+        with _settings_lock:
+            vals = {k: v for k, v in game_settings().items() if k not in SET.BY_KEY}     # event choices stay
+            vals.update(preset)
+            SET.write(settings_file(), vals)
         write_legacy_upgrade()
         return api_settings()
     if path == '/api/settings/save_template':
         name = (b.get('name') or '').strip()[:40]
         if not name:
             raise Error(_('Give the template a name.'))
-        user = read_json(TEMPLATES, {})
-        vals = {k: v for k, v in game_settings().items() if k in SET.BY_KEY and v != SET.DEFAULTS[k]}
-        user[name] = {'name': name, 'description': b.get('description') or _('Your own settings'), 'values': vals}
-        write_json(TEMPLATES, user)
+        with _settings_lock:
+            user = read_json(TEMPLATES, {})
+            vals = {k: v for k, v in game_settings().items() if k in SET.BY_KEY and v != SET.DEFAULTS[k]}
+            user[name] = {'name': name, 'description': b.get('description') or _('Your own settings'), 'values': vals}
+            write_json(TEMPLATES, user)
         return api_settings()
     if path == '/api/settings/delete_template':
-        user = read_json(TEMPLATES, {})
-        user.pop(b.get('name'), None)
-        write_json(TEMPLATES, user)
+        with _settings_lock:
+            user = read_json(TEMPLATES, {})
+            user.pop(b.get('name'), None)
+            write_json(TEMPLATES, user)
         return api_settings()
     if path == '/api/events':
         return events_page(set_events(b))

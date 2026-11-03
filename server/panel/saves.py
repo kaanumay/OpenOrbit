@@ -21,6 +21,7 @@ if SERVER not in sys.path:
     sys.path.insert(0, SERVER)
 import paths as PTH  # noqa: E402
 import save_migration as SM  # noqa: E402
+import settings as SET  # noqa: E402
 from lang import t as _  # noqa: E402
 
 COMPANIES = {1: 'MMO', 2: 'EIC', 3: 'VRU'}
@@ -315,7 +316,7 @@ class Saves:
         and R-310 rocket counts; clamped to the limits. progressive: Season Pass in order from the first season. campaign: starting
         campaign ("Level N" quests, for quest.CAMPAIGN_SEC)."""
         label, pilot = (label or '').strip(), (pilot or '').strip()
-        if not re.fullmatch(r'[\w\-\.\[\]\(\) ]{3,20}', pilot, re.UNICODE):
+        if not re.fullmatch(r'(?!-)[\w\-\.\[\]\(\) ]{3,20}', pilot, re.UNICODE):
             raise SaveError(_('The pilot name must be 3-20 characters (letters, digits, spaces, - _ . [ ] ( ) ).'))
         if not label:
             raise SaveError(_('Give the save a name.'))
@@ -370,6 +371,8 @@ class Saves:
             _copy_atomic(os.path.join(src, 'profile.json'), os.path.join(dst, 'profile.json'))
             if os.path.isfile(os.path.join(src, 'web_settings.json')):
                 shutil.copy2(os.path.join(src, 'web_settings.json'), os.path.join(dst, 'web_settings.json'))
+            if os.path.isfile(os.path.join(src, 'settings.json')):
+                shutil.copy2(os.path.join(src, 'settings.json'), os.path.join(dst, 'settings.json'))
             meta = {'name': label, 'created': time.strftime('%Y-%m-%d %H:%M:%S'), 'not': _('Copied from: %s', self.meta(slot).get('name') or slot)}
             if self.meta(slot).get('world'):              # the default world (World Editor) passes to the copy
                 meta['world'] = self.meta(slot)['world']
@@ -383,7 +386,10 @@ class Saves:
             src = self.dir(slot)
             os.makedirs(self.trash, exist_ok=True)
             dst = os.path.join(self.trash, '%s_%s' % (slot, time.strftime('%Y%m%d_%H%M%S')))
-            shutil.move(src, dst)
+            try:
+                shutil.move(src, dst)
+            except OSError:                              # Windows: a file inside is open in another program
+                raise SaveError(_('The save folder is in use by another program; close it and try again.'))
             if self.cfg.get('active_save') == slot:
                 rest = self.slots()
                 self.cfg.update({'active_save': rest[0] if rest else None})
@@ -455,7 +461,11 @@ class Saves:
             raise SaveError(_('File not found.'))
         with self.lock:
             if path.lower().endswith('.zip'):
-                with zipfile.ZipFile(path) as z:
+                try:
+                    z = zipfile.ZipFile(path)
+                except zipfile.BadZipFile:
+                    raise SaveError(_('The file is not a valid zip.'))
+                with z:
                     names = [n for n in z.namelist() if not n.endswith('/')]
                     prof = [n for n in names if n.replace('\\', '/').split('/')[-1] in ('profile.json', 'profil.json')   # v1 zip: profil.json
                             and n.replace('\\', '/').count('/') <= 1]
@@ -480,13 +490,13 @@ class Saves:
                         if not nn.startswith(base):
                             continue
                         rel = _v2_slot_path(nn[len(base):])
-                        ok = rel in ('profile.json', 'web_settings.json') or re.fullmatch(r'backups/(auto|manual|before)_\d{8}_\d{6}(_\d+)?\.json',
+                        ok = rel in ('profile.json', 'web_settings.json', 'settings.json') or re.fullmatch(r'backups/(auto|manual|before)_\d{8}_\d{6}(_\d+)?\.json',
                                                                                         rel) or rel == 'backups/notes.json'
                         if ok:
                             try:
                                 d_ = json.loads(z.read(n).decode('utf8'))
                                 _write_json(os.path.join(dst, *rel.split('/')), SM.migrate_backup_notes(d_) if rel == 'backups/notes.json'
-                                            else SM.migrate_obj(d_))
+                                            else SET.clean(d_) if rel == 'settings.json' else SM.migrate_obj(d_))
                             except ValueError:
                                 pass                         # corrupt backup: skipped
             else:
@@ -515,7 +525,7 @@ class Saves:
             changed = []
             if 'pilot' in values:
                 name = str(values['pilot']).strip()
-                if not re.fullmatch(r'[\w\-\.\[\]\(\) ]{3,20}', name, re.UNICODE):
+                if not re.fullmatch(r'(?!-)[\w\-\.\[\]\(\) ]{3,20}', name, re.UNICODE):
                     raise SaveError(_('The pilot name must be 3-20 characters.'))
                 if name != pl.get('userName'):
                     pl['userName'] = name
@@ -779,6 +789,9 @@ class Saves:
             web = os.path.join(self.dir(slot), 'web_settings.json')
             if os.path.isfile(web):
                 shutil.copy2(web, os.path.join(dst, 'web_settings.json'))
+            sett = os.path.join(self.dir(slot), 'settings.json')
+            if os.path.isfile(sett):
+                shutil.copy2(sett, os.path.join(dst, 'settings.json'))
             _write_json(os.path.join(dst, 'slot.json'), {'name': label[:60], 'created': time.strftime('%Y-%m-%d %H:%M:%S'),
                                                           'not': _('From backup: %s / %s (%s)', self.meta(slot).get('name') or slot, name,
                                                                                                profile_summary(d)['pilot'])})

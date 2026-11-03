@@ -133,7 +133,7 @@ class PlutusExperiment:
         y = min(max(hy + math.sin(a) * d, 500), w.map_h - 500)
         with w.lock:
             n = w.spawn_npc_at(BEACON, x, y)
-            n.dealt = 0
+            n.dealt, n.count_overkill = 0, True
             n.damage_hook = lambda dmg, n=n: self.beacon_hit(n, dmg)
         with self.p.lock:
             self.st['last'][risk] = now

@@ -129,8 +129,8 @@ def save():
             with open(tmp, 'w', encoding='utf8') as fh:
                 fh.write(text)
             os.replace(tmp, FILE)
-        except OSError:
-            pass
+        except OSError as e:
+            print('clans.json could not be written: %r' % e)
 
 
 def _new_id():

@@ -69,6 +69,7 @@ class Map:
         self.pending, self.ore_fields = [], []
         self.next_uid = UID_BASE
         self.members = []              # worlds whose loop is running, by entry order (the first is the leader)
+        self.starting = set()          # worlds in World.start (not yet members): a second one joins their population
         self.event = None          # the calendar's map event (event_maps.MapEvents; the leader drives it)
         self.ref = 0                  # worlds holding this map (including those set up but not yet entered)
         self._owner, self._owner_at = {}, 0.0

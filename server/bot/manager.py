@@ -293,6 +293,10 @@ class Manager(ChatEngine):
         if n == 1:
             self.log('   bots: %s raised an error (skipped)\n%s' % (b.name, traceback.format_exc()))
         if n >= 10:
+            try:
+                self.exit(b, self.now)
+            except Exception:
+                self.log_error('bot_error_exit')
             b.online = False
             b.next_login = self.now + 3600
             self.on_map.get(b.game_map, set()).discard(b)
@@ -316,6 +320,8 @@ class Manager(ChatEngine):
             b.exit_request = b.logout_ready = None
             self.exit(b, now)
             return
+        if now < b.session_end and (b.__dict__.get('exit_request') or b.__dict__.get('logout_ready')):
+            b.exit_request = b.logout_ready = None          # stale (session extended)
         if b.dead_until > now:
             return
         if now >= b.next_decision:
@@ -409,6 +415,7 @@ class Manager(ChatEngine):
         b.last_abstract = now
         b.next_decision = now + b.r.uniform(2, 10)
         b.target = None
+        b.exit_request = b.logout_ready = None            # a leftover from the previous session would freeze the bot
         b.__dict__.pop('_error', None)                    # the error counter is per session (when it counted for life, every single error took the bot down for 1 hour)
         self.on_map.setdefault(b.game_map, set()).add(b)
         b._event_time = now

@@ -2187,6 +2187,7 @@
 "Server and logs": "Сервер и журналы",
 "Server full": "Сервер заполнен",
 "Server full (at most %d guests).": "Сервер заполнен (не больше %d гостей).",
+"Another join was in progress: join again.": "Шло другое подключение: подключитесь снова.",
 "Server full (at most %s guests).": "Сервер заполнен (не более %s гостей).",
 "Server has room": "На сервере есть места",
 "Server is restarting.": "Сервер перезапускается.",
@@ -3287,5 +3288,7 @@
 "mines to lay": "поставить мины",
 "Build budget (U)": "Бюджет постройки (U)",
 "Leave the gate at (lives, 0: never)": "Покинуть врата при (жизни, 0: никогда)",
-"The gate's lives fell to the limit set: the gate is kept for later.": "Жизни врат упали до заданного предела: врата сохранены на потом."
+"The gate's lives fell to the limit set: the gate is kept for later.": "Жизни врат упали до заданного предела: врата сохранены на потом.",
+"The file is not a valid zip.": "Файл не является корректным zip-архивом.",
+"The save folder is in use by another program; close it and try again.": "Папка сохранения используется другой программой; закрой её и попробуй снова."
 }

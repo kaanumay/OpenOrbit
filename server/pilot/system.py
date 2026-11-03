@@ -36,6 +36,7 @@ from .tasks import gates as GATES, travel as TRAVEL
 STEP = 0.25
 CATALOG_SEC = 10              # the panel's lists (maps, owned items) are refreshed this often
 IGNORE_SEC = 60               # a target that took no damage is left alone this long
+BOX_PROGRESS = 100            # getting this much closer to the box restarts its BOX_SEC timer
 BOX_SEC = 20                  # flying to the same box this long without taking it: the box is skipped
 BOX_IGNORE_SEC = 300
 TRAIL = 300                   # the ship's trail on the panel's map: one point a second (5 minutes)
@@ -82,7 +83,7 @@ class Pilot:
         self.quests_finished = set()    # the quests completed in this run (the 'quest' event)
         self.ignored, self.box_ignored = {}, {}         # alien id / box hash -> until when it is left alone
         self.track = None               # (target id, lowest HP + shield seen, since when): track_target
-        self.box_track = None           # (box hash, since when)
+        self.box_track = None           # (box hash, since when, shortest distance seen): track_box
         self.set_mode(None)
 
     def set_mode(self, mode):
@@ -103,6 +104,8 @@ class Pilot:
         self.act.gate_ok = lambda key: GATES.can_build(self, key)          # Quests mode: a gate it may build and play
         self.target = None
         self.track = self.box_track = None
+        self.ignored.clear()                        # alien ids / box hashes restart with every World
+        self.box_ignored.clear()
         self.empty_since = None                     # a new map: its own empty-map timer
         if not getattr(world, '_pilot_hooked', False):
             world._pilot_hooked = True
@@ -318,7 +321,7 @@ class Pilot:
             if r['no_death']:
                 out.update(flee_hp=max(out['flee_hp'], QUEST_FLEE_HP), resume_hp=max(out['resume_hp'], QUEST_RESUME_HP))
             if g['box']:
-                out['boxes'] = dict(out['boxes'], **{g['box']: True})
+                out['boxes'] = dict(out['boxes'], **{'cargo' if g['box'] == 'steal' else g['box']: True})     # stolen boxes are cargo boxes
             if g['kind'] in ('travel', 'boxes', 'ore', 'pvp'):
                 out['roam'] = True                  # a distance to fly, boxes, ore or pilots to find: the patrol is the work
             if g['kind'] == 'pvp':
@@ -374,10 +377,10 @@ class Pilot:
         self.drop_target()
         return True
 
-    def track_box(self, h, now):
-        """Flying to the same box for BOX_SEC without taking it: the box is skipped -> whether it was."""
-        if self.box_track is None or self.box_track[0] != h:
-            self.box_track = (h, now)
+    def track_box(self, h, d, now):
+        """Flying to the same box for BOX_SEC without getting closer (d: its distance): the box is skipped -> whether it was."""
+        if self.box_track is None or self.box_track[0] != h or d < self.box_track[2] - BOX_PROGRESS:
+            self.box_track = (h, now, d)
             return False
         if now - self.box_track[1] < BOX_SEC:
             return False
@@ -444,7 +447,7 @@ class Pilot:
         self.drop_target()
         self.track = None
         if kind == 'box':
-            if self.track_box(it['hash'], now):
+            if self.track_box(it['hash'], B.dist(*s['hero'], it['x'], it['y']), now):
                 return
             TRAVEL.busy(self)
             self.mode = 'box'

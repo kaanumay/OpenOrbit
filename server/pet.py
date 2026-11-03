@@ -205,6 +205,7 @@ class Pet:
         self.heat_sent, self.next_heat_msg = None, 0.0
         self.on_stats = None         # ship values again (shop.apply_stats): when the HEAT bonus changes
         profile.pet_mods = self.heat_mods
+        self.load_cooldowns()
 
     # ------------------------------------------------------------ profile
     @property
@@ -429,8 +430,9 @@ class Pet:
         if not (self.owned and self.active):
             return {}
         out = {k: v for k, v in self.heat_bonuses().items() if k != 'hp'}
-        if self.in_beacon:
-            for k, v in self.gear(self.beacon[0]).get('bonus', {}).items():
+        beacon = self.beacon
+        if self.in_beacon and beacon:
+            for k, v in self.gear(beacon[0]).get('bonus', {}).items():
                 out[k] = out.get(k, 0) + v
         return out
 
@@ -545,10 +547,34 @@ class Pet:
         self.buffs_sent = want
         return msgs
 
+    def load_cooldowns(self):
+        """Cooldown end times are kept in the pet save (d['cd']): relogging does not skip them."""
+        now = time.time()
+        cd = (self.d or {}).get('cd') or {}
+        self.ready = {int(t): r for t, r in cd.get('ready', {}).items() if r > now}
+        self.release_ready = cd.get('release_ready', 0.0)
+        self.release_wait = self.release_ready > now
+        self.csr_ready = cd.get('csr_ready', 0.0)
+        self.trade_ready = cd.get('trade_ready', 0.0)
+        self.trade_wait = self.trade_ready > now
+
+    def save_cooldowns(self, now):
+        d = self.d
+        cd = {'ready': {str(t): r for t, r in self.ready.items() if r > now}}
+        for k, v in (('release_ready', self.release_ready), ('csr_ready', self.csr_ready),
+                     ('trade_ready', self.trade_ready if self.trade_wait else 0.0)):
+            if v > now:
+                cd[k] = v
+        if d is not None and d.get('cd', {'ready': {}}) != cd:
+            with self.p.lock:
+                d['cd'] = cd
+                self.p.dirty = True
+
     def cooldown_step(self, now):
         """Cooldowns end also while the P.E.T. is in the hangar or destroyed (after a kamikaze it is always destroyed: the ready message and the
         gear's state never came until it was repaired and launched)."""
         msgs = []
+        self.save_cooldowns(now)
         if self.release_wait and now >= self.release_ready:
             self.release_wait = False
             msgs += [legacy('0|A|STM|msg_pet_heat-release-gear_cooldown_ready'),
@@ -700,7 +726,8 @@ class Pet:
             if kind == LAUNCH or (kind == TOGGLE and not self.active):
                 # in the real game a P.E.T. the player launches always comes out in passive mode: E (report 2026-10-27) and the window's Launch
                 # button (report 2026-10-28: it came out in guard mode). Relaunching on a map change (launch) keeps the gear
-                self.d['gear'] = PASSIVE
+                if not self.active:
+                    self.d['gear'] = PASSIVE
                 self.launch()
                 if self.active:
                     self.send([legacy('0|A|STM|msg_pet_activated')])     # at the player's request (not on a map change)
@@ -1324,7 +1351,7 @@ class Pet:
             self.move(nx + math.cos(a) * PET['near_distance'] * 0.8, ny + math.sin(a) * PET['near_distance'] * 0.8, self.speed() * 1.2, now)
             self.next_follow = now + 0.5
         if dist > COMBAT['laser_range']:
-            if asset and self.shooting:
+            if self.shooting:
                 self.stop_shooting()
             return True
         if now < self.next_shot:

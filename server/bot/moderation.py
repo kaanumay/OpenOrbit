@@ -129,7 +129,7 @@ def remind_rules(y, now):
     """Every so often (45-90 min) a moderator reminds the rules in global."""
     if not is_open(y) or now < y.__dict__.get('_mod_reminder', 0):
         return
-    first = '_mod_hatirlat' not in y.__dict__
+    first = '_mod_reminder' not in y.__dict__
     y._mod_reminder = now + (600 if first else 2700 + 2700 * (hash(int(now)) % 100) / 100)
     if first:
         return

@@ -420,7 +420,7 @@ def write(path, values):
     """Write the settings atomically (panel). Values equal to the default are written too: the file is the user's choice."""
     d = clean(values)
     os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
-    tmp = path + '.tmp'
+    tmp = '%s.%d.%d.tmp' % (path, os.getpid(), threading.get_ident())      # unique per writer: parallel writes must not share the file
     with open(tmp, 'w', encoding='utf8', newline='\n') as fh:
         json.dump(d, fh, ensure_ascii=False, indent=1)
     for k in range(6):                         # Windows: the game server reading it or a virus scanner can lock it for a moment

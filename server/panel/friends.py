@@ -391,5 +391,6 @@ class Friend:
                 self.log('final state of the half-finished friend session written to the save (%s)' % slot)
         except (FriendError, OSError, ValueError, TypeError) as e:
             self.log('could not close the half-finished friend session: %r' % e)
+            return                                        # unreachable: the marker stays for the next attempt
         self.m['version'] = 0
         self.saves.set_meta(slot, friend=None)

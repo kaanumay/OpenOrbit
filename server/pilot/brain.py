@@ -31,7 +31,7 @@ def threats(s, cfg, target_id):
     m = cfg['threat_margin']
     out = []
     for n in s['npcs']:
-        if n['id'] == target_id or not n['ok']:
+        if n['id'] == target_id:                    # an alien that cannot be attacked still shoots
             continue
         if n['engaged']:
             out.append((n['x'], n['y'], n['fire_range'] + m))

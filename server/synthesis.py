@@ -17,6 +17,7 @@ import json, os
 import particle as PC
 import inventory as INV
 import resonator as RS
+import upgrades as UPG
 
 D = PC.D['synthesis']
 RECIPES = {(r['target'], r['star']): r for r in D['recipes']}
@@ -86,7 +87,8 @@ class Synthesis:
 
     def free_items(self):
         eq = self.p.equipped_ids()
-        return [int(i) for i, l in sorted(self.p.d['items'].items(), key=lambda x: int(x[0])) if l in SOURCES and int(i) not in eq]
+        return [int(i) for i, l in sorted(self.p.d['items'].items(), key=lambda x: int(x[0]))
+                if l in SOURCES and int(i) not in eq and not UPG.busy(self.p, i)]       # an item under upgrade would lose its payment
 
     def inventory_cmds(self):
         items = []
