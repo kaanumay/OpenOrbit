@@ -696,7 +696,7 @@
  "emergency_repair": {
   "charge": 500,
   "hp_sec": 7500,
-  "duration_sec": 1200
+  "duration_sec": 20
  },
  "passive_repair": {
   "hp_sec": 260,

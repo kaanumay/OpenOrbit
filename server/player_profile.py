@@ -990,8 +990,32 @@ class Profile:
             self.dirty = True
             if u[1] <= 0:
                 del self.d['upgrades'][str(item)]
+                self.d.get('lab_clock', {}).pop(str(item), None)
                 return True
             return False
+
+    def lab_due(self, item, now):
+        """The engine/shield upgrade's minutes run in real time, also while the pilot is offline (player report 2026-11-04, as in the real
+        game): the minutes passed since the clock (lab_clock, saved) -> how many to spend now. The clock starts when the ore is loaded
+        (shop.upgrade) or, for an older save, at the first look."""
+        with self.lock:
+            u = self.d.get('upgrades', {}).get(str(item))
+            clock = self.d.setdefault('lab_clock', {})
+            if not u:
+                clock.pop(str(item), None)
+                return 0
+            t = clock.get(str(item))
+            if t is None:
+                clock[str(item)] = now
+                self.dirty = True
+                return 0
+            step = lab_data()['minute_sec']
+            n = int((now - t) // step)
+            if n <= 0:
+                return 0
+            clock[str(item)] = t + n * step
+            self.dirty = True
+            return min(n, u[1])
 
     def add_drone(self, loot_id):
         """A new drone (level 1, 0 points) -> drone id."""

@@ -91,6 +91,15 @@ def mod(name, **f):
 from legacy_protocol import legacy  # noqa: E402,F401  (old text protocol: legacy_protocol.py)
 
 
+def blast_damage(full, d, near, reach):
+    """The Kamikaze's damage at distance d from the blast: the nearest target (the one it went for) takes it in full, the others less the
+    farther they are, down to none at the edge (fandom Kamikaze Gear: "the primary target will take the full damage while areas around the
+    main target will take reduced damage"; player report 2026-11-04: every alien took the full damage)."""
+    if d <= near or reach <= near:
+        return full
+    return int(full * max(0.0, 1 - (d - near) / (reach - near)))
+
+
 def gear_type(t):
     return mod('PetGearTypeModule', typeValue=t)
 
@@ -1294,7 +1303,7 @@ class Pet:
         px, py = self.pos(now)
         if g == AUTO_LOOT:
             full = self.p.cargo_free() < 1
-            cands = [(h, b) for h, b in w.boxes.items() if not (full and b['tip'] in ('FROM_SHIP', 'CANDY_CARGO', 'TURKEY_CARGO')) and not b.get('keyed')
+            cands = [(h, b) for h, b in w.boxes.items() if not (full and b['tip'] in ('FROM_SHIP', 'CANDY_CARGO', 'TURKEY_CARGO') and not b.get('event')) and not b.get('keyed')
                      and w.pet_can_take(b)]
         else:
             if self.p.cargo_free() < 1:
@@ -1608,8 +1617,10 @@ class Pet:
         120/60/30 s; when it ends msg_pet_kamikaze-gear_cooldown_ready). The client shows the "Kamikaze used" message itself."""
         w, kamikaze_cfg = self.w, self.gear(KAMIKAZE)
         px, py = self.pos(now)
-        hit = [n for n in list(w.npcs.values()) if n.alive and math.hypot(n.mover.pos(now)[0] - px, n.mover.pos(now)[1] - py) <= kamikaze_cfg['range']]
-        assets = self.assets_in_blast(px, py, kamikaze_cfg['range'])
+        reach, full = kamikaze_cfg['range'], kamikaze_cfg['damage']
+        hit = [(n, math.hypot(n.mover.pos(now)[0] - px, n.mover.pos(now)[1] - py)) for n in list(w.npcs.values()) if n.alive]
+        hit = [(n, d) for n, d in hit if d <= reach]
+        assets = self.assets_in_blast(px, py, reach)
         self.charge_end = 0.0
         self.ready[KAMIKAZE] = now + kamikaze_cfg.get('cooldown_sec', 0)
         with self.p.lock:
@@ -1618,21 +1629,23 @@ class Pet:
         self.destroyed(DESTROYED_KAMIKAZE)
         self.send([('PetGearActivationChangeCommand', dict(gearType=gear_type(KAMIKAZE), active=False))])   # grey while cooling down
         self.charge_at = None
-        for n in hit:
-            w.hit_npc(n.id, kamikaze_cfg['damage'], 1, attacker=self.pid)
-        for uid in assets:
-            self.send(w.asset_targets.asset_damage(uid, kamikaze_cfg['damage'], attacker=self.pid))
-        players = 0
+        players = []
         if w.shared is not None:                    # enemy players on the shared map (player report 2026-11-02: only NPCs and bots were hit)
             import player_combat as PVP
             for o in list(w.shared.members):
                 if o is w or not o.running or o.hero_dead or o.map_id != w.map_id:
                     continue
-                ox, oy = o.hero_pos(now)
-                if math.hypot(ox - px, oy - py) <= kamikaze_cfg['range'] and not PVP.attack_error(w, o, now):
-                    PVP._hit(w, o, now, kamikaze_cfg['damage'], atype=0)      # the PvP rules and the panel's damage multiplier as for a rocket
-                    players += 1
-        self.log('   P.E.T. kamikaze: %d NPCs, %d players, %d base modules hit' % (len(hit), players, len(assets)))
+                d = math.hypot(o.hero_pos(now)[0] - px, o.hero_pos(now)[1] - py)
+                if d <= reach and not PVP.attack_error(w, o, now):
+                    players.append((o, d))
+        near = min([d for _, d in hit + players], default=0.0)
+        for n, d in hit:
+            w.hit_npc(n.id, blast_damage(full, d, near, reach), 1, attacker=self.pid)
+        for uid in assets:
+            self.send(w.asset_targets.asset_damage(uid, full, attacker=self.pid))
+        for o, d in players:
+            PVP._hit(w, o, now, blast_damage(full, d, near, reach), atype=0)      # the PvP rules and the panel's damage multiplier as for a rocket
+        self.log('   P.E.T. kamikaze: %d NPCs, %d players, %d base modules hit' % (len(hit), len(players), len(assets)))
 
     def destroyed(self, kind, killer=None):
         with self.p.lock:

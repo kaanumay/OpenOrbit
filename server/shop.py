@@ -552,6 +552,8 @@ class Shop:
         with self.p.lock:
             ups = self.p.d.setdefault('upgrades', {})
             ups[str(item)] = [t, have + n * LAB['unit'][str(item)]]
+            if not have:
+                self.p.d.setdefault('lab_clock', {})[str(item)] = time.time()     # engine/shield minutes run from now (player_profile.lab_due)
             self.p.dirty = True
         key = ('lab_upgrade_laser', 'lab_upgrade_rocket', 'lab_upgrade_speed', 'lab_upgrade_shield')[item]
         self.log('   upgrade: part %d <- %s x%d (total %d)' % (item, ORES.get(t), n, ups[str(item)][1]))

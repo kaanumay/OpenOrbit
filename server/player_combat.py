@@ -15,6 +15,13 @@ def _denied(key='msg_grp_attack_impossible'):
     return [legacy('0|A|STM|' + key)]
 
 
+def protected(other, now, chased=False):
+    """DMZ protection of a pilot against enemy ships (the client's FAQ dmz_main_p, fandom Demilitarized zone): only the target's zone
+    counts, an enemy may attack from inside its own one; the zone is void while the target fights (attacks a pilot or an alien,
+    world.hero_fighting) and for an attack that began outside and runs on (chased). Player report 2026-11-04."""
+    return other.in_pvp_peace(*other.hero_pos(now)) and not chased and not other.hero_fighting(now)
+
+
 def attack_error(w, other, now):
     """[] permits an enemy attack; otherwise native messages explaining denial.
 
@@ -30,7 +37,7 @@ def attack_error(w, other, now):
         return _denied()
     if w.is_group_member(other.hid) or other.is_group_member(w.hid):
         return _denied()
-    if w.in_pvp_peace(*w.hero_pos(now)) or other.in_pvp_peace(*other.hero_pos(now)):
+    if protected(other, now, chased=w.attacking and w.target == other.hid):
         return _denied('peacearea')          # safe zone (it used to write a group member message: player report 2026-10-30)
     if now < other.invuln_until or other.invulnerable or other.hero_effects.invulnerable(now):
         return _denied()

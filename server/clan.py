@@ -265,6 +265,13 @@ def relation(p, q):
     return clan_relation(int(p.d['pilot'].get('clanId', 0) or 0), int(q.d['pilot'].get('clanId', 0) or 0))
 
 
+def shown_relation(p, q):
+    """The relation drawn on q's ship for p (ShipCreateCommand.clanDiplomacy): a member of p's own clan is shown as an ally, so the clan
+    tag is green as in the real game (player report 2026-11-04: it was white); otherwise relation()."""
+    a = int(p.d['pilot'].get('clanId', 0) or 0)
+    return 1 if a and a == int(q.d['pilot'].get('clanId', 0) or 0) else relation(p, q)
+
+
 def clan_relation(a, b):
     """Clan b from clan a's point of view (like iliski)."""
     if not a or not b or a == b:

@@ -93,13 +93,22 @@ def appearance(w, n):
         userId=n.id, typeId=GR.tip(b), expansionStage=n.d['spread'], userName=b.name, x=int(x), y=int(y),
         clanTag='CM' if b.__dict__.get('moderator') else pl.get('clanTag', ''),        # chat moderator (bot/moderation.py)
         factionId=b.company, clanId=int(pl.get('clanId') or 0), dailyRank=pl.get('dailyRank', 1), warnBox=False,
-        clanDiplomacy=WD.mod('ClanRelationModule', type=relation(w, b)), galaxyGatesDone=GR.rings(b), useSystemFont=False, npc=False,
+        clanDiplomacy=WD.mod('ClanRelationModule', type=shown_relation(w, b)), galaxyGatesDone=GR.rings(b), useSystemFont=False, npc=False,
         cloaked=False, motherShipId=0, positionIndex=0, designSet='', modifier=[],
         minimapStrategyModule=WD.mod('MinimapStrategyModule', minimapStrategy=0), specialNpcType=''))
 
 
 def extra_look(n):
     return GR.messages(n)
+
+
+def shown_relation(w, b):
+    """The relation drawn on the bot's ship (clan.shown_relation: own clan green)."""
+    try:
+        import clan as KL
+        return KL.shown_relation(w.p, T.profile(b))
+    except Exception:
+        return 0
 
 
 def relation(w, b):
@@ -396,11 +405,10 @@ def attack_error(w, n, now=None):
     b = n.bot
     if w.hero_dead or w.jumping or not n.alive:
         return [legacy('0|A|STM|msg_grp_attack_impossible')]
-    hx, hy = w.hero_pos(now)
     nx, ny = n.mover.pos(now)
-    if _in_peace(w, hx, hy) or _in_peace(w, nx, ny, b):
-        # safe zone: "Attack-Protected-Zone" (the client's peacearea; it used to say "Group members cannot be attacked", player
-        # report 2026-10-30)
+    if _in_peace(w, nx, ny, b) and not fighting(w, n, now) and not (w.attacking and w.target == n.id):
+        # only the bot's zone counts, void while it fights (aliens too) or flees from an attack begun outside (player_combat.protected);
+        # "Attack-Protected-Zone" (the client's peacearea; it used to say "Group members cannot be attacked", player report 2026-10-30)
         return [legacy('0|A|STM|peacearea')]
     pl = w.p.d['pilot']
     clan = int(pl.get('clanId') or 0)
@@ -630,6 +638,7 @@ def fire(w, n, now):
             _broadcast(w, [('AttackAbortLaserCommand', {'uid': n.id})], n.id)
         return
     n.fire = True
+    n.chase, n.attack_until = target, now + WD.ITEMS['out_of_combat_sec']        # its DMZ is void while it fights (fighting, _chasing)
     rocket(w, n, target, m, o, now)
     salvo(w, n, target, m, o, now)
     from . import active_items as AC, weapons as WP
@@ -894,15 +903,14 @@ def can_attack_player(w, n, o, now):
     if o.hero_dead or o.jumping or o.hidden(now) or not o.running:
         return False
     import admin_mode as YM
+    import player_combat as OS
     from . import admin_warnings as AW
     if YM.mi(profile=o.p) or YM.spectator(o.p) or AW.active(n.bot, 'pvp', now):
         return False                                     # the manager is not attacked (wiki Administrator: "should not be shot at"); PvP warning
     if now < o.invuln_until or o.invulnerable or o.hero_effects.invulnerable(now):
         return False
-    hx, hy = o.hero_pos(now)
-    nx, ny = n.mover.pos(now)
-    if _in_peace(w, hx, hy) or _in_peace(w, nx, ny, n.bot) or relation(o, n.bot) in (1, 2):
-        return False                                     # its clan is an ally or in non-aggression
+    if OS.protected(o, now, chased=_chasing(n, o.hid, now)) or relation(o, n.bot) in (1, 2):
+        return False                                     # the pilot's DMZ (player_combat.protected); its clan is an ally or in non-aggression
     return int(o.p.d['pilot'].get('factionId') or 0) != n.bot.company or not (
         H.company(w.map_id) == n.bot.company and H.name(w.map_id).split('-')[-1] in ('1', '2'))
 
@@ -913,9 +921,13 @@ def can_attack_bot(w, n, m, now):
         return False
     if (n.bot.k.get('clan') and n.bot.k.get('clan') == m.bot.k.get('clan')) or T.clan_relation(n.bot, m.bot) in (1, 2):
         return False
-    nx, ny = n.mover.pos(now)
     mx, my = m.mover.pos(now)
-    return not (_in_peace(w, nx, ny, n.bot) or _in_peace(w, mx, my, m.bot))
+    return not (_in_peace(w, mx, my, m.bot) and not fighting(w, m, now) and not _chasing(n, m.id, now))
+
+
+def _chasing(n, target, now):
+    """The bot's attack on this target runs on since before it reached a safe zone (fire: chase, attack_until)."""
+    return n.target == target and n.__dict__.get('chase') == target and now < n.__dict__.get('attack_until', 0)
 
 
 # ------------------------------------------------------------------------------------------------------------ the alien's reply to the bot
@@ -941,10 +953,11 @@ def notice_bot(w, m, now, hero_dist):
     return True
 
 
-def fighting(w, n):
-    """The bot is fighting: its target is a living ship on the map (an alien or a bot; world.hero_fighting for the pilot)."""
+def fighting(w, n, now=None):
+    """The bot is fighting: its target is a living ship on the map (an alien or a bot) or it fired within out_of_combat_sec (at a pilot
+    too; world.hero_fighting for the pilot)."""
     t = w.npcs.get(n.target)
-    return t is not None and t.alive
+    return (t is not None and t.alive) or (time.time() if now is None else now) < n.__dict__.get('attack_until', 0)
 
 
 def npc_to_bot(w, m, now):
@@ -1586,7 +1599,7 @@ def collect_box(w, n, now):
                 continue
         elif k.get('owner') is not None or (tip != 'BONUS_BOX' and tip not in WD.CARGO_BOXES):
             continue
-        if tip in WD.CARGO_BOXES and (not b.permission.get('cargo', True) or b.cargo_fill() >= 1):
+        if tip in WD.CARGO_BOXES and not k.get('event') and (not b.permission.get('cargo', True) or b.cargo_fill() >= 1):
             continue                                   # cargo off or full
         owner_tag = k.get('owner_tag')
         if tip in WD.CARGO_BOXES and owner_tag is not None and tuple(owner_tag) != own and WD.SET.get('cargo_ownership'):

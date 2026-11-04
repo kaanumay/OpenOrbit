@@ -750,10 +750,13 @@ class Abilities:
 
     # ------------------------------------------------------------ low HP: fleeing and parking (fandom Low health, Parking)
     def flees(self, n):
-        """Whether this alien flees at low HP: only strays in the map's own population. Gate, mode, event and summoned ones, immobile ones,
+        """Whether this alien flees at low HP: strays in the map's own population and Galaxy Gate wave aliens (to a corner). Other gate, mode, event and summoned ones, immobile ones,
         the mothership and special bosses (yeniden_dogma_ozel), pirate maps (5-X), walled maps, the Barracuda (kamikaze) and the Hooligan whose speed is
         matched to the player's do not flee (fandom: mothership and pirates do not flee)."""
         w = self.w
+        if n.gate and getattr(w.gate, 'corners', None):      # Galaxy Gate wave alien: to a corner (galaxy_gates.Run.corners)
+            return (n.id not in w.gate.keep and not n.summoned and not getattr(n, 'passive', False) and n.d['speed'] > 0
+                    and 'kamikaze_threshold' not in n.behavior and 'player_speed' not in n.behavior)
         if (n.gate or n.summoned or n.hunt or getattr(n, 'passive', False) or n.d['speed'] <= 0 or w.gate or w.low or w.labyrinth
                 or n.tip in self.S.get('respawn_special', {}) or 'kamikaze_threshold' in n.behavior or 'player_speed' in n.behavior
                 or H.map_class(w.map_id).startswith('5-') or ML.navigates(w.map_id)):
@@ -770,6 +773,10 @@ class Abilities:
         w, m = self.w, LOW['edge_margin']
         hx, hy = w.hero_pos(now)
         nx, ny = n.mover.pos(now)
+        corners = getattr(w.gate, 'corners', None) if n.gate else None
+        if corners:
+            spots = [(m + (w.map_w - 2 * m) * cx, m + (w.map_h - 2 * m) * cy) for cx, cy in corners]
+            return max(spots, key=lambda s: math.hypot(s[0] - hx, s[1] - hy))
         spots = [(x, y) for x in (m, w.map_w // 2, w.map_w - m) for y in (m, w.map_h // 2, w.map_h - m) if (x, y) != (w.map_w // 2, w.map_h // 2)]
         spots = [s for s in spots if not w.near_zone(s[0], s[1], 600) and not w.path_near_zone(nx, ny, s[0], s[1])]
         return max(spots, key=lambda s: math.hypot(s[0] - hx, s[1] - hy)) if spots else (int(nx), int(ny))

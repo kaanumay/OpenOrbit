@@ -81,6 +81,8 @@ class Base:
                 kind = 'bonus'
             elif tip in self.cargo_box_types() and cargo_room and (stolen or not SET.get('cargo_ownership') or w.own_tag(b.get('owner_tag'))):
                 kind = 'cargo'
+            elif tip in W.RESOURCE_BOXES.values():          # Mucosum, Scrap, Prismatium box: no cargo room needed
+                kind = 'cargo'
             else:
                 continue
             boxes.append(dict(hash=h, x=b['x'], y=b['y'], kind=kind))

@@ -905,6 +905,11 @@ class Run:
     """Waves on the gate map (from the world loop, under the lock). phase: intro/break (countdown), next (between sub-waves),
     fight, move (wave over: the next wave's and home portals are open), done, void (no gate or on another map), dead."""
     cleared = 0                      # sub-waves cleared in this main wave (the client's counter counts sub-waves)
+    # the gate map's alien behaviour (player report 2026-11-04, an experienced player; world.in_view, world.think, alien.flees):
+    all_visible = True               # every alien is on the minimap, however far
+    ring = 200                       # the chasing aliens keep this one distance: around a pilot standing still they form a circle
+    corners = ((0, 0), (1, 1))       # at low HP they flee to the top-left or bottom-right corner, the one farther from the pilot (fandom
+                                     # Galaxy Gates: "running into one of two corners depending on where you are"); the Devourer does not flee
 
     def __init__(self, gates, world, key):
         self.k, self.w, self.key = gates, world, key

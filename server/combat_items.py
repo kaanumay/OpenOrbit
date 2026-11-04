@@ -773,7 +773,7 @@ class Items:
             hit = any(not other.hero_dead and not other.jumping
                       and (other.hid != m['owner'] or (M.get('self_damage') and SET.get('own_mine')))
                       and math.hypot(*(a - b for a, b in zip(other.hero_pos(now), (m['x'], m['y'])))) <= M['trigger']
-                      and not other.in_pvp_peace(*other.hero_pos(now))
+                      and not (other.in_pvp_peace(*other.hero_pos(now)) and not other.hero_fighting(now))     # a fighting pilot has no DMZ
                       and not other.tech.mine_protected(now) for other in players)
             if not hit and m['owner'] == w.hid and M.get('npc_adaptation', False):
                 hit = any(n.alive and math.hypot(*(a - b for a, b in zip(n.mover.pos(now), (m['x'], m['y'])))) <= M['trigger']
@@ -814,7 +814,7 @@ class Items:
                 if other.hero_dead or other.jumping or (other.hid == owner and not self_hit):
                     continue
                 hx, hy = other.hero_pos(now)
-                if not other.in_pvp_peace(hx, hy) and math.hypot(hx - x, hy - y) <= radius:
+                if not (other.in_pvp_peace(hx, hy) and not other.hero_fighting(now)) and math.hypot(hx - x, hy - y) <= radius:
                     other.items.mine_hero(cfg, f, owner, now, source)
             return
         f = max(0.0, 1 + m.get('mine', 0)) if owner == w.hid else 1.0      # Turtle -7.5%, Detonation I/II; not Lance (forum 127433)

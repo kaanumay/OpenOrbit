@@ -4,7 +4,7 @@ CBS-1 Building: 23 asteroids in X-3..X-7, 4-1..4-5 and X-BL (AssetCreateCommand 
 sent (BattleStationBuildingUiInitializationCommand); on click the client opens the window (76) itself. Modules are dragged and dropped into
 10 slots (0 Hull, 1 Deflector center; 2-9 satellites), each is installed in 50 s (one at a time); once ten modules are fitted, Build (5-60 min).
 When built, the center (36) and satellites (37), deflector on and charged for 1440 min (official forum 127469).
-The modules of a member who leaves/is kicked from the clan return from the station to their inventory (a station whose center is removed falls);
+The modules of a member who leaves/is kicked from the clan return from the station to their inventory (a built station whose Hull leaves this way stays with 1 HP: official FAQ);
 when the clan is disbanded its stations are destroyed and the asteroid is emptied (forum 127469; member_left, clan_disbanded).
 CBS-2 Management: while the deflector is on the station is invulnerable and uses up time; while off, time is restored (120 min per hour, 600 at
 prime time 18-21; at most 48 h); when it runs out, 120 min forced off; Deactivate 30 min-8 h. Boosters (honor, EP: everywhere; damage: on the
@@ -16,12 +16,12 @@ fire at aliens in range. If the center is destroyed the station falls, the modul
 CBS-4 Virtual rival clans: on empty asteroids a rival progresses over time (Progress of leading Clan); if the rival finishes first it becomes an
 enemy station (HOSTILE); its deflector is on outside prime time. Destroying a rival's modules gives 500-2,600 U, its center 5,000 U + 50,000 credits.
 Client: requests Equip/UnequipModule, BuildStation, DeflectorShieldStatusChange, EmergencyRepair, MapAssetActivation, TradeRequest (at the
-station), HangarShipRepairModule; emergency repair 20 min x 7,500 (forum 127469); clan window ClanBattleStationInfo / BattleStationHistoryList;
+station), HangarShipRepairModule; emergency repair 20 s x 7,500 (official EN/DE FAQ; forum 127469 says 20 min: mistranslation); clan window ClanBattleStationInfo / BattleStationHistoryList;
 galaxy map StarmapStationCommand. In the profile: cbs {modules {iid: {loot, level, can, kalkan}}, asteroids {id: ...}, daily [...], stats}.
 On a multiplayer server (several clients, friend server) the asteroids are single for everyone: in the server player's save (shared); at first
 each player had their own asteroids, and the rival and stations looked different from client to client (user 2026-10-24). They belong to the
-clan of whoever built the station (clan): the clan's members manage it (rights clan.RIGHTS), others see it as another clan's station (relation:
-clan diplomacy). A fitted module is moved to the slot (with its owner; unique id): everyone sees it; when removed or when the station falls it
+clan of whoever built the station (clan): the clan's members manage it (rights clan.RIGHTS), others see it as another clan's station (colour:
+clan diplomacy; whom it fires at and who may attack it: company allegiance and war, shoots_at / attack_denied). A fitted module is moved to the slot (with its owner; unique id): everyone sees it; when removed or when the station falls it
 returns to the owner (at their next login if offline). The asteroids' timed jobs (building, deflector, repair, rival) run once on the server; each
 session refreshes the entities and its window when an asteroid's version changes. The log and the counts are in the clan's record.
 """
@@ -63,6 +63,9 @@ E = dict(UNSPECIFIED=0, NO_CLAN=1, STATION_ALREADY_BUILDING=2, ITEM_HITPOINTS_ZE
 TRADE_BATTLE_STATION = 4
 SHARED_ITEM = ITEM_BASE + 1000000         # ids of the modules in the shared slot (players' order from ITEM_BASE: so they do not collide)
 SHARED = {'lock': threading.Lock(), 'next': 0.0}
+HULL_STANDIN = SHARED_ITEM - 100        # + asteroid: id of the 1 HP Hull left when a leaving member takes theirs (member_left)
+# a station of a clan of "All" companies fires only at those who shot it (official FAQ); how long it remembers is not published (adaptation)
+AGGRO_SEC = 60
 
 
 def with_bots():
@@ -420,14 +423,37 @@ class Cbs:
         k = self.st_clan(a)
         return int((k or {}).get('company') or (self.p.d['pilot'].get('factionId', 0) if self.host is None else 0))
 
-    def relation(self, a):
-        """The entity's clan relation (from the viewer's side): rival is war, own clan's 0, another's per diplomacy (enemy if none)."""
+    def at_war(self, a):
+        """The viewer's clan is at war with the station's clan (the virtual rival counts as a clan at war)."""
         if a.get('owner') == 'rival':
-            return 3
-        if self.mine(a):
-            return 0
+            return True
         k = self.clan()
-        return (KL.clan_relation(k['id'], a.get('clan')) if k else 0) or 3
+        return bool(k) and KL.clan_relation(k['id'], a.get('clan')) == 3
+
+    def same_company(self, a):
+        """The viewer shares the station's company allegiance (the pilot's own company; a clan of "All" companies shares none)."""
+        fac = self.st_faction(a)
+        return bool(fac) and fac == int(self.p.d['pilot'].get('factionId', 0))
+
+    def attack_denied(self, a):
+        """Why the viewer may not attack the station (client message key) or None. Official CBS FAQ (rebalancing 2013-11-17): attackable by
+        every player outside the owning clan who does not share the station's company allegiance, and by the members of a clan at war with
+        the owner even of the same company. Alliances and NAPs do not change it; neither does having no clan."""
+        if self.mine(a):
+            return 'msg_station_not_atackable'
+        if self.same_company(a) and not self.at_war(a):
+            return 'msg_station_not_attackable_company_affiliation'
+        return None
+
+    def shoots_at(self, a, now=None):
+        """The station sees the viewer as an enemy (its weapon modules fire at them): the players who may attack it; a station of a clan of
+        "All" companies only those who shot at it (official FAQ: it "will only see players that shoot at it as enemy") and clans at war."""
+        if self.attack_denied(a):
+            return False
+        if self.st_faction(a) or self.at_war(a):
+            return True
+        now = time.time() if now is None else now
+        return now - (a.get('aggro') or {}).get(str(self.p.user_id), 0) < AGGRO_SEC
 
     def diplomacy(self, a):
         """The relation shown (ClanRelationModule.type, star map colour): rival 3, own clan 0, another clan's real diplomacy (0 none, 1 alliance,
@@ -473,7 +499,7 @@ class Cbs:
     def give_back(self, y):
         """The module in the shared slot to its owner (at once if connected, otherwise at their next login: absorb)."""
         m = y.pop('module', None) if y else None
-        if m is None:
+        if m is None or y.get('placeholder'):          # the 1 HP stand-in of a Hull taken away by a leaving member belongs to nobody
             return
         owner, iid = y.get('owner'), str(y['iid'])
         s = KL.people().get(owner) if owner != KL.name(self.p) else None
@@ -1226,6 +1252,7 @@ class Cbs:
         self.p.gain(uridium=-cost, reason='battlestation_emergency_repair')
         with self.lock:
             y['repair_end'] = now + D['emergency_repair']['duration_sec']
+            (a.get('shares') or {}).pop(str(slot), None)   # "If the Module will be repaired the damage distribution will be reset" (FAQ)
             self.mark()
         self.note(aid, 'EMERGENCY_REPAIR', moduleType=m['loot'], moduleLevel=m['level'], slot=slot if slot > DEFLECTOR else -1)
         return [self.status_msg(aid, now), stm('msg_emergency_repair_started', STATION=ASTEROIDS[aid]['name'])] + self.m.money_msgs()
@@ -1309,8 +1336,9 @@ class Cbs:
         return None
 
     # ------------------------------------------------------------ damage and destruction (raid and rival)
-    def damage_module(self, aid, slot, dmg, attacker_name='', shield_only=False, hull_only=False):
-        """Damage to a module (shield absorbs 80%) -> messages; HP 0: it is destroyed; if the center (Hull) goes the station falls."""
+    def damage_module(self, aid, slot, dmg, attacker_name='', shield_only=False, hull_only=False, dealer=None):
+        """Damage to a module (shield absorbs 80%) -> messages; HP 0: it is destroyed; if the center (Hull) goes the station falls. dealer: the
+        player (clan.name) whose damage counts towards the destruction reward (payees)."""
         a = self.ast(aid)
         y = a['slots'].get(str(slot))
         rival = a.get('owner') == 'rival'
@@ -1321,9 +1349,13 @@ class Cbs:
         if shield_only:
             dmg = min(dmg, m['shield'])
         to_shield = dmg if shield_only else 0 if hull_only else min(m['shield'], int(dmg * 0.8))
+        hp_before = m['hp']
         m['shield'] -= to_shield
         m['hp'] = max(0, m['hp'] - (dmg - to_shield))
         a['last_damage'] = time.time()
+        if dealer:
+            dealt = a.setdefault('shares', {}).setdefault(str(slot), {})
+            dealt[dealer] = dealt.get(dealer, 0) + to_shield + hp_before - m['hp']
         self.mark()
         msgs = [c for c in [self.info_cmd(aid, slot, m)] if c]
         if m['hp'] <= 0:
@@ -1338,20 +1370,25 @@ class Cbs:
         msgs = []
         self.note(aid, 'MODULE_DESTROYED', moduleType=m['loot'], moduleLevel=m['level'], slot=slot if slot > DEFLECTOR else -1,
                   opponentClanName=by)
-        if rival or self.bot_demolition(a):                 # the player destroyed the rival's (or a bot clan's) module: uridium
+        payees = self.payees(a, slot)
+        if payees:                                      # an enemy station's module (rival, bot clan, another player's clan): uridium by damage share
             kind = MODS[m['loot']].get('weapon') or 'other'
             u = D['demolish_reward']['base'].get(kind, D['demolish_reward']['base']['other']) + D['demolish_reward']['per_level'] * m['level']
             u = SET.amount('uridium', u, 'mod')              # the panel's uridium multiplier
-            self.p.gain(uridium=u, reason='battlestation_destroy_module')
-            msgs += [stm('msg_station_satellite_destruction_reward', AMOUNT=u, MODULE=MODS[m['loot']]['code'], LEVEL=m['level'] + 1,
-                         STATION=ASTEROIDS[aid]['name'])] + self.m.money_msgs()
-        elif self.world:                                # the player's module was destroyed: warning (to the clan in the shared record)
+            for name, part in sorted(payees.items()):
+                n = max(1, int(round(u * part)))
+                msgs += self.pay(name, [stm('msg_station_satellite_destruction_reward', AMOUNT=n, MODULE=MODS[m['loot']]['code'],
+                                            LEVEL=m['level'] + 1, STATION=ASTEROIDS[aid]['name'])],
+                                 'battlestation_destroy_module', uridium=n)
+        if not rival and self.world:                    # the clan's module was destroyed: warning (to the clan in the shared record)
             msgs += self.tell(a, [stm('msg_station_module_destroyed', STATION=ASTEROIDS[aid]['name'], MAP=H.name(ASTEROIDS[aid]['map']),
                                       MODULE=MODS[m['loot']]['code'], LEVEL=m['level'] + 1)])
         self.bump(a)
         if slot == HULL:
             msgs += self.destroy(aid, by)
-        elif self.world:
+            return msgs
+        (a.get('shares') or {}).pop(str(slot), None)
+        if self.world:
             msgs += self.refresh_assets(aid)
             self.seen[aid] = self.seen_key(a)
         return msgs
@@ -1367,7 +1404,8 @@ class Cbs:
 
     def member_left(self, k, who):
         """The modules of a member who leaves or is kicked from the clan return from the stations to their inventory (forum 127469). A built station
-        whose center (Hull) is removed falls (the rule in unequip; on the forum it stays with 1 HP: adaptation)."""
+        whose Hull is removed this way does not explode: it "will still be standing there, but with only 1 hitpoint" (official CBS FAQ) until a
+        Hull is fitted again or it is destroyed."""
         me, msgs = KL.name(self.p), []
         for aid, a in self.clan_asteroids(k):
             for s, y in list(a['slots'].items()):
@@ -1375,13 +1413,13 @@ class Cbs:
                     continue
                 with self.lock:
                     a['slots'].pop(s, None)
+                    if a['state'] == 'built' and int(s) == HULL:
+                        a['slots'][s] = dict(iid=HULL_STANDIN + aid, placeholder=True, owner=None, module=dict(
+                            loot='module_hulm-1', level=0, hp=1, shield=0, maximum=1))
                     self.bump(a)
                     self.mark()
                 self.give_back(y)
                 self.note(aid, 'MODULE_REMOVED', slot=int(s) if int(s) > DEFLECTOR else -1)
-                if a['state'] == 'built' and int(s) == HULL:
-                    msgs += self.destroy(aid, 'hull removed')
-                    break
             if a.get('state') == 'vacant' and not a.get('slots'):
                 a.pop('clan', None)
         return msgs + (self.starmap_msgs() if msgs else [])
@@ -1398,18 +1436,46 @@ class Cbs:
         return (a.get('owner') == 'bot' and self.m is not None and self.world is not None
                 and time.time() - a.get('last_player', 0) < 30 and a.get('last_attacker') == self.p.d['pilot'].get('userName', ''))
 
+    def payees(self, a, slot):
+        """Player (clan.name) -> share of the reward for an enemy station's destroyed module or hub: "The actual amount depends on the damage
+        every player deals" (official CBS FAQ); an emergency repair resets it. Empty for one's own station."""
+        if self.mine(a):
+            return {}
+        dealt = {n: v for n, v in ((a.get('shares') or {}).get(str(slot)) or {}).items() if v > 0}
+        if not dealt and (a.get('owner') == 'rival' or self.bot_demolition(a)):
+            dealt = {KL.name(self.p): 1}
+        total = sum(dealt.values())
+        return {n: v / total for n, v in dealt.items()}
+
+    def pay(self, name, msgs, reason, uridium=0, credits=0):
+        """A destruction reward to the player name: this session's player (-> messages) or another connected one (sent to them); offline
+        players miss it."""
+        if name == KL.name(self.p):
+            self.p.gain(uridium=uridium, credits=credits, reason=reason)
+            return msgs + (self.m.money_msgs() if self.m else [])
+        x = KL.people().get(name)
+        if x is not None:
+            x.profile.gain(uridium=uridium, credits=credits, reason=reason)
+            shop = getattr(x.session, 'shop', None)
+            x.send(msgs + (shop.money_msgs() if shop else []), 'CBS')
+        return []
+
     def destroy(self, aid, by=''):
         """The station fell: modules (destroyed) to the inventory, the asteroid empty."""
         a = self.ast(aid)
         rival = a.get('owner') == 'rival'
         msgs = []
-        if rival or self.bot_demolition(a):
+        payees = self.payees(a, HULL) if by != 'clan disbanded' else {}
+        if payees:                                      # the hub of an enemy station: the reward by damage share on the hub (official FAQ)
             r = D['demolish_reward']['center']
             r = dict(r, uridium=SET.amount('uridium', r['uridium'], 'mod'), credits=SET.amount('credits', r['credits'], 'mod'))     # the panel's multipliers
-            self.p.gain(uridium=r['uridium'], credits=r['credits'], reason='battlestation_destroy_station')
-            msgs += [stm('msg_station_hub_destruction_reward', AMOUNT=r['uridium'], STATION=ASTEROIDS[aid]['name']),
-                     stm('msg_station_destroyed_by_clan', DESTROYER=self.clan_name(), LOSER=a.get('rival', '') if rival else self.st_name(a),
-                         STATION=ASTEROIDS[aid]['name'], MAP=H.name(ASTEROIDS[aid]['map']))] + self.m.money_msgs()
+            for name, part in sorted(payees.items()):
+                u, c = max(1, int(round(r['uridium'] * part))), int(round(r['credits'] * part))
+                msgs += self.pay(name, [stm('msg_station_hub_destruction_reward', AMOUNT=u, STATION=ASTEROIDS[aid]['name']),
+                                        stm('msg_station_destroyed_by_clan', DESTROYER=self.clan_name(),
+                                            LOSER=a.get('rival', '') if rival else self.st_name(a),
+                                            STATION=ASTEROIDS[aid]['name'], MAP=H.name(ASTEROIDS[aid]['map']))],
+                                 'battlestation_destroy_station', uridium=u, credits=c)
         if not rival:
             for y in a['slots'].values():
                 m = self.module(y['iid'])
@@ -1723,13 +1789,14 @@ class Cbs:
         return [self.info_cmd(aid, slot, m)]
 
     def asset_attackable(self, uid):
-        """[] if hittable; the client's warning if the deflector is on."""
+        """[] if hittable; otherwise the client's warning (own clan's station, same company allegiance, deflector on)."""
         aid, slot = self.asset_slot(uid)
         if self.asset_module(uid):
             a = self.ast(aid)
-            hostile = self.rival_attackable(aid) or (self.host is not None and not self.mine(a)
-                and self.relation(a) == 3 and not self.shielded(a))
-            if hostile:
+            denied = self.attack_denied(a)
+            if denied:
+                return [legacy('0|A|STM|' + denied)]
+            if not self.shielded(a):
                 return []
         return [legacy('0|A|STM|msg_station_not_atackable')]
 
@@ -1754,11 +1821,13 @@ class Cbs:
         aid, slot = self.asset_slot(uid)
         a = self.ast(aid)
         a['attack_at'] = time.time()
+        a['aggro'] = {u: t for u, t in (a.get('aggro') or {}).items() if a['attack_at'] - t < AGGRO_SEC}
+        a['aggro'][str(self.p.user_id)] = a['attack_at']                    # whoever shot it is its enemy ("All" stations: shoots_at)
         if a.get('owner') == 'bot':                     # a bot clan knows who hit it (defense, grudge: clan_stations); destruction reward
             a.update(last_player=a['attack_at'], last_attacker=self.p.d['pilot'].get('userName', ''), last_attacker_clan=self.clan_name())
         hit_module = self.asset_module(uid)
         hp_before, shield_before = hit_module['hp'], hit_module['shield']
-        msgs = self.damage_module(aid, slot, dmg, self.clan_name(), shield_only=shield_only, hull_only=hull_only)
+        msgs = self.damage_module(aid, slot, dmg, self.clan_name(), shield_only=shield_only, hull_only=hull_only, dealer=KL.name(self.p))
         w = self.world
         if w is not None:
             w.last_shield_hit = shield_before - hit_module['shield']
@@ -1779,7 +1848,9 @@ class Cbs:
         return [hit, bar] + msgs
 
     def rival_fire(self, now):
-        """A built rival station's weapons deal full module damage to a player in range (rival.damage_multiplier default 1.0). The deflector only makes the
+        """A built station's weapons (rival, bot clan or another player's clan) deal full module damage to a player in range that the station
+        sees as an enemy (shoots_at: other company, clan at war; same company without war never; player report 2026-11-04: a same-company
+        station fired at a clanless player) (rival.damage_multiplier default 1.0). The deflector only makes the
         station invulnerable, the weapons still fire (fandom Clan Battle Stations: after building "the module will start to attack"); a cloaked ship
         is not targeted (player report 2026-10-30: it fired only while the deflector was off and without regard to cloaking). Cause of death on the
         death screen BATTLESTATION; laser/rocket use their own attack type."""
@@ -1790,12 +1861,12 @@ class Cbs:
         cloaked = w.hidden(now)
         for aid in BY_MAP.get(int(w.map_id), []):
             a = self.ast(aid)
-            bot_st = a.get('owner') == 'bot' and self.host is not None and not self.mine(a) and self.relation(a) == 3
-            if (a.get('owner') != 'rival' and not bot_st) or a['state'] != 'built':
-                continue                                # a bot clan's station fires at its enemy too (clan_stations)
-            tag = a.get('rival', '') if not bot_st else (self.st_clan(a) or {}).get('tag', '')
+            rival = a.get('owner') == 'rival'
+            if a['state'] != 'built' or not self.shoots_at(a, now):
+                continue                                # any clan's station (bot clan or player) fires at its enemies (official FAQ)
+            tag = a.get('rival', '') if rival else (self.st_clan(a) or {}).get('tag', '')
             for s, slot_info in list(a['slots'].items()):
-                y = slot_info if not bot_st else slot_info.get('module')
+                y = slot_info if rival else slot_info.get('module')
                 if not y:
                     continue
                 md = MODS[y['loot']]

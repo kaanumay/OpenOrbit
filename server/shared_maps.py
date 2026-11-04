@@ -189,7 +189,7 @@ class Map:
 def signature(w, m):
     """m's ship in w's client: its appearance and clan relation (relative to the viewer; the ship is rebuilt when diplomacy changes)."""
     import clan as KL
-    return m.signature(), KL.relation(w.p, m.p)
+    return m.signature(), KL.shown_relation(w.p, m.p)
 
 
 def pet_signature(w, m):
@@ -198,7 +198,7 @@ def pet_signature(w, m):
     if not (pet and pet.active and pet.w is m):
         return None
     import clan as KL
-    return pet.pid, pet.look, pet.d['name'], pet.d['level'], KL.relation(w.p, m.p)
+    return pet.pid, pet.look, pet.d['name'], pet.d['level'], KL.shown_relation(w.p, m.p)
 
 
 def uid_list(m):
