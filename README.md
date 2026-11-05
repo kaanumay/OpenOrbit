@@ -8,7 +8,7 @@
 
 <p align="center">
   <a href="https://discord.com/invite/openorbit"><img src="https://img.shields.io/badge/Discord-Join%20the%20community-5865F2?logo=discord&logoColor=white" alt="Discord"></a>
-  <img src="https://img.shields.io/badge/client-1.1.116-40DFFF" alt="Client 1.1.116">
+  <img src="https://img.shields.io/badge/client-1.1.117-40DFFF" alt="Client 1.1.117">
   <img src="https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white" alt="Python 3.10+">
   <img src="https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-0B1323" alt="Windows, Linux, macOS">
   <img src="https://img.shields.io/badge/panel-8%20languages-FFB94D" alt="8 languages">
@@ -66,7 +66,7 @@ everything about the game can be tuned from a desktop panel.
 | --- | --- |
 | **Windows 10 or 11** | Linux and macOS work too, through Proton or Wine: see [Linux and macOS](#linux-and-macos) |
 | **[Python](https://www.python.org/downloads/) 3.10 or newer** | Nothing else to install |
-| **The DarkOrbit Unity client 1.1.116** | Not included. The wizard downloads it from the official download server (about 3.5 GB; 4.4 GB of free space). If you have it already, the folder must contain `DarkOrbit.exe` and `DarkOrbit_Data` |
+| **The DarkOrbit Unity client 1.1.117** | Not included. The wizard downloads it from the official download server (about 3.5 GB; 4.4 GB of free space). If you have it already, the folder must contain `DarkOrbit.exe` and `DarkOrbit_Data` |
 | **Edge or Chrome** | For the panel window; otherwise your default browser opens it |
 
 You can run the wizard again at any time from the **Panel** page, where you can also switch the language and create a
@@ -251,8 +251,9 @@ off or check by hand.
 
 - Don't run `DarkorbitLauncher.exe` from the client folder: it may update the client from the official servers and break
   compatibility. Start the game from the panel. When a new client version comes out, the panel offers a one-click update.
-- The server is written for client 1.1.116. For another version the panel can adapt the protocol from the new client's
-  code (*Client* page; needs `pip install capstone`).
+- The server is written for client 1.1.117; 1.1.116 has the same protocol and still works (the panel suggests the
+  update). For another version the panel can adapt the protocol from the new client's code (*Client* page; needs
+  `pip install capstone`).
 - A save that is being played opens read-only in the character editor; every save from the editor keeps a backup of the
   previous state.
 - Bot players are not in yet, so missions that need other players don't progress.
@@ -270,7 +271,7 @@ off or check by hand.
 | `server/save/worlds/` | Your worlds from the World Editor |
 | `server/save/panel.json` | Panel settings (language, game folder, display, backups) |
 | `server/logs/` | Server, client and panel logs |
-| `DarkOrbit_Version1.1.116/` | The game client, if the panel downloaded it |
+| `DarkOrbit_Version1.1.117/` | The game client, if the panel downloaded it |
 | `server/cdn/do_img/` | Game images fetched from the official CDN the first time the game shows them |
 | `server/save/proton/`, `server/save/wine/`, `server/save/wine_engine/` | Linux and macOS: the game's prefix and the panel's Wine |
 

@@ -682,6 +682,7 @@
 "DarkOrbit game folder": "Папка игры DarkOrbit",
 "DarkOrbit save": "Сохранение DarkOrbit",
 "DarkOrbit version %s is out and your client is %s: the game won't work properly unless you update. Update downloads and installs the new one and deletes the old one.": "Вышла версия DarkOrbit %s, а у тебя клиент %s: без обновления игра не будет работать правильно. «Обновить» скачает и установит новую версию и удалит старую.",
+"DarkOrbit version %s is out; your client %s still works. If you like, Update downloads and installs the new one and deletes the old one.": "Вышла версия DarkOrbit %s; твой клиент %s по-прежнему работает. Если хочешь, «Обновить» скачает и установит новую и удалит старую.",
 "DarkOrbit was not found on your computer, so the game is being downloaded and installed into the project folder. If you already have the game installed, choose its folder.": "DarkOrbit не найден на вашем компьютере, поэтому игра скачивается и устанавливается в папку проекта. Если игра у вас уже установлена, выберите её папку.",
 "DarkOrbit_Data folder": "Папка DarkOrbit_Data",
 "Days since registration": "Дней с регистрации",

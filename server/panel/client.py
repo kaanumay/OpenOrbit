@@ -1,9 +1,10 @@
 """The game client (the original Unity client): folder validation, automatic discovery, version, launch arguments.
 
-Folder: the folder holding DarkOrbit.exe and DarkOrbit_Data/ (like DarkOrbit_Version1.1.116). If the panel setting is empty, the newest
+Folder: the folder holding DarkOrbit.exe and DarkOrbit_Data/ (like DarkOrbit_Version1.1.117). If the panel setting is empty, the newest
 version folder in the project root is used; if an update arrives or the folder is moved, it is chosen from the panel. If it is not on the
 computer the panel downloads it (client_download.py; the temporary folder of a half-finished download is not a candidate). The server was
-written for the protocol of 1.1.116 (data/protocol*.json from the client's code): with another version the panel warns.
+written for the protocol of 1.1.117 (data/protocol*.json from the client's code); 1.1.116 has the same protocol (COMPATIBLE): it plays and
+the panel only suggests the update. With another version the panel warns.
 The client's files are not changed; only a launch argument is passed (local web login 127.0.0.1:8090). The BepInEx installed next to the
 client (client_patch.py) loads the client's fixes, and if installed it is launched with the argument. On Linux and macOS the client is
 opened with Wine or Proton (client_runner.py).
@@ -20,7 +21,8 @@ SERVER = os.path.dirname(PANEL_DIR)
 ROOT = os.path.dirname(SERVER)
 EXE = 'DarkOrbit.exe'
 DATA_DIR = 'DarkOrbit_Data'
-SUPPORTED = '1.1.116'          # if the active protocol has no version (server/data/protocols/version.txt; written by protocol_update.py)
+SUPPORTED = '1.1.117'          # if the active protocol has no version (server/data/protocols/version.txt; written by protocol_update.py)
+COMPATIBLE = ('1.1.116',)      # older clients with the same protocol as SUPPORTED: they play, the panel suggests the update without forcing it
 VERSION_FILE = os.path.join(SERVER, 'data', 'protocols', 'version.txt')
 
 
@@ -57,7 +59,7 @@ def bundle_version(folder):
 
 
 def version_of(folder):
-    """Version: from the folder name (DarkOrbit_Version1.1.116), otherwise from the game's data (bundle_version; the official install is in the "DarkOrbit Unity"
+    """Version: from the folder name (DarkOrbit_Version1.1.117), otherwise from the game's data (bundle_version; the official install is in the "DarkOrbit Unity"
     folder), otherwise from the exe's file version (if it is the Unity engine's version, e.g. 2022.3.58, it does not count); None if unknown."""
     m = re.search(r'(\d+\.\d+\.\d+)', os.path.basename(os.path.normpath(folder)))
     if m:
@@ -87,7 +89,7 @@ def version_of(folder):
 
 def check(folder):
     """Validate the folder -> {'valid', 'route', 'exe', 'data', 'version', 'compatible', 'issues' [...], 'size_mb'} plus a flag for a folder
-    older than the supported version (the panel updates)."""
+    older than the supported version (the panel updates; a compatible old one only gets the suggestion)."""
     out = {'route': folder or '', 'valid': False, 'exe': False, 'data': False, 'version': None, 'compatible': False, 'old': False,
            'issues': []}
     if not folder:
@@ -105,7 +107,7 @@ def check(folder):
     out['valid'] = out['exe'] and out['data']
     if out['valid']:
         out['version'] = version_of(folder)
-        out['compatible'] = out['version'] == supported()
+        out['compatible'] = out['version'] == supported() or (out['version'] in COMPATIBLE and supported() == SUPPORTED)
         out['old'] = bool(out['version']) and vkey(out['version']) < vkey(supported())
         if out['version'] and not out['compatible']:
             out['issues'].append(_('The server was written for version %s; if the protocol differs in version %s, the login or some '

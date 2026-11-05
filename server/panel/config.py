@@ -24,7 +24,8 @@ DEFAULTS = {
     'rotate_logs': True,          # large logs rotate at startup as .1, .2 ...
     'when_window_closes': 'wait',   # when the panel window closes: wait (if the game is running, closes when it ends) | close (closes everything)
     'update': 'auto',       # new version on GitHub (updater.py): auto install | notify (just notify) | off
-    'fast_download': True,          # the client download with CONNECTIONS connections (client_download.py); a single connection when off
+    'fast_download': False,         # the client download with CONNECTIONS connections (client_download.py); a single connection when off
+                                    # (off by default: for some users the CDN blocks the parallel connections)
     'friend_password': '',            # Play with Friends > Host: join password (empty: no password)
     'friend_max': 4,            # Host: most guests
     'friend_world': '',            # Host: the server's world (World Editor; empty: the active save's default world)

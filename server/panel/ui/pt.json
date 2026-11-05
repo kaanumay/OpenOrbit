@@ -682,6 +682,7 @@
 "DarkOrbit game folder": "Pasta do jogo DarkOrbit",
 "DarkOrbit save": "Save do DarkOrbit",
 "DarkOrbit version %s is out and your client is %s: the game won't work properly unless you update. Update downloads and installs the new one and deletes the old one.": "Saiu a versão %s do DarkOrbit e o seu cliente é a %s: sem atualizar, o jogo não vai funcionar direito. Atualizar baixa e instala a nova e apaga a antiga.",
+"DarkOrbit version %s is out; your client %s still works. If you like, Update downloads and installs the new one and deletes the old one.": "Saiu a versão %s do DarkOrbit; o seu cliente %s continua funcionando. Se quiser, Atualizar baixa e instala a nova e apaga a antiga.",
 "DarkOrbit was not found on your computer, so the game is being downloaded and installed into the project folder. If you already have the game installed, choose its folder.": "O DarkOrbit não foi encontrado no seu computador, então o jogo está sendo baixado e instalado na pasta do projeto. Se você já tem o jogo instalado, escolha a pasta dele.",
 "DarkOrbit_Data folder": "Pasta DarkOrbit_Data",
 "Days since registration": "Dias desde o registo",

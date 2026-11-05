@@ -15,7 +15,7 @@ import json, os, struct, zlib
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 SPEC_PATH = os.path.join(HERE, 'data', 'protocol_read.json')
-CLIENT_HASH = '0b64b1b04d103c9ec4b4f121acb7de36'   # the client protocol_read.json was extracted from (1.1.115; the same in 1.1.116) VersionRequest value
+CLIENT_HASH = '0b64b1b04d103c9ec4b4f121acb7de36'   # the client protocol_read.json was extracted from (1.1.115; the same in 1.1.116 and 1.1.117) VersionRequest value
 SECRET_FIELDS = ('sessionid', 'password', 'token', 'secret')
 
 # fields whose conversion read_spec.py could not find (by hand from the disassembly of the client's read(): the raw value is rotated right by a bits)

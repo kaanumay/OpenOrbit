@@ -1,11 +1,11 @@
 """Downloading the game client (if no client is found on the computer; setup wizard and Client page): Bigpoint's archive (URL,
-1.1.116 zip) is extracted into the project root, the client files are not modified.
+1.1.117 zip) is extracted into the project root, the client files are not modified.
 
 The archive is not saved to disk: it is read with HTTP range requests (HttpFile), and zipfile extracts the files directly in order. So the
 archive itself needs no extra space (just as much as its extracted form, about 4.4 GB). If the connection drops it reconnects from the same byte (RETRIES times);
 if the job is stopped or the panel closes, the extracted files stay, and on restart only the missing ones are downloaded. Each file is written to .part first,
 and gets its name once verified with the zip's CRC. Files are collected in a temporary folder (TEMP); when all are done and the client is verified, the folder
-takes the name in the archive (DarkOrbit_Version1.1.116): a half download does not look like a valid client. Only one job at a time.
+takes the name in the archive (DarkOrbit_Version1.1.117): a half download does not look like a valid client. Only one job at a time.
 
 The server gives about 5 MB/s per connection: consecutive files in the archive are split into chunks of CHUNK_SIZE bytes, and CONNECTIONS connections each read and extract one chunk
 with a single request. The number of requests is kept low: short, frequent range requests run into the CDN's protection (2026-10-28, with 8 MB
@@ -18,7 +18,7 @@ from urllib.request import Request, urlopen
 
 from lang import t as _
 
-URL = 'https://alicdn-oss-prod.darkorbit.com/release/archive/DarkOrbit_Version1.1.116.zip'
+URL = 'https://alicdn-oss-prod.darkorbit.com/release/archive/DarkOrbit_Version1.1.117.zip'
 TEMP = 'client_downloading'       # in the project root; in .gitignore (old name istemci_indiriliyor: a half download starts from scratch)
 CHUNK = 1 << 20
 CHUNK_SIZE = 64 << 20                     # consecutive files a connection reads with a single request (a large file alone)

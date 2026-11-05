@@ -6,7 +6,7 @@ profile backup, log rotation, web and game servers, the original client.
 - Profile backup: <slot>/backups/auto_YYYYmmdd_HHMMSS.json (in the old layout save/backups/profile_...); the newest BACKUP_COUNT are kept.
 - Log rotation: logs/gs.log, http.log, client.log, if large, shift to .1, .2, .3 (skipped if a running server holds the file).
 - Servers: if 8081 (game) and 8090 (web) are already being listened on, they are not restarted, those are used and not shut down at the end.
-- Client: DarkOrbit_Version1.1.116\\DarkOrbit.exe only with a launch argument (it does not connect to the official servers, files are not changed).
+- Client: DarkOrbit_Version1.1.117\\DarkOrbit.exe only with a launch argument (it does not connect to the official servers, files are not changed).
   When the client closes, the servers this launcher opened close. If the client closes immediately (it opened another window), the servers stay open.
 Usage: python -I launcher.py [game server options: --no-popups, --invulnerable ...]
 """
@@ -17,7 +17,7 @@ sys.path.insert(0, HERE)
 import paths as PTH  # noqa: E402
 LOGS = os.path.join(HERE, 'logs')
 SAVE = os.path.join(HERE, 'save')
-CLIENT = os.path.join(HERE, '..', 'DarkOrbit_Version1.1.116', 'DarkOrbit.exe')
+CLIENT = os.path.join(HERE, '..', 'DarkOrbit_Version1.1.117', 'DarkOrbit.exe')
 CLIENT_ARGS = ['http://127.0.0.1:8090/#darkorbit://', '-screen-fullscreen', '0', '-screen-width', '1440', '-screen-height', '900']
 BACKUP_COUNT = 10
 LOG_SIZE_LIMIT = 5 * 1024 * 1024

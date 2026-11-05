@@ -15,6 +15,7 @@ from urllib.error import HTTPError, URLError
 from urllib.parse import quote
 from urllib.request import HTTPRedirectHandler, ProxyHandler, Request, build_opener
 
+import client as IST
 from lang import t as _, remote
 
 GAME_PORT = 8081
@@ -214,7 +215,8 @@ class Friend:
             if not info['compatible']:
                 raise FriendError(_("Your friend's panel is a different version (account upload %s, yours %s): both of you should update the panel.",
                                       info.get('protokol'), PROTOCOL))
-            if info.get('client') and info['client'] != client_version:
+            same = {IST.SUPPORTED, *IST.COMPATIBLE}                  # versions with the same protocol play together
+            if info.get('client') and info['client'] != client_version and not {info['client'], client_version} <= same:
                 raise FriendError(_("Game versions differ: your friend's server %s, your client %s.", info['client'], client_version))
             if not info.get('place'):
                 raise FriendError(_('Server full (at most %s guests).', info.get('max_count')))

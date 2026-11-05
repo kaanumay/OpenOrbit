@@ -672,12 +672,18 @@ def warnings(folder=False):
     elif c['old']:                                                  # a new version is out: updated with one click (/api/istemci/guncelle)
         dl, sup = DL.state(), IST.supported()
         run = bool(STATE.get('old_client')) and dl['running']
-        text = (_('Updating the game to version %s: %d%%. When it is done the old version is deleted and BepInEx is reinstalled.', sup, _dl_pct(dl))
-                 if run else _("DarkOrbit version %s is out and your client is %s: the game won't work properly unless you update. "
-                               'Update downloads and installs the new one and deletes the old one.', sup, c['version']))
+        if run:
+            text = _('Updating the game to version %s: %d%%. When it is done the old version is deleted and BepInEx is reinstalled.', sup, _dl_pct(dl))
+        elif c['compatible']:                                       # same protocol (IST.COMPATIBLE): plays, the update is only suggested
+            text = _('DarkOrbit version %s is out; your client %s still works. If you like, Update downloads and installs the new one and '
+                     'deletes the old one.', sup, c['version'])
+        else:
+            text = _("DarkOrbit version %s is out and your client is %s: the game won't work properly unless you update. "
+                     'Update downloads and installs the new one and deletes the old one.', sup, c['version'])
         if STATE.get('old_client') and dl['state'] == 'error':
             text += ' ' + dl['error']
-        out.append({'type': 'error', 'text': text, 'progress': _dl_pct(dl) if run else None, 'download': dl if run else None,
+        out.append({'type': 'warning' if c['compatible'] else 'error', 'text': text, 'progress': _dl_pct(dl) if run else None,
+                    'download': dl if run else None,
                     'page': 'client',
                     'action': {'text': _('Update'), 'api': '/api/client/update', 'running': run,
                               'running_text': _('Updating…')}})
@@ -2042,7 +2048,7 @@ def h_post(path, b):
         old = client_folder()
         if not IST.check(old)['old']:
             raise Error(_('The client is already up to date.'))
-        new_ = next((c['route'] for c in IST.candidates() if c['compatible']), None)
+        new_ = next((c['route'] for c in IST.candidates() if c['compatible'] and not c['old']), None)
         if new_:                                    # already on the computer
             CFG.update({'client_folder': new_})
             delete_old_client(old, new_)

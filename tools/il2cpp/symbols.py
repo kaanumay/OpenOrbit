@@ -4,10 +4,10 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from meta import Metadata
 from pe import PE
 
-# Client folder: the OO_CLIENT environment variable (protocol_update.py supplies it for a new version), else 1.1.116. The cache is per client
+# Client folder: the OO_CLIENT environment variable (protocol_update.py supplies it for a new version), else 1.1.117. The cache is per client
 # (1.1.114's is symbols.pkl as before).
 _HERE = os.path.dirname(os.path.abspath(__file__))
-ROOT = os.environ.get('OO_CLIENT') or os.path.join(os.path.dirname(os.path.dirname(_HERE)), 'DarkOrbit_Version1.1.116')
+ROOT = os.environ.get('OO_CLIENT') or os.path.join(os.path.dirname(os.path.dirname(_HERE)), 'DarkOrbit_Version1.1.117')
 _tag = os.path.basename(os.path.normpath(ROOT))
 CACHE = os.path.join(_HERE, 'symbols.pkl' if _tag == 'DarkOrbit_Version1.1.114' else 'symbols_%s.pkl' % _tag)
 

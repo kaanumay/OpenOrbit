@@ -13,7 +13,7 @@
     <DebugType>none</DebugType>
     <GenerateDependencyFile>false</GenerateDependencyFile>
     <CheckEolTargetFramework>false</CheckEolTargetFramework>
-    <ClientDir Condition="'$(ClientDir)' == ''">$(MSBuildThisFileDirectory)..\..\..\DarkOrbit_Version1.1.116</ClientDir>
+    <ClientDir Condition="'$(ClientDir)' == ''">$(MSBuildThisFileDirectory)..\..\..\DarkOrbit_Version1.1.117</ClientDir>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="$(ClientDir)\BepInEx\core\BepInEx.Core.dll" Private="false" />

@@ -926,7 +926,7 @@ class Clan:
         together with the leader.
         -> (messages, X-1 to go to or None)"""
         pl = self.p.d['pilot']
-        old, firm = int(pl.get('factionId', 0)), int(f.get('company') or 0)
+        old, firm = int(pl.get('factionId', 0)), int(f.get('firma') or 0)      # the client's field name (protocol.json)
 
         def reply(ok, key):
             return [('ChangeClanFirmaCommand', {'success': ok, 'firm': int(pl.get('factionId', 0)), 'companyDateInfoCommand': self.company(),

@@ -25,7 +25,7 @@ DATA = os.path.join(SERVER, 'data')
 VDIR = os.path.join(DATA, 'protocols')
 VERSION = os.path.join(VDIR, 'version.txt')
 FILES = ('protocol.json', 'protocol_read.json')
-DEFAULT_VERSION = '1.1.116'
+DEFAULT_VERSION = '1.1.117'
 
 
 def active_version():
