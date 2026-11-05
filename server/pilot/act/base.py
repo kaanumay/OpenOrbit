@@ -11,6 +11,7 @@ Movement, two modes (pilot.json move_mode):
 import math, time
 
 import autopilot as AP
+import combat_items as CIT
 import map_layout as ML
 import map_links as H
 import settings as SET
@@ -25,6 +26,7 @@ OWN_MOVE_DIST = 90
 ON_TOP = 40                   # a box / ore this close is under the ship
 RADIATION_REACH = 600         # how far past the map's edge a radiation quest may take the ship
 WAY_BUDGET = 0.04             # s per step for working out the ways around walls of the targets and boxes compared (pilot/walls.length)
+MINE_PAD = 40                 # kept past a mine's trigger distance (user report 2026-11-05: Auto Mode flew into the map's mines)
 
 
 class Base:
@@ -36,7 +38,7 @@ class Base:
         self.last_move = 0.0
         self.sent = []                                # [(x, y, time)] destinations ordered recently
         self.path = None                              # the way around walls: {map, goal, points (corners left), all, zones}
-        self.zones = ()                               # the immobile aliens' firing zones to keep out of (snapshot, brain.static_zones)
+        self.zones = ()                               # zones to keep out of: immobile aliens' firing zones (brain.static_zones), mines
         self.tried = {}                               # Combat: item -> when it last refused
         self.last_jump_try = 0.0                      # Travel: the last jump asked
         self.portal_goal = self.route_goal = None     # Travel: the portal / route of the last order (Travel.heading, the panel's map)
@@ -67,6 +69,7 @@ class Base:
         if cfg.get('pvp') is not None:                        # a PvP quest: the enemy-company pilots are the targets (act/players.py)
             npcs += self.pvp_targets(now, cfg['pvp'])
         cargo_room = w.p.cargo_free() >= 1
+        mines = self.mine_zones(now)
         boxes = []
         steal = cfg.get('steal')
         for h, b in w.boxes.items():
@@ -85,6 +88,8 @@ class Base:
                 kind = 'cargo'
             else:
                 continue
+            if WALLS.in_zone(b['x'], b['y'], mines):          # picking it up would set the mine off
+                continue
             boxes.append(dict(hash=h, x=b['x'], y=b['y'], kind=kind))
         safe = []
         s = w.home_station()
@@ -93,22 +98,43 @@ class Base:
         r = ML.gate_peace_radius(w.map_id, H.GATE_PEACE_RADIUS)
         safe += [(gt['x'], gt['y'], r) for gt in w.peace_gates()]
         safe += [tuple(z) for z in ML.safe_zones(w.map_id)]
-        ores = [dict(hash=h, tip=o['tip'], x=o['x'], y=o['y']) for h, o in w.ores.items() if not o.get('busy')]
+        ores = [dict(hash=h, tip=o['tip'], x=o['x'], y=o['y']) for h, o in w.ores.items()
+                if not o.get('busy') and not WALLS.in_zone(o['x'], o['y'], mines)]
         return dict(hero=(hx, hy), R=w.laser_range(), hp=g.get('hitPoints', 0), hp_max=g.get('hitMax', 0), shield=g.get('shield', 0),
                     shield_max=g.get('shieldMax', 0), bounds=(w.map_w, w.map_h), map=int(w.map_id),
-                    in_peace=w.in_peace(hx, hy), npcs=npcs, boxes=boxes, safe=safe, ores=ores, **self.wall_view(hx, hy, now, npcs, cfg))
+                    in_peace=w.in_peace(hx, hy), npcs=npcs, boxes=boxes, safe=safe, ores=ores,
+                    **self.wall_view(hx, hy, now, npcs, cfg, mines))
 
-    def wall_view(self, hx, hy, now, npcs, cfg):
-        """The immobile aliens' firing zones ('statics', kept for move_to) and, with walls or such zones, for brain.py: 'way' (x, y) -> the
-        distance flown there around them, 'walled' (x, y) -> inside a wall (a zone is no wall: brain.py weighs it), 'clear' (ax, ay, bx, by)
-        -> no wall nor zone on the line."""
+    def mine_zones(self, now):
+        """The mines that would go off under the hero (CombatItems.mine_tick's rule): the map's minefields, aliens' and player bots' mines,
+        other players' mines on a shared map, its own when they hurt it -> [(x, y, radius)]."""
+        w, M = self.w, CIT.S['mine']
+        own = M.get('self_damage') and SET.get('own_mine')
+        r = M['trigger'] + MINE_PAD
+        out = []
+        for other in w.items.mine_worlds():
+            if str(other.map_id) != str(w.map_id):
+                continue
+            for m in other.items.mines.values():
+                if m['end_time'] <= now or 'bait' in CIT.MINES[m['loot']]:
+                    continue
+                mine_of_world = m['owner'] == other.hid
+                if other is w and (not mine_of_world or own) or other is not w and mine_of_world:
+                    out.append((m['x'], m['y'], r))
+        return out
+
+    def wall_view(self, hx, hy, now, npcs, cfg, mines=()):
+        """The immobile aliens' firing zones ('statics') and, with walls or zones, for brain.py: 'way' (x, y) -> the distance flown there
+        around them, 'walled' (x, y) -> inside a wall (a zone is no wall: brain.py weighs it), 'clear' (ax, ay, bx, by) -> no wall nor zone
+        on the line. The mines are zones too (kept for move_to) but not 'statics' (brain.py's alien danger and lures)."""
         w = self.w
         m, mw, mh = w.map_id, w.map_w, w.map_h
-        zones = self.zones = tuple(BR.static_zones(npcs, cfg['threat_margin']))
+        statics = tuple(BR.static_zones(npcs, cfg['threat_margin']))
+        zones = self.zones = statics + tuple(mines)
         if not WALLS.has(m, zones):
-            return dict(statics=zones)
+            return dict(statics=statics)
         deadline = time.perf_counter() + WAY_BUDGET
-        return dict(statics=zones, way=lambda x, y: WALLS.length(m, mw, mh, hx, hy, x, y, now, deadline, zones),
+        return dict(statics=statics, way=lambda x, y: WALLS.length(m, mw, mh, hx, hy, x, y, now, deadline, zones),
                     walled=lambda x, y: WALLS.blocked(m, x, y), clear=lambda ax, ay, bx, by: WALLS.clear(m, ax, ay, bx, by, zones))
 
     def hunted(self, cfg):
