@@ -20,6 +20,7 @@ import datetime, json, os, time
 
 import quest_tracker as GT
 import event_calendar as CAL
+import reward_renewal as RR
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 D = json.load(open(os.path.join(HERE, 'data', 'tickets.json'), encoding='utf8'))
@@ -39,8 +40,14 @@ def today(now=None):
 
 
 def mini_list(now=None):
-    """The day list of the running Mini Client event [[lootId, count, special]]."""
-    return MINI_EVENT.get(mini_event(now)[0], MINI)
+    """The day list of the running Mini Client event [[lootId, count, special]]: the event's own (or Trial of Terrors') real list,
+    renewed every year with the event's currency (reward_renewal.mini_list)."""
+    event, key = mini_event(now)
+    if event is None:
+        return MINI
+    own = MINI_EVENT.get(event)
+    return RR.mini_list(event, int(key.rsplit('-', 1)[1]) if key and key[-4:].isdigit() else RR.BASE_YEAR,
+                        own=(own, RR.BASE_YEAR) if own else None, currency=CAL.EVENTS[event].get('currency', []))
 
 
 def mini_event(now=None):
@@ -99,6 +106,12 @@ class DailyReward:
         return self.reward(l, n) + [('MiniClientRewardDayInfoCommand', dict(isClaimable=False, daysClaimed=st['n']))]
 
     # ------------------------------------------------------------ Monthly Deluxe
+    def deluxe_list(self, now=None):
+        """The 28 days of the running subscription: the list of the month it started in (reward_renewal.deluxe_list renews it)."""
+        st = self.p.d.get('monthly_deluxe')
+        start = datetime.date.fromisoformat(st['start']) if st else today(now)
+        return RR.deluxe_list(start.strftime('%Y-%m'))
+
     def deluxe_day(self, now=None):
         st = self.p.d.get('monthly_deluxe')
         if not st:
@@ -126,7 +139,7 @@ class DailyReward:
             left = int(end - now)
         else:
             left = -int(now)                                          # recording: negative when unclaimed
-        rows = [mod('MonthlyDeluxeRewardModule', lootId=l, amount=n) for l, n in DELUXE]
+        rows = [mod('MonthlyDeluxeRewardModule', lootId=l, amount=n) for l, n in self.deluxe_list(now)]
         return ('MonthlyDeluxeInfoCommand', dict(rewardList=rows, dayInfoCommand=self.deluxe_day_cmd(now),
                                                  timeInfoCommand=mod('MonthlyDeluxeTimeInfoCommand', timeToPassEnd=left)))
 
@@ -151,7 +164,7 @@ class DailyReward:
         d = self.deluxe_day()
         if not st or d < 0 or d in st['claimed']:
             return [self.deluxe_day_msg()]
-        l, n = DELUXE[d]
+        l, n = self.deluxe_list()[d]
         with self.p.lock:
             st['claimed'].append(d)
             self.p.dirty = True

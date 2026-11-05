@@ -35,6 +35,9 @@ from legacy_protocol import legacy
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 T = json.load(open(os.path.join(HERE, 'data', 'recipes.json'), encoding='utf8'))['recipes']
+# titles for distinct items assembled (the client's achievement_assembly_item-crafting_1/2 texts: two / four different items; no achievement
+# XML in the client, so the title is granted directly, like the ranking titles)
+CRAFT_TITLES = ((2, 'title_achievement_assembly_item-crafting-1'), (4, 'title_achievement_assembly_item-crafting-2'))
 INGREDIENTS = {loot for r in T.values() for loot in r.get('parts', {})}      # counters sent at login (shop.count_msgs)
 ALREADY_OWNS, ALREADY_USED, ALREADY_USED_LIMIT = 0, 1, 2          # RecipeUnavailableType (client)
 # recipes unlocked by a condition (wiki): the Spartan drone design once the Kronos gate is completed
@@ -305,6 +308,10 @@ class Assembly:
         for loot, n in T[key]['result'].items():
             msgs += self.grant(loot, n * b['count'])
         self.p.ach('assembly_collect', recipe=key, count=b['count'])
+        made = sum(1 for v in self.st['counter'].values() if v > 0)       # "Assemble two / four different items from the Build menu" (client text)
+        for need, title in CRAFT_TITLES:
+            if made >= need:
+                RT.grant_title(self.p, title)
         # logbook (MSJ-10): the client (ReturnLogBookInfoText) translates the "his_assembly_..." text; %recipename% is the name of the lootId in info
         # (items_<lootId>_fullname; the result's name exists for all of them, the recipe's name is missing for 35 recipes), %buildamount% is count
         RT.note(self.p, 'his_assembly_recipe_collected_multi' if b['count'] > 1 else 'his_assembly_recipe_collected',

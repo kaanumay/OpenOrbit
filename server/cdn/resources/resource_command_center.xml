@@ -4,6 +4,7 @@
    <location id="do_img_new_overlay" path="do_img/new/overlay/"/>
    <location id="resources_command-center" path="resources/command-center/"/>
    <file debugView="false" hash="ee4f6348ce226795714891fbe1dc8300" id="12th_birthday_s_201812" location="do_img_new_bg" name="12th_birthday_s_201812" type="jpg" version="1"/>
+   <file debugView="false" hash="fc4c535589faec3d8b7350e253380e00" id="2026010_Apotheosis_303x168" location="do_img_new_bg" name="2026010_Apotheosis_303x168" type="jpg" version="1"/>
    <file debugView="false" hash="48e759e4e5d2be22b9ff8d3e02fd1500" id="50cent-booster_s_201803" location="do_img_new_bg" name="50cent-booster_s_201803" type="jpg" version="1"/>
    <file debugView="false" hash="bc3ebd6d147d4618f32e813ecf06c100" id="AgatusBreach202502" location="do_img_new_bg" name="AgatusBreach202502" type="jpg" version="1"/>
    <file debugView="false" hash="4bb06502de31b1df8757dab57c194500" id="AgatusBreach202503" location="do_img_new_bg" name="AgatusBreach202503" type="jpg" version="1"/>
@@ -147,6 +148,7 @@
    <file debugView="false" hash="fea51fe759def0c1baac880049bdbb00" id="bbox_r_b_s_202310_breakingnews" location="do_img_new_bg" name="bbox_r_b_s_202310_breakingnews" type="jpg" version="1"/>
    <file debugView="false" hash="f5b1001b02dcbd0e49d3ad420f657700" id="bbox_r_b_s_202401_2" location="do_img_new_bg" name="bbox_r_b_s_202401_2" type="jpg" version="1"/>
    <file debugView="false" hash="17f248ed016400a6cd5ab957cc9c8500" id="bbox_r_b_s_202607_breakingnews_303x168" location="do_img_new_bg" name="bbox_r_b_s_202607_breakingnews_303x168" type="jpg" version="1"/>
+   <file debugView="false" hash="9d37c8620a3f71e4a47f4f5452ca2200" id="bbox_r_b_s_202610_breakingnews_303x168" location="do_img_new_bg" name="bbox_r_b_s_202610_breakingnews_303x168" type="jpg" version="1"/>
    <file debugView="false" hash="7c123ba73839d88bfe62b4c864f6cf00" id="bbox_r_b_s_2307_breakingnews" location="do_img_new_bg" name="bbox_r_b_s_2307_breakingnews" type="jpg" version="1"/>
    <file debugView="false" hash="03ecc60c9e91695ce55f1a2a1068f500" id="bbox_rb_s_201907" location="do_img_new_bg" name="bbox_rb_s_201907" type="jpg" version="1"/>
    <file debugView="false" hash="83bb511c6d7aa574877f15eb1b2d4a00" id="bbox_rb_s_201909" location="do_img_new_bg" name="bbox_rb_s_201909" type="jpg" version="1"/>
@@ -220,6 +222,7 @@
    <file debugView="false" hash="d7dbd0b9b8cec51c4c8b46b23c681400" id="breaking_news_GoP_mini_calendar" location="do_img_new_bg" name="breaking_news_GoP_mini_calendar" type="jpg" version="1"/>
    <file debugView="false" hash="ca4994e6960fe90df05ffafde6751800" id="breaking_news_Halloween2024" location="do_img_new_bg" name="breaking_news_Halloween2024" type="jpg" version="1"/>
    <file debugView="false" hash="af4cfbdd6165536f6381e549d7cfa400" id="breaking_news_Halloween2025" location="do_img_new_bg" name="breaking_news_Halloween2025" type="jpg" version="1"/>
+   <file debugView="false" hash="83ee98ef4e583b2604ce0ed96f2cd500" id="breaking_news_Halloween2026" location="do_img_new_bg" name="breaking_news_Halloween2026" type="jpg" version="1"/>
    <file debugView="false" hash="37fedd333c87ff91c234e02e5af10000" id="breaking_news_LevelupResourceSales202509" location="do_img_new_bg" name="breaking_news_LevelupResourceSales202509" type="jpg" version="1"/>
    <file debugView="false" hash="83527e57248b526dcda48e5149e1dc00" id="breaking_news_MimesisMutinyMar2022" location="do_img_new_bg" name="breaking_news_MimesisMutinyMar2022" type="jpg" version="1"/>
    <file debugView="false" hash="92fce9b43277082eade62429408b0400" id="breaking_news_NewYearCalendar_2_202601" location="do_img_new_bg" name="breaking_news_NewYearCalendar_2_202601" type="png" version="1"/>
@@ -568,6 +571,7 @@
    <file debugView="false" hash="53855871c81ac35ad34345a380281e00" id="mission_expansion_1_s_201807" location="do_img_new_bg" name="mission_expansion_1_s_201807" type="jpg" version="1"/>
    <file debugView="false" hash="2dd49c5147d2b0b4eb557fd1e6278300" id="mwg_s_201903" location="do_img_new_bg" name="mwg_s_201903" type="jpg" version="1"/>
    <file debugView="false" hash="3b1b0590c94f48b66c03f3a395b12900" id="news_Season_Pass_202608" location="do_img_new_bg" name="news_Season_Pass_202608" type="jpg" version="1"/>
+   <file debugView="false" hash="c07d4879ecfd61d51021a8be19bdee00" id="news_Season_Pass_202611" location="do_img_new_bg" name="news_Season_Pass_202611" type="jpg" version="1"/>
    <file debugView="false" hash="206067804071e185312515c690b52600" id="obsidian_box_2019_04_breaking_news" location="do_img_new_bg" name="obsidian_box_2019_04_breaking_news" type="jpg" version="1"/>
    <file debugView="false" hash="468da6b0a07efe36bfb93af10be49400" id="pirate-raid_s_201802" location="do_img_new_bg" name="pirate-raid_s_201802" type="jpg" version="1"/>
    <file debugView="false" hash="1084269cf8d63f9b76fb267dd44dce00" id="plutus_experiment_2019_compressed" location="do_img_new_bg" name="plutus_experiment_2019_compressed" type="jpg" version="1"/>

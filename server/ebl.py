@@ -16,11 +16,14 @@ import json, math, os, random, time
 import settings as SET
 import galaxy_gates as GALAXY
 import rankings as RK
+import monthly_rankings as MR
 import pve_common as PS
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 D = json.load(open(os.path.join(HERE, 'data', 'pve_modes.json'), encoding='utf8')).get('ebl')
 PORTAL = 156900000           # + 0 X-BL gate, + 1 continue, + 2 exit
+# wave titles (client texts title_achievement_eternalblacklight-wave<N>; 'wave510-10' has no known condition and is not given)
+WAVE_TITLES = {str(w): 'title_achievement_eternalblacklight-wave%d' % w for w in (51, 102, 255, 510, 612)}
 
 
 def mod(_cls, **f):
@@ -145,6 +148,10 @@ class Ebl:
                 self.st['best_at'] = int(time.time() * 1000)
             self.p.dirty = True
         self.p.ach('gate_wave', type='ETERNAL_GATE', wave=done)       # achievement: "Reach wave N in the Eternal Gate"
+        MR.record(self.p, 'ebl', done)                                 # the month's ranking (monthly_rankings.py)
+        if str(done) in WAVE_TITLES:                  # Eternal Prime ... The All Eternal (client texts; no achievement XML: granted directly)
+            import ranks as RT
+            RT.grant_title(self.p, WAVE_TITLES[str(done)])
         if record:
             self.p.ach('record_ebl')                  # champion achievement: the only player in the ranking, personal record first
         w = (done - 1) % D['type'] + 1
@@ -272,11 +279,9 @@ class Ebl:
         return time.strftime('%Y-%m-%d %H:%M', time.localtime(float(t) / (1000.0 if float(t) > 1e11 else 1.0)))
 
     def rank_cmd(self):
-        """Rank tab: players on the server (furthest wave)."""
-        import community as TP
-        row = lambda r: mod('EternalBlacklightRankModule', waves=int(r[2]), name=r[1].d['pilot'].get('userName', ''), rank=r[0],
-                            lastUpdateTime=self.when() if r[1] is self.p else '')
-        top, me = TP.ranking(self.p, lambda x: int(((x.d.get('pve') or {}).get('ebl') or {}).get('best', 0)))
+        """Rank tab: the month's ranking (furthest wave)."""
+        row = lambda r: mod('EternalBlacklightRankModule', waves=int(r[2]), name=r[1], rank=r[0], lastUpdateTime=self.when() if r[3] else '')
+        top, me = MR.table(self.p, 'ebl')                     # the month's ranking with the bot pilots (monthly_rankings.py)
         info = mod('EternalBlacklightRankInfoCommand', topRankers=[row(r) for r in top], myRank=row(me))
         # the Rank tab only recognizes the event wrapper (like Astral's RogueLiteRankEventInfoCommand); without isEventEnabled
         # "No ranking boards are available at the moment." (live test H76)

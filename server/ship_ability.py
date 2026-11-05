@@ -225,6 +225,8 @@ class Engine:
         self.ending = {}           # ability -> end moment (when it ends the visual is removed, the cooldown starts)
         self.charging = {}         # ability -> [target, start] (Charge Shot charge)
         self.beams = {}            # Hecate Particle Beam: ability -> {target, start, last}
+        self.shown = {}            # ability -> (unit, attribute, additionalAttribute) of its VisualModifierCommand (removed the same way)
+        self.flash = {}            # ability -> moment its brief visual is removed (Last Stand on the lethal hit)
         self.waiting = set()       # those on cooldown: READY when it ends
         self.next_heal = 0.0
         self.flags = dict(cloak=False, vision=1.0, rocket=None)   # frequently asked: computed once per loop (refresh)
@@ -260,11 +262,31 @@ class Engine:
     def stats(self):
         return self.w.stats_msgs() if self.w.stats_msgs else []
 
+    def appearance(self, item, target, on):
+        """VisualModifierCommand of an ability (the client's VisualModifierAssemblyHelper): on the ship or, with on=target, on the selected
+        target; attr: the linked unit (target, the nearest group member) or a number (Noxious Nebula radius); extra=target: additionalAttribute
+        is the target (Charge Shot fires its laser at it when the effect ends)."""
+        g, w = ABILITIES[item]['visual'], self.w
+        if on:
+            if target is None and w.target in w.npcs and w.npcs[w.target].alive:
+                target = w.target                    # untargeted abilities aimed at the selection (Enemy Reversal)
+            a = g.get('attr', 0)
+            if a == 'mate':                          # Shield Link: a group member (player, then group bot), otherwise the ship itself
+                now = time.time()
+                a = next(iter([o.hid for o in self.mates(now)] + [n.id for n in self.mate_bots(now)]), w.hid)
+            elif a == 'target':
+                a = target or 0
+            self.shown[item] = (target if g.get('on') == 'target' else w.hid, a, str(target or 0) if g.get('extra') == 'target' else '')
+        uid, a, extra = self.shown.pop(item, (None, 0, '')) if not on else self.shown[item]
+        if uid is None:
+            return []
+        return [('VisualModifierCommand', dict(userId=uid, modifier=g['appearance'], attribute=int(a), additionalAttribute=extra,
+                                               count=0, activated=on))]
+
     def visual_on(self, item, target):
         g = ABILITIES[item].get('visual', {})
         if 'appearance' in g:                        # ship look (the client's VisualModifier: 8 FORTIFY armor, 9 PROTECT_OWNER ring)
-            return [('VisualModifierCommand', dict(userId=self.w.hid, modifier=g['appearance'], attribute=0, additionalAttribute='',
-                                                   count=0, activated=True))]
+            return self.appearance(item, target, True)
         if 'entity' in g:                         # object placed on the map (Aegis Repair Pod: HEALING_POD 33), stays in place for the duration of the effect
             hx, hy = self.w.hero_pos()
             self.pods[item] = POD_UID[0] = POD_UID[0] + 1
@@ -286,8 +308,7 @@ class Engine:
     def visual_off(self, item, target):
         g = ABILITIES[item].get('visual', {})
         if 'appearance' in g:
-            return [('VisualModifierCommand', dict(userId=self.w.hid, modifier=g['appearance'], attribute=0, additionalAttribute='',
-                                                   count=0, activated=False))]
+            return self.appearance(item, target, False)
         if 'entity' in g:
             uid = self.pods.pop(item, None)
             return [('AssetRemoveCommand', {'assetType': {'_': 'AssetTypeModule', 'typeValue': g['entity']}, 'uid': uid})] if uid else []
@@ -376,8 +397,9 @@ class Engine:
                     state(p).setdefault(i, {}).update(end_time=now, ready=now + cd, cooldown_ms=int(cd * 1000), built=False)
                     p.dirty = True
                 self.waiting.add(i)
-                self.send([timer_msg(p, i, now), stm('msg_last_stand_stopped')] + [('MenuItemStatusCommand', x) for x in
-                                                                                 [p.menu_status(i)] if x])
+                self.flash[i] = now + VISUAL_HOLD * 2
+                self.send(self.visual_on(i, None) + [timer_msg(p, i, now), stm('msg_last_stand_stopped')] +
+                          [('MenuItemStatusCommand', x) for x in [p.menu_status(i)] if x])
                 return True
         return False
 
@@ -503,6 +525,8 @@ class Engine:
                             next=now)
         if 'target_damage' in e:
             target.effect.add('damage_bonus', stop, e['target_damage'], item, now)
+            tx, ty = target.mover.pos(now)               # Target Marker / Neutralizing Marker: a red ping on the minimap (MarkTargetCommandHandler)
+            msgs.append(('MarkTargetCommand', dict(userId=target.id, targetId=target.id, positionX=int(tx), positionY=int(ty))))
         if 'draw_fire' in e:                       # Draw Fire: aliens in range attack
             hx, hy = w.hero_pos(now)
             for n in w.npcs.values():
@@ -711,6 +735,10 @@ class Engine:
         for i, t in list(self.ending.items()):
             if now >= t:
                 self.finish(i, now)
+        for i, t in list(self.flash.items()):
+            if now >= t:
+                del self.flash[i]
+                self.send(self.visual_off(i, None))
         for i in list(self.waiting):
             if now >= state(p).get(i, {}).get('ready', 0):
                 self.waiting.discard(i)

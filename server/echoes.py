@@ -458,6 +458,9 @@ class Echoes:
             ok = False
         msgs = [('ExpeditionJumpTargetLevelCommand', dict(result=ok, stack=stack_msg('eqt_error_generic') if not ok else
                                                           mod('BaseStackCommand', type=0, enumBaseKey=0, stringBasekey='', argsList=[])))]
+        if not ok:                     # the client has no handler for ExpeditionJumpTargetLevelCommand: the error goes as an on-screen text too
+            from legacy_protocol import legacy
+            msgs.append(legacy('0|A|STM|eqt_error_generic'))
         return msgs + (self.m.money_msgs() if ok else []) + [self.info_cmd()]
 
     def reset(self):

@@ -61,14 +61,21 @@ TRADE_BUFF = 3                          # the client's game.xml petBuffs: trade_
 # (1 Singularity, 2 Speed Leech and 4 Weaken Shield draw nothing in this client)
 COOLDOWN_BUFF = {}                      # filled below, once the gear types are known
 RETARGETING, HP_LINK, MEGA_MINE, COMBAT_BEACON, HP_BEACON, HEAT_RELEASE = 15, 16, 17, 18, 19, 20
+FRIENDLY_SACRIFICE = 14
 WORKING = {PASSIVE, GUARD, AUTO_LOOT, AUTO_RESOURCE, ENEMY_LOCATOR, RESOURCE_LOCATOR, TRADE_POD, REPAIR_PET, KAMIKAZE, COMBO_REPAIR,
-           COMBO_GUARD, HEAT_RELEASE, HP_LINK, COMBAT_BEACON, HP_BEACON}
+           COMBO_GUARD, HEAT_RELEASE, HP_LINK, COMBAT_BEACON, HP_BEACON, MEGA_MINE, FRIENDLY_SACRIFICE}
 FIGHTING = {GUARD, KAMIKAZE, COMBO_GUARD, HP_LINK}
 # gears with cooldowns -> the name in the client's msg_pet_<name>-gear_cooldown_ready / _not_ready texts
-TIMED = {HP_LINK: 'hp-link', COMBAT_BEACON: 'combat-beacon', HP_BEACON: 'hp-beacon'}
+TIMED = {HP_LINK: 'hp-link', COMBAT_BEACON: 'combat-beacon', HP_BEACON: 'hp-beacon', MEGA_MINE: 'mega-mine'}
 BEACONS = (COMBAT_BEACON, HP_BEACON)
-READY_NAMES = {**TIMED, KAMIKAZE: 'kamikaze'}     # when the cooldown ends: msg_pet_<name>-gear_cooldown_ready
-COOLDOWN_BUFF.update({KAMIKAZE: 5, COMBO_REPAIR: 6, HP_LINK: 9, COMBAT_BEACON: 11, HP_BEACON: 12, HEAT_RELEASE: 13})
+READY_NAMES = {**TIMED, KAMIKAZE: 'kamikaze', FRIENDLY_SACRIFICE: 'friendly_sacrifice'}     # msg_pet_<name>-gear_cooldown_ready
+COOLDOWN_BUFF.update({KAMIKAZE: 5, COMBO_REPAIR: 6, FRIENDLY_SACRIFICE: 7, HP_LINK: 9, MEGA_MINE: 10, COMBAT_BEACON: 11, HP_BEACON: 12,
+                      HEAT_RELEASE: 13})
+MEGA_MINE_TYPE = 19                      # AddMineCommand.typeId -> lib_assets mine_19 "megaMine" (live 2026-11-05: drawn; AssetCreateCommand
+                                         # PET_MEGA_MINE 70 only made an invisible building, like the recorded Curcubitor mine type 20)
+SACRIFICE_EFFECT = 6                     # PlayVisualEffectCommand.VisualEffectType.PET_FRIENDLY_SACRIFICE_EXPLOSION
+MINE_UID = [158600000]
+BEACON_ASSET = {HP_BEACON: 71, COMBAT_BEACON: 72}   # AssetTypeModule PET_HP_BEACON / PET_COMBAT_BEACON -> "pet_beacon" (green / red tower; live 2026-11-05)                  # ids of Mega Mine objects on the map (CBS assets 157000000, P.E.T.s 160000000)
 START_MAPS = ('1-1', '2-1', '3-1')       # G-KK1 is not selectable (client msg_pet_kamikaze-gear_not_on_start_maps)
 FUEL_WARN = 0.1                          # when fuel drops to 10% of the maximum, msg_pet_running_out_of_fuel (the ratio is an adaptation)
 FOLLOW_AHEAD = 1.0                       # while following, how many seconds behind the ship's future position to stay (follow)
@@ -202,7 +209,9 @@ class Pet:
         self.link_end = 0.0          # G-HPL1 (HP Link) end, if linked
         self.csr_end = self.csr_ready = 0.0     # end of the C-SR2 repair window (5 s) and of the cooldown (15 s)
         self.beacon = None           # G-BC1/G-BH1 marker: (type, x, y, end)
+        self.beacon_uid = None       # its tower on the map (AssetCreateCommand)
         self.in_beacon = False       # the ship is within the marker's range: the bonus is on the ship
+        self.mine = None             # G-MM1 mine on the map: {uid, x, y, next, left}
         self.ready = {}              # gears on cooldown (TIMED): type -> cooldown end
         self.charge_end = 0.0        # G-KK1 flying at its target: explodes on arrival
         self.charge_at = None        # what it flies at: an NPC/bot id or ('p', world) of a player on the shared map; re-aimed on arrival
@@ -846,6 +855,7 @@ class Pet:
             self.end_release(now, notify=False)
         if self.link_end:
             self.end_link(now, notify=False)
+        self.beacon_gone()
         self.beacon, self.in_beacon = None, False
         self.active, self.task, self.trading = False, None, False
         self.charge_end = 0.0
@@ -891,10 +901,16 @@ class Pet:
                 return
             if now < self.ready.get(t, 0):
                 self.log('   %s on cooldown (%d s)' % (TIMED[t], self.ready[t] - now))
-                self.send([self.select_msg()] + ([legacy('0|A|STM|msg_pet_%s-gear_cooldown_not_ready' % TIMED[t])] if t in BEACONS else []))
+                self.send([self.select_msg()] + ([legacy('0|A|STM|msg_pet_%s-gear_cooldown_not_ready' % TIMED[t])]
+                                                 if t in BEACONS or t == MEGA_MINE else []))
                 return
             if t in BEACONS:
                 return self.drop_beacon(t, now)   # single use: the selected gear does not change
+            if t == MEGA_MINE:
+                return self.drop_mine(now)
+        if t == FRIENDLY_SACRIFICE and now < self.ready.get(FRIENDLY_SACRIFICE, 0):
+            self.send([self.select_msg(), legacy('0|A|STM|msg_pet_friendly_sacrifice-gear_cooldown_not_ready')])
+            return
         if t == HEAT_RELEASE:
             if self.release_end or not (self.active and self.w):
                 self.send([self.select_msg()])   # already running or the P.E.T. is not in space
@@ -1019,11 +1035,121 @@ class Pet:
         """G-BC1/G-BH1: the P.E.T. leaves a marker where it is (a bonus to the ship in range); the selected gear does not change, the cooldown starts."""
         g = self.gear(t)
         x, y = self.pos(now)
+        self.beacon_gone()
         self.beacon, self.in_beacon = (t, x, y, now + g.get('duration_sec', 30)), False
         self.ready[t] = now + g.get('cooldown_sec', 240)
-        self.send([self.select_msg(), ('PetGearActivationChangeCommand', dict(gearType=gear_type(t), active=False))]
+        MINE_UID[0] += 1
+        self.beacon_uid = (MINE_UID[0], BEACON_ASSET[t])
+        tower = ('AssetCreateCommand', dict(designId=0, clanId=0, showBubble=False, userName='', assetId=MINE_UID[0], expansionStage=0,
+                                            modifier=[], type=mod('AssetTypeModule', typeValue=BEACON_ASSET[t]), detectedByWarnRadar=False,
+                                            invisible=False, posX=int(x), posY=int(y), clanRelation=mod('ClanRelationModule', type=0),
+                                            clanTag='', factionId=self.p.d['pilot'].get('factionId', 0), visibleOnWarnRadar=False))
+        self.send([self.select_msg(), ('PetGearActivationChangeCommand', dict(gearType=gear_type(t), active=False)), tower]
                   + self.beacon_step(now))
         self.log('   P.E.T. marker: %s (%d, %d)' % (TIMED[t], x, y))
+
+    # ------------------------------------------------------------ G-MM1, G-FS1
+    def drop_mine(self, now):
+        """G-MM1 (wiki p-e-t): the P.E.T. leaves a mine where it is; it goes off after arm_sec and hits every player not in the group
+        (bot ships, enemy players on a shared map; not aliens) with 'pulses' blasts of 'damage' within 'duration_sec'. Single use: the selected
+        gear does not change, the cooldown starts (PetBuffCommand 10)."""
+        g = self.gear(MEGA_MINE)
+        x, y = self.pos(now)
+        MINE_UID[0] += 1
+        n = max(1, int(g.get('pulses', 5)))
+        gap = max(0.0, (g.get('duration_sec', 6) - g.get('arm_sec', 2)) / max(1, n - 1))
+        self.mine = dict(uid=MINE_UID[0], x=x, y=y, next=now + g.get('arm_sec', 2), left=n, gap=gap)
+        self.ready[MEGA_MINE] = now + g.get('cooldown_sec', 240)
+        self.send([self.select_msg(), ('PetGearActivationChangeCommand', dict(gearType=gear_type(MEGA_MINE), active=False)),
+                   ('AddMineCommand', dict(hash='pmm%d' % self.mine['uid'], x=int(x), y=int(y), typeId=MEGA_MINE_TYPE,
+                                           maxSkill1=False, maxSkill5b=False))])
+        self.log('   P.E.T. Mega Mine (%d, %d)' % (x, y))
+
+    def mine_targets(self, now, x, y, reach):
+        """Players the mine may hit: bot ships and players on the shared map, within reach, by the attack rules (group, clan, safe zone)."""
+        w = self.w
+        import player_combat as PVP
+        import bot.ship as BG
+        bots = [n for n in list(w.npcs.values()) if n.alive and n.bot is not None and not w.is_group_member(n.bot.uid)
+                and math.hypot(n.mover.pos(now)[0] - x, n.mover.pos(now)[1] - y) <= reach and not BG.attack_error(w, n, now)]
+        players = [o for o in (list(w.shared.members) if w.shared is not None else [])
+                   if o is not w and o.running and not o.hero_dead and o.map_id == w.map_id
+                   and math.hypot(o.hero_pos(now)[0] - x, o.hero_pos(now)[1] - y) <= reach and not PVP.attack_error(w, o, now)]
+        return bots, players
+
+    def mine_step(self, now):
+        m, g, w = self.mine, self.gear(MEGA_MINE) or self.gear_data(MEGA_MINE), self.w
+        bots, players = self.mine_targets(now, m['x'], m['y'], g.get('range', 0))
+        dmg = int(g.get('damage', 0))
+        msgs = []
+        for n in bots:
+            w.hit_npc(n.id, dmg, 0, attacker=self.pid)
+            msgs.append(legacy('0|n|PMME|%d' % n.id))            # the ring on the unit hit (MapEventsAssemblyHelper.AssemblePetMegaMineExploded)
+        if players:
+            import player_combat as PVP
+            for o in players:
+                PVP._hit(w, o, now, dmg, atype=0)
+                msgs.append(legacy('0|n|PMME|%d' % o.hid))
+        m['left'] -= 1
+        m['next'] = now + m['gap']
+        if m['left'] <= 0:
+            msgs.append(('RemoveMineCommand', {'hash': 'pmm%d' % m['uid']}))
+            self.mine = None
+        return msgs
+
+    def gear_data(self, t):
+        """The gear's data at level 1 (the mine keeps going after the gear was unequipped)."""
+        loot = next((l for l, g in GEARS.items() if g.get('type') == t), None)
+        return at_level(GEARS.get(loot, {}), 1) if loot else {}
+
+    def sacrifice(self, now):
+        """G-FS1 (wiki p-e-t): passive; when a friendly ship (same clan and/or group: player or bot) in range has its shield below the
+        threshold, the P.E.T. flies to it and explodes: the ship gets 'transfer' of the P.E.T.'s maximum shield (fandom Sacrificial Flame:
+        "based on your P.E.T.'s maximum"), the P.E.T. is destroyed and the cooldown starts (PetBuffCommand 7). -> True if it went off."""
+        g, w = self.gear(FRIENDLY_SACRIFICE), self.w
+        px, py = self.pos(now)
+        reach, low = g.get('range', 0), g.get('threshold', 0.5)
+        clan = int(self.p.d['pilot'].get('clanId') or 0)
+        mates = [(o, o.p.d['ship']) for o in (list(w.shared.members) if w.shared is not None else [])
+                 if o is not w and o.running and not o.hero_dead and o.map_id == w.map_id
+                 and (w.is_group_member(o.hid) or (clan and clan == int(o.p.d['pilot'].get('clanId') or 0)))
+                 and math.hypot(o.hero_pos(now)[0] - px, o.hero_pos(now)[1] - py) <= reach]
+        target = next(((o, s) for o, s in mates if s.get('shieldMax', 0) and s.get('shield', 0) < s['shieldMax'] * low), None)
+
+        def friend_bot(n):
+            if w.is_group_member(n.bot.uid):
+                return True
+            import bot.society as T
+            return bool(clan) and clan == int(T.profile(n.bot).d['pilot'].get('clanId') or 0)
+        bot = None if target else next((n for n in list(w.npcs.values()) if n.alive and n.bot is not None and friend_bot(n)
+                                        and n.d.get('shield', 0) and n.shield < n.d['shield'] * low
+                                        and math.hypot(n.mover.pos(now)[0] - px, n.mover.pos(now)[1] - py) <= reach), None)
+        if not target and not bot:
+            return False
+        give = int(self.shield_max() * g.get('transfer', 0.3))
+        tid = target[0].hid if target else bot.id
+        self.send([('PlayVisualEffectCommand', dict(targetIds=[tid], activatorId=self.pid, visualEffect=SACRIFICE_EFFECT))])
+        if target:
+            o, s = target
+            o.p.set_hull(shield=s.get('shield', 0) + give)
+            o.send([('AttributeShieldUpdateCommand', {'shieldNow': int(s['shield']), 'shieldMax': s.get('shieldMax', 0)})])
+        else:
+            bot.shield = min(bot.d['shield'], bot.shield + give)
+        self.ready[FRIENDLY_SACRIFICE] = now + g.get('cooldown_sec', 90)
+        with self.p.lock:
+            self.d['gear'] = GUARD
+            self.p.dirty = True
+        self.destroyed(DESTROYED_NONE)
+        self.send([('PetGearActivationChangeCommand', dict(gearType=gear_type(FRIENDLY_SACRIFICE), active=False))])
+        self.log('   P.E.T. Sacrificial Flame: +%d shield to %s' % (give, tid))
+        return True
+
+    def beacon_gone(self):
+        """The marker's tower leaves the map (its time is up, the P.E.T. was called back or a new marker was laid)."""
+        if self.beacon_uid:
+            uid, kind = self.beacon_uid
+            self.beacon_uid = None
+            self.send([('AssetRemoveCommand', {'assetType': mod('AssetTypeModule', typeValue=kind), 'uid': uid})])
 
     def beacon_step(self, now):
         """The marker's duration and whether the ship is in range: ship values again when it changes."""
@@ -1032,6 +1158,7 @@ class Pet:
             t, x, y, end = self.beacon
             if now >= end:
                 self.beacon = None
+                self.beacon_gone()
             else:
                 hx, hy = self.w.hero_pos(now)
                 inside = math.hypot(hx - x, hy - y) <= self.gear(t).get('range', 0)
@@ -1129,6 +1256,8 @@ class Pet:
             self.trade_unblock()
         if self.w:
             self.cooldown_step(now)
+            if self.mine and now >= self.mine['next']:
+                self.send(self.mine_step(now))
         if not self.active or not self.alive or not self.w:
             return
         w = self.w
@@ -1191,6 +1320,10 @@ class Pet:
         if self.link_end and now >= self.link_end:
             msgs += self.end_link(now, notify=False)
         msgs += self.beacon_step(now)
+        if d.get('gear') == FRIENDLY_SACRIFICE and now >= self.ready.get(FRIENDLY_SACRIFICE, 0) and self.sacrifice(now):
+            if msgs:
+                self.send(msgs)
+            return
         if REPAIR_PET in self.installed_gears():       # real recording: G-REP is on while the P.E.T. is hurt, off once it is full
             hurt = d['hp'] < self.hp_max()
             if hurt != self.rep_state:

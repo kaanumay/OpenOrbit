@@ -131,7 +131,7 @@ def _gate(y, b, name, who, now, text=''):
         return _result('gate', False, 'You decided NOT to join (busy). Say no in your own words.', ('reply_no', {}))
     if b.level < GATE_LEVEL[bool(_HARD_GATE.search(text or ''))]:
         return _result('gate', False, 'Your ship is too weak for that gate: say so in your own words.', ('cant_come', {}))
-    if b.target is not None and b.target.name in ('gate', 'mod', 'duel'):
+    if b.target is not None and b.target.name in ('gate', 'mod', 'duel', 'pvp_match'):
         return _result('gate', False, 'You are busy in your own gate/event now: say so.', ('reply_no', {}))
     fac = int(who.get('factionId') or 0)
     p = 0.3 + 0.35 * b.o('sociability') + 0.35 * b.o('ambition') + 0.6 * b.memory.relation(name, now) - 0.3 * b.mood['fatigue']
@@ -177,7 +177,7 @@ def _duel(y, b, name, who, game_map, now):
     player_level = int(o.profile.d['pilot'].get('level', 1))
     p = 0.05 + 0.5 * b.o('aggression') + 0.25 * b.o('rivalry') + 0.3 * b.mood['anger'] - 0.5 * b.memory.relation(name, now) \
         - 0.07 * max(0, player_level - b.level) + 0.03 * max(0, b.level - player_level)
-    if b.target is not None and b.target.name in ('quest', 'mod', 'gate', 'group'):
+    if b.target is not None and b.target.name in ('quest', 'mod', 'gate', 'group', 'pvp_match'):
         p -= 0.25
     if b.r.random() >= p:
         return _result('duel', False, 'You decided NOT to fight him (busy or not worth it). Answer in character: a short taunt '

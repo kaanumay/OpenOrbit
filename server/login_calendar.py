@@ -4,10 +4,13 @@ Save: at login DailyLoginRewardDayCommand {claimed, month, end, nextMonthSeconds
 (DailyLoginClaimTodayRequest -> DailyLoginClaimTodayCommand {err, claimed, day}) is not in the save: based on the client's code and texts.
 `day` is the index of today's box in the client (from 0): the number of claimed days if not claimed, one less if today's was claimed (live trial
 2026-10-17: when the number of claimed days was sent after the reward, the marker shifted to the next day).
-Rule: one reward per real day (the next day of that month), when the month changes the calendar starts over (25 days). nextMonthSeconds: 2,678,400 in the save
+Rule: one reward per real day (the next day of that month), when the month changes the calendar starts over (25 days); from 2027 the 12
+real lists change months every year (reward_renewal.login_set: the client shows the list of the `month` the server sends). nextMonthSeconds: 2,678,400 in the save
 (31 days, on the 15th of the month): here the time left until the start of the next month (adaptation).
 """
 import datetime, json, os
+
+import reward_renewal as RR
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 DATA = json.load(open(os.path.join(HERE, 'data', 'daily_login.json'), encoding='utf8'))
@@ -29,6 +32,12 @@ class DailyLogin:
                 self.p.dirty = True
         return d
 
+    def set_no(self):
+        """Which of the client's 12 lists this month shows (the client draws the items from it): renewed every year
+        (reward_renewal.login_set)."""
+        t = self.today()
+        return RR.login_set(t.year, t.month)
+
     def claimed_today(self):
         return self.state()['last'] == self.today().isoformat()
 
@@ -45,7 +54,7 @@ class DailyLogin:
 
     def fields(self):
         d = self.state()
-        return dict(claimed=self.claimed_today(), month=self.today().month, end=d['day'] >= DAYS,
+        return dict(claimed=self.claimed_today(), month=self.set_no(), end=d['day'] >= DAYS,
                     nextMonthSeconds=self.next_month_seconds(), day=self.today_index())
 
     def info_cmd(self):
@@ -57,7 +66,7 @@ class DailyLogin:
         if self.claimed_today() or d['day'] >= DAYS:
             self.log('   daily login: claimed today or calendar finished (day %d)' % d['day'])
             return [('DailyLoginClaimTodayCommand', dict(err='already_claimed', claimed=False, day=self.today_index()))]
-        reward = DATA['months'][str(self.today().month)][d['day']]
+        reward = DATA['months'][str(self.set_no())][d['day']]
         with self.p.lock:
             d['day'] += 1
             d['last'] = self.today().isoformat()

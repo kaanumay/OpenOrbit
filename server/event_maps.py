@@ -61,6 +61,22 @@ def specs(now=None):
     return out
 
 
+def spawn_times(k, s, now=None):
+    """The indicator's countdown (Agatus/NpcEventTimeInfoCommand): (seconds to the end of the spawn window open now, seconds to the
+    start of the next one). Official record 2026-10-27 (Halloween): both filled while a window is open (11852 / 64053); outside a window
+    toEnd is 0 and the client counts down to toNext (AgatusEventUIData.SetEventActive). A forced event has no windows: its end only."""
+    now = time.time() if now is None else now
+    if CAL.forced(k):
+        return CAL.time_left(k, now), 0
+    a = CAL._dt(now)
+    b = a + CAL.DAY * 8
+    iv = CAL._intersect(CAL.intervals(k, a, b), CAL.section_intervals(s, a, b, always_open=bool(SET.get('session_always_open'))))
+    cur = next((e for st, e in iv if st <= a < e), None)
+    nxt = next((st for st, e in iv if st > a and (cur is None or st >= cur)), None)
+    sec = lambda x: max(0, int((x - a).total_seconds())) if x is not None else 0
+    return sec(cur), sec(nxt)
+
+
 PROXIUM = 'resource_collectable_proxium'
 
 
@@ -198,10 +214,11 @@ class MapEvents:
             alive = [i for i in st['boss'] if i in self.w.npcs and self.w.npcs[i].alive]
             agatus = b['command'] == 'AgatusEventInfoCommand'
             pre = 'AgatusEvent' if agatus else 'NpcEvent'
+            to_end, to_next = spawn_times(k, s, now)
             msgs.append((b['command'], dict(
                 textKey=b['text'], type=0, npcID=b['npc'],
                 bossInfoCommand=mod(pre + 'BossInfoCommand', bossCount=len(alive), leftToKill=max(0, quota - st['counter']) if quota else 0),
-                timeInfoCommand=mod(pre + 'TimeInfoCommand', timeToNextSpawn=0, timeToEndSpawn=CAL.time_left(k, now)))))
+                timeInfoCommand=mod(pre + 'TimeInfoCommand', timeToNextSpawn=to_next, timeToEndSpawn=to_end))))
         # the indicator also on a map with no event (Ö1, live test): boss and remaining kills 0 -> the client writes "There are no %NPC%
         # on this map" (NpcEventUIData.UpdateDescriptions); when it was not sent the window opened empty
         sent = {(c, f['textKey']) for c, f in msgs}
@@ -211,10 +228,11 @@ class MapEvents:
                 continue
             sent.add((b['command'], b['text']))
             pre = 'AgatusEvent' if b['command'] == 'AgatusEventInfoCommand' else 'NpcEvent'
+            to_end, to_next = spawn_times(k, s, now)
             msgs.append((b['command'], dict(textKey=b['text'], type=0, npcID=b['npc'],
                                           bossInfoCommand=mod(pre + 'BossInfoCommand', bossCount=0, leftToKill=0),
-                                          timeInfoCommand=mod(pre + 'TimeInfoCommand', timeToNextSpawn=0,
-                                                              timeToEndSpawn=CAL.time_left(k, now)))))
+                                          timeInfoCommand=mod(pre + 'TimeInfoCommand', timeToNextSpawn=to_next,
+                                                              timeToEndSpawn=to_end))))
         return msgs
 
     # ------------------------------------------------------------ events

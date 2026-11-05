@@ -334,6 +334,11 @@ class Astral(Mod):
             out.append(_combined([wave(d['groups'], health, dmg) for d in s]))
         return out
 
+    def save(self, bot, reached, total):
+        super().save(bot, reached, total)
+        import monthly_rankings as MR
+        MR.record_bot(bot, 'astral', reached)            # the month's Astral ranking (the player's competitors)
+
     def finish(self, bot, reached, total, duration, rng):
         row = next((r for r in self.A['reward'] if r['min_value'] <= reached <= r['max_count']), None)
         if row:
@@ -363,6 +368,11 @@ class Ebl(Mod):
             k = self.E['kind_multiplier'] ** kind
             out += [wave(d['groups'], d.get('multiplier', 1) * k, d.get('multiplier', 1) * k) for d in self.E['waves']]
         return out
+
+    def save(self, bot, reached, total):
+        super().save(bot, reached, total)
+        import monthly_rankings as MR
+        MR.record_bot(bot, 'ebl', reached)               # the month's Eternal Black Light ranking
 
     def finish(self, bot, reached, total, duration, rng):
         row = next((r for r in self.E['death_reward'] if r['min_value'] <= reached <= r['max_count']), self.E['death_reward'][-1]

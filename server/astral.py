@@ -21,6 +21,7 @@ import json, math, os, random, time
 import settings as SET
 import galaxy_gates as GALAXY
 import rankings as RK
+import monthly_rankings as MR
 import pve_common as PS
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -204,6 +205,8 @@ class Astral:
             runs = self.st.setdefault('runs', [])
             runs.append(int(r['points']))
             self.st['runs'] = sorted(runs, reverse=True)[:20]
+        MR.record(p, 'astral', int(r['points']))                     # the month's ranking (monthly_rankings.py)
+        with p.lock:
             p.dirty = True
         row = next((x for x in D['reward'] if x['min_value'] <= reached <= x['max_count']), D['reward'][0])
         msgs, got = [], []
@@ -493,11 +496,9 @@ class Astral:
         return self.m.apply_stats() + [self.inventory_cmd()]
 
     def rank_cmd(self):
-        """Rank tab: the players on the server (total of the best three runs)."""
-        import community as TP
-        row = lambda r: mod('RankModule', lastUpdateTime=int(time.time() * 1000), name=r[1].d['pilot'].get('userName', ''), rank=r[0],
-                            points=int(r[2]))
-        top, me = TP.ranking(self.p, lambda x: sum(((x.d.get('pve') or {}).get('astral') or {}).get('runs', [])[:3]))
+        """Rank tab: the month's ranking (total of the best three runs)."""
+        row = lambda r: mod('RankModule', lastUpdateTime=int(time.time() * 1000), name=r[1], rank=r[0], points=int(r[2]))
+        top, me = MR.table(self.p, 'astral')                  # the month's ranking with the bot pilots (monthly_rankings.py)
         info = mod('RogueLiteRankInfoCommand', topRankers=[row(r) for r in top], myRank=row(me))
         return ('RogueLiteRankEventInfoCommand', dict(playerRankRanges=RK.ranges(RK.ASTRAL), rankInfoCommand=info,
                                                          isEventEnabled=True))

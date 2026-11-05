@@ -25362,5 +25362,459 @@
   "reward_multiplier": 3,
   "_source": "diger_etkinlikler.json urgent_missions: appears after a long uninterrupted alien hunt, accepted only at base, disappears when time runs out, the targets are ordinary aliens (example 2 Streuner, 2 Lordakia, 2 Mordon)",
   "_adaptation": "After 45 min of continuous play and 150 kills (at most once an hour), 20 min duration, 2-4 each of the map's 3 types; the reward is 3 times the targets' rewards (in the original game it compensated for the decreasing rewards; there is no decreasing reward on the server)."
+ },
+ "galactic_strife": {
+  "_source": "darkorbitwiki events/galactic-strife (2026-09-16); client texts galacticStrife_* (fever: double gain, free repair)",
+  "event": "galactic_strife",
+  "maps": [
+   "4-1",
+   "4-2",
+   "4-3",
+   "4-4"
+  ],
+  "level": 8,
+  "rated_level": 6,
+  "start": 500,
+  "milestones": {
+   "750": [
+    [
+     "ammunition_laser_ucb-100",
+     2000
+    ],
+    [
+     "ammunition_specialammo_sr-5",
+     100
+    ]
+   ],
+   "1000": [
+    [
+     "ammunition_laser_ucb-100",
+     3000
+    ],
+    [
+     "ammunition_laser_idb-125",
+     500
+    ],
+    [
+     "ammunition_specialammo_sr-5",
+     200
+    ]
+   ],
+   "1250": [
+    [
+     "ammunition_laser_ucb-100",
+     3000
+    ],
+    [
+     "ammunition_laser_idb-125",
+     1000
+    ],
+    [
+     "ammunition_specialammo_sr-5",
+     300
+    ]
+   ],
+   "1500": [
+    [
+     "ammunition_laser_ucb-100",
+     5000
+    ],
+    [
+     "ammunition_laser_idb-125",
+     2000
+    ],
+    [
+     "ammunition_specialammo_sr-5",
+     500
+    ]
+   ],
+   "every": [
+    [
+     "ammunition_laser_ucb-100",
+     2000
+    ],
+    [
+     "ammunition_laser_idb-125",
+     1000
+    ],
+    [
+     "ammunition_specialammo_sr-5",
+     100
+    ]
+   ]
+  },
+  "milestone_step": 250,
+  "milestone_rows": 8,
+  "fever": {
+   "weekday": [
+    [
+     19,
+     21
+    ]
+   ],
+   "weekend": [
+    [
+     13,
+     15
+    ],
+    [
+     19,
+     21
+    ]
+   ]
+  },
+  "min_share": 0.15,
+  "top": 2,
+  "unique_bonus": 1.5,
+  "unique_count": 10,
+  "shuffle_sec": 1800,
+  "spawn_protection_sec": 5,
+  "loss_streak": 3,
+  "loss_window_sec": 3600,
+  "loss_protection_sec": 3600,
+  "loss_protection_max_level": 17,
+  "k": 20,
+  "max_gap": 400,
+  "_adaptation": "the per-kill formula is not published (only 'the smaller the difference, the more reputation; too large, none'): Elo-like gain = 2k(1-E), E = 1/(1+10^((loser-winner)/400)), 20 between equals, 0 when the winner leads by more than max_gap; the loser loses the same base; a repeated victim of the day divides the gain by (1 + earlier kills); bots keep their own reputation in their profile",
+  "crates": {
+   "FLUX_CRATE": 2,
+   "MIRE_CRATE": 2
+  },
+  "crate_respawn_sec": 60,
+  "flux": {
+   "speed": 0.1,
+   "cap": 750,
+   "duration_sec": 30
+  },
+  "mire": {
+   "slow": 0.2,
+   "radius": 800,
+   "duration_sec": 10
+  },
+  "_crates": "wiki: Flux +10% speed for a short duration (not above 750; cannot be picked up while active), Mire -20% speed to nearby enemy ships (not party members; P.E.T. collectors cannot pick them up). Adaptation: 2 + 2 crates per map, 60 s respawn, Flux 30 s, Mire 800 units for 10 s"
+ },
+ "team_deathmatch": {
+  "_source": "darkorbitwiki events/team-death-match (2022-06-08): level bands 8-13 / 14+, X-1 battlemaster, three matches MMO-EIC / EIC-VRU / MMO-VRU, 8 per team (the client's text: at least 3 per side), 15 min or 100 points, +1 per kill, 3 lives, 20 s start phase, free repair at the TDM spawn within 15 s of the death (flashres: after that the pilot is removed from the TDM server) and 20 s protection after it, a draw: both lose, 30 s without opponents: no reward, result window 30 s, reward by kills and a loser reward when kills <= deaths, the winning company +10% ore price / bonus box (not energy) / EP from kills for 24 h; maps-config.xml 81 TDM I level 8, 82 TDM II level 14; flashres tdm_* texts; belgeler/arastirma/PVP_MODLARI.md section 1",
+  "brackets": [
+   {
+    "map": 81,
+    "min_level": 8,
+    "max_level": 13
+   },
+   {
+    "map": 82,
+    "min_level": 14,
+    "max_level": 50
+   }
+  ],
+  "team_max": 8,
+  "team_min": 3,
+  "match_sec": 900,
+  "max_score": 100,
+  "lives": 3,
+  "start_phase_sec": 20,
+  "respawn_sec": 15,
+  "respawn_protection_sec": 20,
+  "no_opponent_sec": 30,
+  "result_sec": 30,
+  "company_reward": {
+   "hours": 24,
+   "ore_price": 0.1,
+   "bonus_box": 0.1,
+   "ep": 0.1
+  },
+  "draft_sec": 20,
+  "queue_fill_sec": [
+   2,
+   6
+  ],
+  "fill_wait_sec": 45,
+  "spawn": {
+   "own": [
+    1500,
+    3275
+   ],
+   "opp": [
+    9000,
+    3275
+   ]
+  },
+  "spawn_scatter": 350,
+  "start_zone_radius": 1200,
+  "battlemaster_distance": 1500,
+  "rewards": {
+   "loser": [
+    [
+     "ammunition_laser_mcb-25",
+     1000
+    ]
+   ],
+   "tiers": [
+    [
+     1,
+     [
+      [
+       "ammunition_laser_ucb-100",
+       1000
+      ]
+     ]
+    ],
+    [
+     5,
+     [
+      [
+       "ammunition_laser_ucb-100",
+       2500
+      ],
+      [
+       "ammunition_rocket_plt-2021",
+       100
+      ]
+     ]
+    ],
+    [
+     10,
+     [
+      [
+       "ammunition_laser_ucb-100",
+       5000
+      ],
+      [
+       "ammunition_rocket_plt-2021",
+       250
+      ],
+      [
+       "ammunition_specialammo_sr-5",
+       100
+      ]
+     ]
+    ],
+    [
+     20,
+     [
+      [
+       "ammunition_laser_ucb-100",
+       10000
+      ],
+      [
+       "ammunition_rocket_plt-2021",
+       500
+      ],
+      [
+       "ammunition_specialammo_sr-5",
+       250
+      ],
+      [
+       "ammunition_laser_rsb-75",
+       1000
+      ]
+     ]
+    ]
+   ]
+  },
+  "_adaptation": "not published: the reward amounts (kill tiers 1 / 5 / 10 / 20, loser reward), the confirmation seconds (20), the queue fill speed (a bot every 2-6 s, at least 3 per side after 45 s), the spawn points (left and right middle of the map), the start-zone radius (1,200), the battlemaster position (1,500 from the X-1 station towards the middle); the other pilots are the band's bot players; the matches without the player are simulated (lobby rows, event score); TDM II's top level is the level cap (the lobby title shows min - max); when the band has too few bot pilots (a young pack), the company's bots of the nearest level fill the team; the bots take the free repair 3-10 s after their death",
+  "bot_respawn_sec": [
+   3,
+   10
+  ]
+ },
+ "sector_control": {
+  "_source": "darkorbitwiki events/sector-control (2022-06-13) and the official Turkish FAQ board-tr 127679: groups 8-13 (map 201 SC-1) and 14+ (map 202 SC-2), the beacon near the middle of X-1, at most 15 per company, start with 5 pilots in two companies, 30 s countdown in the start area, constant ticket bleed, a kill = 1 ticket of the victim's company, the control point bleed table, 5 times faster bleed after 15 minutes, capture: more pilots than the holder, each extra pilot faster up to 8, a tie keeps the holder, cloaked pilots do not count, back to the holder / neutral when the attackers leave; the start area repairs 10,000 HP/s and cannot be captured; underdog bonus +5% (2 points behind), +8% (3), +15% (all 4 held); free respawn at the start area within 15 s with the in-place repair's protection; the door leaves without the bonus; a company without tickets is out; the winners get kill statistics and the EP & Honor bonus (flashres msg_sectorcontrol_kill_statistics); client: minLevel / maxLevel 999 shows infinity, captureThreshold 1000",
+  "brackets": [
+   {
+    "map": 201,
+    "min_level": 8,
+    "max_level": 13
+   },
+   {
+    "map": 202,
+    "min_level": 14,
+    "max_level": 999
+   }
+  ],
+  "team_max": 15,
+  "team_min": 5,
+  "start_sec": 30,
+  "late_sec": 900,
+  "late_factor": 5,
+  "home_repair": 10000,
+  "respawn_sec": 15,
+  "capture_threshold": 1000,
+  "capture_max_pilots": 8,
+  "underdog": [
+   0.05,
+   0.08,
+   0.15
+  ],
+  "sectors_count": 4,
+  "tickets": 500,
+  "bleed_base": 0.1,
+  "bleed_point": 0.1,
+  "capture_sec": 20,
+  "capture_step_sec": 1.5,
+  "homes": {
+   "1": [
+    1300,
+    1100
+   ],
+   "2": [
+    9200,
+    1100
+   ],
+   "3": [
+    5250,
+    5650
+   ]
+  },
+  "sectors": [
+   [
+    5250,
+    1500
+   ],
+   [
+    3100,
+    3900
+   ],
+   [
+    7400,
+    3900
+   ],
+   [
+    5250,
+    3300
+   ]
+  ],
+  "home_radius": 900,
+  "sector_radius": 650,
+  "spawn_scatter": 300,
+  "beacon_offset": [
+   -1200,
+   0
+  ],
+  "matches": 2,
+  "team_target": 10,
+  "draft_sec": 20,
+  "queue_fill_sec": [
+   1,
+   3
+  ],
+  "fill_wait_sec": 30,
+  "bot_respawn_sec": [
+   3,
+   10
+  ],
+  "bot_engage_range": 900,
+  "end_sec": 10,
+  "bonus_percent_per_kill": 10,
+  "bonus_max_percent": 100,
+  "_adaptation": "not published: 500 tickets (the old fandom value; the wiki gives no number), bleed 0.1 ticket/s plus 0.1 per point of difference to each holder, capture 20 s with one pilot and 1.5 s less per extra pilot, the start area and control point positions (a triangle of start areas, four points around the middle) and radii (900 / 650), the beacon 1,200 left of the X-1's middle, two lobby matches per group, the bots fill each company to 10 (performance), confirmation 20 s, the bots take the free respawn after 3-10 s and engage enemies within 900, the bonus 10% per kill (at most 100%) of the EP and Honor earned in the match; the bot pilots of the nearest levels fill a young pack; the calendar is the Thanksgiving mini event window (no published Sector Control dates)"
+ },
+ "spaceball": {
+  "_source": "darkorbitwiki events/space-ball (2022-08-10): the ball on 4-4, shoot it to your company's portal to its X-5, a goal gives cargo prizes (457 SAB-50, 241 UCB-100, 48 PLT-2021, 149 uridium, 10 extra energy, 3 repair vouchers, 2 jump vouchers), next-day company bonuses (examples: 10% EP, 5% cargo selling, 2% bonus boxes); fandom Spaceball: the prizes are in cargo boxes, the quicker one takes them; client: SpaceBall* commands, box type FROM_SPACEBALL, models 442-444, msg_spaceball_company_scored",
+  "map": 16,
+  "npc": "spaceball",
+  "box": "FROM_SPACEBALL",
+  "prizes": [
+   [
+    "ammunition_laser_sab-50",
+    457
+   ],
+   [
+    "ammunition_laser_ucb-100",
+    241
+   ],
+   [
+    "ammunition_rocket_plt-2021",
+    48
+   ],
+   [
+    "currency_uridium",
+    149
+   ],
+   [
+    "resource_extra-energy",
+    10
+   ],
+   [
+    "resource_repairvoucher",
+    3
+   ],
+   [
+    "resource_jumpvoucher",
+    2
+   ]
+  ],
+  "company_bonus": {
+   "ep": 0.1,
+   "ore_price": 0.05,
+   "bonus_box": 0.02
+  },
+  "window_sec": 10,
+  "speeds": [
+   80,
+   130,
+   180
+  ],
+  "goal_radius": 450,
+  "box_life_sec": 120,
+  "bot_range": 2500,
+  "bot_chance": 0.25,
+  "_adaptation": "not published: the ball heads for the portal of the company with the most damage in the last 10 s, speed 1-3 (80 / 130 / 180) by its lead; the goal radius 450; one box per prize (120 s); the bots near the ball shoot it; the day's winner (most goals, no tie) gets the wiki's example bonus for 24 hours; the model by season"
+ },
+ "capture_the_beacon": {
+  "_source": "darkorbitwiki events/capture-the-beacon (2022-06-08): two beacons on every company's X-2 in the colours of the other two, steal the one of your colour on an enemy X-2 and deliver it to the matching place on your own X-2 for a point, it returns to its map, the cloak goes off while carrying, killing the carrier stops it, your own map's beacons cannot be taken, level 13, the company with the most deliveries wins; board-tr 127523; the client's breakingNewsContent_springfight_ctb (a tournament every hour); client CTB* commands (beacon id 1xy), ctbHomeZone_<id>",
+  "min_level": 13,
+  "zones": {
+   "1": {
+    "2": [
+     4500,
+     9500
+    ],
+    "3": [
+     16500,
+     9500
+    ]
+   },
+   "2": {
+    "1": [
+     4500,
+     4000
+    ],
+    "3": [
+     16500,
+     9500
+    ]
+   },
+   "3": {
+    "1": [
+     4500,
+     9500
+    ],
+    "2": [
+     16500,
+     4000
+    ]
+   }
+  },
+  "zone_radius": 450,
+  "carrier_slow": 0.25,
+  "raid_first_sec": [
+   60,
+   180
+  ],
+  "raid_sec": [
+   240,
+   480
+  ],
+  "raid_max_sec": 600,
+  "sim_sec": [
+   300,
+   900
+  ],
+  "prize": {
+   "ep": 0.05,
+   "honor": 0.05
+  },
+  "_adaptation": "not published: taking and delivering by flying into the zone (radius 450; the beacon at rest has no model to click in this client), the beacon of a killed carrier goes home at once (no model to lie on the map), the carrier 25% slower, the zone positions (two per X-2, away from the portals), an enemy bot raid on the player's X-2 every 4-8 minutes, the other deliveries of the hour simulated (one every 5-15 minutes), the hour winner's prize +5% EP and Honor for the next hour"
  }
 }

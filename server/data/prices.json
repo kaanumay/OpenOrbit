@@ -979,10 +979,10 @@
    "source": "payment"
   },
   "package_event-deal-halloween-ammo-pack": {
-   "value": 60000,
+   "value": 66000,
    "rule": "package",
    "currency": "U",
-   "price": 51000,
+   "price": 56000,
    "category": "extras",
    "old": 25000,
    "source": "payment"
@@ -1753,28 +1753,28 @@
    "source": "payment"
   },
   "package_event-deal-stellar2022-2": {
-   "value": 2096268,
+   "value": 2391180,
    "rule": "package",
    "currency": "U",
-   "price": 1800000,
+   "price": 2000000,
    "category": "extras",
    "old": 600000,
    "source": "payment"
   },
   "package_event-deal-stellar2022-3": {
-   "value": 2096268,
+   "value": 2391180,
    "rule": "package",
    "currency": "U",
-   "price": 1800000,
+   "price": 2000000,
    "category": "extras",
    "old": 600000,
    "source": "payment"
   },
   "package_event-deal-stellar2022-4": {
-   "value": 2754768,
+   "value": 3049680,
    "rule": "package",
    "currency": "U",
-   "price": 2300000,
+   "price": 2600000,
    "category": "extras",
    "old": 800000,
    "source": "payment"
@@ -3335,6 +3335,105 @@
    "category": "extras",
    "old": 0,
    "source": "ek_magaza:esya2"
+  },
+  "package_event-deal-laser-aml-triple": {
+   "value": 240000,
+   "rule": "package",
+   "currency": "U",
+   "price": 200000,
+   "category": "laser",
+   "old": 0,
+   "source": "payment (client package text)"
+  },
+  "package_event-deal-voyagers-ammo": {
+   "value": 520000,
+   "rule": "package",
+   "currency": "U",
+   "price": 440000,
+   "category": "extras",
+   "old": 0,
+   "source": "payment (client package text)"
+  },
+  "package_event-deal-voyagers-artificer": {
+   "value": 3500000,
+   "rule": "package",
+   "currency": "U",
+   "price": 3000000,
+   "category": "extras",
+   "old": 0,
+   "source": "payment (client package text)"
+  },
+  "package_event-deal-voyagers-resource-l": {
+   "value": 3500000,
+   "rule": "package",
+   "currency": "U",
+   "price": 3000000,
+   "category": "extras",
+   "old": 0,
+   "source": "payment (client package text)"
+  },
+  "package_event-deal-voyagers-resource-m": {
+   "value": 1650000,
+   "rule": "package",
+   "currency": "U",
+   "price": 1400000,
+   "category": "extras",
+   "old": 0,
+   "source": "payment (client package text)"
+  },
+  "package_event-deal-voyagers-resource-s": {
+   "value": 350000,
+   "rule": "package",
+   "currency": "U",
+   "price": 300000,
+   "category": "extras",
+   "old": 0,
+   "source": "payment (client package text)"
+  },
+  "package_event-deal-voyagers-vip-special": {
+   "value": 195000,
+   "rule": "package",
+   "currency": "U",
+   "price": 170000,
+   "category": "extras",
+   "old": 0,
+   "source": "payment (client package text)"
+  },
+  "package_event-deal-bp-halloween": {
+   "value": 217500,
+   "rule": "package",
+   "currency": "U",
+   "price": 180000,
+   "category": "extras",
+   "old": 0,
+   "source": "payment (client package text; BPK has no market value)"
+  },
+  "package_event-deal-s-h-diminisher": {
+   "value": 50000,
+   "rule": "single",
+   "currency": "U",
+   "price": 50000,
+   "category": "extras",
+   "old": 0,
+   "source": "payment (client package text)"
+  },
+  "package_event-deal-s-h-spearhead-plus": {
+   "value": 50000,
+   "rule": "single",
+   "currency": "U",
+   "price": 50000,
+   "category": "extras",
+   "old": 0,
+   "source": "payment (client package text)"
+  },
+  "package_event-deal-s-h-venom": {
+   "value": 50000,
+   "rule": "single",
+   "currency": "U",
+   "price": 50000,
+   "category": "extras",
+   "old": 0,
+   "source": "payment (client package text)"
   }
  },
  "missing": {

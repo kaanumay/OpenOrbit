@@ -76,6 +76,7 @@ import panel_channel as PCH   # noqa: E402
 import event_maps as EVM  # noqa: E402
 import live_status as CD   # noqa: E402
 import extra_events as EXE  # noqa: E402
+import galactic_strife as GS  # noqa: E402
 import pilot as PILOT  # noqa: E402  (Auto Mode)
 import cbs as CBS
 import stores as STO
@@ -230,11 +231,12 @@ LOOSE_FIELDS = {'startIndex', 'page', 'start', 'newsInfo'}       # request field
 # the recorded replies the server uses: as replies (Command Center, pilot card) and as a data template (shop, hangar, gate)
 USED_RESPONSES = {'CommandCenterGetDontShowRequest', 'CommandCenterNewsInfoRequest', 'InternalPilotBioRequest', 'ShopItemListRequest',
                   'HangarShipEquipmentRequest', 'HangarListRequest', 'HangarShipDetailRequest', 'GalaxyGateBuilderInfoRequest'}
-# dead payload of the login template (E10): R-Zone state (171 times; its handler is dead), CTB (no handler in the client), 0|TR and 0|8
+# dead payload of the login template (E10): CTB match state (no handler in the client), 0|TR and 0|8 (the R-Zone state is not dead:
+# RzoneStatusCommandHandler feeds the Refractions window, refraction_zone.py answers its requests as in the record)
 # (no branch in the client's OnData). POIReadyCommand is not dead: the client draws the zones' appearance only with it
 # (PoiReadyCommandHandler -> PoiZoneManager.AssemblePoiReady -> UpdateDesign/UpdateDesign2D); when it did not arrive the 5-X and X-BL obstacles
 # looked like a plain grey scan instead of asteroids/debris (user report 2026-10-25). After the map's ready bundle as in the record.
-DEAD_TEMPLATE = {'RzoneStatusCommand', 'CTBMatchStateCommand'}
+DEAD_TEMPLATE = {'CTBMatchStateCommand'}
 DEAD_LEGACY = {'0|TR', '0|8'}
 # the mode portals in the record (2-1: Deep Space Echoes 300, Trinity Trials 304): the server's own portals (echoes.py, arena.py) went a second
 # time at the same place (reference comparison 2026-10-25)
@@ -449,10 +451,16 @@ class Session:
         # Season Pass quest finished -> event systems (Recall Battle Pass, Return of Hero: COMPLETE_SEASON_PASS_QUESTS quests)
         self.season.quest_done = lambda cat: self.extra.event('sp_quest', dict(category=cat))
         self.profile.window_hooks['diminish_quests'] = self.extra.urgent.menu_visible   # Urgent Missions: only while there is a quest (urgent_quests.py)
+        # the TDM status window opens by itself on the first StatusUpdate, but only if its menu item is visible (built with the map's bundle)
+        self.profile.window_hooks['tdm'] = lambda: self.extra.tdm.match is not None and not self.extra.tdm.match.over
+        self.profile.window_hooks['sectorcontrol'] = lambda: self.extra.sc.match is not None and not self.extra.sc.match.over
         for kind, s in (('vortex', self.extra.vortex), ('world_boss', self.extra.boss), ('mimesis', self.extra.mimesis),   # Ö4
                         ('apotheosis', self.extra.apo)):                                                       # 1.1.115
             s.change_map = self.change_map
             self.pve.extra_windows[kind] = s.portal_window
+        self.extra.strife.change_map = self.change_map              # Galactic Strife's 30-minute shuffle
+        self.extra.tdm.change_map = self.change_map                 # Team Deathmatch: to the match map and back to X-1
+        self.extra.sc.change_map = self.change_map                  # Sector Control: the same
         self.extra.send = lambda m: self.send(m, 'event')
         self.extra.title.base_title = lambda: self.achievement.title_msgs()
         self.gates.titles = self.extra.title.grant_title           # gate completion title (wiki: All-Star, Boss Of Bosses, Emperor Of Hades Gate)
@@ -933,6 +941,8 @@ class Session:
             if pos == 'station':                        # jump CPU and the return home from a gate: to the destination's station (otherwise next to the portal)
                 st = TEMPLATE.station(dest)
                 pos = (st['posX'], st['posY']) if st else None
+            if pos is None and gate and GS.active() and GS.on_map(dest):
+                pos = 'random'                        # Galactic Strife: entering its maps by a portal spawns at a random place (wiki)
             if pos == 'random':                       # 5-3's exits go to a random place on 4-4 (map_layout.json)
                 pos = H.random_arrival(dest)
             x, y = pos or H.arrival(old, dest, self.profile.d['pilot'].get('factionId'))

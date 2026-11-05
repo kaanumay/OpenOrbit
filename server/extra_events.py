@@ -33,6 +33,13 @@ import apotheosis as APO
 import return_pass as RP
 import plutus_experiments as PEX
 import event_points as OP
+import galactic_strife as GS
+import team_deathmatch as TDM
+import sector_control as SCM
+import refraction_zone as RZ
+import spaceball as SB
+import capture_beacon as CTB
+import monthly_rankings as MR
 
 
 class ExtraEvents:
@@ -58,12 +65,19 @@ class ExtraEvents:
         self.rbp = RP.ReturnPass(profile, shop, log)
         self.experiment = PEX.PlutusExperiment(profile, shop, log)                       # Plutus' Experiments
         self.points = OP.EventPoints(profile, shop, log)                           # event points (forum: Hatching Out, Blacklight Surge ...)
+        self.strife = GS.GalacticStrife(profile, shop, log)                        # Galactic Strife reputation (PvP Summer window)
+        self.tdm = TDM.TeamDeathmatch(profile, shop, log)                          # Team Deathmatch with bot teams
+        self.sc = SCM.SectorControl(profile, shop, log)                            # Sector Control with bot companies
+        self.rzone = RZ.RefractionZone(profile, shop, log)                         # R-Zone standby (the record's answers)
+        self.spaceball = SB.Spaceball(profile, shop, log)                          # Spaceball on 4-4
+        self.ctb = CTB.CaptureBeacon(profile, shop, log)                           # Capture the Beacon on the X-2 maps
+        self.monthly = MR.MonthlyRankings(profile, shop, log)                     # Astral / EBL monthly ranking payouts
         for s in (self.vortex, self.boss, self.mimesis, self.apo, self.points):
             s.titles = self.title.grant_title
         self.boss.send = lambda msgs: self.send(msgs)
         self.systems = [self.chromin, self.hitac, self.fever, self.title, self.trek, self.infiltration, self.urgent, self.end] + \
             [s for s in (self.fiesta, self.invasion) if s] + [self.vortex, self.boss, self.mimesis, self.apo, self.rbp, self.experiment,
-                                                            self.points]
+                                                            self.points, self.strife, self.tdm, self.sc, self.rzone, self.spaceball, self.ctb, self.monthly]
         self.send = lambda msgs: None            # bound per session
         self.world = None
         self.requests = {}

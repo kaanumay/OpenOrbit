@@ -286,7 +286,7 @@ class _Lock:
                 os.close(fd)
                 self.t = time.time()
                 return
-            except FileExistsError:
+            except (FileExistsError, PermissionError):      # Windows: a lock being deleted by another process gives PermissionError
                 try:
                     if time.time() - os.path.getmtime(self.p) > STALE_LOCK:
                         os.remove(self.p)

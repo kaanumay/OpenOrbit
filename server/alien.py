@@ -303,6 +303,8 @@ class Abilities:
             return
         w = self.w
         src = 'slow_%s' % n.tip
+        if s.get('visual'):                       # Saboteur: the slowing orb chases the ship (MapEventsAssemblyHelper.AssembleSabShot)
+            w.send([legacy('0|n|%s|%d|%d' % (s['visual'], n.id, w.hid))])
         if 'speed' in s:
             w.hero_effects.remove('speed_limit', source=src)          # renews, does not stack
             w.hero_effect('speed_limit', s['sec'], s['speed'], source=src)

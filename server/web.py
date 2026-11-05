@@ -176,7 +176,7 @@ def login_node(o=None):
         # user report). The choice is written to the profile on the game server with DisplaySettingsRequest.displayUse2d
         'sharedImages': BASE + 'do_img/', 'display2d': 2 if use2d else 1, 'resourceachievementsXmlHash': '1', 'loadingClaim': '',
         'resources3dXmlHash': '1', 'hangars': {'data': {'faction': '1', 'hangars': [hangar]}}, 'autoStartEnabled': 1,
-        'boardLink': BASE, 'crossdomainHash': '1', 'userProfileImage': '',
+        'boardLink': BASE + 'info/forum', 'crossdomainHash': '1', 'userProfileImage': '',
     }
 
 
@@ -317,6 +317,9 @@ ROUTES = {
     '/unityApi/links.php': lambda h: ('application/json', json.dumps(links())),
     '/unityApi/login.php': lambda h: ('application/json', json.dumps(login(request_session(h, entry=True)))),
     '/unityApi/setLang.php': lambda h: set_lang(h.body, request_session(h)),
+    # server selection (LaunchShow): an empty list makes the client stop quietly; a listed server would send it to <name>.darkorbit.com
+    # (GameLoadingManager.ChooseServer -> UpdateHost), off the local server. The body must be exactly this text.
+    '/unityApi/instance.php': lambda h: ('application/json', '{"data":[]}'),
     '/unityApi/agent.php': lambda h: ('text/plain', ''),          # the client's event-tracking notification (e.g. Unity_ChangeLanguagetr)
 }
 
@@ -418,7 +421,17 @@ class H(BaseHTTPRequestHandler):
         self.send_header('Content-Length', str(len(out)))
         self.send_header('Access-Control-Allow-Origin', '*')
         self.end_headers()
-        self.wfile.write(out)
+        if self.command != 'HEAD':                # HEAD: headers only (HTTP/1.1)
+            self.wfile.write(out)
+
+    def do_OPTIONS(self):
+        """CORS preflight of the embedded browser's page requests (it used to get 501)."""
+        self.send_response(204)
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Access-Control-Allow-Methods', 'GET, POST, PUT, HEAD, OPTIONS')
+        self.send_header('Access-Control-Allow-Headers', '*')
+        self.send_header('Content-Length', '0')
+        self.end_headers()
 
     do_GET = do_POST = do_PUT = do_HEAD = _all
 

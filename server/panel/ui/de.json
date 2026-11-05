@@ -286,7 +286,6 @@
 "Battle Pass": "Battle Pass",
 "Battle Pass (2022 run) and key exchange.": "Battle Pass (Durchlauf 2022) und Schlüsseltausch.",
 "Battle Pass (2022 run; no Spaceball or PvP) and key exchange.": "Battle Pass (Durchlauf 2022; ohne Spaceball und PvP) und Schlüsseltausch.",
-"Battle Pass (objectives against aliens) and Arios and Neikos designs in the key exchange.": "Battle Pass (Ziele gegen Aliens) und die Designs Arios und Neikos im Schlüsseltausch.",
 "Battle Pass duration": "Dauer des Battle Pass",
 "Battle Pass events": "Events mit Battle Pass",
 "Battle Pass tasks": "Battle-Pass-Aufgaben",
@@ -3299,5 +3298,12 @@
 "Leave the gate at (lives, 0: never)": "Tor verlassen bei (Leben, 0: nie)",
 "The gate's lives fell to the limit set: the gate is kept for later.": "Die Leben des Tors sind auf das gesetzte Limit gefallen: das Tor bleibt für später.",
 "The file is not a valid zip.": "Die Datei ist kein gültiges ZIP.",
-"The save folder is in use by another program; close it and try again.": "Der Spielstand-Ordner wird von einem anderen Programm verwendet; schließe es und versuche es erneut."
+"The save folder is in use by another program; close it and try again.": "Der Spielstand-Ordner wird von einem anderen Programm verwendet; schließe es und versuche es erneut.",
+"Battle Pass and the key exchange (Arios and Neikos designs); PvP reputation on 4-1..4-4 against bot pilots (Reputation Fever, Flux and Mire crates, milestone rewards).": "Battle Pass und Schlüsseltausch (Designs Arios und Neikos); PvP-Ruf auf 4-1..4-4 gegen Bot-Piloten (Ruf-Fieber, Flux- und Mire-Kisten, Meilenstein-Belohnungen).",
+"Team Deathmatch at the X-1 battlemaster: matches of up to 8 against 8 with bot pilots of another company (TDM I level 8-13, TDM II 14+), 3 lives, 15 minutes or 100 points; the winning company gets +10% ore price, bonus box and EP for 24 hours.": "Team Deathmatch beim Kampfmeister in X-1: Matches mit bis zu 8 gegen 8 gegen Bot-Piloten einer anderen Firma (TDM I Level 8-13, TDM II ab 14), 3 Leben, 15 Minuten oder 100 Punkte; die siegreiche Firma erhält 24 Stunden lang +10 % Erzpreis, Bonusbox und EP.",
+"Sector Control at the beacon in the middle of X-1: the three companies (bot pilots) fight for 4 control points and tickets (SC-1 level 8-13, SC-2 14+); the last company with tickets wins the EP & Honor bonus.": "Sector Control am Leuchtfeuer in der Mitte von X-1: die drei Firmen (Bot-Piloten) kämpfen um 4 Kontrollpunkte und Tickets (SC-1 Level 8-13, SC-2 ab 14); die letzte Firma mit Tickets gewinnt den EP- und Ehre-Bonus.",
+"Spaceball on 4-4: the companies (and bot pilots) shoot the ball to their own portal to X-5; a goal drops prize boxes there, the day's winner company gets bonuses the next day.": "Spaceball auf 4-4: die Firmen (und Bot-Piloten) schießen den Ball zu ihrem eigenen Portal nach X-5; ein Tor wirft dort Preisboxen ab, die Tagessieger-Firma erhält am nächsten Tag Boni.",
+"Capture the Beacon on the X-2 maps: steal your company's beacon from an enemy X-2 and deliver it to your own X-2; enemy bot pilots raid yours; the hour's winner company gets +5% EP and Honor.": "Capture the Beacon auf den X-2-Karten: stiehl das Leuchtfeuer deiner Firma von einer feindlichen X-2 und bringe es zu deiner eigenen X-2; feindliche Bot-Piloten überfallen deine; die Stundensieger-Firma erhält +5 % EP und Ehre.",
+"Level Up Booster Packs in the shop (the real weekly rotation, Thursday to Monday).": "Level-Up-Booster-Pakete im Shop (die echte Wochenrotation, Donnerstag bis Montag).",
+"The best subscription offer in the shop (the real weekly rotation, Thursday to Monday).": "Das beste Abo-Angebot im Shop (die echte Wochenrotation, Donnerstag bis Montag)."
 }

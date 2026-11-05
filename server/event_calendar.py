@@ -3,13 +3,21 @@
 An event is active either on certain days of the year ('periods': [[start, end]], end day included; a period may span the new year) or on
 certain days of the week and at certain hours; hours are in local time. A period end is:
   - "MM-DD": every year
-  - "YYYY-MM-DD": that year only (runs of the real game). After the last known day ('known_calendar') the runs of the last 52 weeks repeat
-    in 52-week steps (the weekday is kept: an event that starts on a Wednesday starts on a Wednesday again); a period whose third element is "single"
-    does not repeat (the new server's Europa ranking)
+  - "YYYY-MM-DD": that year only (runs of the real game). After the last known day ('known_calendar') the years go on from the real
+    history: the event's seasons (a year ending at 'known_calendar') take turns, the last one first, then the ones before it, so each
+    future year has a layout the real game really ran (Agatus' months, Empyrian's 4 or 6 runs ...). A run keeps its place in the year: the
+    same date, moved to the same weekday (at most 3 days; an event that starts on a Wednesday after the sync stays on a Wednesday). Before,
+    the last 52 weeks repeated in 52-week steps and slid a day earlier every year (Halloween would have started on 26 September in 2040).
+    Only the event's mature seasons take part (at least 60% of the last season's runs: a launch year with two runs does not come back for a
+    monthly event); an event that did not run in the last season has ended in the real game and does not come back (Mileage Market,
+    Summons of Athena). Seasons before 'history_start' are not complete and are not used. A period whose third element is "single" does
+    not repeat (the new server's Europa ranking)
   - "easter+N", "chinese_new_year-N", "thanksgiving_day+N": N days after / before that year's holiday (Thanksgiving is the 4th Thursday of November)
 A period's third element is the hours of those days ([[start, end]]; an end beyond 24 spills into the next day). Weekly: 'days'
 (0=Monday), 'hours', 'nth_of_month' (which such weekday of the month: [1, 3] = the 1st and 3rd Friday of the month), 'week_cycle' [n, i] (the i-th week of an
-n-week cycle, counted from WEEK_START), 'together' (only while one of these events runs), 'counts_as' (the name of another event:
+n-week cycle, counted from WEEK_START), 'block_cycle' [n, i] (the i-th half-week block of an n-block cycle; blocks are Monday-Wednesday and
+Thursday-Sunday: the booty box rotation), 'week_pattern' {start (a Thursday), pattern, letter, span} (a real weekly sequence repeated:
+the event runs the span days from each Thursday whose letter in the pattern is its own), 'together' (only while one of these events runs), 'counts_as' (the name of another event:
 while this event runs that one also counts as active; GG Double Rewards on Thanksgiving). Map sections may also have their own 'periods' and spawn hours ('hours',
 'hours_weekend') (window; the panel's session_always_open setting removes the hours, in a forced-open event neither applies).
 Active events:
@@ -41,8 +49,10 @@ for _k, _e in EVENTS.items():
 FORCED, MODE = set(), 'calendar'          # calendar | all | none (for yearly ones)
 # week cycles ('week_cycle') are counted from this Monday; ISO week parity left a three-week gap in a 53-week year (2026)
 WEEK_START = datetime.date(2024, 1, 8)
-DAY, CYCLE = datetime.timedelta(days=1), datetime.timedelta(weeks=52)
+DAY = datetime.timedelta(days=1)
 KNOWN = datetime.datetime.strptime(D['known_calendar'], '%Y-%m-%d') + DAY     # end of the last known day (year-specific periods)
+HISTORY_START = datetime.datetime.strptime(D.get('history_start', '2023-01-01'), '%Y-%m-%d')   # the dated runs are complete from here
+MATURE = 0.6                          # a past season takes part in the rotation with at least this share of the last season's runs
 # Chinese New Year (lunar calendar; in years outside the table that period does not exist)
 CNY = {2020: (1, 25), 2021: (2, 12), 2022: (2, 1), 2023: (1, 22), 2024: (2, 10), 2025: (1, 29), 2026: (2, 17), 2027: (2, 6),
        2028: (1, 26), 2029: (2, 13), 2030: (2, 3), 2031: (1, 23), 2032: (2, 11), 2033: (1, 31), 2034: (2, 19), 2035: (2, 8),
@@ -112,8 +122,39 @@ def _thanksgiving(y):
     return first + datetime.timedelta(days=(3 - first.weekday()) % 7 + 21)
 
 
-HOLIDAYS = {'easter': _easter, 'thanksgiving_day': _thanksgiving,
-            'chinese_new_year': lambda y: datetime.date(y, *CNY[y]) if y in CNY else None}
+def _new_moon(k):
+    """The k-th new moon after January 2000 (Meeus, Astronomical Algorithms ch. 49, the main terms): UTC datetime (within minutes)."""
+    import math
+    T = k / 1236.85
+    jde = 2451550.09766 + 29.530588861 * k + 0.00015437 * T * T
+    E = 1 - 0.002516 * T
+    rad = math.radians
+    M = rad(2.5534 + 29.10535670 * k)
+    Mp = rad(201.5643 + 385.81693528 * k + 0.0107582 * T * T)
+    F = rad(160.7108 + 390.67050284 * k - 0.0016118 * T * T)
+    Om = rad(124.7746 - 1.56375588 * k)
+    jde += (-0.40720 * math.sin(Mp) + 0.17241 * E * math.sin(M) + 0.01608 * math.sin(2 * Mp) + 0.01039 * math.sin(2 * F)
+            + 0.00739 * E * math.sin(Mp - M) - 0.00514 * E * math.sin(Mp + M) + 0.00208 * E * E * math.sin(2 * M)
+            - 0.00111 * math.sin(Mp - 2 * F) - 0.00057 * math.sin(Mp + 2 * F) + 0.00056 * E * math.sin(2 * Mp + M)
+            - 0.00042 * math.sin(3 * Mp) + 0.00042 * E * math.sin(M + 2 * F) + 0.00038 * E * math.sin(M - 2 * F)
+            - 0.00024 * E * math.sin(2 * Mp - M) - 0.00017 * math.sin(Om))
+    return datetime.datetime(2000, 1, 1, 12) + datetime.timedelta(days=jde - 2451545.0 - 69 / 86400.0)
+
+
+def _cny(y):
+    """Chinese New Year: the table, otherwise the first new moon (China time, UTC+8) on or after 21 January (the second new moon after
+    the winter solstice; agrees with the table for 2020-2040). Years after the table no longer lose Prosperous."""
+    if y in CNY:
+        return datetime.date(y, *CNY[y])
+    k = int(round((y - 2000) * 12.3685)) - 1
+    while True:
+        d = (_new_moon(k) + datetime.timedelta(hours=8)).date()
+        if d >= datetime.date(y, 1, 21):
+            return d
+        k += 1
+
+
+HOLIDAYS = {'easter': _easter, 'thanksgiving_day': _thanksgiving, 'chinese_new_year': _cny}
 
 
 def _day(s, y):
@@ -135,10 +176,50 @@ def _date(s, fmt):
 _SPANS = {}                                     # id(period list) -> (list, (year, cycle), periods): event queries are frequent (bots)
 
 
+def _add_years(d, n):
+    try:
+        return d.replace(year=d.year + n)
+    except ValueError:                          # 29 February
+        return d.replace(year=d.year + n, day=28)
+
+
+def season(x):
+    """The season of a moment: 1 = the first year after 'known_calendar', 0 = the last known year, -1 the one before ..."""
+    n = x.year - KNOWN.year
+    if x < _add_years(KNOWN, n):
+        n -= 1
+    return n + 1
+
+
+def _project(run, years):
+    """A past run moved by whole years: the same date, then to the same weekday (at most 3 days)."""
+    s, e, h = run
+    base = _add_years(s, years)
+    delta = (s.weekday() - base.weekday()) % 7
+    if delta > 3:
+        delta -= 7
+    start = base + datetime.timedelta(days=delta)
+    return start, start + (e - s), h
+
+
+def _sources(dated):
+    """The event's real seasons -> runs, and the rotation order (the last season first; only mature, complete seasons; empty if the
+    event did not run in the last season)."""
+    by = {}
+    for r in dated:
+        h = season(r[0])
+        if h <= 0 and _add_years(KNOWN, h - 1) >= HISTORY_START:
+            by.setdefault(h, []).append(r)
+    if 0 not in by:
+        return by, []
+    need = MATURE * len(by[0])
+    return by, [h for h in sorted(by, reverse=True) if len(by[h]) >= need]
+
+
 def _spans(entries, t):
-    """Periods that may contain t [(start, end, hours)] (datetime; end excluded). The result depends only on t's year and 52-week
-    cycle: cached per list (callers only read)."""
-    k = (t.year, (t - KNOWN) // CYCLE if t >= KNOWN else None)
+    """Periods that may contain t [(start, end, hours)] (datetime; end excluded). The result depends only on t's year and season:
+    cached per list (callers only read)."""
+    k = (t.year, season(t) if t >= KNOWN else None)
     c = _SPANS.get(id(entries))
     if c and c[0] is entries and c[1] == k:
         return c[2]
@@ -161,11 +242,21 @@ def _compute_spans(entries, t):
             s, e = _day(a, y), _day(b, y)
             if s and e:
                 out.append((s, (e if e >= s else _day(b, y + 1)) + DAY, h))
-    if dated and t >= KNOWN:                    # after the last known day: the runs of the last 52 weeks repeat every 52 weeks
-        n = (t - KNOWN) // CYCLE + 1
-        proj = [(s + k * CYCLE, e + k * CYCLE, h) for s, e, h in dated if KNOWN - CYCLE <= s < KNOWN for k in (n - 1, n) if k]
-        # a run already announced for those days replaces last year's (Chromin 2026-11-02..08 against 2025-11-04 + 52 weeks)
-        out += [p for p in proj if not any(p[0] < e and s < p[1] for s, e, _ in dated)]
+    if dated and t >= KNOWN:                    # after the last known day: the real seasons take turns (see the module's text)
+        by, order = _sources(dated)
+        proj = []
+        for s in (season(t) - 1, season(t)):
+            if s >= 1 and order:
+                src = order[(s - 1) % len(order)]
+                proj += [p for p in (_project(r, s - src) for r in by[src]) if p[1] > KNOWN]
+        # a run already announced for those days replaces the projected one (Chromin 2026-11-02..08 against 2025-11-04 a year later); a
+        # long projected run goes on after the announced one when at least half of it is left (Kristallon Apotheosis: permanent content)
+        for p in proj:
+            hit = [e for s, e, _ in dated if p[0] < e and s < p[1]]
+            if not hit:
+                out.append(p)
+            elif (p[1] - max(hit)) * 2 >= p[1] - p[0]:
+                out.append((max(hit), p[1], p[2]))
     return out + dated + once
 
 
@@ -194,6 +285,17 @@ def _week_day(e, d):
     """Whether the weekly event is on this day ('days', 'nth_of_month', 'week_cycle')."""
     if d.weekday() not in e.get('days', range(7)) or (e.get('nth_of_month') and (d.day - 1) // 7 + 1 not in e['nth_of_month']):
         return False
+    if e.get('week_pattern'):                    # a real weekly sequence repeated (bp-calendar's shop sales: Thursday-Monday blocks)
+        w = e['week_pattern']
+        th = d.date() - datetime.timedelta(days=(d.weekday() - 3) % 7)          # the block's Thursday
+        if (d.date() - th).days >= w.get('span', 5):
+            return False
+        k = (th - datetime.date.fromisoformat(w['start'])).days // 7 % len(w['pattern'])
+        return w['pattern'][k] == w['letter']
+    if e.get('block_cycle'):                     # half-week blocks Monday-Wednesday / Thursday-Sunday (the booty box rotation)
+        n, i = e['block_cycle']
+        if (2 * ((d.date() - WEEK_START).days // 7) + (d.weekday() >= 3)) % n != i:
+            return False
     n, i = e.get('week_cycle', (1, 0))
     return (d.date() - WEEK_START).days // 7 % n == i
 

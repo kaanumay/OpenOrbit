@@ -42,7 +42,7 @@ KINDS = {'Currency': 'gain', 'AvatarTypeKill': 'kill', 'NpcTypeDestroyed': 'kill
          'BuildRecipe': 'assembly_collect', 'TriggerMine': 'shot', 'CollectPackage': 'package', 'ClearGalaxyGateWave': 'gate_wave',
          # E6
          'Uses3D': 'display', 'EggTriggerCount': 'egg', 'PublicWorldBossCondition': ('wb_heal', 'wb_damage'),
-         'Influence': 'influence'}       # Battle for Influence: the influence points of a gate victory (galaxy_gates.py; official forum 131012)
+         'Influence': 'influence', 'TeamDeathMatchKill': 'tdm_kill'}       # Battle for Influence: the influence points of a gate victory (galaxy_gates.py; official forum 131012)
 # calendar-less event groups: always open (Eternal Black Light's old name is Eternal Gate; the mod is open every day; hidden Easter Eggs)
 ALWAYS_GROUPS = {'EVENT_ETERNALGATE', 'EVENT_SECRET'}
 # when the client's ShipIcon name cannot be derived from the alien's name (NPCSelectionKill)
@@ -198,6 +198,8 @@ def measure(c, kind, kw):
     if s == 'TriggerMine':                                  # "N mines in T seconds, without dying": the count within the time window
         limit = next((int(t.get('time', 0)) for t in param(c, 'timeLimit') if isinstance(t, dict)), 0)
         return ('times', limit) if kw.get('weapon') in param(c, 'weaponType') else None
+    if s == 'TeamDeathMatchKill':                          # a kill in Team Deathmatch (team_deathmatch.py)
+        return ('add', 1)
     if s == 'CollectPackage':
         return ('add', 1) if kw.get('package') in param(c, 'packageId') else None
     if s == 'ClearGalaxyGateWave':                          # "Reach wave N in the Eternal Gate": the highest wave reached
@@ -402,7 +404,7 @@ class Achievements:
                 with self.p.lock:
                     st['title'] = t
                     self.p.dirty = True
-                msgs = self.title_msgs()
+                msgs = self.title_msgs() or [legacy('0|n|trm|%d' % self.p.user_id)]     # removed: the client clears it (AssembleRemoveTitle)
                 self.log('   unvan: %s' % (TITLE_KEYS.get(t) or 'none'))
             else:
                 self.log('   title not selected: %d is not owned' % t)

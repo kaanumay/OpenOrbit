@@ -7761,6 +7761,7 @@
   },
   "event_infiltration_boss_kristallon": {
    "name": "-=[ Boss Kristallon ]=-",
+   "model": "35",
    "hp": 1600000,
    "shield": 1200000,
    "damage": 20000,
@@ -8431,6 +8432,24 @@
      ]
     ]
    }
+  },
+  "spaceball": {
+   "name": "Spaceball",
+   "model": "442",
+   "hp": 100000000,
+   "shield": 0,
+   "damage": 0,
+   "speed": 0,
+   "aggressive": false,
+   "managed": true,
+   "reward": {
+    "ep": 0,
+    "honor": 0,
+    "credits": 0,
+    "uridium": 0
+   },
+   "cargo": {},
+   "_source": "client lib_ships 442/443/444 (spaceball summer / winter / soccer); the ball cannot be destroyed, spaceball.py moves it"
   }
  },
  "maps": {

@@ -91,6 +91,7 @@ def ore_prices(honor):
     return out
 DRONE_POINTS = ITEMS['drone_points']
 INVINCIBILITY = 33                             # VisualModifierCommand.modifier (the client's VisualModifier enum)
+THREAT_RADIUS = 2000           # minimap threat indicator (0|n|w|<n>, the client caps it at 5): hostile ships within the view distance (adaptation; no rule in the client)
 # the miss given by Evasive Maneuvers (AttackMissedCommand.skillColorId -> the color of DamageReceivedEffect; game.xml hitpointColors:
 # 3 0066CC blue). Official FAQ: with the evasion skill misses are blue instead of purple
 EVADE_COLOR = 3
@@ -158,8 +159,11 @@ def tag_owner(n, now):
 
 CARGO_BOXES = ('FROM_SHIP', 'CANDY_CARGO', 'TURKEY_CARGO')     # the alien's cargo box (CANDY_CARGO: in Halloween's CandyCargo, recording; TURKEY_CARGO: at Thanksgiving)
 # collectible resources an alien drops in a box of their own, not in the cargo box (the client's box types; official recording 2026-10-27)
+# alien materials dropped as a box of their own next to the cargo (official recordings 2026-10-27/28: MUCOSUM, SCRAPIUM, AURUS_BOX x1 on
+# 5-2/5-3/4-2); BOLTRUM shares the client's box template with them (lib_collectables box_BOLTRUM), BIFENON has its own box (box_BIFENON)
 RESOURCE_BOXES = {'resource_collectable_mucosum': 'MUCOSUM', 'resource_collectable_scrapium': 'SCRAPIUM',
-                  'resource_collectable_prismatium': 'PRISMATIUM'}
+                  'resource_collectable_prismatium': 'PRISMATIUM', 'resource_collectable_aurus': 'AURUS_BOX',
+                  'resource_collectable_boltrum': 'BOLTRUM', 'resource_collectable_bifenon': 'BIFENON'}
 AUTO_REFINE = (4, 5, 6)       # products of automatic refining (laboratory recipes, in this order): Prometid, Duranium, Promerium
 
 
@@ -421,6 +425,8 @@ class World:
         self.sold = False              # ore sold at the station: the refinery window closes on the first move (on_move)
         self.session_tick = None       # the session's timed systems (Assembly, Dispatch, Skylab; game.Session.tick)
         self.visible = set()           # NPCs the client knows (view distance; recording: shown at ~2,000 units)
+        self.threat_shown, self.next_threat = 0, 0.0     # the threat indicator's last value (sent only when it changes)
+        self.kill_screen_shown = False  # a death screen was shown in this session (the client has its KillScreenComponent)
         self.seen_items = set()        # boxes and ores the client knows (recording: at ~1,000 units)
         self.next_booster = 0.0        # booster durations once a second
         self.radiation_since = None    # since when it has been outside the map (radiation)
@@ -438,6 +444,11 @@ class World:
         self.combat_music = False                                     # is combat music playing (music_tick)
         self.streak = [0, 0.0, 0]                                     # kill streak: count, last kill, last announced threshold
         self.kill_hooks = []                                          # on an alien reward (w, npc, x, y) -> messages (Ö3: extra_events.py)
+        self.damage_hooks = []        # damage taken by the hero (w, dmg, killer, source_player): PvP damage shares (galactic_strife.py)
+        self.death_hooks = []         # the hero destroyed (w, killer, source_player) -> messages (galactic_strife.py)
+        self.free_repair = lambda: False     # the death screen's repairs cost nothing now (Galactic Strife's Reputation Fever)
+        self.mode_brain = None               # a mode steering drafted bots on an ordinary map (capture_beacon.py: bot_think, bot_died)
+        self.collect_hooks = []       # a box of a system's own (w, hash, box, by_pet) -> True/False if it handled it, None if not (Flux/Mire Crate)
         self.free_gate_repair = lambda: False                         # free repair at the portal (Fever: fever.py)
         self.cinema = False                                           # is the cinematic camera locked (cinematic)
         self.next_auto, self.auto_wait = 0.0, {}                       # automatic CPUs (auto_tick)
@@ -972,6 +983,42 @@ class World:
             maps.setdefault(self.map_id, set()).update(n.d['name'] for n in self.npcs.values()
                                                        if n.alive and n.d.get('name') and not getattr(n, 'hidden', False))
         return self.map_id, maps
+
+    def threat_count(self, now):
+        """Hostile ships near the hero: bot ships and players of another company (or a clan at war), not clan members, allies, non-aggression
+        partners, group members or hidden ships."""
+        import clan as KL
+        hx, hy = self.hero_pos(now)
+        near = lambda x, y: math.hypot(x - hx, y - hy) <= THREAT_RADIUS
+        pl = self.p.d['pilot']
+        faction, clan = int(pl.get('factionId') or 0), int(pl.get('clanId') or 0)
+
+        def hostile(company, other_clan, rel):
+            if (clan and clan == other_clan) or rel in (1, 2):
+                return False
+            return company != faction or rel == 3
+        c = 0
+        for n in list(self.npcs.values()):
+            if (n.alive and n.bot is not None and not getattr(n, 'hidden', False) and not self.is_group_member(n.bot.uid)
+                    and near(*n.mover.pos(now))):
+                o = BG.T.profile(n.bot).d['pilot']
+                c += hostile(n.bot.company, int(o.get('clanId') or 0), BG.relation(self, n.bot))
+        for o in (self.shared.members if self.shared else []):
+            if (o is not self and o.running and not o.hero_dead and not o.jumping and o.map_id == self.map_id and not o.hidden(now)
+                    and not self.is_group_member(o.hid) and near(*o.hero_pos(now))):
+                b = o.p.d['pilot']
+                c += hostile(int(b.get('factionId') or 0), int(b.get('clanId') or 0), KL.relation(self.p, o.p))
+        return min(c, 5)
+
+    def threat_tick(self, now):
+        """Once a second: the minimap's threat indicator (MapEventsAssemblyHelper.AssembleEnemyWarning; its only source)."""
+        if now < self.next_threat:
+            return
+        self.next_threat = now + 1.0
+        n = 0 if self.hero_dead else self.threat_count(now)
+        if n != self.threat_shown:
+            self.threat_shown = n
+            self.send([legacy('0|n|w|%d' % n)])
 
     def view_tick(self, now):
         """An NPC entering view is shown, one leaving is removed (ShipRemoveCommand as in the recording; if it is the target, the selection is dropped)."""
@@ -1644,6 +1691,9 @@ class World:
         is selected, P.E.T. trading; if there is an HM-7 trade drone (its icon in the shortcut bar, menu_action) drone trading; otherwise
         trading is not active."""
         pr = ore_prices(self.p.d['pilot'].get('honourPoints', 0))
+        bonus = self.p.mods().get('ore_price', 0)                     # TDM company reward: +10% ore price (team_deathmatch.py)
+        if bonus:
+            pr = {k: int(v * (1 + bonus)) for k, v in pr.items()}
         pirate = self.at_trade() and self.map_id == PIRATE_MARKET          # the pirate trader in 5-2: Palladium -> gate energy
         kind = (TRADE_PIRATE if pirate else TRADE_STATION if self.at_trade() else TRADE_PET if self.pet_trade()
                 else TRADE_DRONE if self.hm7_ready() else TRADE_INACTIVE)          # HM-7 trade drone: anywhere (same order as sell_ore)
@@ -1690,6 +1740,9 @@ class World:
             return
         with self.lock:
             price = ore_prices(self.p.d['pilot'].get('honourPoints', 0)).get(t)
+            bonus = self.p.mods().get('ore_price', 0)                 # TDM company reward (team_deathmatch.py)
+            if bonus and price is not None:
+                price = int(price * (1 + bonus))
             have = self.p.ore_count(t) if t is not None else 0
             cbs = self.cbs_trade() if self.cbs_trade and not self.at_trade() else None
             if cbs and price is not None:                                   # in its own Battle Station (Ö5)
@@ -2073,6 +2126,10 @@ class World:
             b = self.boxes.get(h)
             if not b or not self.own(b) or (by_pet and not self.pet_can_take(b)):
                 return False
+            for hk in self.collect_hooks:
+                r = hk(self, h, b, by_pet)
+                if r is not None:
+                    return r
             # an event box can share a cargo box's look (Trial of Terrors' Curcubitor drops CANDY_CARGO): its reward is rolled on opening
             cargo_box = b['tip'] in CARGO_BOXES and not b.get('event')
             resource_box = b['tip'] in RESOURCE_BOXES.values() and not b.get('event')
@@ -2126,7 +2183,7 @@ class World:
                 msgs += self.auto_refine()               # after every collection (if the setting is on)
                 if left and self.p.cargo_free() < 1:     # partial take: the rest is taken once room is made (sale/refining)
                     msgs += [legacy('0|A|STM|loadfull')] + self.p.hint(IP.FULL_CARGO)
-            elif resource_box:                       # Mucosum, Scrap, Prismatium box (RESOURCE_BOXES)
+            elif resource_box:                       # Mucosum, Scrap, Prismatium, Aurus, Boltrum, Bifenon box (RESOURCE_BOXES)
                 msgs += self.box_extra(extra, boost)
             elif b.get('al'):                        # a box with its own collect function (Ö4: Vortex's Stellar Coin boxes)
                 msgs += b['al'](b) or []
@@ -2155,6 +2212,7 @@ class World:
                     self.boxes_taken += 1
                 x1 = self.x1_reward()            # at a high level in its own X-1 the bonus box also decreases (fandom 1-1, 2-1, Lowers)
                 amount = int(amount * boost * (1 + m.get('bonus_box', 0)) * (1 + (m.get('bonus_uridium', 0) if what == 'uridium' else 0))
+                             * (1 + (m.get('bonus_box_extra', 0) if what != 'energy' else 0))      # TDM company reward: not energy (wiki)
                              * ((x1 > 0) if what == 'energy' else x1))     # a single unit of energy cannot decrease in steps: only 15+ empty (HARITALAR-7)
                 amount = SET.amount({'credits': 'credits', 'uridium': 'uridium', 'energy': 'gate_energy'}.get(what, 'collecting'), amount, 'box')  # panel
                 if amount <= 0:
@@ -2416,6 +2474,10 @@ class World:
                 self.attacked(now)                       # his own hit (laser, rocket, ability, technology, cannon): he is fighting
             if engage:
                 tag_alien(n, ('h', self.hid), now)                # the first to fire tags (a miss too; the P.E.T.'s hit is also its owner's)
+                if n.bot is not None:                               # damage dealt to a bot ship by player: PvP shares (galactic_strife.py)
+                    d = n.__dict__.setdefault('pvp_damage', {})
+                    d[('p', self.hid)] = d.get(('p', self.hid), 0) + dmg
+                    self.last_pvp = time.time()                     # a PvP shot (4-X portal lock; ends Galactic Strife's protection)
                 record_damage(n, ('h', self.hid), dmg)
             if attacker and self.hidden(now):
                 engage = False                   # a cloaked player's P.E.T. (kamikaze, laser) does not lock the alien onto the player (report 2026-10-28)
@@ -3731,6 +3793,8 @@ class World:
         self.stop_repair()
         if dmg > 0:
             self.p.ach('damage_taken', count=dmg)       # damage taken (quest condition TAKE_DAMAGE; Galaxy Trek's Endurance quest)
+            for hk in self.damage_hooks:
+                hk(self, dmg, killer, source_player)
             if getattr(self.gate, 'key', None) == 'world_boss':
                 self.p.ach('wb_damage', count=dmg)      # World Boss achievement (takedamage)
         sh = g.get('shield', 0)
@@ -3899,6 +3963,11 @@ class World:
     def hero_death(self, msgs, killer=None, cause=None, note=None, source_player=None):
         """The player died: explosion + death screen (KillScreenPostCommand). The player respawns when they pick a repair on the screen (kill_screen_repair)."""
         self.hero_dead, self.jumping = True, False
+        for hk in self.death_hooks:
+            try:
+                msgs += hk(self, killer, source_player) or []
+            except Exception:
+                self.step_error('death hook')
         try:
             hx, hy = self.hero_pos()
             BG.witness(self, 'player_died', hx, hy, name=self.p.d['pilot'].get('userName', ''),
@@ -3940,8 +4009,12 @@ class World:
         killer_name = source_player.p.d['pilot'].get('userName', '') if source_player else killer.d['name'] if killer else ''
         death_cause = 0 if source_player else (cause if cause is not None else DESTRUCTION_NPC if killer else DESTRUCTION_MISC)
         # The client's KillScreenPostCommand appends its options to the list it holds; only its repair button and KillScreenUpdateCommand
-        # clear it. A ship revived without the button (Auto Mode, the panel) showed the old options too on the next death (6). Clear first.
-        msgs.append(('KillScreenUpdateCommand', {'options': []}))
+        # clear it. A ship revived without the button (Auto Mode, the panel) showed the old options too on the next death (6). Clear first,
+        # but only once a death screen was shown in this session: the client creates its KillScreenComponent from the first options, an
+        # earlier Update hits a missing component (NullReferenceException in KillScreenComponentSystem.ClearOptions, live test 2026-11-05).
+        if self.kill_screen_shown:
+            msgs.append(('KillScreenUpdateCommand', {'options': []}))
+        self.kill_screen_shown = True
         msgs.append(('KillScreenPostCommand', dict(
             killerName=killer_name, killerEpppLink='', playerShipAlias=self.p.ship_look(),
             cause=mod('DestructionTypeModule', cause=death_cause),
@@ -3986,7 +4059,7 @@ class World:
             if self.raid_gate():
                 offers[REPAIR_RAID_GATE] = 0    # Hades: free on the gate map (client: ttip_killscreen_repair_hadesgate)
             return offers                       # at a gate: free repair at the top (client: galaxygates_pvemap_leave_on_kill_p)
-        voucher = self.vouchers() > 0 or bool(self.rules.get('free_repair'))      # Cubikon Graveyard: repairs are free (npc.json)
+        voucher = self.vouchers() > 0 or bool(self.rules.get('free_repair')) or self.free_repair()      # Cubikon Graveyard: repairs are free (npc.json)
         k = SET.multiplier('repair_cost')                                   # the panel's repair price multiplier
         if self.gates:
             offers[REPAIR_GATE] = 0 if voucher or self.free_gate_repair() else int(round(DEATH['portal_uridium'] * k))
@@ -3998,18 +4071,20 @@ class World:
         the detail text and the button label are from here (the client's translation keys)."""
         u = self.p.d['pilot'].get('uridium', 0)
         out = []
-        vouchers = 0 if self.rules.get('free_repair') else self.vouchers()          # on a free map the coupon is not written or spent
+        vouchers = 0 if self.rules.get('free_repair') or self.free_repair() else self.vouchers()      # on a free map the coupon is not written or spent
         for kind, price in self.repair_offers().items():
             if kind not in REPAIR_TEXTS:          # the run's option (Ö4): the texts from it
                 desc, tooltip, btn, (akey, aparams) = self.gate.repair_texts(kind)
                 out.append(mod('KillScreenOptionModule', repairType=mod('KillScreenOptionTypeModule', repairTypeValue=kind),
                                price=mod('PriceModule', type=1, amount=price), affordableForPlayer=True, cooldownTime=0,
-                               descriptionKey=loc(desc), descriptionKeyAddon=loc(akey, **aparams), toolTipKey=loc(tooltip),
+                               descriptionKey=loc(desc[0], **desc[1]) if isinstance(desc, tuple) else loc(desc),     # (key, wildcards)
+                               descriptionKeyAddon=loc(akey, **aparams), toolTipKey=loc(tooltip),
                                buttonKey=loc(btn)))
                 continue
             desc, tooltip, btn = REPAIR_TEXTS[kind]
             count, addon = price, loc('')
-            if self.gate and kind == REPAIR_BASE:
+            gate_text = self.gate and not getattr(self.gate, 'plain_base_repair', False)     # TDM: the X-1 repair's own text
+            if gate_text and kind == REPAIR_BASE:
                 desc, price = ('desc_killscreen_free_repair_cause_galaxygate_lives' if self.gate_lives
                                else 'desc_killscreen_free_repair_cause_galaxygate'), self.gate_lives or 0
                 count = price
@@ -4045,7 +4120,7 @@ class World:
             if price:
                 self.p.gain(uridium=-price, reason='repair_ship')
                 msgs += self.money_msgs() if self.money_msgs else []
-            elif kind in (REPAIR_GATE, REPAIR_LOCATION) and self.vouchers() > 0 and not self.gate and not self.rules.get('free_repair'):
+            elif kind in (REPAIR_GATE, REPAIR_LOCATION) and self.vouchers() > 0 and not self.gate and not self.rules.get('free_repair') and not self.free_repair():
                 with self.p.lock:
                     self.p.d['gates']['voucher'] -= 1          # repair coupon used (client: repair_voucher_used)
                     self.p.dirty = True
@@ -4275,8 +4350,8 @@ class World:
                 return None
         if n.bot_target is not None and BG.npc_to_bot(self, n, now):
             return                              # answering back to a bot
-        if n.d.get('friendly'):
-            return                              # the mode manages the friendly ship (echoes.py)
+        if n.d.get('friendly') or n.d.get('managed'):
+            return                              # the mode manages the friendly ship (echoes.py) / the Spaceball (spaceball.py)
         if n.d.get('fugitive'):                    # the Plutus turret's runaway alien: moves away from the player, does not fire (forum 143902)
             n.engaged, n.next_think = False, now + 3
             tx, ty = self.alien.flee_spot(n, now)
@@ -4500,6 +4575,7 @@ class World:
             self.check_assets(now)
             self.view_tick(now)
             self.radiation_tick(now)
+            self.threat_tick(now)
         leader = self.leader()                   # on a shared map the map's jobs are with the leader (shared_maps.py)
         self.booster_tick(now)
         if leader:

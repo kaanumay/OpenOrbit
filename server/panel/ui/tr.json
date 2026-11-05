@@ -286,7 +286,6 @@
 "Battle Pass": "Battle Pass",
 "Battle Pass (2022 run) and key exchange.": "Battle Pass (2022 koşusu) ve anahtar değişimi.",
 "Battle Pass (2022 run; no Spaceball or PvP) and key exchange.": "Battle Pass (2022 koşusu; Spaceball ve PvP yok) ve anahtar değişimi.",
-"Battle Pass (objectives against aliens) and Arios and Neikos designs in the key exchange.": "Battle Pass (görevler uzaylılarla) ve anahtar değişiminde Arios ve Neikos tasarımları.",
 "Battle Pass duration": "Battle Pass süresi",
 "Battle Pass events": "Battle Pass'li etkinlikler",
 "Battle Pass tasks": "Battle Pass görevi",
@@ -3299,5 +3298,12 @@
 "Leave the gate at (lives, 0: never)": "Kapıdan çık (can, 0: hiç)",
 "The gate's lives fell to the limit set: the gate is kept for later.": "Kapının canı belirlenen sınıra indi: kapı sonraya saklandı.",
 "The file is not a valid zip.": "Dosya geçerli bir zip değil.",
-"The save folder is in use by another program; close it and try again.": "Kayıt klasörü başka bir program tarafından kullanılıyor; onu kapatıp tekrar dene."
+"The save folder is in use by another program; close it and try again.": "Kayıt klasörü başka bir program tarafından kullanılıyor; onu kapatıp tekrar dene.",
+"Battle Pass and the key exchange (Arios and Neikos designs); PvP reputation on 4-1..4-4 against bot pilots (Reputation Fever, Flux and Mire crates, milestone rewards).": "Battle Pass ve anahtar değişimi (Arios ve Neikos tasarımları); 4-1..4-4'te bot pilotlara karşı PvP itibarı (İtibar Ateşi, Flux ve Mire kasaları, kilometre taşı ödülleri).",
+"Team Deathmatch at the X-1 battlemaster: matches of up to 8 against 8 with bot pilots of another company (TDM I level 8-13, TDM II 14+), 3 lives, 15 minutes or 100 points; the winning company gets +10% ore price, bonus box and EP for 24 hours.": "X-1'deki savaş ustasında Team Deathmatch: başka bir şirketin bot pilotlarıyla en çok 8'e 8 maçlar (TDM I seviye 8-13, TDM II 14+), 3 can, 15 dakika ya da 100 puan; kazanan şirket 24 saat boyunca %10 daha yüksek cevher fiyatı, bonus kutu ve EP alır.",
+"Sector Control at the beacon in the middle of X-1: the three companies (bot pilots) fight for 4 control points and tickets (SC-1 level 8-13, SC-2 14+); the last company with tickets wins the EP & Honor bonus.": "X-1'in ortasındaki işaretten Sektör Kontrolü: üç şirket (bot pilotlar) 4 kontrol noktası ve biletler için savaşır (SC-1 seviye 8-13, SC-2 14+); bileti kalan son şirket EP ve Onur bonusunu kazanır.",
+"Spaceball on 4-4: the companies (and bot pilots) shoot the ball to their own portal to X-5; a goal drops prize boxes there, the day's winner company gets bonuses the next day.": "4-4'te Uzay Topu: şirketler (ve bot pilotlar) topu vurarak kendi X-5 portallarına götürür; gol olunca orada ödül kutuları düşer, günü kazanan şirket ertesi gün bonus alır.",
+"Capture the Beacon on the X-2 maps: steal your company's beacon from an enemy X-2 and deliver it to your own X-2; enemy bot pilots raid yours; the hour's winner company gets +5% EP and Honor.": "X-2 haritalarında Bayrağı Yakala: şirketinin fenerini düşman X-2'den çalıp kendi X-2'ne teslim et; düşman bot pilotlar seninkine baskın yapar; saati kazanan şirket %5 EP ve Onur alır.",
+"Level Up Booster Packs in the shop (the real weekly rotation, Thursday to Monday).": "Mağazada Level Up Booster paketleri (gerçek haftalık sıra, Perşembe-Pazartesi).",
+"The best subscription offer in the shop (the real weekly rotation, Thursday to Monday).": "Mağazada en iyi abonelik teklifi (gerçek haftalık sıra, Perşembe-Pazartesi)."
 }

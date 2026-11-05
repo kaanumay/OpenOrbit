@@ -265,7 +265,10 @@
    "effect": {
     "rocket_cooldown_ms": 1000
    },
-   "_note": "cooldown from the client's ship data (Tartarus 24 s, Tartarus Plus 72 s); that the normal rocket cooldown also drops to 1 s is unverified (client: the launcher's \"one second instead of three\")"
+   "_note": "cooldown from the client's ship data (Tartarus 24 s, Tartarus Plus 72 s); that the normal rocket cooldown also drops to 1 s is unverified (client: the launcher's \"one second instead of three\")",
+   "visual": {
+    "appearance": 1
+   }
   },
   "ability_basilisk_noxious-nebula": {
    "name": "Noxious Nebula",
@@ -276,7 +279,11 @@
    "text": [
     "msg_noxious_nebula_activated",
     "msg_noxious_nebula_stopped"
-   ]
+   ],
+   "visual": {
+    "appearance": 124,
+    "attr": 900
+   }
   },
   "ability_basilisk_heightened-valour": {
    "name": "Heightened Valour",
@@ -292,7 +299,11 @@
    "text": [
     "msg_heightened_valour_activated",
     "msg_heightened_valour_stopped"
-   ]
+   ],
+   "visual": {
+    "appearance": 125,
+    "attr": 5
+   }
   },
   "ability_berserker_shl": {
    "name": "Shield Link",
@@ -303,7 +314,11 @@
    "text": [
     "msg_shield_link_activated",
     "msg_shield_link_stopped"
-   ]
+   ],
+   "visual": {
+    "appearance": 83,
+    "attr": "mate"
+   }
   },
   "ability_berserker_bsk": {
    "name": "Berserk",
@@ -316,7 +331,10 @@
    "text": [
     "msg_berserk_activated",
     "msg_berserk_stopped"
-   ]
+   ],
+   "visual": {
+    "appearance": 84
+   }
   },
   "ability_berserker_rvg": {
    "name": "Revenge",
@@ -333,7 +351,10 @@
    "text": [
     "msg_revenge_activated",
     "msg_revenge_stopped"
-   ]
+   ],
+   "visual": {
+    "appearance": 85
+   }
   },
   "ability_citadel-plus_prismatic-endurance": {
    "name": "Prismatic Endurance",
@@ -347,7 +368,10 @@
    "text": [
     "msg_prismatic_endurance_activated",
     "msg_prismatic_endurance_stopped"
-   ]
+   ],
+   "visual": {
+    "appearance": 105
+   }
   },
   "ability_disruptor_redirect": {
    "name": "Redirect",
@@ -358,7 +382,10 @@
    "text": [
     "msg_redirect_activated",
     "msg_redirect_stopped"
-   ]
+   ],
+   "visual": {
+    "appearance": 81
+   }
   },
   "ability_disruptor_shield-disarray": {
    "name": "Shield Disarray",
@@ -372,7 +399,11 @@
    "text": [
     "msg_shield_disarray_activated",
     "msg_shield_disarray_stopped"
-   ]
+   ],
+   "visual": {
+    "appearance": 80,
+    "on": "target"
+   }
   },
   "ability_disruptor_ddol": {
    "name": "DDoL",
@@ -389,7 +420,11 @@
    "text": [
     "msg_ddol_activated",
     "msg_ddol_stopped"
-   ]
+   ],
+   "visual": {
+    "appearance": 82,
+    "on": "target"
+   }
   },
   "ability_goliath-x_frozen-claw": {
    "name": "Frozen Claw",
@@ -398,7 +433,11 @@
    "effect": {
     "target_freeze": 2
    },
-   "targeted": true
+   "targeted": true,
+   "visual": {
+    "appearance": 102,
+    "on": "target"
+   }
   },
   "ability_hammerclaw-plus_reallocate": {
    "name": "Reallocate",
@@ -409,7 +448,10 @@
    "text": [
     "msg_reallocate_activated",
     "msg_reallocate_stopped"
-   ]
+   ],
+   "visual": {
+    "appearance": 100
+   }
   },
   "ability_hecate_particle-beam": {
    "name": "Particle Beam",
@@ -420,7 +462,11 @@
    "text": [
     "msg_particle_beam_activated",
     "msg_particle_beam_stopped"
-   ]
+   ],
+   "visual": {
+    "appearance": 74,
+    "attr": "target"
+   }
   },
   "ability_hecate-plus_particle-beam-plus": {
    "name": "Particle Beam Plus",
@@ -431,7 +477,11 @@
    "text": [
     "msg_particle_beam_plus_activated",
     "msg_particle_beam_plus_stopped"
-   ]
+   ],
+   "visual": {
+    "appearance": 74,
+    "attr": "target"
+   }
   },
   "ability_hecate-plus_stockpile": {
    "name": "Stockpile",
@@ -451,7 +501,10 @@
    "text": [
     "msg_stockpile_activated",
     "msg_stockpile_stopped"
-   ]
+   ],
+   "visual": {
+    "appearance": 106
+   }
   },
   "ability_holo_self-reversal": {
    "name": "Self Reversal",
@@ -468,7 +521,10 @@
    "text": [
     "msg_self_reversal_activated",
     "msg_self_reversal_stopped"
-   ]
+   ],
+   "visual": {
+    "appearance": 103
+   }
   },
   "ability_holo_enemy-reversal": {
    "name": "Enemy Reversal",
@@ -479,7 +535,11 @@
    "text": [
     "msg_enemy_reversal_activated",
     "msg_enemy_reversal_stopped"
-   ]
+   ],
+   "visual": {
+    "appearance": 104,
+    "on": "target"
+   }
   },
   "ability_hyperion_ga": {
    "name": "Gravitational Anchor",
@@ -496,7 +556,11 @@
    "text": [
     "msg_gravitational_anchoractivated",
     "msg_gravitational_anchorstopped"
-   ]
+   ],
+   "visual": {
+    "appearance": 157,
+    "on": "target"
+   }
   },
   "ability_hyperion_qa": {
    "name": "Quantum Amplifier",
@@ -520,7 +584,10 @@
    "text": [
     "msg_spread_activated",
     "msg_spread_stopped"
-   ]
+   ],
+   "visual": {
+    "appearance": 93
+   }
   },
   "ability_keres_sle": {
    "name": "Sleight",
@@ -547,7 +614,10 @@
    "text": [
     "msg_self_repair_activated",
     "msg_self_repair_stopped"
-   ]
+   ],
+   "visual": {
+    "appearance": 91
+   }
   },
   "ability_mimesis_scramble": {
    "name": "Scramble",
@@ -562,7 +632,10 @@
     "shield_melt": 0.1,
     "close_at_zero": true
    },
-   "_note": "client: the shield melts away over the duration, shuts off at 0; 10% of max shield per second (wiki)"
+   "_note": "client: the shield melts away over the duration, shuts off at 0; 10% of max shield per second (wiki)",
+   "visual": {
+    "appearance": 3
+   }
   },
   "ability_mimesis_phase-out": {
    "name": "Phase Out",
@@ -587,7 +660,10 @@
    "text": [
     "msg_assimilate_activated",
     "msg_assimilate_stopped"
-   ]
+   ],
+   "visual": {
+    "appearance": 99
+   }
   },
   "ability_paladin_last-stand": {
    "name": "Last Stand",
@@ -596,7 +672,10 @@
    "effect": {
     "last_stand": true
    },
-   "_note": "HP is restored on a lethal hit"
+   "_note": "HP is restored on a lethal hit",
+   "visual": {
+    "appearance": 132
+   }
   },
   "ability_paladin_ripper": {
    "name": "Ripper",
@@ -615,7 +694,10 @@
    "text": [
     "msg_ripper_activated",
     "msg_ripper_stopped"
-   ]
+   ],
+   "visual": {
+    "appearance": 131
+   }
   },
   "ability_pusat-plus_speed-sap": {
    "name": "Speed Sap",
@@ -631,7 +713,10 @@
    "text": [
     "msg_speed_sap_activated",
     "msg_speed_sap_stopped"
-   ]
+   ],
+   "visual": {
+    "appearance": 95
+   }
   },
   "ability_retiarus_chs": {
    "name": "Charge Shot",
@@ -648,7 +733,11 @@
    "text": [
     "msg_charge_shot_activated",
     "msg_charge_shot_stopped"
-   ]
+   ],
+   "visual": {
+    "appearance": 94,
+    "extra": "target"
+   }
   },
   "ability_retiarus_spc": {
    "name": "Supercharge",
@@ -662,7 +751,10 @@
    "text": [
     "msg_supercharge_activated",
     "msg_supercharge_stopped"
-   ]
+   ],
+   "visual": {
+    "appearance": 148
+   }
   },
   "ability_retiarus-plus_chsp": {
    "name": "Super Charge Shot",
@@ -683,7 +775,11 @@
    "text": [
     "msg_charge_shot_plus_activated",
     "msg_charge_shot_plus_stopped"
-   ]
+   ],
+   "visual": {
+    "appearance": 94,
+    "extra": "target"
+   }
   },
   "ability_retiarus-plus_spcp": {
    "name": "Supercharge Plus",
@@ -701,7 +797,10 @@
    "text": [
     "msg_supercharge_plus_activated",
     "msg_supercharge_plus_stopped"
-   ]
+   ],
+   "visual": {
+    "appearance": 148
+   }
   },
   "ability_solace-plus_nano-cluster-repairer-plus": {
    "name": "Nano-Cluster Repairer Plus",
@@ -713,7 +812,10 @@
    "text": [
     "msg_nano_cluster_repairer_plus_activated",
     "msg_nano_cluster_repairer_plus_stopped"
-   ]
+   ],
+   "visual": {
+    "effect": 1
+   }
   },
   "ability_solaris_inc": {
    "visual": {
@@ -762,7 +864,10 @@
    "text": [
     "msg_jamx_creed_activated",
     "msg_jamx_creed_stopped"
-   ]
+   ],
+   "visual": {
+    "appearance": 108
+   }
   },
   "ability_spearhead-plus_neutralizing-marker": {
    "name": "Neutralizing Marker",
@@ -780,7 +885,11 @@
    "text": [
     "msg_neutralizing_marker_activated",
     "msg_neutralizing_marker_stopped"
-   ]
+   ],
+   "visual": {
+    "appearance": 110,
+    "on": "target"
+   }
   },
   "ability_spectrum-plus_prismatic-reflecting": {
    "name": "Prismatic Reflecting",
@@ -797,7 +906,10 @@
    "text": [
     "msg_prismatic_reflecting_activated",
     "msg_prismatic_reflecting_stopped"
-   ]
+   ],
+   "visual": {
+    "effect": 3
+   }
   },
   "ability_tartarus-plus_rapid-fire-plus": {
    "name": "Rapid Fire Plus",
@@ -813,7 +925,10 @@
    "text": [
     "msg_rapid_fire_plus_activated",
     "msg_rapid_fire_plus_stopped"
-   ]
+   ],
+   "visual": {
+    "appearance": 1
+   }
   },
   "ability_tartarus-plus_speed-boost-plus": {
    "name": "Speed Boost Plus",
@@ -829,7 +944,11 @@
    "text": [
     "msg_speed_boost_plus_activated",
     "msg_speed_boost_plus_stopped"
-   ]
+   ],
+   "visual": {
+    "appearance": 0,
+    "attr": 1
+   }
   },
   "ability_tempest_voltage-link": {
    "name": "Voltage Link",
@@ -847,7 +966,11 @@
    "text": [
     "msg_voltage_link_activated",
     "msg_voltage_link_stopped"
-   ]
+   ],
+   "visual": {
+    "appearance": 111,
+    "attr": "target"
+   }
   },
   "ability_tempest_volt-discharge": {
    "name": "Volt Discharge",
@@ -866,7 +989,10 @@
    "text": [
     "msg_volt_discharge_activated",
     "msg_volt_discharge_stopped"
-   ]
+   ],
+   "visual": {
+    "appearance": 113
+   }
   },
   "ability_tempest_volt-backup": {
    "name": "Volt Back-up",
@@ -879,7 +1005,10 @@
    "text": [
     "msg_volt_backup_activated",
     "msg_volt_backup_stopped"
-   ]
+   ],
+   "visual": {
+    "appearance": 114
+   }
   },
   "ability_zephyr_mmt": {
    "name": "Momentum",
@@ -900,7 +1029,10 @@
    "text": [
     "msg_momentum_activated",
     "msg_momentum_stopped"
-   ]
+   ],
+   "visual": {
+    "appearance": 95
+   }
   },
   "ability_zephyr_tbr": {
    "name": "Triple Barrage",

@@ -269,8 +269,25 @@ class Labyrinth:
         self.new_synk(now, now + random.uniform(*L['synk']['renew_sec']))
         self.p.ach('synk')
         self.log('   labyrinth: Synk hunted (%d)' % st['hunts'])
+        self.push_top_rankers()
         return [GALAXY.screen('key:msg_npc_synk_killed', big=True, PLAYER=self.p.d['pilot'].get('userName', '')),
                 self.synk_cmd(now)] + self.info_msgs(now)
+
+    def ranking_rows(self, p):
+        """The top ten of the Synk hunts as p sees it and p's own row (FrozenLabyrinthRankModule)."""
+        import community as TP                          # players on the server (Synk hunts)
+        row = lambda r: dict(_='FrozenLabyrinthRankModule', kills=int(r[2]), name=r[1].d['pilot'].get('userName', ''), rank=r[0] or 1,
+                             lastKillTime=(r[1].d.get('labyrinth') or {}).get('last_hunt', ''))
+        top, me = TP.ranking(p, lambda x: int((x.d.get('labyrinth') or {}).get('hunts', 0)))
+        return [row(r) for r in top] or [row(me)], row(me)
+
+    def push_top_rankers(self):
+        """Another player hunted the Synk: the other players on the server get the new top ten without opening the window
+        (FrozenLabyrinthTopRankerInfoCommand -> FrozenLabyrinthComponent.UpdateTopRankers; their own rank stays as it was)."""
+        import community as TP
+        for k in list(TP.all_().values()):
+            if k.profile is not self.p and k.world is not None:
+                k.send([('FrozenLabyrinthTopRankerInfoCommand', {'topRankers': self.ranking_rows(k.profile)[0]})])
 
     def synk_cmd(self, now=None):
         now = time.time() if now is None else now
@@ -280,11 +297,8 @@ class Labyrinth:
 
     def info_msgs(self, now=None):
         now = time.time() if now is None else now
-        import community as TP                          # players on the server (Synk hunts)
-        row = lambda r: dict(_='FrozenLabyrinthRankModule', kills=int(r[2]), name=r[1].d['pilot'].get('userName', ''), rank=r[0] or 1,
-                             lastKillTime=(r[1].d.get('labyrinth') or {}).get('last_hunt', ''))
-        top, me = TP.ranking(self.p, lambda x: int((x.d.get('labyrinth') or {}).get('hunts', 0)))
-        rank = dict(_='FrozenLabyrinthRankInfoCommand', myRank=row(me), topRankers=[row(r) for r in top] or [row(me)])
+        top, me = self.ranking_rows(self.p)
+        rank = dict(_='FrozenLabyrinthRankInfoCommand', myRank=me, topRankers=top)
         left = int(max(0, CAL.time_left(L['event'], now)))
         times = dict(_='FrozenLabyrinthTimeInfoCommand', timeToEndLabyrinth=left, timeToNextLabyrinth=0)
         return [('FrozenLabyrinthInfoCommand', dict(rankInfo=rank, labyrinthKeys=keys(self.p), timeInfo=times)), self.synk_cmd(now)]

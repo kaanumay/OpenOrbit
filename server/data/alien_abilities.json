@@ -221,7 +221,8 @@
    "slowing_shots": {
     "speed": 120,
     "sec": 5,
-    "range": 300
+    "range": 300,
+    "visual": "SAB_SHOT"
    },
    "_adaptation": "like Barb's slowdown orb",
    "_source": "fandom (Saboteur, Slowdown Orb): sets speed to 120, 5 s, range ~300, does not stack"
@@ -231,7 +232,8 @@
    "slowing_shots": {
     "speed": 120,
     "sec": 5,
-    "range": 300
+    "range": 300,
+    "visual": "SAB_SHOT"
    },
    "_adaptation": "Saboteur's"
   },

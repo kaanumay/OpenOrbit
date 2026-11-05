@@ -146,7 +146,7 @@ def decision(bot, y, now=None):
     if intent and intent.get('end_time', 0) < now:
         intent = bot.k['intent'] = None
     duration = now - bot.goal_start
-    run = current is not None and current.name in ('gate', 'mod') and not bot.plan.get('finished')   # the intent must not split the run: there is no way from there
+    run = current is not None and current.name in ('gate', 'mod', 'pvp_match') and not bot.plan.get('finished')   # the intent must not split the run: there is no way from there
     commit = bot.plan.get('min', getattr(current, 'min_sec', 0)) if current is not None else 0
     if current is not None and not current.finished(bot, b) and (run or duration < commit and not intent):
         urgent = [h for h in GOALS.values() if h.urgent and h is not current and allowed(h, y) and h.eligible(bot, b)]

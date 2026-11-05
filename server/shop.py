@@ -93,6 +93,9 @@ ORES = {int(t): loot for t, loot in ITEMS['ores']['kinds'].items()}     # OreTyp
 DRONES = ITEMS['drones']
 FORMS = ITEMS['formations']
 FORM_RULES = ITEMS['formation_rules']     # minimum drone count per formation and the sales calendar
+# the recorded shop's weekly sale offers: listed only in their bp-calendar week (event_calendar levelup_sale / subscription_sale)
+SALE_RULES = dict({'package_event-deal-levelup-%s' % s: {'calendar': 'levelup_sale'} for s in ('s', 'm', 'l', 'xl')},
+                  **{'deal_best-subscription': {'calendar': 'subscription_sale'}})
 LEVELS = ITEMS['drone_levels']
 DRONE_ITEMS = ('equipment_weapon_laser_', 'equipment_generator_shield_')     # laser and shield generator for drones (+ extras: drone_ok)
 REPBOT = 'equipment_extra_repbot_'                                           # repair robots: one per config
@@ -793,7 +796,7 @@ class Shop:
             return False
         if not EG.in_shop(loot):          # when the panel's setting is off, event appearances only from their events
             return False
-        entry = self.extra_entry.get(loot) or FORM_RULES.get(loot)      # Bat is sold only at Halloween (formation_rules.calendar; wiki)
+        entry = self.extra_entry.get(loot) or FORM_RULES.get(loot) or SALE_RULES.get(loot)      # Bat only at Halloween; weekly sales
         return self.shop_gate(entry, loot) if self.shop_gate else True
 
     def shop_list(self, category):
@@ -1212,12 +1215,13 @@ class Shop:
                 msgs += [BOOSTER.update_cmd(self.p), legacy('0|LM|ST|LOT|%s|%d' % (g, n))] + self.apply_stats()
                 self.log('   booster: %s x%d (%d s left)' % (g, n, BOOSTER.left(self.p, g)))
             elif not slot_of(g):
+                lv = ITEMS.get('package_levels', {}).get(loot, {}).get(g, level)     # a package's gear level (Stellar: level 3 G-KK1)
                 for _ in range(n):            # drone design, P.E.T. gear/protocol: into the inventory (fitted in the hangar)
-                    iid = self.p.new_item(g, level)
+                    iid = self.p.new_item(g, lv)
                     msgs += [self.inv_item(iid, g, 1), self.pack([self.hangar_item(iid, g, 1)])]
                 msgs.append(legacy('0|LM|ST|LOT|%s|%d' % (g, n)))
-                if level > 1:
-                    self.log('   level %d: %s' % (level, g))
+                if lv > 1:
+                    self.log('   level %d: %s' % (lv, g))
             else:
                 room = self.free_slots(slot_of(g))
                 free += room
@@ -1644,12 +1648,12 @@ class Shop:
         return self.buy(loot, n, quick=True) if self.price(loot) else []
 
     def auto_buy_fail(self, loot, n):
-        """The client's text (Ö1) if the auto-buy did not happen because the money did not suffice: 0|ammobuy_fail_uri / _cre ("Ammo purchase failed! Not
+        """The client's text (Ö1) if the auto-buy did not happen because the money did not suffice: 0|5|f|F|U / C -> ammobuy_fail_uri / _cre ("Ammo purchase failed! Not
         enough Uridium." ...; NetConnectionHelper.OnData) -> messages or empty."""
         pr = self.buy_price(loot, 1) if self.price(loot) else None
         if not pr or self.p.d['pilot'].get(pr[0], 0) >= math.ceil(pr[1] * n - 1e-9):
             return []
-        return [legacy('0|ammobuy_fail_%s' % ('uri' if pr[0] == 'uridium' else 'cre'))]
+        return [legacy('0|5|f|F|%s' % ('U' if pr[0] == 'uridium' else 'C'))]
 
     def auto_buy_ammo(self, f):
         """HangarShipAutoBuyCpuAmmoRequest: the ammo the auto-buy CPU (ALB-X laser, RB-X rocket and launcher rocket) will buy
@@ -1720,10 +1724,10 @@ class Shop:
             weapon = ((1 + lv['laser'] + team) * UPG.factor(x['lootId'], up, UPG.DRONE_DAMAGE) - 1) * 100
             shield = ((1 + lv['shield'] + shd) * UPG.factor(x['lootId'], up, UPG.DRONE_SHIELD) - 1) * 100
             drones.append(mod('SingleDroneEquipmentMsg', level=x['level'], visual=[look] if look else [],
-                              shieldBouns=round(shield - lv['shield'] * 100, 2), repairValue='', defaults=list(dc.get(str(x['uid']), [])),
+                              shieldBouns=round(shield - lv['shield'] * 100, 2), repairValue='eqt_error_generic', defaults=list(dc.get(str(x['uid']), [])),
                               weaponBouns=round(weapon - lv['laser'] * 100, 2), damageUpgradeLevel=up + 1, shieldUpgradeLevel=up + 1,
                               design=[design] if design else [], shieldEffect=round(shield, 2),
-                              position=i, droneId=x['uid'], damage=0.0, repairType='', weaponEffect=round(weapon, 2)))
+                              position=i, droneId=x['uid'], damage=0.0, repairType='0', weaponEffect=round(weapon, 2)))
         return mod('HangarDroneEquipmentMsg', setId=int(cid), active=active, position=0, setDroneEquipment=drones)
 
     def drone_views(self):

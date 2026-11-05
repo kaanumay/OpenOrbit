@@ -9386,20 +9386,12 @@
        1
       ],
       [
-       "resource_collectable_greenkey",
+       "resource_booty-key",
        20
       ],
       [
        "resource_extra-energy",
        200
-      ],
-      [
-       "equipment_extra_cpu_sll-3",
-       2
-      ],
-      [
-       "equipment_extra_cpu_sl-3",
-       2
       ],
       [
        "equipment_generator_shield_fs-03",
