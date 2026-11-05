@@ -25,6 +25,11 @@ import galaxy_gates as GALAXY
 HERE = os.path.dirname(os.path.abspath(__file__))
 D = json.load(open(os.path.join(HERE, 'data', 'dispatch.json'), encoding='utf8'))
 R = D['collectors']
+# Dispatch's own gate ids (the client's DispatchGateDefinition table, keys of _defaultList: same as its machine code). They differ from
+# the Galaxy Gate ids from Delta on (Delta 5, Epsilon 8, Zeta 9, Kappa 10, Lambda 11); with GALAXY's uid the client threw KeyNotFound
+# on the Dispatch gate tab (4 is not in its table; deep UI scan 2026-11-05).
+DISPATCH_ID = {'alpha': 1, 'beta': 2, 'gamma': 3, 'delta': 5, 'epsilon': 8, 'zeta': 9, 'kappa': 10, 'lambda': 11, 'kronos': 12, 'streuner': 19}
+BY_DISPATCH_ID = {v: k for k, v in DISPATCH_ID.items()}
 AVAILABLE, IN_PROGRESS, READY = 0, 1, 2                    # StatusType (client)
 NO_RESOURCE, COLLECTED = 0, 1                             # DispatchLootMessageCommand.MessageType
 (SUCCESS_SEND_RETRIEVER, SUCCESS_SEND_GATE, SUCCESS_ADD_SLOT, ERROR_NO_GATE, ERROR_NO_SLOT, ERROR_NO_RESOURCE, ERROR_NOT_READY,
@@ -232,26 +237,25 @@ class Dispatch:
 
     # ------------------------------------------------------------ gates
     def gate_keys(self):
-        return [k for k in GALAXY.GATES if k != 'hades']        # a group gate is not sent (wiki)
+        return [k for k in GALAXY.GATES if k in DISPATCH_ID]        # a group gate (Hades) is not sent (wiki); Dispatch has no row for it
 
     def gate_list(self, now=None):
         now = now or time.time()
         out = []
         for key in self.gate_keys():
-            g = GALAXY.GATES[key]
             if key in self.st['gates']:
                 left = self.st['gates'][key] - now
-                out.append(mod('DispatchGateModule', gateId=g['uid'], status=IN_PROGRESS if left > 0 else READY, timeLeft=max(0, int(left))))
+                out.append(mod('DispatchGateModule', gateId=DISPATCH_ID[key], status=IN_PROGRESS if left > 0 else READY, timeLeft=max(0, int(left))))
             else:
                 # Every gate is in the list; dispatching rejects a gate that is not built or has never been completed (the client's texts
                 # dispatch_error-no-gate "Please prepare a Gate manually ...", dispatch_error-incomplete-gate "... complete the Gate manually
                 # at least once ..."). Listing only suitable gates left the tab empty (player report 2026-10-28, img3)
-                out.append(mod('DispatchGateModule', gateId=g['uid'], status=AVAILABLE,
+                out.append(mod('DispatchGateModule', gateId=DISPATCH_ID[key], status=AVAILABLE,
                                timeLeft=SET.duration(D['gate']['duration_sec'], 'dispatch')))      # the "Time required" column while sendable (live test H35)
         return [('DispatchGetGateListCommand', {'gateList': out})]
 
     def send_gate(self, f):
-        key = GALAXY.BY_ID.get(f.get('gateId'))
+        key = BY_DISPATCH_ID.get(f.get('gateId'))
         if not key or key not in self.gate_keys() or key in self.st['gates']:
             return [('DispatchMessageCommand', {'messageType': ERROR_NO_GATE})]
         if not self.k.built(key) or self.k.gate(key)['wave'] != 0:          # built and at wave 1 (forum 160334)
@@ -278,7 +282,7 @@ class Dispatch:
         return INV.update_msgs(self.m, self.p, list(cost)) + [('DispatchMessageCommand', {'messageType': SUCCESS_SEND_GATE})] + self.gate_list()
 
     def collect_gate(self, f, now=None):
-        key = GALAXY.BY_ID.get(f.get('gateId'))
+        key = BY_DISPATCH_ID.get(f.get('gateId'))
         now = now or time.time()
         if not key or key not in self.st['gates']:
             return [('DispatchMessageCommand', {'messageType': ERROR_COLLECT})]

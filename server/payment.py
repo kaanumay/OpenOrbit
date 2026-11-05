@@ -21,6 +21,7 @@ import platform_compat as CP
 PORT = 443
 INTERVAL_SEC = 2.0              # retries of the same click (TLS) count as one
 WINDOW_SEC = 600             # if the last opened window is older than this the product is not guessed
+OWN_OPEN_SEC = 1.0           # the cart opens the shop itself within this time after its payment request (game.payment_click)
 
 # window (menu item) -> (product name, lootIds in the shop: the price is that of the first one sold)
 PRODUCTS = {

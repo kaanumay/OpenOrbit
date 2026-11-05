@@ -1400,10 +1400,23 @@ class Session:
             with self.packet_lock:
                 self.send([GALAXY.screen(msg)], '443: ekran metni')
             return
-        item = self.windows.guess()
-        log('   payment button -> shop (last window: %s)' % (item or '-'))
-        with self.packet_lock:
-            self.send(PAY.redirect(self.shop, item), 'payment button: shop')
+        # The top-right cart ('shop') also calls the payment page, then opens the shop itself (OnClickMenuBtn -> 'new_shop'). Opening it once
+        # more through the 'shop' item lit that icon for good (also with the original 1.1.116 client; user 2026-11-04): wait for the client's
+        # own opening first and redirect only if it does not come.
+        clicked = time.time()
+
+        def redirect():
+            if self.windows.last.get('new_shop', 0) >= clicked:
+                log('   payment button: the client opened the shop itself (cart)')
+                return
+            item = self.windows.guess()
+            log('   payment button -> shop (last window: %s)' % (item or '-'))
+            with self.packet_lock:
+                self.send(PAY.redirect(self.shop, item), 'payment button: shop')
+        if PAY.OWN_OPEN_SEC > 0:
+            threading.Timer(PAY.OWN_OPEN_SEC, redirect).start()
+        else:
+            redirect()
 
     def inject(self, name, f):
         """Control channel: a request as if the client sent it ('<=' in the trace)."""
