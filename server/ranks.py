@@ -23,7 +23,7 @@ Local adaptation: rank by the point thresholds; the players on the server in the
 and friend server: all connected players, every client sees the same list), the server's clans in the clan lists (clan.py;
 points are the sum of the members' rank points).
 """
-import json, math, os, threading, time
+import bisect, json, math, os, threading, time
 import game_data as DATA
 import settings as SET
 
@@ -145,6 +145,7 @@ def rank_for(points):
 # The Level Based Rank Threshold setting (off by default) brings the threshold ceiling back: capped().
 RANKING_SEC = 30
 _RANKING = {}                        # company -> (timestamp, [(points, uid)])
+_SORTED = {}                         # company -> (that list, its sorted (points, -uid) keys, uid -> points): company_rank by bisection
 _LOCAL = threading.local()        # while the account runs: community.all_() updates the bots' profiles, which asks for the rank
 
 
@@ -205,8 +206,18 @@ def company_rank(uid, company, points, now=None):
     if _bots() is None or not company:
         return None
     now = now or time.time()
-    others = [x for x in _company(company, now) if x[1] != uid]
-    return place_rank(sum(1 for x in others if (x[0], -x[1]) > (points, -uid)), len(others) + 1)      # on a tie the registered one first (smaller id)
+    lst = _company(company, now)
+    s = _SORTED.get(company)
+    if s is None or s[0] is not lst:
+        # every bot profile asks its rank (society.people rebuilds them all every 2 s): a scan of the company per bot was O(n^2) under
+        # the bot lock, 1500 bots froze the world loop for seconds (player reports 2026-11-06)
+        s = _SORTED[company] = (lst, sorted((p, -u) for p, u in lst), {u: p for p, u in lst})
+    _, keys, own = s
+    me = (points, -uid)                                      # on a tie the registered one first (smaller id)
+    above = len(keys) - bisect.bisect_right(keys, me)
+    if uid in own and (own[uid], -uid) > me:
+        above -= 1                                           # its own (older) entry is not a rival
+    return place_rank(above, len(keys) + (uid not in own))
 
 
 def points_to_pass(p, rank, now=None):

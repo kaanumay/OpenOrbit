@@ -27,6 +27,7 @@ PVP_SEC = 10.0
 SIGNUP_SEC = 60.0
 LOGIN_RETRY_SEC = 60.0
 VERSION = 1
+SAVE_CHUNK = 50                 # bots serialized per hold of the lock (save)
 ACTIVE = None                   # the game server's manager (game.py sets it up; ship.py reads it)
 PRIME_POPULATION = 1.3              # multiplier for the tendency to be online in prime time
 FRONTS = (16, 16, 29, 13, 14, 15)        # 4-4 iki kat, 4-5, 4-1, 4-2, 4-3
@@ -208,11 +209,20 @@ class Manager(ChatEngine):
         if not self.state_path:
             return
         now = now or time.time()
-        with self.lock:                                  # the text inside the lock: so the world loop does not see it half done while adding to the dicts
-            d = dict(version=VERSION, t=now, name_log=self.name_log_n, bots={str(b.k['no']): b.save() for b in self.bots})
+        dump = lambda v: json.dumps(v, ensure_ascii=False, separators=(',', ':'))
+        bots, parts = list(self.bots), []
+        # each bot's text inside the lock (so the world loop does not see it half done while adding to the dicts), but SAVE_CHUNK bots at a
+        # time: the whole record in one go held the lock and the GIL ~250 ms for 1500 bots at level 12+ (7 MB), the world loop froze
+        # every minute (player reports 2026-11-06)
+        for i in range(0, len(bots), SAVE_CHUNK):
+            with self.lock:
+                parts += ['%s:%s' % (dump(str(b.k['no'])), dump(b.save())) for b in bots[i:i + SAVE_CHUNK]]
+            time.sleep(0)                                # the world loop waiting for the lock goes first
+        with self.lock:
+            head = dict(version=VERSION, t=now, name_log=self.name_log_n)
             if self.llm is not None:
-                d['llm'] = self.llm.summary()                    # the panel's usage line (last hour: requests, tokens)
-            text = json.dumps(d, ensure_ascii=False, separators=(',', ':'))
+                head['llm'] = self.llm.summary()                 # the panel's usage line (last hour: requests, tokens)
+        text = dump(head)[:-1] + ',"bots":{' + ','.join(parts) + '}}'
         tmp = self.state_path + '.tmp'
         os.makedirs(os.path.dirname(self.state_path), exist_ok=True)
         with open(tmp, 'w', encoding='utf8') as f:
