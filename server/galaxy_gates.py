@@ -103,7 +103,7 @@ def screen(text, big=False, **wild):
                                        baseKeyType=mod('ReplacementTypeModule', typeValue=kind), textStyle=0))))
 
 
-from legacy_protocol import legacy, loot_kind, stm  # noqa: E402,F401  (old text protocol: legacy_protocol.py)
+from legacy_protocol import legacy, loot_kind, loot_line, stm  # noqa: E402,F401  (old text protocol: legacy_protocol.py)
 
 
 def npc_type(key, wave, i):
@@ -324,6 +324,17 @@ class Gates:
     def built(self, key):
         return len(self.gate(key)['parts']) >= GATES[key]['part']
 
+    def mult(self, key):
+        """The builder's multiplier: Alpha, Beta and Gamma share one (official record 2026-10-25: a Beta duplicate while spinning Alpha raised
+        the Alpha multiplier), every other gate has its own (same record: Zeta 5 while Alpha 0). Old profiles kept one for all: it stays ABG's."""
+        return self.d['multiplier'] if key in ABG else self.gate(key).get('multiplier', 0)
+
+    def set_mult(self, key, n):
+        if key in ABG:
+            self.d['multiplier'] = n
+        else:
+            self.gate(key)['multiplier'] = n
+
     def parts(self, key):
         """The list the parts go to on a spin: the next gate's if a gate is prepared and on the map (player report 2026-10-27: in the real game
         parts drop even while a built gate is on the map; ours counted all as duplicates and turned them into the multiplier), otherwise the gate itself."""
@@ -410,7 +421,7 @@ class Gates:
             out['probabilityModules'] = [dict(m, percentage=pct.get(m.get('category'), m.get('percentage', 0)))
                                          for m in out['probabilityModules']]
         out.update(currPart=len(self.parts(key)), currWave=sub_waves(g, G['wave']), state=self.state(key),
-                   livesLeft=G['hp'] if G['ready'] else -1, lifePrice=self.life_price(key), multiplier=self.d['multiplier'], mode=key,
+                   livesLeft=G['hp'] if G['ready'] else -1, lifePrice=self.life_price(key), multiplier=self.mult(key), mode=key,
                    id=g['uid'], bonusGGRewardModules=self.bonus_modules(key))
         if 'sources' in g:
             # Kronos: progress per gate as in the record (the name is what the client shows, "Alpha", "Beta" ...)
@@ -487,7 +498,7 @@ class Gates:
         key = BY_ID.get(gid)
         reply = lambda err, items=(), extra=None: [('GalaxyGateBuilderMultiEnergyCommand', dict(
             gatePartIds=self.part_ids(key) if key else [], items=list(items), spinamount_selected=n, errorCode=err, money=self.money(),
-            multiplier=self.d['multiplier'], gateMode=key or '', samples=self.d['energy']))] + (extra or [])
+            multiplier=self.mult(key) if key else 0, gateMode=key or '', samples=self.d['energy']))] + (extra or [])
         if not key or n <= 0 or GATES[key].get('not_producible'):
             self.log('   gate builder: no spin (gate %s, %d)' % (gid, n))     # Kronos: its parts come from the other gates
             return reply(ERR_OTHER)
@@ -518,19 +529,26 @@ class Gates:
             msgs = self.m.money_msgs() + msgs
         items = self.merge(results)
         self.log('   gate builder %s: %d spins (%d free, %d U), part %s, multiplier %d: %s' % (
-            key, used, free, cost, ', '.join('%s %d/%d' % (k, len(self.gate(k)['parts']), GATES[k]['part']) for k in group), self.d['multiplier'],
+            key, used, free, cost, ', '.join('%s %d/%d' % (k, len(self.gate(k)['parts']), GATES[k]['part']) for k in group), self.mult(key),
             ', '.join('%s %s' % (k, v) for k, v in sorted(grants.items()))))
         for k in group:
             if not was_built[k] and self.built(k):
                 self.log('   %s gate built' % GATES[k]['name'])
         self.sent = self.seen(self.info_cmd()[1])      # the response carries the parts, the energy and the construction (with its notification) to the client
-        return reply(ERR_NONE, items, msgs)
+        # the client keeps a multiplier per gate tab and the reply updates only the spun gate's: the other two ABG tabs showed an old value
+        # (user report 2026-11-07: Alpha x6, Beta x4, Gamma x2). An error-free life purchase reply only refreshes that gate's state
+        # (GalaxyGateComponentSystem.ParseGateLifePurchaseResponse): one per other ABG gate with its current values.
+        sync = [('GalaxyGateBuilderBuyLifeCommand', dict(samples=self.d['energy'], multiplier=self.mult(k), gateId=GATES[k]['uid'], errorCode=ERR_NONE,
+                                                         lifePrice=self.life_price(k), money=self.money(), gateMode=k,
+                                                         livesLeft=self.gate(k)['hp'] if self.gate(k)['ready'] else -1))
+                for k in group if k != key]
+        return reply(ERR_NONE, items, msgs + sync)
 
     def draw(self, key, use_mult, grants):
         """One spin -> result records. A duplicate part becomes the multiplier (at most 5 = x6; on reaching 5 it is used automatically
         on the next reward). If a part comes up with the multiplier, as many different missing parts as the multiplier; if none are missing, the excess is ammo (client FAQ
         galaxygates_multiplier_multilpier_on_parts_p: "you'll win new parts for the gate")."""
-        d, G, g = self.d, self.gate(key), GATES[key]
+        G, g, mk = self.gate(key), GATES[key], key       # mk: the multiplier's gate (ABG: shared)
         wts = weights()
         gm = self.p.d['ship']
         if int(gm.get('nanoHull', 0)) + grants.get('nano', 0) >= gm.get('maxNanoHull', 0):
@@ -546,13 +564,14 @@ class Gates:
             # builder; user report 2026-10-24: each gate took parts from its own spin). A part falling on a built gate is a duplicate (multiplier)
             key = random.choice(ABG)
             G, g = self.gate(key), GATES[key]
-        if cat == CAT_PART and d['multiplier'] and (use_mult or d['multiplier'] >= K['max_multiplier']):
-            mult = d['multiplier'] + 1
+        held = self.mult(mk)
+        if cat == CAT_PART and held and (use_mult or held >= K['max_multiplier']):
+            mult = held + 1
             P = self.parts(key)
             missing = [i for i in range(1, g['part'] + 1) if i not in P]
             new = random.sample(missing, min(mult, len(missing)))
             with self.p.lock:
-                d['multiplier'] = 0
+                self.set_mult(mk, 0)
                 P += new
                 self.p.dirty = True
             have = len(P) - len(new)
@@ -573,14 +592,15 @@ class Gates:
             dup = pid in P
             with self.p.lock:
                 if dup:
-                    d['multiplier'] = min(K['max_multiplier'], d['multiplier'] + 1)
+                    self.set_mult(mk, min(K['max_multiplier'], held + 1))
                 else:
                     P.append(pid)
                 self.p.dirty = True
             return [dict(type=PART, part_id=pid, duplicate=dup, current=len(P), gate_id=g['uid'])]
         mult = 1
-        if d['multiplier'] and (use_mult or d['multiplier'] >= K['max_multiplier']):
-            mult, d['multiplier'] = d['multiplier'] + 1, 0
+        if held and (use_mult or held >= K['max_multiplier']):
+            mult = held + 1
+            self.set_mult(mk, 0)
         if cat == CAT_AMMO:
             loot, iid, amount = random.choice(K['ammunition'])
             grants[loot] = grants.get(loot, 0) + amount * mult
@@ -640,7 +660,7 @@ class Gates:
                     msgs += ([('MenuItemStatusCommand', st)] if st else []) + [self.m.inv_item(iid, loot, total),
                                                                               self.m.pack([self.m.hangar_item(iid, loot, total)])]
                 if note:
-                    msgs.append(legacy('0|LM|ST|%s|%s|%d' % (loot_kind(loot), loot, n)))
+                    msgs.append(loot_line(loot, n))
         n = grants.get('xenomit', 0)                                  # Xenomit takes no cargo space (player_profile.CARGO_ORES)
         if n > 0:
             totals = p.add_ores({XENOMIT: n})
@@ -691,7 +711,7 @@ class Gates:
         if price >= 0 and self.gate(key)['lives_bought'] >= len(K['life_prices']):
             G = self.gate(key)                       # wiki: five lives can be bought (5,000 ... 80,000 U)
             return [screen('You cannot buy more lives for this gate.'),
-                    ('GalaxyGateBuilderBuyLifeCommand', dict(samples=self.d['energy'], multiplier=self.d['multiplier'], gateId=gid or 0,
+                    ('GalaxyGateBuilderBuyLifeCommand', dict(samples=self.d['energy'], multiplier=self.mult(key) if key else 0, gateId=gid or 0,
                                                              errorCode=ERR_NONE, lifePrice=price, money=self.money(), gateMode=key,
                                                              livesLeft=G['hp']))]
         err = ERR_OTHER if price < 0 else ERR_MONEY if self.money() < price else ERR_NONE
@@ -705,7 +725,7 @@ class Gates:
             RT.money(self.p, 'uridium', -price, 'buy_SPECIAL')
             self.log('   %s gate lives bought (%d U), lives %d' % (GATES[key]['name'], price, G['hp']))
         G = self.gate(key) if key else {'hp': -1}
-        msgs = [('GalaxyGateBuilderBuyLifeCommand', dict(samples=self.d['energy'], multiplier=self.d['multiplier'], gateId=gid or 0, errorCode=err,
+        msgs = [('GalaxyGateBuilderBuyLifeCommand', dict(samples=self.d['energy'], multiplier=self.mult(key) if key else 0, gateId=gid or 0, errorCode=err,
                                                          lifePrice=self.life_price(key) if key else -1, money=self.money(),
                                                          gateMode=key or '', livesLeft=G['hp']))]
         return (self.m.money_msgs() if self.m and not err else []) + msgs
@@ -908,7 +928,7 @@ class Run:
     # the gate map's alien behaviour (player report 2026-11-04, an experienced player; world.in_view, world.think, alien.flees):
     all_visible = True               # every alien is on the minimap, however far
     ring = 200                       # the chasing aliens keep this one distance: around a pilot standing still they form a circle
-    corners = ((0, 0), (1, 1))       # at low HP they flee to the top-left or bottom-right corner, the one farther from the pilot (fandom
+    corners = ((0, 0), (1, 1))       # at low HP they flee to the top-left or bottom-right corner, the one nearest the alien (fandom
                                      # Galaxy Gates: "running into one of two corners depending on where you are"); the Devourer does not flee
 
     def __init__(self, gates, world, key):

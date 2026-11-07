@@ -1707,7 +1707,7 @@ class World:
             prometiumPrice=pr[0], enduriumPrice=pr[1], terbiumPrice=pr[2], prometidPrice=pr[4], duraniumPrice=pr[5],
             promeriumPrice=pr[6], sepromPrice=pr[7], osmiumPrice=pr[28],
             palladiumExchangeRate=ORE['palladium_energy'] if pirate else -1, type=kind,
-            remainingCharges=EX.uses(self.p, 'equipment_extra_hmd-07') if kind == TRADE_DRONE else 0))
+            remainingCharges=EX.charges(self.p, 'equipment_extra_hmd-07') if kind == TRADE_DRONE else 0))
 
     def trade_palladium(self, n):
         """At the pirate trader in 5-2, Palladium -> gate energy (15 to 1; leftover Palladium stays in cargo)."""
@@ -1823,7 +1823,11 @@ class World:
                 return False
             if g.get('wormhole'):
                 g = dict(g, target=self.wormhole_dest())         # again on every pass: graveyard or a random map
-            if H.map_class(self.map_id).startswith('4-') and time.time() - self.last_pvp < ITEMS['combat_items']['jump_cpu']['combat_sec']:
+            # 4-5's portals to the pirate maps stay open under fire, its X-5 portals do not (user report 2026-11-07; DarkOrbit Reloaded wiki 4-5:
+            # "you can't jump to the X-5 map. But you are able to acces the 5-1 map when you're being attacked")
+            pirate_exit = H.name(self.map_id) == '4-5' and H.name(g['target']).startswith('5-')
+            if (H.map_class(self.map_id).startswith('4-') and not pirate_exit
+                    and time.time() - self.last_pvp < ITEMS['combat_items']['jump_cpu']['combat_sec']):
                 self.send([stm('jumpgate_failed_pvp_map')])         # on a war map (4-X) the portal cannot be used while PvP goes on (fandom Portal)
                 self.log('   portal %d: PvP in progress (4-X)' % g['gateId'])
                 return True
@@ -2297,7 +2301,12 @@ class World:
         someone else took it) it is canceled: 0|A|SLC (the client writes "Collection canceled." and in 3D removes the beam and the counter). The client has no
         cancel of its own, the server decides."""
         h = self.opening['h']
-        if h not in self.boxes or self.hero_dead or self.jumping or not self.box_near(h, now):
+        b = self.boxes.get(h)
+        # heading away cancels it at once (user report 2026-11-07: after moving off the box it kept collecting until the ship was 250 units away,
+        # so Auto Mode took booty boxes in passing): the ship must stay on the box for the opening time (official Booty Chest FAQ: "if he
+        # moves before the time completes the looting will be canceled!")
+        away = b is not None and math.hypot(b['x'] - self.hero.x1, b['y'] - self.hero.y1) > COMBAT['harvest_distance']
+        if b is None or self.hero_dead or self.jumping or away or not self.box_near(h, now):
             self.opening = None
             self.send([legacy('0|A|SLC')])
             self.log('   loot box opening canceled')
@@ -4444,12 +4453,13 @@ class World:
                 # within the map: so an alien does not leave the map while the player is at the edge or outside the boundary (radiation)
                 tx = min(max(tx, 300), self.map_w - 300)
                 ty = min(max(ty, 300), self.map_h - 300)
-                # the pilot fights on in the zone: the chasing alien follows him in. An asteroid without a dockable station (empty,
-                # rival) is no safe zone: its circle only keeps roaming aliens out, a chasing one follows the pilot inside (player
-                # report 2026-11-03: aliens stopped at the edge and could all be shot from inside)
+                # the pilot fights on in the zone: the chasing alien follows him in, into a safe zone or any asteroid (player report
+                # 2026-11-03: aliens stopped at the edge and could all be shot from inside). One he does not shoot at waits outside
+                # (user report 2026-11-07; fandom Attend IX / Impulse II: "wait outside the Clan Battle Station for you to leave",
+                # Uber Interceptors are de-aggroed at a CBS)
                 import cbs
-                follows = (retaliating and self.hero_in_peace(hx, hy)) or (
-                    not self.hero_in_peace(hx, hy) and any(math.hypot(hx - sx, hy - sy) <= r for sx, sy, r in cbs.exclusion_zones(self.map_id)))
+                follows = retaliating and (self.hero_in_peace(hx, hy) or any(
+                    math.hypot(hx - sx, hy - sy) <= r for sx, sy, r in cbs.exclusion_zones(self.map_id)))
                 if not hunt and not follows and (self.path_near_zone(nx, ny, tx, ty, allow_station=retaliating)
                                                  or (self.near_zone(tx, ty, 0) and not (retaliating and self.station_at(tx, ty)
                                                                                        and not self.near_gate_peace(tx, ty)))):

@@ -57,6 +57,20 @@ def loot_kind(loot):
     return 'ROK' if loot.startswith('ammunition_rocket_') else 'LOT'
 
 
+# a LOT line takes its text from the item's client category (log_msg_gather_<category>_s/_p): the categories of these mines (acm, empm) have
+# none and the log line was empty (user report 2026-11-07); the client's mine loot line is dead code (LM|ST|MIN is the mine explosion), so
+# the mine text with its code (the client's items_<lootId>_code)
+UNTEXTED_MINES = {'ammunition_mine_acm-01': 'ACM-1', 'ammunition_mine_empm-01': 'EMP-M01'}
+
+
+def loot_line(loot, n):
+    """The log line of n items received (LegacyModule)."""
+    code = UNTEXTED_MINES.get(loot)
+    if code:
+        return msg('A', 'STM', 'log_msg_gather_mine_%s' % ('s' if n == 1 else 'p'), '%COUNT%', n, '%TYPE%', code)
+    return legacy('0|LM|ST|%s|%s|%d' % (loot_kind(loot), loot, n))
+
+
 def stm(key, *args):
     """Localized on-screen message: stm('jumplevelfalse', '%!', 2) -> 0|A|STM|jumplevelfalse|%!|2."""
     return msg('A', 'STM', key, *args)

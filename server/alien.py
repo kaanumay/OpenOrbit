@@ -771,14 +771,17 @@ class Abilities:
         return r * m['multiplier'] if any(s in n.d['name'].lower() for s in m['name']) else r
 
     def flee_spot(self, n, now):
-        """The edge/corner point farthest from the player (without entering the safe zone and its path); otherwise where it is."""
+        """Map alien: the edge point farthest from the player (without entering the safe zone and its path); otherwise where it is.
+        Galaxy Gate: of the two corners the one nearest the alien, so it runs on away from the pilot it circles instead of across the map past them
+        (user reports 2026-11-07 with a minimap shot: alien and pilot at the top right, it went to the far top-left corner instead of the
+        bottom-right one; fandom Parking: "travels in the opposite direction from you until it reaches the corner")."""
         w, m = self.w, LOW['edge_margin']
         hx, hy = w.hero_pos(now)
         nx, ny = n.mover.pos(now)
         corners = getattr(w.gate, 'corners', None) if n.gate else None
         if corners:
             spots = [(m + (w.map_w - 2 * m) * cx, m + (w.map_h - 2 * m) * cy) for cx, cy in corners]
-            return max(spots, key=lambda s: math.hypot(s[0] - hx, s[1] - hy))
+            return min(spots, key=lambda s: math.hypot(s[0] - nx, s[1] - ny))
         spots = [(x, y) for x in (m, w.map_w // 2, w.map_w - m) for y in (m, w.map_h // 2, w.map_h - m) if (x, y) != (w.map_w // 2, w.map_h // 2)]
         spots = [s for s in spots if not w.near_zone(s[0], s[1], 600) and not w.path_near_zone(nx, ny, s[0], s[1])]
         return max(spots, key=lambda s: math.hypot(s[0] - hx, s[1] - hy)) if spots else (int(nx), int(ny))

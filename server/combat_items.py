@@ -141,6 +141,9 @@ def mine_based(loot):
 
 
 LAUNCHER_COOLDOWN = 3.0           # rocket launcher shot cooldown (sec)
+# reloading starts a second after the cooldown (recording 2026-10-27, HST-2 salvos: the cooldown ends at +3 s, loading starts a second later and
+# the first rocket a second after that, all 5 at +9.1 s on average; it used to load from +1 s, under the cooldown: user report 2026-11-07)
+RELOAD_GAP = 1.0
 LAUNCHER_HIT_DELAY = 1.9          # recording (2026-10-27, 94 salvos): the whole salvo lands as one hit 1.86-1.96 s after it (sec)
 
 
@@ -307,7 +310,7 @@ def menu_status(p, menu_id, st):
         if not loot:
             st.update(visible=False, available=False, activatable=False, counterValue=0)
             return st
-        n = EX.uses(p, loot)
+        n = EX.charges(p, loot)
         here = p.d['position'].get('mapId', 0)
         if here == home_map(p):
             lines, ok = [_line('ttip_inactive_jump_already_on_map')], False       # save
@@ -334,7 +337,7 @@ def menu_status(p, menu_id, st):
         if not loot:
             st.update(visible=False, available=False, activatable=False, selected=False, counterValue=0)
             return st
-        n = EX.uses(p, loot)
+        n = EX.charges(p, loot)
         on = bool(p.d.get('cpu_hidden'))
         _tips(st, [_line('ttip_cloak_cpu', [('%TYPE%', loot, 1)]), _line('ttip_cpu_cloak_count', [('%COUNT%', n, 0)])])
         st.update(visible=True, available=True, activatable=n > 0 and not on, selected=on, counterValue=n, iconLootId=loot)
@@ -344,7 +347,7 @@ def menu_status(p, menu_id, st):
         ok = owned and EX.uses(p, HM7) > 0
         st.update(visible=owned, available=ok, activatable=ok)
         if owned and not EX.unlimited(p, HM7):         # remaining sale uses: at the icon's bottom left (official game)
-            n = EX.uses(p, HM7)
+            n = EX.charges(p, HM7)
             st.update(counterValue=n, counterStyle=4 if n > 0 else 1)
         if owned:
             for tip in ('toolTipSlotBar', 'toolTipItemBar'):
@@ -1167,7 +1170,7 @@ class Items:
         self.store(ammo, 0)
         if random.random() < p.ship_row().get('extra_rocket_chance', 0):
             cnt += 1                                    # Tartarus Plus: "1 in 5 chance of firing an extra rocket" (cephanesiz)
-        self.next_load = now + (S['launcher']['refill_sec'] * max(0.1, 1 + p.mods().get('launcher_cooldown', 0))   # Star +%33 …
+        self.next_load = now + LAUNCHER_COOLDOWN + RELOAD_GAP + (S['launcher']['refill_sec'] * max(0.1, 1 + p.mods().get('launcher_cooldown', 0))   # Star +%33 …
                                 * SET.multiplier('rocket_cooldown'))                                               # panel
         p.ach('shot', weapon='ROCKET_LAUNCHER')
         self.launcher_cd = now + LAUNCHER_COOLDOWN            # recording (2026-10-27, 117 shots): exactly 3.0 s counter after a shot

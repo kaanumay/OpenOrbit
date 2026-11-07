@@ -35,6 +35,7 @@ from legacy_protocol import legacy
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 T = json.load(open(os.path.join(HERE, 'data', 'recipes.json'), encoding='utf8'))['recipes']
+DRONES = json.load(open(os.path.join(HERE, 'data', 'items.json'), encoding='utf8'))['drones']
 # titles for distinct items assembled (the client's achievement_assembly_item-crafting_1/2 texts: two / four different items; no achievement
 # XML in the client, so the title is granted directly, like the ranking titles)
 CRAFT_TITLES = ((2, 'title_achievement_assembly_item-crafting-1'), (4, 'title_achievement_assembly_item-crafting-2'))
@@ -211,6 +212,8 @@ class Assembly:
         """Every unique result (ship, design, formation ...) of the recipe is already owned: building it again would burn the materials."""
         if not self.m:
             return False
+        if any(l in DRONES and not self.m.drone_room(l) for l in T[key]['result']):
+            return True        # Flax/Iris at the limit of 8 (Apis/Zeus: one each): the materials were spent for nothing (user report 2026-11-07)
         unique = [l for l in T[key]['result'] if self.m.unique_loot(l)]
         return bool(unique) and all(self.m.owned_unique(l) for l in unique)
 

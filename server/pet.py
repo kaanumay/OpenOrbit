@@ -821,6 +821,7 @@ class Pet:
         self.release_end = self.link_end = 0.0
         self.beacon, self.in_beacon = None, False
         self.active, self.task, self.shooting = True, None, None
+        self.cloak_sent = False                  # the new unit is visible on the owner's client (tick sends the cloak)
         self.tick_t = self.next_second = now
         with self.p.lock:
             self.d['hp'] = min(self.d['hp'], self.hp_max())
@@ -1261,6 +1262,12 @@ class Pet:
         if not self.active or not self.alive or not self.w:
             return
         w = self.w
+        hidden = self.hidden(now)
+        if hidden != getattr(self, 'cloak_sent', False):
+            # the owner's own client too: before only the other players' view hid it, the owner saw it while cloaked (user report 2026-11-07;
+            # fandom Extra: the cloak hides "your ship (including any drones or P.E.T.)"); the client takes 0|n|INV for the P.E.T. unit too
+            self.cloak_sent = hidden
+            self.send([legacy('0|n|INV|%d|%d' % (self.pid, 1 if hidden else 0))])
         if self.d['fuel'] <= 0:
             self.deactivate(msg='msg_pet_out_of_fuel')
             return

@@ -103,6 +103,13 @@ def uses(p, loot):
     return st[loot]
 
 
+def charges(p, loot):
+    """The counter on the bar and in the tooltip: the uses left on the copy in use, not the whole pool (user report 2026-11-07: two JP-02
+    showed 35 jumps, two CLO4K-CPU 18 cloaks). The next copy's uses come when this one is spent (uses)."""
+    n, right = uses(p, loot), X.get(loot, {}).get('right', 0)
+    return (n - 1) % right + 1 if n != UNLIMITED and n > 0 and right else n
+
+
 def attached(p, loot):
     """The ammo the Auto-Buy CPU has selected in the hangar (HangarShipAutoBuyCpuAmmoRequest) or None."""
     return p.d.get('auto_buy_ammo', {}).get(loot)

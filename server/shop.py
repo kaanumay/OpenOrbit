@@ -127,7 +127,7 @@ def mod(name, **f):
     return f
 
 
-from legacy_protocol import legacy, loot_kind  # noqa: E402,F401  (old text protocol: legacy_protocol.py)
+from legacy_protocol import legacy, loot_kind, loot_line  # noqa: E402,F401  (old text protocol: legacy_protocol.py)
 
 
 def keyed(key, **wild):
@@ -1201,9 +1201,7 @@ class Shop:
                     msgs.append(('MenuItemStatusCommand', st))
                 if before == 0:
                     msgs.append(('RefreshSelectedUICategoryCommand', {}))
-                kind = loot_kind(g)
-                msgs += [self.inv_item(iid, g, total), self.pack([self.hangar_item(iid, g, total)]),
-                         legacy('0|LM|ST|%s|%s|%d' % (kind, g, n))]
+                msgs += [self.inv_item(iid, g, total), self.pack([self.hangar_item(iid, g, total)]), loot_line(g, n)]
             elif g == PETM.HULL:
                 msgs += self.pet.upgrade_hull()            # +10,000 max HP (wiki), gauge if in space
             elif g == PET_LOOT:
@@ -1348,8 +1346,7 @@ class Shop:
             st = self.p.menu_status(loot)
             if st:
                 msgs.append(('MenuItemStatusCommand', st))
-            kind = loot_kind(loot)
-            msgs += [self.inv_item(iid, loot, total), self.pack([self.hangar_item(iid, loot, total)]), legacy('0|LM|ST|%s|%s|%d' % (kind, loot, n))]
+            msgs += [self.inv_item(iid, loot, total), self.pack([self.hangar_item(iid, loot, total)]), loot_line(loot, n)]
         elif slot_of(loot):
             slot, equipped = slot_of(loot), False
             auto = self.p.d.get('auto_equip', True)     # Settings > Gameplay "Auto-equip new items" (if off it stays in the inventory)
@@ -1413,7 +1410,8 @@ class Shop:
             with self.p.lock:                          # repair voucher: on the death screen (world.vouchers)
                 self.gates.d['voucher'] += n
                 self.p.dirty = True
-            msgs.append(legacy('0|LM|ST|LOT|%s|%d' % (loot, n)))
+            # LOT had an empty log line: the client category "repairvoucher" has no text, the voucher's own text instead
+            msgs.append(legacy('0|A|STM|log_msg_gather_repair-voucher_s' if n == 1 else '0|A|STM|log_msg_gather_repair-voucher_p|%%COUNT%%|%d' % n))
         elif loot == 'resource_pet-fuel' and self.pet and self.pet.owned:
             before = self.p.d['pet'].get('fuel', 0)
             add = max(0, min(n, PETM.PET['max_fuel'] - before))
@@ -1889,11 +1887,7 @@ class Shop:
                 msgs.append(('HitpointInfoCommand', dict(hitpoints=int(g['hitPoints']), hitpointsMax=g['hitMax'],
                                                          nanoHull=int(g.get('nanoHull', 0)), nanoHullMax=g.get('maxNanoHull', 0))))
             if s['shield_max'] != g.get('shieldMax', 0):
-                old_max = g.get('shieldMax', 0)
-                if getattr(self, 'keep_shield_ratio', False) and old_max > 0:      # formation: the shield percentage is kept
-                    g['shield'] = min(s['shield_max'], g.get('shield', 0) * s['shield_max'] / old_max)
-                else:
-                    g['shield'] = min(g.get('shield', 0), s['shield_max'])
+                g['shield'] = min(g.get('shield', 0), s['shield_max'])        # the amount is kept (a raised maximum does not refill it)
                 g['shieldMax'] = s['shield_max']
                 msgs.append(('AttributeShieldUpdateCommand', {'shieldNow': int(g['shield']), 'shieldMax': g['shieldMax']}))
             self.p.d['shield_absorb'] = s['absorb']
@@ -2041,13 +2035,10 @@ class Shop:
                 st = self.p.menu_status(k)
                 if st:
                     msgs.append(('MenuItemStatusCommand', st))
-        # the shield percentage is kept: a formation that raises the maximum shield does not refill the shield (player report: switching from Heart to another
-        # formation with low shield filled the shield completely; entering and leaving a formation that lowers the shield does not gain shield either)
-        self.keep_shield_ratio = True
-        try:
-            msgs += self.drone_msgs() + self.apply_stats()
-        finally:
-            self.keep_shield_ratio = False
+        # the shield amount is kept and only cut to a lower maximum: a formation that raises the maximum does not refill it (player report: switching
+        # from Heart with low shield filled it completely) and leaving one does not scale it down (user report 2026-11-07: 100,000 of 180,000 in Ring
+        # became 55,555 of 100,000 when the shield percentage was kept)
+        msgs += self.drone_msgs() + self.apply_stats()
         self.log('   formation: %s (%d)' % (loot, new))
         self.p.ach('formation', drone=len(self.p.d['drones']))
         return msgs
@@ -2450,8 +2441,14 @@ class Shop:
             if H.parked(k.get('mapId')):
                 self.p.ship()['position'] = {'mapId': k['mapId'], 'x': int(k['x']), 'y': int(k['y'])}
             old = self.p.ship()['lootId']
+            # each ship keeps its own shortcut bars (user report 2026-11-07: after a Ship Warp the bars of the ship left behind came along);
+            # a ship that never had its own starts with the current bars. The ready bundle after the reload builds them (MenuInitializationCommand)
+            if 'shortcuts' in self.p.d:
+                self.p.ship()['shortcuts'] = copy(self.p.d['shortcuts'])
             self.p.d['active_ship'] = sid
             new = self.p.ship()
+            if 'shortcuts' in new:
+                self.p.d['shortcuts'] = copy(new['shortcuts'])
             dest = new.get('position')
             if travel and dest and H.parked(dest.get('mapId')):
                 k.update(dest)
@@ -2542,7 +2539,8 @@ class Shop:
                 ('AttributeShieldUpdateCommand', {'shieldNow': int(g.get('shield', 0)), 'shieldMax': g.get('shieldMax', 0)}),
                 # appearance of the shield skill (in the save's account without the skill shieldSkillId 0: if the client has it, it removes ShieldEffect; K3)
                 SKL.shield_cmd(self.p),
-                legacy('0|n|e|%d|0|0' % uid), stage, legacy('0|n|INV|%d|0' % uid), legacy('0|S|CFG|%d' % n)]
+                # the cloak stays on through a config switch: INV carries the real state (it was always 0, user report 2026-11-07)
+                legacy('0|n|e|%d|0|0' % uid), stage, legacy('0|n|INV|%d|%d' % (uid, 1 if self.p.d.get('cpu_hidden') else 0)), legacy('0|S|CFG|%d' % n)]
         if s['speed'] is not None:
             msgs.append(('AttributeShipSpeedUpdateCommand', {'newSpeed': s['speed'], 'displaySpeed': s['display']}))
         self.log('   config %d: %s' % (n, ', '.join('%s %d' % (k, len(v)) for k, v in self.p.d['equipment'].items() if v)))

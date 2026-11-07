@@ -407,6 +407,9 @@ class Pilot:
         act = self.act
         if self.target is not None and not act.target_alive(self.target):
             self.target = None
+        if act.w.opening and act.w.opening['h'] in act.w.boxes:
+            self.mode = 'box'                       # a booty box is opening: stay on it for the opening time (moving off cancels it)
+            return
 
         def errand():
             label = MODES.goal(self, s, now)
