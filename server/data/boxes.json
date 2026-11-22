@@ -1958,27 +1958,27 @@
     [
      "drone_designs_drone-diminisher-carbonite",
      1,
-     1.2
+     1.0
     ],
     [
      "drone_designs_drone-g-champion-dusklight",
      1,
-     1.2
+     1.0
     ],
     [
      "drone_designs_phantom-argon",
      1,
-     1.2
+     1.0
     ],
     [
      "drone_designs_drone-enigma-carbonite",
      1,
-     1.2
+     1.0
     ],
     [
      "drone_designs_drone-diminisher-lava",
      1,
-     1.2
+     1.0
     ],
     [
      "drone_designs_drone-diminisher-legend",
@@ -1994,6 +1994,11 @@
      "drone_designs_enigma-legend",
      1,
      0.66
+    ],
+    [
+     "drone_designs_drone-orcus-carbonite",
+     1,
+     1.0
     ]
    ]
   },
@@ -2018,7 +2023,7 @@
     [
      "ammunition_laser_mcb-25",
      30000,
-     15.0
+     14.291
     ],
     [
      "ammunition_laser_mcb-50",
@@ -2258,8 +2263,19 @@
       ]
      ],
      0.025
+    ],
+    [
+     "ship_hecate-plus_design_hecate-plus-prometheus",
+     1,
+     0.3545
+    ],
+    [
+     "ship_hyperion_design_hyperion-prometheus",
+     1,
+     0.3545
     ]
-   ]
+   ],
+   "_prometheus_2026": "client 1.1.119: Prometheus Hecate Plus / Prometheus Hyperion designs (Prometheus Treaty commemorative; no FAQ yet): in the box like the earlier Prometheus designs (adaptation); tools/version_119.py"
   },
   "PERSEUS_BLESSING_BOOTY_BOX": {
    "name": "Perseus Blessing",
@@ -2773,7 +2789,7 @@
      [
       "resource_logfile",
       5,
-      18
+      16.5
      ],
      [
       "resource_booty-key",
@@ -2844,6 +2860,21 @@
       "equipment_generator_shield_fs-04",
       1,
       0.25
+     ],
+     [
+      "ship_citadel-plus_design_citadel-plus-guardian",
+      1,
+      0.5
+     ],
+     [
+      "ship_hammerclaw-plus_design_hammerclaw-plus-dusklight",
+      1,
+      0.5
+     ],
+     [
+      "ship_solaris-plus_design_solaris-plus-dusklight",
+      1,
+      0.5
      ]
     ],
     "protegit": [
@@ -3960,7 +3991,8 @@
      ]
     ]
    },
-   "_forum_tr": "Official Turkish forum: Plutus box (A-BL 15%, Nobilis Plus designs 0.2%, Orcus/Pusat P.E.T. 0.25%/0.3%; NOS01/SEN01/TAR01 are not in the forum: since it is the only source of these modules they stay at 0.4% as an adaptation), Astral (Mucosum 5%, Astral Pusat Plus 1%), Winter/Labyrinth (Citadel Plus Frost 0.5%; XW01 is not in the forum): each table totals 100%"
+   "_forum_tr": "Official Turkish forum: Plutus box (A-BL 15%, Nobilis Plus designs 0.2%, Orcus/Pusat P.E.T. 0.25%/0.3%; NOS01/SEN01/TAR01 are not in the forum: since it is the only source of these modules they stay at 0.4% as an adaptation), Astral (Mucosum 5%, Astral Pusat Plus 1%), Winter/Labyrinth (Citadel Plus Frost 0.5%; XW01 is not in the forum): each table totals 100%",
+   "_mimesis_2026": "board-en 130498: the November 2026 Battle Pass Box adds Guardian Citadel Plus, Dusklight Hammerclaw Plus and Dusklight Solaris Plus at 0.5% each (A-BL 15%, Extra Energy 15% as before); tools/version_119.py"
   },
   "EMPYRIAN_BOOTY_BOX": {
    "name": "Empyrian Box",

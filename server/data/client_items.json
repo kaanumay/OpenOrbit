@@ -3724,6 +3724,236 @@
      }
     }
    ]
+  },
+  "upgrade_upgrade-class2-erebus": {
+   "items": [
+    "equipment_weapon_rocketlauncher_erebus"
+   ],
+   "result": {
+    "upgrade_item-upgrade": 1
+   },
+   "levels": [
+    {
+     "level": 1,
+     "duration_sec": 80,
+     "cost": {
+      "resource_collectable_umbra-alloy": 10,
+      "currency_uridium": 632
+     },
+     "jump_to": {
+      "resource_collectable_isochronate": 1400
+     }
+    },
+    {
+     "level": 2,
+     "duration_sec": 796,
+     "cost": {
+      "resource_collectable_umbra-alloy": 10,
+      "currency_uridium": 769
+     },
+     "jump_to": {
+      "resource_collectable_isochronate": 1438
+     }
+    },
+    {
+     "level": 3,
+     "duration_sec": 2104,
+     "cost": {
+      "resource_collectable_umbra-alloy": 10,
+      "currency_uridium": 935
+     },
+     "jump_to": {
+      "resource_collectable_isochronate": 1453
+     }
+    },
+    {
+     "level": 4,
+     "duration_sec": 3799,
+     "cost": {
+      "resource_collectable_umbra-alloy": 10,
+      "currency_uridium": 1136
+     },
+     "jump_to": {
+      "resource_collectable_isochronate": 1465
+     }
+    },
+    {
+     "level": 5,
+     "duration_sec": 5805,
+     "cost": {
+      "resource_collectable_umbra-alloy": 10,
+      "currency_uridium": 1381
+     },
+     "jump_to": {
+      "resource_collectable_isochronate": 1475
+     }
+    },
+    {
+     "level": 6,
+     "duration_sec": 8080,
+     "cost": {
+      "resource_collectable_umbra-alloy": 25,
+      "currency_uridium": 1680
+     },
+     "jump_to": {
+      "resource_collectable_isochronate": 1484
+     }
+    },
+    {
+     "level": 7,
+     "duration_sec": 10597,
+     "cost": {
+      "resource_collectable_umbra-alloy": 25,
+      "currency_uridium": 2042
+     },
+     "jump_to": {
+      "resource_collectable_isochronate": 1492
+     }
+    },
+    {
+     "level": 8,
+     "duration_sec": 13333,
+     "cost": {
+      "resource_collectable_umbra-alloy": 25,
+      "currency_uridium": 2483
+     },
+     "jump_to": {
+      "resource_collectable_isochronate": 1499
+     }
+    },
+    {
+     "level": 9,
+     "duration_sec": 16271,
+     "cost": {
+      "resource_collectable_umbra-alloy": 25,
+      "currency_uridium": 3019
+     },
+     "jump_to": {
+      "resource_collectable_isochronate": 1506
+     }
+    },
+    {
+     "level": 10,
+     "duration_sec": 19400,
+     "cost": {
+      "resource_collectable_umbra-alloy": 30,
+      "currency_uridium": 3670
+     },
+     "jump_to": {
+      "resource_collectable_isochronate": 1513
+     }
+    },
+    {
+     "level": 11,
+     "duration_sec": 22708,
+     "cost": {
+      "resource_collectable_umbra-alloy": 50,
+      "currency_uridium": 4462
+     },
+     "jump_to": {
+      "resource_collectable_isochronate": 1519
+     }
+    },
+    {
+     "level": 12,
+     "duration_sec": 26186,
+     "cost": {
+      "resource_collectable_umbra-alloy": 50,
+      "currency_uridium": 5425
+     },
+     "jump_to": {
+      "resource_collectable_isochronate": 1525
+     }
+    },
+    {
+     "level": 13,
+     "duration_sec": 29825,
+     "cost": {
+      "resource_collectable_umbra-alloy": 50,
+      "currency_uridium": 6596,
+      "resource_collectable_indoctrineoil": 6
+     },
+     "jump_to": {
+      "resource_collectable_isochronate": 1530
+     }
+    },
+    {
+     "level": 14,
+     "duration_sec": 33619,
+     "cost": {
+      "resource_collectable_umbra-alloy": 50,
+      "currency_uridium": 8020,
+      "resource_collectable_indoctrineoil": 12
+     },
+     "jump_to": {
+      "resource_collectable_isochronate": 1535
+     }
+    },
+    {
+     "level": 15,
+     "duration_sec": 37563,
+     "cost": {
+      "resource_collectable_umbra-alloy": 75,
+      "currency_uridium": 9751,
+      "resource_collectable_indoctrineoil": 24
+     },
+     "jump_to": {
+      "resource_collectable_isochronate": 1540
+     }
+    },
+    {
+     "level": 16,
+     "duration_sec": 41613,
+     "cost": {
+      "resource_collectable_umbra-alloy": 75,
+      "currency_uridium": 11896,
+      "resource_collectable_indoctrineoil": 36,
+      "resource_collectable_indoctrine-accelerator": 90
+     },
+     "jump_to": {
+      "resource_collectable_isochronate": 1550
+     }
+    },
+    {
+     "level": 17,
+     "duration_sec": 45713,
+     "cost": {
+      "resource_collectable_umbra-alloy": 75,
+      "currency_uridium": 14513,
+      "resource_collectable_indoctrineoil": 52,
+      "resource_collectable_indoctrine-accelerator": 130
+     },
+     "jump_to": {
+      "resource_collectable_isochronate": 1575
+     }
+    },
+    {
+     "level": 18,
+     "duration_sec": 49863,
+     "cost": {
+      "resource_collectable_umbra-alloy": 75,
+      "currency_uridium": 17706,
+      "resource_collectable_indoctrineoil": 72,
+      "resource_collectable_indoctrine-accelerator": 180
+     },
+     "jump_to": {
+      "resource_collectable_isochronate": 1625
+     }
+    },
+    {
+     "level": 19,
+     "duration_sec": 54113,
+     "cost": {
+      "resource_collectable_umbra-alloy": 100,
+      "currency_uridium": 21601,
+      "resource_collectable_indoctrineoil": 96,
+      "resource_collectable_indoctrine-accelerator": 240
+     },
+     "jump_to": {
+      "resource_collectable_isochronate": 1700
+     }
+    }
+   ]
   }
  },
  "disassembly": {
@@ -5058,6 +5288,78 @@
       "currency_uridium": 19000,
       "resource_collectable_axion-beam-regulator": -193,
       "resource_collectable_diametrion": -74
+     }
+    }
+   ]
+  },
+  "disassemble_disassemble-xenoresonator": {
+   "items": [
+    "equipment_xenoresonator_c-strike-resonator",
+    "equipment_xenoresonator_uc-strike-resonator",
+    "equipment_xenoresonator_r-strike-resonator",
+    "equipment_xenoresonator_ep-strike-resonator",
+    "equipment_xenoresonator_ma-strike-resonator",
+    "equipment_xenoresonator_leg-strike-resonator",
+    "equipment_xenoresonator_ul-strike-resonator",
+    "equipment_xenoresonator_c-aegis-resonator",
+    "equipment_xenoresonator_uc-aegis-resonator",
+    "equipment_xenoresonator_r-aegis-resonator",
+    "equipment_xenoresonator_ep-aegis-resonator",
+    "equipment_xenoresonator_ma-aegis-resonator",
+    "equipment_xenoresonator_leg-aegis-resonator",
+    "equipment_xenoresonator_ul-aegis-resonator"
+   ],
+   "result": {
+    "disassemble_item-disassemble": 1
+   },
+   "levels": [
+    {
+     "level": 1,
+     "duration_sec": 0,
+     "cost": {
+      "resource_xeno-tech-fragments": -2
+     }
+    },
+    {
+     "level": 2,
+     "duration_sec": 0,
+     "cost": {
+      "resource_xeno-tech-fragments": -10
+     }
+    },
+    {
+     "level": 3,
+     "duration_sec": 0,
+     "cost": {
+      "resource_xeno-tech-fragments": -50
+     }
+    },
+    {
+     "level": 4,
+     "duration_sec": 0,
+     "cost": {
+      "resource_xeno-tech-fragments": -250
+     }
+    },
+    {
+     "level": 5,
+     "duration_sec": 0,
+     "cost": {
+      "resource_xeno-tech-fragments": -1250
+     }
+    },
+    {
+     "level": 6,
+     "duration_sec": 0,
+     "cost": {
+      "resource_xeno-tech-fragments": -6520
+     }
+    },
+    {
+     "level": 7,
+     "duration_sec": 0,
+     "cost": {
+      "resource_xeno-tech-fragments": -31250
      }
     }
    ]
@@ -52680,6 +52982,595 @@
     "heavy_guns": 1,
     "extras": 4,
     "ship_upgrades": 4,
+    "QuantumFluidCore": 2
+   }
+  },
+  "resource_attack-adhesion": {
+   "type": "ATTACK_ADHESION",
+   "class_name": "HardwareType",
+   "selling": 200.0,
+   "stack": 9.223372036854776e+18
+  },
+  "resource_attack-aftershock": {
+   "type": "ATTACK_AFTERSHOCK",
+   "class_name": "HardwareType",
+   "selling": 200.0,
+   "stack": 9.223372036854776e+18
+  },
+  "resource_attack-collapse": {
+   "type": "ATTACK_COLLAPSE",
+   "class_name": "HardwareType",
+   "selling": 200.0,
+   "stack": 9.223372036854776e+18
+  },
+  "resource_attack-evernight": {
+   "type": "ATTACK_EVERNIGHT",
+   "class_name": "HardwareType",
+   "selling": 200.0,
+   "stack": 9.223372036854776e+18
+  },
+  "resource_attack-expansion": {
+   "type": "ATTACK_EXPANSION",
+   "class_name": "HardwareType",
+   "selling": 200.0,
+   "stack": 9.223372036854776e+18
+  },
+  "resource_attack-stagnation": {
+   "type": "ATTACK_STAGNATION",
+   "class_name": "HardwareType",
+   "selling": 200.0,
+   "stack": 9.223372036854776e+18
+  },
+  "resource_collectable_phase-lock-chip": {
+   "type": "PHASE_LOCK_CHIP",
+   "class_name": "HardwareType",
+   "stack": 9.223372036854776e+18
+  },
+  "resource_collectable_umbra-alloy": {
+   "type": "UMBRA_ALLOY",
+   "class_name": "OreType",
+   "selling": 200.0,
+   "stack": 9.223372036854776e+18
+  },
+  "resource_defensive-detachment": {
+   "type": "DEFENSIVE_DETACHMENT",
+   "class_name": "HardwareType",
+   "selling": 200.0,
+   "stack": 9.223372036854776e+18
+  },
+  "resource_defensive-entry-buffer": {
+   "type": "DEFENSIVE_ENTRY_BUFFER",
+   "class_name": "HardwareType",
+   "selling": 200.0,
+   "stack": 9.223372036854776e+18
+  },
+  "resource_defensive-grav-tolerance": {
+   "type": "DEFENSIVE_GRAV_TOLERANCE",
+   "class_name": "HardwareType",
+   "selling": 200.0,
+   "stack": 9.223372036854776e+18
+  },
+  "resource_defensive-slowing-resistance": {
+   "type": "DEFENSIVE_SLOWING_RESISTANCE",
+   "class_name": "HardwareType",
+   "selling": 200.0,
+   "stack": 9.223372036854776e+18
+  },
+  "resource_defensive-zone-adaptation": {
+   "type": "DEFENSIVE_ZONE_ADAPTATION",
+   "class_name": "HardwareType",
+   "selling": 200.0,
+   "stack": 9.223372036854776e+18
+  },
+  "resource_resonance-activation-chip": {
+   "type": "RESONANCE_ACTIVATION_CHIP",
+   "class_name": "HardwareType",
+   "stack": 9.223372036854776e+18
+  },
+  "resource_resonance-calibration-chip": {
+   "type": "RESONANCE_CALIBRATION_CHIP",
+   "class_name": "HardwareType",
+   "stack": 9.223372036854776e+18
+  },
+  "resource_xeno-tech-fragments": {
+   "type": "XENO_TECH_FRAGMENTS",
+   "class_name": "HardwareType",
+   "stack": 9.223372036854776e+18
+  },
+  "equipment_weapon_rocketlauncher_erebus": {
+   "type": "EREBUS",
+   "class_name": "HellstormLauncherType",
+   "equippable": [
+    "SHIP",
+    "PET",
+    "DRONE"
+   ],
+   "selling": 37500.0,
+   "upgrade": [
+    {
+     "type": "ROCKETLAUNCHER_DAMAGE_UPGRADE",
+     "percent": 1.5,
+     "maximum": 20,
+     "calc": "LINEAR_CALCULATION"
+    }
+   ]
+  },
+  "equipment_xenoresonator_c-aegis-resonator": {
+   "type": "DRIVE_DEF",
+   "class_name": "XenoResonatorType",
+   "equippable": [
+    "SHIP"
+   ]
+  },
+  "equipment_xenoresonator_c-strike-resonator": {
+   "type": "DRIVE_ATK",
+   "class_name": "XenoResonatorType",
+   "equippable": [
+    "SHIP"
+   ]
+  },
+  "equipment_xenoresonator_ep-aegis-resonator": {
+   "type": "DRIVE_DEF",
+   "class_name": "XenoResonatorType",
+   "equippable": [
+    "SHIP"
+   ]
+  },
+  "equipment_xenoresonator_ep-strike-resonator": {
+   "type": "DRIVE_ATK",
+   "class_name": "XenoResonatorType",
+   "equippable": [
+    "SHIP"
+   ]
+  },
+  "equipment_xenoresonator_leg-aegis-resonator": {
+   "type": "DRIVE_DEF",
+   "class_name": "XenoResonatorType",
+   "equippable": [
+    "SHIP"
+   ]
+  },
+  "equipment_xenoresonator_leg-strike-resonator": {
+   "type": "DRIVE_ATK",
+   "class_name": "XenoResonatorType",
+   "equippable": [
+    "SHIP"
+   ]
+  },
+  "equipment_xenoresonator_ma-aegis-resonator": {
+   "type": "DRIVE_DEF",
+   "class_name": "XenoResonatorType",
+   "equippable": [
+    "SHIP"
+   ]
+  },
+  "equipment_xenoresonator_ma-strike-resonator": {
+   "type": "DRIVE_ATK",
+   "class_name": "XenoResonatorType",
+   "equippable": [
+    "SHIP"
+   ]
+  },
+  "equipment_xenoresonator_r-aegis-resonator": {
+   "type": "DRIVE_DEF",
+   "class_name": "XenoResonatorType",
+   "equippable": [
+    "SHIP"
+   ]
+  },
+  "equipment_xenoresonator_r-strike-resonator": {
+   "type": "DRIVE_ATK",
+   "class_name": "XenoResonatorType",
+   "equippable": [
+    "SHIP"
+   ]
+  },
+  "equipment_xenoresonator_uc-aegis-resonator": {
+   "type": "DRIVE_DEF",
+   "class_name": "XenoResonatorType",
+   "equippable": [
+    "SHIP"
+   ]
+  },
+  "equipment_xenoresonator_uc-strike-resonator": {
+   "type": "DRIVE_ATK",
+   "class_name": "XenoResonatorType",
+   "equippable": [
+    "SHIP"
+   ]
+  },
+  "equipment_xenoresonator_ul-aegis-resonator": {
+   "type": "DRIVE_DEF",
+   "class_name": "XenoResonatorType",
+   "equippable": [
+    "SHIP"
+   ]
+  },
+  "equipment_xenoresonator_ul-strike-resonator": {
+   "type": "DRIVE_ATK",
+   "class_name": "XenoResonatorType",
+   "equippable": [
+    "SHIP"
+   ]
+  },
+  "drone_designs_drone-orcus-carbonite": {
+   "type": "ORCUS_CARBONITE",
+   "class_name": "DroneCustomizationType",
+   "equippable": [
+    "DRONE"
+   ],
+   "selling": 10000.0
+  },
+  "ship_citadel-plus_design_citadel-plus-guardian": {
+   "type": "CITADEL_PLUS",
+   "class_name": "ShipDesignType",
+   "uid": 507,
+   "model": 740,
+   "hp": 700000,
+   "speed": 250,
+   "cargo": 4000,
+   "price": 9999999.0,
+   "skills": [
+    {
+     "name": "DRAW_FIRE",
+     "duration": "5",
+     "cooldown": "40"
+    },
+    {
+     "name": "TRAVEL_MODE",
+     "duration": "5",
+     "cooldown": "45"
+    },
+    {
+     "name": "PROTECT",
+     "duration": "10",
+     "cooldown": "60"
+    },
+    {
+     "name": "FORTIFY",
+     "duration": "10",
+     "cooldown": "360"
+    },
+    {
+     "name": "PRISMATIC_ENDURANCE",
+     "duration": "25",
+     "cooldown": "200"
+    }
+   ],
+   "selling": 200000.0,
+   "slots": {
+    "lasers": 10,
+    "generators": 20,
+    "cannons": 3,
+    "drives": 6,
+    "cannon_shields": 6,
+    "lenses": 15,
+    "heavy_guns": 2,
+    "extras": 5,
+    "ship_upgrades": 4,
+    "QuantumFluidCore": 2
+   }
+  },
+  "shipId_740": {
+   "type": "CITADEL_PLUS",
+   "class_name": "ShipDesignType",
+   "uid": 507,
+   "model": 740,
+   "hp": 700000,
+   "speed": 250,
+   "cargo": 4000,
+   "price": 9999999.0,
+   "skills": [
+    {
+     "name": "DRAW_FIRE",
+     "duration": "5",
+     "cooldown": "40"
+    },
+    {
+     "name": "TRAVEL_MODE",
+     "duration": "5",
+     "cooldown": "45"
+    },
+    {
+     "name": "PROTECT",
+     "duration": "10",
+     "cooldown": "60"
+    },
+    {
+     "name": "FORTIFY",
+     "duration": "10",
+     "cooldown": "360"
+    },
+    {
+     "name": "PRISMATIC_ENDURANCE",
+     "duration": "25",
+     "cooldown": "200"
+    }
+   ],
+   "selling": 200000.0,
+   "slots": {
+    "lasers": 10,
+    "generators": 20,
+    "cannons": 3,
+    "drives": 6,
+    "cannon_shields": 6,
+    "lenses": 15,
+    "heavy_guns": 2,
+    "extras": 5,
+    "ship_upgrades": 4,
+    "QuantumFluidCore": 2
+   }
+  },
+  "ship_goliath-plus_design_goliath-plus-guardian": {
+   "type": "GOLIATH_PLUS",
+   "class_name": "ShipDesignType",
+   "uid": 506,
+   "model": 741,
+   "hp": 356000,
+   "speed": 330,
+   "cargo": 1500,
+   "price": 9999999.0,
+   "selling": 200000.0,
+   "slots": {
+    "lasers": 18,
+    "generators": 18,
+    "cannons": 3,
+    "drives": 10,
+    "cannon_shields": 6,
+    "lenses": 14,
+    "heavy_guns": 1,
+    "extras": 4,
+    "ship_upgrades": 4,
+    "QuantumFluidCore": 2
+   }
+  },
+  "shipId_741": {
+   "type": "GOLIATH_PLUS",
+   "class_name": "ShipDesignType",
+   "uid": 506,
+   "model": 741,
+   "hp": 356000,
+   "speed": 330,
+   "cargo": 1500,
+   "price": 9999999.0,
+   "selling": 200000.0,
+   "slots": {
+    "lasers": 18,
+    "generators": 18,
+    "cannons": 3,
+    "drives": 10,
+    "cannon_shields": 6,
+    "lenses": 14,
+    "heavy_guns": 1,
+    "extras": 4,
+    "ship_upgrades": 4,
+    "QuantumFluidCore": 2
+   }
+  },
+  "shipId_736": {
+   "type": "GOLIATH_PLUS",
+   "class_name": "ShipDesignType",
+   "uid": 506,
+   "model": 736,
+   "hp": 356000,
+   "speed": 330,
+   "cargo": 1500,
+   "price": 9999999.0,
+   "selling": 200000.0,
+   "slots": {
+    "lasers": 18,
+    "generators": 18,
+    "cannons": 3,
+    "drives": 10,
+    "cannon_shields": 6,
+    "lenses": 14,
+    "heavy_guns": 1,
+    "extras": 4,
+    "ship_upgrades": 4,
+    "QuantumFluidCore": 2
+   }
+  },
+  "ship_hecate-plus_design_hecate-plus-prometheus": {
+   "type": "HECATE_PLUS",
+   "class_name": "ShipDesignType",
+   "uid": 549,
+   "model": 742,
+   "hp": 377500,
+   "speed": 300,
+   "cargo": 1500,
+   "price": 10000000.0,
+   "skills": [
+    {
+     "name": "PARTICLE_BEAM_PLUS",
+     "duration": "6",
+     "cooldown": "120"
+    },
+    {
+     "name": "STOCKPILE",
+     "duration": "10",
+     "cooldown": "0"
+    }
+   ],
+   "slots": {
+    "lasers": 16,
+    "generators": 18,
+    "cannons": 3,
+    "drives": 9,
+    "cannon_shields": 6,
+    "lenses": 14,
+    "heavy_guns": 1,
+    "extras": 4,
+    "ship_upgrades": 4,
+    "QuantumFluidCore": 2
+   }
+  },
+  "shipId_742": {
+   "type": "HECATE_PLUS",
+   "class_name": "ShipDesignType",
+   "uid": 549,
+   "model": 742,
+   "hp": 377500,
+   "speed": 300,
+   "cargo": 1500,
+   "price": 10000000.0,
+   "skills": [
+    {
+     "name": "PARTICLE_BEAM_PLUS",
+     "duration": "6",
+     "cooldown": "120"
+    },
+    {
+     "name": "STOCKPILE",
+     "duration": "10",
+     "cooldown": "0"
+    }
+   ],
+   "slots": {
+    "lasers": 16,
+    "generators": 18,
+    "cannons": 3,
+    "drives": 9,
+    "cannon_shields": 6,
+    "lenses": 14,
+    "heavy_guns": 1,
+    "extras": 4,
+    "ship_upgrades": 4,
+    "QuantumFluidCore": 2
+   }
+  },
+  "ship_hyperion_design_hyperion-prometheus": {
+   "type": "HYPERION",
+   "class_name": "ShipDesignType",
+   "uid": 724,
+   "model": 743,
+   "hp": 400000,
+   "speed": 300,
+   "cargo": 1500,
+   "price": 10000000.0,
+   "skills": [
+    {
+     "name": "GRAVITATIONAL_ANCHOR",
+     "duration": "10",
+     "cooldown": "300"
+    },
+    {
+     "name": "QUANTUM_AMPLIFIER",
+     "duration": "0",
+     "cooldown": "600"
+    }
+   ],
+   "slots": {
+    "lasers": 15,
+    "generators": 16,
+    "cannons": 3,
+    "drives": 12,
+    "cannon_shields": 6,
+    "lenses": 15,
+    "heavy_guns": 1,
+    "extras": 3,
+    "ship_upgrades": 3,
+    "QuantumFluidCore": 2
+   }
+  },
+  "shipId_743": {
+   "type": "HYPERION",
+   "class_name": "ShipDesignType",
+   "uid": 724,
+   "model": 743,
+   "hp": 400000,
+   "speed": 300,
+   "cargo": 1500,
+   "price": 10000000.0,
+   "skills": [
+    {
+     "name": "GRAVITATIONAL_ANCHOR",
+     "duration": "10",
+     "cooldown": "300"
+    },
+    {
+     "name": "QUANTUM_AMPLIFIER",
+     "duration": "0",
+     "cooldown": "600"
+    }
+   ],
+   "slots": {
+    "lasers": 15,
+    "generators": 16,
+    "cannons": 3,
+    "drives": 12,
+    "cannon_shields": 6,
+    "lenses": 15,
+    "heavy_guns": 1,
+    "extras": 3,
+    "ship_upgrades": 3,
+    "QuantumFluidCore": 2
+   }
+  },
+  "ship_mimesis_design_mimesis-empyrian": {
+   "type": "MIMESIS",
+   "class_name": "ShipDesignType",
+   "uid": 178,
+   "model": 739,
+   "hp": 386000,
+   "speed": 300,
+   "cargo": 1500,
+   "price": 200000.0,
+   "skills": [
+    {
+     "name": "SCRAMBLE",
+     "duration": "30",
+     "cooldown": "300"
+    },
+    {
+     "name": "TELEPORT",
+     "duration": "2",
+     "cooldown": "300"
+    }
+   ],
+   "slots": {
+    "lasers": 14,
+    "generators": 14,
+    "cannons": 3,
+    "drives": 7,
+    "cannon_shields": 6,
+    "lenses": 11,
+    "heavy_guns": 2,
+    "extras": 3,
+    "ship_upgrades": 3,
+    "QuantumFluidCore": 2
+   }
+  },
+  "shipId_739": {
+   "type": "MIMESIS",
+   "class_name": "ShipDesignType",
+   "uid": 178,
+   "model": 739,
+   "hp": 386000,
+   "speed": 300,
+   "cargo": 1500,
+   "price": 200000.0,
+   "skills": [
+    {
+     "name": "SCRAMBLE",
+     "duration": "30",
+     "cooldown": "300"
+    },
+    {
+     "name": "TELEPORT",
+     "duration": "2",
+     "cooldown": "300"
+    }
+   ],
+   "slots": {
+    "lasers": 14,
+    "generators": 14,
+    "cannons": 3,
+    "drives": 7,
+    "cannon_shields": 6,
+    "lenses": 11,
+    "heavy_guns": 2,
+    "extras": 3,
+    "ship_upgrades": 3,
     "QuantumFluidCore": 2
    }
   }

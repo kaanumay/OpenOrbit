@@ -347,7 +347,8 @@ class Upgrade:
         if iid in self.p.equipped_ids():
             from legacy_protocol import legacy
             return [legacy('0|A|STM|msg_cannot_disassemble_equipped_item'), self.update(key, iid)]
-        lv = item_level(self.p, iid)
+        import resonator as RS
+        lv = RS.level_of(loot) if RS.is_item(loot) else item_level(self.p, iid)     # Xeno Resonator: its level 1-7 (client 1.1.119)
         row = next((r for r in DIS[key]['levels'] if r['level'] == lv), None)
         if not row:
             self.log('   Disassembly: %s level %d cannot be disassembled' % (loot, lv))
@@ -363,6 +364,8 @@ class Upgrade:
             self.p.d.get('upgrade_level', {}).pop(str(iid), None)
             self.p.d.get('item_level', {}).pop(str(iid), None)
             self.p.dirty = True
+        if RS.is_item(loot):
+            RS.recycled(self.p, iid)
         msgs = INV.update_msgs(self.m, self.p, list(fee), [iid])
         for l, n in back.items():
             msgs += self.m.reward(l, n) if self.m else []
@@ -370,6 +373,12 @@ class Upgrade:
                 self.p.add_resource(l, n)
         self.log('   Disassembly: %s (level %d) disassembled, fee %s, back %s' % (loot, lv, fee, back))
         RT.note(self.p, 'disassembled_item', loot, lv)          # logbook: log_message_disassembly_finished (%item% from info)
+        if RS.is_item(loot):
+            # the Xeno window finishes the recycle when the next inventory snapshot no longer has the item; the client's text with the amount
+            from legacy_protocol import legacy
+            x = RS.Xeno(self.p, self.log)
+            x.m = self.m
+            msgs += x.inventory() + [legacy('0|A|STM|recycle_resonator_received|%%AMOUNT%%|%d' % sum(back.values()))]
         return msgs + [self.update(key, iid)]
 
     # ------------------------------------------------------------ requests

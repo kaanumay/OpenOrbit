@@ -25760,6 +25760,22 @@
      },
      {
       "_": "BattlePassKeyExchangeRewardModule",
+      "cost": 25,
+      "limit": 1,
+      "exchangeReward": "guardian-citadel-plus-ship-design",
+      "listOfloot": [
+       {
+        "_": "BattlePassKeyExchangeLootModule",
+        "lootId": "ship_citadel-plus_design_citadel-plus-guardian",
+        "amount": 1
+       }
+      ],
+      "priority": 3,
+      "isSpecial": true,
+      "claimCount": 0
+     },
+     {
+      "_": "BattlePassKeyExchangeRewardModule",
       "cost": 45,
       "limit": 1,
       "exchangeReward": "odysseus-laser",
@@ -25770,7 +25786,7 @@
         "amount": 1
        }
       ],
-      "priority": 3,
+      "priority": 4,
       "isSpecial": true,
       "claimCount": 0
      },
@@ -25786,7 +25802,7 @@
         "amount": 1
        }
       ],
-      "priority": 4,
+      "priority": 5,
       "isSpecial": true,
       "claimCount": 0
      },
@@ -25802,7 +25818,7 @@
         "amount": 1
        }
       ],
-      "priority": 5,
+      "priority": 6,
       "isSpecial": true,
       "claimCount": 0
      },
@@ -25818,7 +25834,7 @@
         "amount": 1
        }
       ],
-      "priority": 6,
+      "priority": 7,
       "isSpecial": true,
       "claimCount": 0
      },
@@ -25834,7 +25850,7 @@
         "amount": 1
        }
       ],
-      "priority": 7,
+      "priority": 8,
       "isSpecial": true,
       "claimCount": 0
      },
@@ -25850,7 +25866,7 @@
         "amount": 1
        }
       ],
-      "priority": 8,
+      "priority": 9,
       "isSpecial": true,
       "claimCount": 0
      },
@@ -25866,7 +25882,7 @@
         "amount": 1
        }
       ],
-      "priority": 9,
+      "priority": 10,
       "isSpecial": true,
       "claimCount": 0
      },
@@ -25882,7 +25898,7 @@
         "amount": 1
        }
       ],
-      "priority": 10,
+      "priority": 11,
       "isSpecial": true,
       "claimCount": 0
      },
@@ -25898,7 +25914,7 @@
         "amount": 1
        }
       ],
-      "priority": 11,
+      "priority": 12,
       "isSpecial": true,
       "claimCount": 0
      },
@@ -25914,7 +25930,7 @@
         "amount": 1
        }
       ],
-      "priority": 12,
+      "priority": 13,
       "isSpecial": true,
       "claimCount": 0
      },
@@ -25930,7 +25946,7 @@
         "amount": 1
        }
       ],
-      "priority": 13,
+      "priority": 14,
       "isSpecial": true,
       "claimCount": 0
      },
@@ -25946,7 +25962,7 @@
         "amount": 1
        }
       ],
-      "priority": 14,
+      "priority": 15,
       "isSpecial": true,
       "claimCount": 0
      },
@@ -25962,7 +25978,7 @@
         "amount": 1
        }
       ],
-      "priority": 15,
+      "priority": 16,
       "isSpecial": true,
       "claimCount": 0
      },
@@ -25978,7 +25994,7 @@
         "amount": 1
        }
       ],
-      "priority": 16,
+      "priority": 17,
       "isSpecial": true,
       "claimCount": 0
      },
@@ -25994,7 +26010,7 @@
         "amount": 1
        }
       ],
-      "priority": 17,
+      "priority": 18,
       "isSpecial": true,
       "claimCount": 0
      },
@@ -26010,7 +26026,7 @@
         "amount": 1
        }
       ],
-      "priority": 18,
+      "priority": 19,
       "isSpecial": true,
       "claimCount": 0
      },
@@ -26026,7 +26042,7 @@
         "amount": 1
        }
       ],
-      "priority": 19,
+      "priority": 20,
       "isSpecial": true,
       "claimCount": 0
      },
@@ -26042,7 +26058,7 @@
         "amount": 1
        }
       ],
-      "priority": 20,
+      "priority": 21,
       "isSpecial": true,
       "claimCount": 0
      },
@@ -26058,7 +26074,7 @@
         "amount": 1
        }
       ],
-      "priority": 21,
+      "priority": 22,
       "isSpecial": true,
       "claimCount": 0
      },
@@ -26074,7 +26090,7 @@
         "amount": 1
        }
       ],
-      "priority": 22,
+      "priority": 23,
       "isSpecial": true,
       "claimCount": 0
      },
@@ -26090,7 +26106,7 @@
         "amount": 1
        }
       ],
-      "priority": 23,
+      "priority": 24,
       "isSpecial": true,
       "claimCount": 0
      },

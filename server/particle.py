@@ -562,27 +562,33 @@ class Shot:
         return True
 
     def resonate(self, z, now):
-        """Attributes of the best Strike Resonator (resonator.py, Ö6): radius, duration, total damage, aftershock, slowdown,
-        following the main target. Damage is per second: the total damage (duration x per-second) is kept with the multiplier."""
+        """The active config's Strike Resonator (resonator.py, client 1.1.119): +level damage (2..14%) and the ship bonus on the total, then
+        its special attribute (FAQ 130532 / the client's texts): Expansion radius +x; Collapse duration -10%, total +x; Evernight duration
+        +50%, total +x; Aftershock total +x, 75% over the field and 25% exploding at the end with +50% radius; Stagnation slows those
+        inside by x; Adhesion follows the main target for the whole duration at x less damage. Damage is per second: the total
+        (duration x per-second) carries the multipliers."""
         import resonator as RS
         a = RS.strike_mods(self.p)
         if not a:
             return z
-        duration, total = float(DR['duration_sec']), 1.0
+        duration, total = float(DR['duration_sec']), 1 + (a.get('damage', 0) + a.get('ship', 0)) / 100.0
         if 'collapse' in a:
-            duration, total = duration * 0.75, total * (1 + a['collapse'] / 100.0)
+            duration, total = duration * 0.9, total * (1 + a['collapse'] / 100.0)
         elif 'evernight' in a:
-            duration, total = duration * 1.25, total * (1 + a['evernight'] / 100.0)
+            duration, total = duration * 1.5, total * (1 + a['evernight'] / 100.0)
+        elif 'aftershock' in a:
+            total *= 1 + a['aftershock'] / 100.0
         per = z['damage'] * total * DR['duration_sec'] / duration
         z.update(end_time=now + duration, damage=per, area=z['area'] * (1 + a.get('expansion', 0) / 100.0), resonator=a)
-        if 'aftershock' in a:                       # 75% over the field's duration, 25% at the end (radius +x)
+        if 'aftershock' in a:                       # 75% over the field's duration, 25% at the end (radius +50%)
             z['aftershock_dmg'] = per * 0.25 * duration
             z['damage'] = per * 0.75
-            z['aftershock_area'] = z['area'] * (1 + a['aftershock'] / 100.0)
+            z['aftershock_area'] = z['area'] * 1.5
         if 'stagnation' in a:
             z['slow'] = a['stagnation'] / 100.0
         if 'adhesion' in a:
-            z['follow'] = now + min(a['adhesion'], duration)
+            z['follow'] = now + duration
+            z['damage'] = z['damage'] * (1 - a['adhesion'] / 100.0)
         return z
 
     def zone_tick(self, z, now):

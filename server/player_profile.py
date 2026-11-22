@@ -6,7 +6,8 @@ On first run the profile is built from the "seed" in data/login.json (from the r
 Field names are the same as the protocol's, so the profile turns directly into a message.
 """
 import json, os, threading, time
-MODE_WINDOWS = ('voyagers', 'trinityTrials', 'expedition', 'eternal_blacklight', 'rogue_lite')     # feature bar (stage 8)
+MODE_WINDOWS = ('voyagers', 'trinityTrials', 'expedition', 'eternal_blacklight', 'rogue_lite',     # feature bar (stage 8)
+                'xeno_resonator')                                                           # always visible (client 1.1.119)
 # event window -> the calendar's events (visible while one runs; live test H47). Plutus: PlutusInfoCommand; labyrinth:
 # FrozenLabyrinthInfoCommand; Agatus and NPC events: the indicator of event_maps.py (the 'info' command in events.json)
 EVENT_WINDOWS = {'plutus': ('plutus',), 'frozen_labyrinth': ('labyrinth',), 'agatus_event': ('agatus',), 'npc_event': None,
@@ -26,7 +27,8 @@ EVENT_WINDOWS = {'plutus': ('plutus',), 'frozen_labyrinth': ('labyrinth',), 'aga
                  'battle_pass': ()}      # Objectives: while the save's pass runs (battle_pass.py; the session binds the hook), otherwise it opened empty
 # the 1.1.115 windows are not in the interface in the recording: added to the profile as a copy of the Return of Hero item (title, size from game.xml);
 # before opening a window the client looks up the menu item by name (FeatureMenuHelper.GetFeatureItemById)
-NEW_WINDOWS = {'apotheosis': ('title_kristallon_apotheosis', 728, 460), 'recallBattlePass': ('return_pass_name', 800, 440)}
+NEW_WINDOWS = {'apotheosis': ('title_kristallon_apotheosis', 728, 460), 'recallBattlePass': ('return_pass_name', 800, 440),
+               'xeno_resonator': ('title_resonator_restabilize', 529, 505)}       # client 1.1.119 (game.xml window xeno_resonator)
 # those whose visibility comes from the player's state, not the calendar: itemId -> () -> bool (stage 7: the Returnee Login campaign, stores.py)
 WINDOW_HOOKS = {}
 # the client opens the Urgent Missions window (diminish_quests) itself when a quest arrives (DiminishingQuestHandler.OpenWindow); if the item is not

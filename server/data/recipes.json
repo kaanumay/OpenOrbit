@@ -10551,6 +10551,36 @@
    "result": {
     "ship_goliath-plus_design_goliath-plus-helios": 1
    }
+  },
+  "recipe_blueprint-c-aegis-resonator": {
+   "usage": "ALWAYS_USABLE",
+   "visibility": "ALWAYS_VISIBLE",
+   "max_count": null,
+   "scale": 1.0,
+   "stackable": true,
+   "duration_sec": 5,
+   "level": 0,
+   "parts": {
+    "resource_xeno-tech-fragments": 10
+   },
+   "result": {
+    "equipment_xenoresonator_c-aegis-resonator": 1
+   }
+  },
+  "recipe_blueprint-c-strike-resonator": {
+   "usage": "ALWAYS_USABLE",
+   "visibility": "ALWAYS_VISIBLE",
+   "max_count": null,
+   "scale": 1.0,
+   "stackable": true,
+   "duration_sec": 5,
+   "level": 0,
+   "parts": {
+    "resource_xeno-tech-fragments": 10
+   },
+   "result": {
+    "equipment_xenoresonator_c-strike-resonator": 1
+   }
   }
  }
 }

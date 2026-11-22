@@ -1,25 +1,41 @@
-"""Xeno Resonator (roadmap Ö6; data data/items_o6.json 'rezonator' <- tools/items_o6.py, source belgeler/wiki/items_o6.json).
+"""Xeno Resonator (client 1.1.119; data data/items_o6.json 'resonator' <- tools/version_119.py; sources: the official FAQ board-en
+130532 and the client's code, belgeler/istemci/xeno_resonator_istemci.md).
 
-In client 1.1.114 only the texts exist (no item data, icon or hangar slot; unreleased content). The Synthesis window's Resonator
-tab works with server data (live test 2026-10-18): SynthesisGroupCommand group synthesis_resonator_title, left buttons
-synthesis_resonator_strike / _aegis; the items have a "?" icon, their names in the tooltip from the client's texts.
-  C: 3 of the type's resources (resource_attack-* / resource_defensive-*) + 1,000 U. The cost row is the resource the player holds most of;
-     the resonator's attribute is that resource's attribute (from the C range).
-  UC..UL: 4 lower qualities (the first selected is the main resonator) + uridium: the main resonator's attributes are re-rolled from the
-     new quality's range, missing ones are filled from the type's other attributes (Collapse and Evernight do not come together). Success
-is 100% (no rate in the window). Effect (Strike): the player's best Strike Resonator (quality, then attribute sum; no slot in the hangar)
-changes the Singularity field (particle.fire_drive): expansion radius, collapse duration -25% and total damage +x, evernight duration +25%
-and total damage +x, aftershock 25% of the damage explodes at the end (radius +x), stagnation slows those in the field, adhesion the field
-follows the main target for the first x s. Aegis protects against an enemy Singularity field; in single player aliens do not use drives
-(it gains meaning with bots, Stage 11). """
+Items: equipment_xenoresonator_<c|uc|r|ep|ma|leg|ul>-<strike|aegis>-resonator, level 1-7 (the item's level in the hangar list). Strike
+(DRIVE_ATK) adds 2..14% Singularity Drive damage, Aegis (DRIVE_DEF) cuts the Singularity damage taken by as much. Each ship config has one
+offensive and one defensive slot (HangarShipEquipmentMsg.xenoResonators {slotId 1 ATK / 2 DEF, type, itemId, enabled}); equipping is
+HangarShipMoveItemsRequest with slotSet "xeno_resonators" (shop.move). Per item in the profile: resonators {itemId: {effect, tier, ship,
+ship_bp}}; the hangar item carries them as extAttributes xenoEffectId / xenoEffectLevel / xenoLocked / xenoShipId / xenoShipDamageBasisPoints.
+Client requests (window xeno_resonator 153, and the Synthesis window's group "xeno_resonator"):
+  XenoResonatorConfigRequest    -> XenoResonatorConfigResult {status, gems [type, levels, effects]} (the client rejects the whole result if a
+                                   value is out of range)
+  XenoResonatorInventoryRequest -> XenoResonatorInventoryResult {status, batchIndex, batchCount, items} (at most 100 per batch)
+  XenoResonatorUpgradeRequest {mainItemId, materialItemIds[4]}: Intensify; the main and the four are the same type and level T-1, not
+      equipped; success upgradeSuccessBasisPoints(T); on success the main becomes level T (and at T 6/7 may gain a random special attribute),
+      on failure the main stays; the four are consumed either way -> XenoResonatorUpgradeResult (the client then re-reads the inventory)
+  XenoResonatorEffectRequest {itemId, operation, materialLootId}: on a max-level resonator; ACTIVATE (Activation Chip: a random attribute,
+      tier 1), SELECT (the attribute's own item: that attribute, replaces), CALIBRATE (Calibration Chip: +1 tier) -> XenoResonatorEffectResult
+  DisassemblyRequest {disassemble_disassemble-xenoresonator}: recycle -> Xeno-Tech Fragments (upgrades.py, the client's table)
+C resonators come from Assembly (10 fragments, the client's recipes); the higher ones from the Vortex of Greed (boss drops, shops).
+"""
 import json, os, random
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 D = json.load(open(os.path.join(HERE, 'data', 'items_o6.json'), encoding='utf8'))['resonator']
-ITEMS, SOURCES, ATTR = D['items'], D['sources'], D['attributes']
-RECIPES = {r['target']: r for r in D['recipes']}
-INPUTS = {r['input'] for r in D['recipes'] if r.get('input')}
-STATE = 'resonators'                  # profile: itemId -> {'attribute': [[name, value], …]}
+ITEMS, KINDS, LEVELS = D['items'], D['kinds'], {r['level']: r for r in D['levels']}
+EFFECTS = {k: {e['effect']: e for e in rows} for k, rows in D['effects'].items()}
+BY_MATERIAL = {e['material']: (k, e) for k, rows in D['effects'].items() for e in rows}
+CHIPS = D['chips']
+SOURCES = set(BY_MATERIAL) | set(CHIPS.values()) | {D['fragments']}     # resources of the window (shop counters)
+INPUTS = set()                                                         # the Synthesis window's own resonator inputs (none: Intensify is below)
+MAX_LEVEL = max(LEVELS)
+LOOT = {(e['type'], e['level']): loot for loot, e in ITEMS.items()}
+STATE = 'resonators'                  # profile: itemId -> {'effect', 'tier', 'ship', 'ship_bp'}
+SLOT_SET = 'xeno_resonators'          # the hangar's slot set and the config key
+BATCH = 100
+SUCCESS, FAILED, INVALID, BUSY, ERROR = 1, 2, 3, 4, 5                  # XenoResonatorUpgradeResult.Status
+E_OK, E_INVALID_ITEM, E_NOT_MAX, E_EQUIPPED, E_EXISTS, E_NOT_FOUND, E_INVALID_EFFECT, E_MAX_TIER, E_MATERIALS, E_OPERATION = range(1, 11)
+ACTIVATE, SELECT, CALIBRATE = 1, 2, 3                                   # XenoResonatorEffectRequest.Operation
 
 
 def mod(_cls, **f):
@@ -31,26 +47,37 @@ def is_item(loot):
     return loot in ITEMS
 
 
-def exclusive(names, cand):
-    return any(cand in pair and any(o in names for o in pair if o != cand) for pair in D['excluded'])
+def kind_of(loot):
+    return ITEMS[loot]['type'] if loot in ITEMS else None
 
 
-def roll(kind, name, quality, rng=random):
-    lo, hi = ATTR[kind][name]['interval'][quality]
-    return round(rng.uniform(lo, hi), 1)
+def level_of(loot):
+    return ITEMS[loot]['level'] if loot in ITEMS else 0
 
 
-def fill(kind, quality, names, n, rng=random):
-    """Fills the attribute names up to n (from the type's others, excluding the excluded)."""
-    names = list(names)
-    pool = [a for a in ATTR[kind] if a not in names]
-    rng.shuffle(pool)
-    for a in pool:
-        if len(names) >= n:
-            break
-        if not exclusive(names, a):
-            names.append(a)
-    return [[a, roll(kind, a, quality, rng)] for a in names[:n]]
+def effect_value(e, tier):
+    """The attribute's value at a tier in percent, as the client computes it (XenoResonatorEffectDescription.Calculate)."""
+    v = e['values']
+    if e['name'] == 'adhesion':                                     # [start, floor, step]: falls with the tier
+        return max(v[0] - v[2] * (tier - 1), v[1]) / 100.0
+    start, cap, step = v[-3:]
+    return min(start + (tier - 1) * step, cap) / 100.0
+
+
+def roll_ship(rng=random):
+    """The ship-specific Singularity Drive bonus of a new Strike Resonator (adaptation, items_o6.json _adaptation): model id, basis points."""
+    b = D['ship_bonus']
+    return _model(rng.choice(b['ships'])), rng.randrange(b['bp'][0], b['bp'][1] + 1, b['step'])
+
+
+def _model(loot):
+    global _CL
+    if _CL is None:
+        _CL = json.load(open(os.path.join(HERE, 'data', 'client_items.json'), encoding='utf8'))['items']
+    return (_CL.get(loot) or {}).get('model')
+
+
+_CL = None
 
 
 def state(p, iid):
@@ -58,114 +85,251 @@ def state(p, iid):
 
 
 def ensure(p, iid, rng=random):
-    """A resonator that arrives without attributes (reward, GM): as many random attributes as its quality number."""
+    """The item's record; a resonator that arrives without one (reward, shop, Assembly) gets its ship bonus (Strike). The pre-release
+    records (attribute lists, 1.1.114 adaptation) are replaced: no attribute, the level is the quality."""
     st = state(p, iid)
     loot = p.d['items'].get(str(iid))
-    if st is None and loot in ITEMS:
-        e = ITEMS[loot]
+    if loot not in ITEMS:
+        return st
+    if st is None or 'attribute' in st:
+        ship, bp = roll_ship(rng) if ITEMS[loot]['type'] == 'strike' else (0, 0)
         with p.lock:
-            st = p.d.setdefault(STATE, {})[str(iid)] = {'attribute': fill(e['type'], e['quality'], [], e['attribute_count'], rng)}
+            st = p.d.setdefault(STATE, {})[str(iid)] = {'effect': 0, 'tier': 0, 'ship': ship or 0, 'ship_bp': bp if ship else 0}
             p.dirty = True
     return st
 
 
-def create(p, loot, attrs):
-    iid = p.new_item(loot)
-    with p.lock:
-        p.d.setdefault(STATE, {})[str(iid)] = {'attribute': attrs}
-        p.dirty = True
-    return iid
+def ext_attributes(p, iid):
+    st = ensure(p, iid) or {}
+    rows = [('xenoEffectId', st.get('effect', 0)), ('xenoEffectLevel', st.get('tier', 0) if st.get('effect') else 0),
+            ('xenoLocked', 'False')]
+    if st.get('ship') and st.get('ship_bp'):
+        rows += [('xenoShipId', st['ship']), ('xenoShipDamageBasisPoints', st['ship_bp'])]
+    return [mod('TupleTwoModule', param0=k, param1=str(v)) for k, v in rows]
+
+
+def hangar_fields(p, iid, loot):
+    return {'level': level_of(loot), 'extAttributes': ext_attributes(p, iid)}
 
 
 def modifiers_str(p, iid):
-    """Attribute rows of the hangar tooltip (particle.modifiers_str format: "NAME,value;…")."""
-    st = ensure(p, iid) or {}
-    return ';'.join('%s,%g' % (a.upper(), v) for a, v in st.get('attribute', []))
+    return ''
 
 
-def best(p, kind='strike'):
-    """The player's best resonator (quality, then attribute sum) -> (itemId, {attribute: value}) or (None, {})."""
-    rows = []
-    for i, loot in p.d['items'].items():
-        e = ITEMS.get(loot)
-        if e and e['type'] == kind:
-            st = ensure(p, int(i)) or {}
-            attrs = {a: v for a, v in st.get('attribute', [])}
-            rows.append(((e['order'], sum(attrs.values())), int(i), attrs))
-    if not rows:
-        return None, {}
-    _, iid, attrs = max(rows)
-    return iid, attrs
+def resonators(p):
+    return sorted(int(i) for i, l in p.d['items'].items() if l in ITEMS)
 
 
-def strike_mods(p):
-    return best(p, 'strike')[1]
-
-
-def source_for(p, kind):
-    """The cost of quality C: the resource the player holds most of (the first in order on a tie)."""
-    rows = sorted(SOURCES.items())
-    have = [(p.d.get('other_items', {}).get(l, 0), -k, l) for k, (l, s) in enumerate(rows) if s['type'] == kind]
-    return max(have)[2] if have else None
-
-
-# ---------------------------------------------------------------- Synthesis tab
-def modules(p, table_key):
+# ---------------------------------------------------------------- hangar slots
+def slot_ids(p, sid=None, cid=None):
+    """The resonators fitted in a ship config -> {'strike': itemId, 'aegis': itemId}."""
     out = {}
-    for r in D['recipes']:
-        if r.get('input'):
-            costs = [mod('SynthesisCostLootCommand', lootId=r['input'], amount=1, star=0, certain=True)] * r['count']
-        else:
-            costs = [mod('SynthesisCostLootCommand', lootId=source_for(p, r['type']), amount=r['source_amount'], star=0, certain=False)]
-        costs.append(mod('SynthesisCostLootCommand', lootId='currency_uridium', amount=r['uridium'], star=0, certain=False))
-        out.setdefault(r['type'], []).append(mod('SynthesisModuleCommand', lootId=r['target'], star=0, moduleGroupType=table_key[r['type']],
-                                                costs=costs, affectedShip=0))
+    for iid in p.config(cid, sid).get(SLOT_SET, []):
+        k = kind_of(p.d['items'].get(str(iid)))
+        if k:
+            out[k] = iid
     return out
 
 
-def group_cmd(p):
+def slots_msg(p, sid=None, cid=None):
+    """HangarShipEquipmentMsg.xenoResonators: one ATK and one DEF slot, open."""
+    have = slot_ids(p, sid, cid)
+    return [mod('XenoResonatorSlotModule', slotId=D['slots'][k], type=KINDS[k], itemId=have.get(k, 0), enabled=True) for k in KINDS]
+
+
+def equip(p, cfg, iid, loot):
+    """Fits the resonator in its type's slot of the config; the one there before -> returned (to the inventory)."""
+    lst = cfg.setdefault(SLOT_SET, [])
+    old = [i for i in lst if kind_of(p.d['items'].get(str(i))) == kind_of(loot) and i != iid]
+    for i in old:
+        lst.remove(i)
+    if iid not in lst:
+        lst.append(iid)
+    return old
+
+
+def active(p, kind):
+    """The resonator fitted in the active config of the active ship -> (itemId, loot) or (None, None)."""
+    iid = slot_ids(p).get(kind)
+    return (iid, p.d['items'].get(str(iid))) if iid else (None, None)
+
+
+def strike_mods(p):
+    """For the Singularity field (particle.resonate): {'damage': %, 'ship': %, <attribute name>: %} of the active Strike Resonator."""
+    iid, loot = active(p, 'strike')
+    if not iid:
+        return {}
+    st = ensure(p, iid) or {}
+    out = {'damage': LEVELS[level_of(loot)]['damage_bp'] / 100.0}
+    if st.get('ship') and st.get('ship') == _model(p.ship()['lootId']):
+        out['ship'] = st['ship_bp'] / 100.0
+    e = EFFECTS['strike'].get(st.get('effect'))
+    if e:
+        out[e['name']] = effect_value(e, st.get('tier', 1))
+    return out
+
+
+def aegis_mods(p):
+    """Protection against an enemy Singularity Drive (bot players): {'defense': %, <attribute name>: %}."""
+    iid, loot = active(p, 'aegis')
+    if not iid:
+        return {}
+    st = ensure(p, iid) or {}
+    out = {'defense': LEVELS[level_of(loot)]['damage_bp'] / 100.0}
+    e = EFFECTS['aegis'].get(st.get('effect'))
+    if e:
+        out[e['name']] = effect_value(e, st.get('tier', 1))
+    return out
+
+
+# ---------------------------------------------------------------- messages
+def config_result():
+    gems = []
+    for kind, tid in KINDS.items():
+        gems.append(mod('XenoResonatorGemConfigModule', type=tid, levels=[
+            mod('XenoResonatorLevelConfigModule', level=lv, lootId=LOOT[(kind, lv)], damageBasisPoints=r['damage_bp'],
+                effectChanceBasisPoints=r['effect_chance_bp'], upgradeSuccessBasisPoints=r['upgrade_success_bp'])
+            for lv, r in sorted(LEVELS.items())], effects=[
+            mod('XenoResonatorEffectConfigModule', effect=e['effect'], weight=e['weight'], maxLv=e['max_level'], values=list(e['values']),
+                materialLootId=e['material']) for e in D['effects'][kind]]))
+    return 'XenoResonatorConfigResult', {'status': 1, 'gems': gems}
+
+
+def synthesis_group():
+    """The Synthesis window's Resonator tab (Intensify): the client reads the type from modules[0].lootId of the selected list and the
+    target levels from the config; the module rows are the levels 2-7 of the type."""
     s = D['synthesis']
-    mods = modules(p, s['tables'])
     return mod('SynthesisGroupCommand', button=s['button'], group=s['group'], moduleList=[
-        mod('SynthesisModuleListCommand', moduleListGroupType=s['tables'][t], modules=mods.get(t, [])) for t in ('strike', 'aegis')])
+        mod('SynthesisModuleListCommand', moduleListGroupType=s['tables'][k], modules=[
+            mod('SynthesisModuleCommand', lootId=LOOT[(k, lv)], star=0, moduleGroupType=s['tables'][k], costs=[], affectedShip=0)
+            for lv in sorted(LEVELS) if lv > 1]) for k in KINDS])
 
 
-def synth(sy, loot, ids, rng=random):
-    """sy: synthesis.Synthesis (profile, shop, daily). -> messages."""
-    import inventory as INV
-    from legacy_protocol import legacy
-    p, r = sy.p, RECIPES[loot]
-    e = ITEMS[loot]
-    removed = []
-    if r.get('input'):
-        free = set(sy.free_items())
-        ok = lambda i: i in free and p.d['items'].get(str(i)) == r['input']
-        ids = [i for i in dict.fromkeys(int(x) for x in ids) if ok(i)]
-        if len(ids) < r['count']:
-            ids += [i for i in sorted(free) if ok(i) and i not in ids][:r['count'] - len(ids)]
-        if len(ids) < r['count']:
-            return sy.fail('not enough %s (%d/%d)' % (r['input'], len(ids), r['count']))
-        ids = ids[:r['count']]
-        cost = {'currency_uridium': r['uridium']}
-        if INV.spend(p, cost, 'buy_SPECIAL', 'resonator') is None:
-            return sy.fail('cost not covered (%s)' % cost)
-        main = [a for a, _ in (ensure(p, ids[0]) or {}).get('attribute', [])]
+class Xeno:
+    REQUESTS = {'XenoResonatorConfigRequest', 'XenoResonatorInventoryRequest', 'XenoResonatorUpgradeRequest', 'XenoResonatorEffectRequest'}
+
+    def __init__(self, profile, log=print, rng=random):
+        self.p, self.log, self.rng = profile, log, rng
+        self.m = None                                   # shop (hangar items, inventory updates)
+
+    def handle(self, name, f):
+        if name == 'XenoResonatorConfigRequest':
+            return [config_result()]
+        if name == 'XenoResonatorInventoryRequest':
+            return self.inventory()
+        if name == 'XenoResonatorUpgradeRequest':
+            return self.upgrade(f)
+        if name == 'XenoResonatorEffectRequest':
+            return self.effect(f)
+        return []
+
+    def inventory(self):
+        hm = self.p.hangar_map()
+        items = [self.m.hangar_item(i, self.p.d['items'][str(i)], 1, hm.get(i, 0)) for i in resonators(self.p)] if self.m else []
+        n = max(1, (len(items) + BATCH - 1) // BATCH)
+        return [('XenoResonatorInventoryResult', dict(status=1, batchIndex=k, batchCount=n, items=items[k * BATCH:(k + 1) * BATCH]))
+                for k in range(n)]
+
+    def free(self, iid):
+        return str(iid) in self.p.d['items'] and iid not in self.p.equipped_ids()
+
+    def item_msgs(self, changed, removed, loots=()):
+        import inventory as INV
+        msgs = INV.update_msgs(self.m, self.p, list(loots), removed)
+        if self.m and changed:
+            msgs += self.m.item_updates(changed)
+        return msgs
+
+    def upgrade(self, f):
+        p = self.p
+        main = int(f.get('mainItemId') or 0)
+        mats = [int(x) for x in (f.get('materialItemIds') or [])]
+        result = lambda st, old=0, new=0, used=(): ('XenoResonatorUpgradeResult', dict(
+            status=st, mainItemId=main, oldLevel=old, newLevel=new, consumedItemIds=[float(i) for i in used]))
+        loot = p.d['items'].get(str(main))
+        if not is_item(loot) or not self.free(main):
+            self.log('   Xeno Intensify: main %s is not a free resonator' % main)
+            return [result(INVALID)]
+        kind, lv = kind_of(loot), level_of(loot)
+        ok = lambda i: i != main and self.free(i) and p.d['items'].get(str(i)) == loot
+        mats = list(dict.fromkeys(mats))
+        if lv + 1 not in LEVELS or len(mats) != D['material_count'] or not all(ok(i) for i in mats):
+            self.log('   Xeno Intensify: invalid materials %s for %s' % (mats, loot))
+            return [result(INVALID, lv, lv)]
+        target = lv + 1
+        win = self.rng.random() * 10000 < LEVELS[target]['upgrade_success_bp']
         with p.lock:
-            for i in ids:
+            for i in mats:
                 p.d['items'].pop(str(i), None)
                 p.d.get(STATE, {}).pop(str(i), None)
+            if win:
+                p.d['items'][str(main)] = LOOT[(kind, target)]
             p.dirty = True
-        removed = ids
-        attrs = fill(e['type'], e['quality'], main, e['attribute_count'], rng)
-    else:
-        src = source_for(p, e['type'])
-        cost = {src: r['source_amount'], 'currency_uridium': r['uridium']}
-        if not src or INV.spend(p, cost, 'buy_SPECIAL', 'resonator') is None:
-            return sy.fail('cost not covered (%s)' % cost)
-        attrs = fill(e['type'], e['quality'], [SOURCES[src]['attribute']], e['attribute_count'], rng)
-    new = create(p, loot, attrs)
-    msgs = [('InventoryItemRemovedCommand', {'itemId': i}) for i in removed] + INV.update_msgs(sy.m, p, list(cost))
-    if sy.m:
-        msgs += [sy.m.inv_item(new, loot, 1), sy.m.pack([sy.m.hangar_item(new, loot, 1)])]
-    sy.log('   Resonator: %s%s -> %s %s' % ('%d x %s' % (len(removed), r['input']) if removed else '', ' cost %s' % cost, loot, attrs))
-    return msgs + [legacy('0|LM|ST|LOT|%s|1' % loot), sy.list_cmd()] + sy.inventory_cmds()
+        st = ensure(p, main)
+        gained = None
+        if win and not st.get('effect') and self.rng.random() * 10000 < LEVELS[target]['effect_chance_bp']:
+            gained = self.random_effect(kind)
+            with p.lock:
+                st.update(effect=gained['effect'], tier=1)
+                p.dirty = True
+        from legacy_protocol import legacy
+        self.log('   Xeno Intensify: %s + 4 -> %s%s' % (loot, LOOT[(kind, target)] if win else 'failed (main kept)',
+                                                     ' + %s' % gained['name'] if gained else ''))
+        msgs = [result(SUCCESS if win else FAILED, lv, target if win else lv, mats)] + self.item_msgs([main], mats)
+        msgs.append(legacy('0|A|STM|%s' % ('xeno_resonator_upgrade_success' if win else 'xeno_resonator_upgrade_failed')))
+        if gained:
+            msgs.append(legacy('0|A|STM|xeno_resonator_activated'))
+        return msgs
+
+    def random_effect(self, kind):
+        rows = D['effects'][kind]
+        return self.rng.choices(rows, weights=[max(e['weight'], 0) or 1 for e in rows])[0]
+
+    def effect(self, f):
+        p = self.p
+        iid, op = int(f.get('itemId') or 0), int(f.get('operation') or 0)
+        material = f.get('materialLootId') or ''
+        result = lambda st, e=0, t=0: ('XenoResonatorEffectResult', dict(status=st, operation=op, itemId=iid, effect=e, effectLevel=t))
+        loot = p.d['items'].get(str(iid))
+        if not is_item(loot):
+            return [result(E_INVALID_ITEM)]
+        if level_of(loot) < MAX_LEVEL:
+            return [result(E_NOT_MAX)]
+        if iid in p.equipped_ids():
+            return [result(E_EQUIPPED)]
+        kind, st = kind_of(loot), ensure(p, iid)
+        cur = EFFECTS[kind].get(st.get('effect'))
+        if op == ACTIVATE:
+            if cur:
+                return [result(E_EXISTS, cur['effect'], st['tier'])]
+            need, new, tier, text = CHIPS['activation'], self.random_effect(kind), 1, 'xeno_resonator_activated'
+        elif op == SELECT:
+            k, new = BY_MATERIAL.get(material, (None, None))
+            if k != kind:
+                return [result(E_INVALID_EFFECT)]
+            need, tier, text = material, (st.get('tier') or 1) if cur else 1, 'xeno_resonator_selected'
+            tier = min(tier, new['max_level'])
+        elif op == CALIBRATE:
+            if not cur:
+                return [result(E_NOT_FOUND)]
+            if st['tier'] >= cur['max_level']:
+                return [result(E_MAX_TIER, cur['effect'], st['tier'])]
+            need, new, tier, text = CHIPS['calibration'], cur, st['tier'] + 1, 'xeno_resonator_calibrated'
+        else:
+            return [result(E_OPERATION)]
+        if not p.spend_resources({need: 1}):
+            return [result(E_MATERIALS, st.get('effect', 0), st.get('tier', 0))]
+        with p.lock:
+            st.update(effect=new['effect'], tier=tier)
+            p.dirty = True
+        self.log('   Xeno effect %s: %s -> %s tier %d (%s)' % ({1: 'activate', 2: 'select', 3: 'calibrate'}[op], loot, new['name'], tier,
+                                                            need))
+        from legacy_protocol import legacy
+        return [result(E_OK, new['effect'], tier)] + self.item_msgs([iid], [], [need]) + [legacy('0|A|STM|%s' % text)]
+
+
+def recycled(p, iid):
+    """upgrades.disassemble: the record of a recycled resonator goes with it."""
+    with p.lock:
+        p.d.get(STATE, {}).pop(str(iid), None)
+        p.dirty = True

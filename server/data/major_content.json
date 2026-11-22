@@ -124,7 +124,93 @@
    },
    "cargo": {},
    "model": "115",
-   "npc_id": 554
+   "npc_id": 554,
+   "drops": [
+    [
+     "equipment_xenoresonator_uc-strike-resonator",
+     5.7
+    ],
+    [
+     "equipment_xenoresonator_uc-aegis-resonator",
+     5.7
+    ],
+    [
+     "equipment_xenoresonator_r-strike-resonator",
+     10
+    ],
+    [
+     "equipment_xenoresonator_r-aegis-resonator",
+     10
+    ],
+    [
+     "equipment_xenoresonator_ep-strike-resonator",
+     19
+    ],
+    [
+     "equipment_xenoresonator_ep-aegis-resonator",
+     19
+    ],
+    [
+     "equipment_xenoresonator_ma-strike-resonator",
+     15
+    ],
+    [
+     "equipment_xenoresonator_ma-aegis-resonator",
+     15
+    ],
+    [
+     "resource_resonance-activation-chip",
+     0.11
+    ],
+    [
+     "resource_resonance-calibration-chip",
+     0.27
+    ],
+    [
+     "resource_attack-expansion",
+     0.02
+    ],
+    [
+     "resource_attack-collapse",
+     0.02
+    ],
+    [
+     "resource_attack-evernight",
+     0.02
+    ],
+    [
+     "resource_attack-aftershock",
+     0.02
+    ],
+    [
+     "resource_attack-stagnation",
+     0.02
+    ],
+    [
+     "resource_attack-adhesion",
+     0.02
+    ],
+    [
+     "resource_defensive-grav-tolerance",
+     0.02
+    ],
+    [
+     "resource_defensive-entry-buffer",
+     0.02
+    ],
+    [
+     "resource_defensive-zone-adaptation",
+     0.02
+    ],
+    [
+     "resource_defensive-slowing-resistance",
+     0.02
+    ],
+    [
+     "resource_defensive-detachment",
+     0.02
+    ]
+   ]
   },
   "evacuation": {
    "times": [
@@ -167,9 +253,9 @@
       "eid": 1,
       "reward": "resource_collectable_cryo-nano-coolant",
       "count": 1,
-      "price": 710,
+      "price": 887,
       "limit_type": 3,
-      "cap": 5
+      "cap": 3
      },
      {
       "eid": 2,
@@ -178,6 +264,69 @@
       "price": 100,
       "limit_type": 1,
       "cap": 99999
+     },
+     {
+      "eid": 3,
+      "reward": "resource_collectable_axion-beam-regulator",
+      "count": 10,
+      "price": 200,
+      "limit_type": 3,
+      "cap": 10,
+      "_tool": "tools/version_119.py"
+     },
+     {
+      "eid": 4,
+      "reward": "equipment_xenoresonator_c-strike-resonator",
+      "count": 1,
+      "price": 100,
+      "limit_type": 3,
+      "cap": 20,
+      "_tool": "tools/version_119.py"
+     },
+     {
+      "eid": 5,
+      "reward": "equipment_xenoresonator_c-aegis-resonator",
+      "count": 1,
+      "price": 100,
+      "limit_type": 3,
+      "cap": 20,
+      "_tool": "tools/version_119.py"
+     },
+     {
+      "eid": 6,
+      "reward": "equipment_xenoresonator_uc-strike-resonator",
+      "count": 1,
+      "price": 500,
+      "limit_type": 3,
+      "cap": 5,
+      "_tool": "tools/version_119.py"
+     },
+     {
+      "eid": 7,
+      "reward": "equipment_xenoresonator_uc-aegis-resonator",
+      "count": 1,
+      "price": 500,
+      "limit_type": 3,
+      "cap": 5,
+      "_tool": "tools/version_119.py"
+     },
+     {
+      "eid": 8,
+      "reward": "equipment_xenoresonator_r-strike-resonator",
+      "count": 1,
+      "price": 3000,
+      "limit_type": 3,
+      "cap": 1,
+      "_tool": "tools/version_119.py"
+     },
+     {
+      "eid": 9,
+      "reward": "equipment_xenoresonator_r-aegis-resonator",
+      "count": 1,
+      "price": 3000,
+      "limit_type": 3,
+      "cap": 1,
+      "_tool": "tools/version_119.py"
      }
     ]
    },
@@ -280,6 +429,51 @@
       "price": 10,
       "limit_type": 4,
       "cap": 20
+     },
+     {
+      "eid": 13,
+      "reward": "equipment_xenoresonator_ep-strike-resonator",
+      "count": 1,
+      "price": 2000,
+      "limit_type": 3,
+      "cap": 3,
+      "_tool": "tools/version_119.py"
+     },
+     {
+      "eid": 14,
+      "reward": "equipment_xenoresonator_ep-aegis-resonator",
+      "count": 1,
+      "price": 2000,
+      "limit_type": 3,
+      "cap": 3,
+      "_tool": "tools/version_119.py"
+     },
+     {
+      "eid": 15,
+      "reward": "equipment_xenoresonator_ma-strike-resonator",
+      "count": 1,
+      "price": 5000,
+      "limit_type": 3,
+      "cap": 1,
+      "_tool": "tools/version_119.py"
+     },
+     {
+      "eid": 16,
+      "reward": "equipment_xenoresonator_ma-aegis-resonator",
+      "count": 1,
+      "price": 5000,
+      "limit_type": 3,
+      "cap": 1,
+      "_tool": "tools/version_119.py"
+     },
+     {
+      "eid": 17,
+      "reward": "resource_resonance-activation-chip",
+      "count": 1,
+      "price": 50000,
+      "limit_type": 3,
+      "cap": 1,
+      "_tool": "tools/version_119.py"
      }
     ]
    }
@@ -2443,7 +2637,18 @@
   },
   "key_uridium": 5000,
   "_source": "mimesis_mutiny.json: official FAQ 2020-2026, darkorbitwiki (Mimesis types, boxes/mimesis-box, galaxy-gates/mimesis-mutiny-gate: Mimesis Chest), the client's texts and game.xml; tools/major_content.py",
-  "_adaptation": "The route (4 points + beacon), waves and points are not in the source (the research's suggestions); single-player: waves scale with the player's power (World Boss scale): HP x0.3 x power, damage x0.25 x power (0.5-1.5); the EM Freighter's HP is enough to withstand 240 s of fire from the strongest wave (at least 2,000,000); ranking is virtual (player 1st); company maps: MMO 433, EIC 436, VRU 430 (each company's first Escort map); Byte Remnant goes directly to the type's reward (extra_reward; mimesis._register) and to the box; box quantities, weights and the MINI_BOSS / BOSS mapping are not in the source (normal box: half of the type's Byte reward; elite box: between half and all of it + one row); buff draw in mimesis_chest.py."
+  "_adaptation": "The route (4 points + beacon), waves and points are not in the source (the research's suggestions); single-player: waves scale with the player's power (World Boss scale): HP x0.3 x power, damage x0.25 x power (0.5-1.5); the EM Freighter's HP is enough to withstand 240 s of fire from the strongest wave (at least 2,000,000); ranking is virtual (player 1st); company maps: MMO 433, EIC 436, VRU 430 (each company's first Escort map); Byte Remnant goes directly to the type's reward (extra_reward; mimesis._register) and to the box; box quantities, weights and the MINI_BOSS / BOSS mapping are not in the source (normal box: half of the type's Byte reward; elite box: between half and all of it + one row); buff draw in mimesis_chest.py.",
+  "editions": {
+   "11": {
+    "design": "ship_goliath-plus_design_goliath-plus-guardian",
+    "titles": {
+     "title_mimesisMutiny202603-points-1": "title_mimesisMutiny202611-points-1",
+     "title_mimesisMutiny202603-points-2": "title_mimesisMutiny202611-points-2"
+    },
+    "_source": "board-en 130498 (F.A.Q. Mimesis Mutiny November 2026): ranks 1-10 Guardian Goliath Plus; titles \"Supreme Mimesis Defender 2026\" (1st) and \"Elite Mimesis Defender 2026\" (top 10) = the client keys title_mimesisMutiny202611-points-1/2; the other rewards are the same as the March edition",
+    "_tool": "tools/version_119.py"
+   }
+  }
  },
  "kristallon_apotheosis": {
   "event": "kristallon_apotheosis",

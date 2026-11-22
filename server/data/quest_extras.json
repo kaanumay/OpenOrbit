@@ -63287,6 +63287,2203 @@
      3
     ]
    ]
+  },
+  "506900": {
+   "name": "Scammers & Jammers (MMO)",
+   "level": 12,
+   "priority": 0,
+   "kinds": [
+    5
+   ],
+   "icon": 0,
+   "portrait": "",
+   "previous": [],
+   "source": "client 1.1.119",
+   "event": [
+    "prometheus"
+   ],
+   "repeat": "event",
+   "pvp": false,
+   "company": 1,
+   "root": {
+    "_": "QuestCaseModule",
+    "id": 50690000,
+    "active": false,
+    "mandatory": true,
+    "ordered": false,
+    "mandatoryCount": 3,
+    "modifier": [
+     {
+      "_": "QuestElementModule",
+      "questCase": {
+       "_": "QuestCaseModule",
+       "id": 0,
+       "active": false,
+       "mandatory": false,
+       "ordered": false,
+       "mandatoryCount": 0,
+       "modifier": []
+      },
+      "condition": {
+       "_": "QuestConditionModule",
+       "id": 50690001,
+       "matches": [
+        "@own X-5"
+       ],
+       "type": 34,
+       "displayType": 34,
+       "targetValue": 1,
+       "mandatory": true,
+       "state": {
+        "_": "QuestConditionStateModule",
+        "currentValue": 0,
+        "active": true,
+        "completed": false
+       },
+       "subConditions": []
+      }
+     },
+     {
+      "_": "QuestElementModule",
+      "questCase": {
+       "_": "QuestCaseModule",
+       "id": 0,
+       "active": false,
+       "mandatory": false,
+       "ordered": false,
+       "mandatoryCount": 0,
+       "modifier": []
+      },
+      "condition": {
+       "_": "QuestConditionModule",
+       "id": 50690002,
+       "matches": [
+        "@own X-6"
+       ],
+       "type": 34,
+       "displayType": 34,
+       "targetValue": 1,
+       "mandatory": true,
+       "state": {
+        "_": "QuestConditionStateModule",
+        "currentValue": 0,
+        "active": true,
+        "completed": false
+       },
+       "subConditions": []
+      }
+     },
+     {
+      "_": "QuestElementModule",
+      "questCase": {
+       "_": "QuestCaseModule",
+       "id": 0,
+       "active": false,
+       "mandatory": false,
+       "ordered": false,
+       "mandatoryCount": 0,
+       "modifier": []
+      },
+      "condition": {
+       "_": "QuestConditionModule",
+       "id": 50690003,
+       "matches": [],
+       "type": 3,
+       "displayType": 3,
+       "targetValue": 120000,
+       "mandatory": true,
+       "state": {
+        "_": "QuestConditionStateModule",
+        "currentValue": 0,
+        "active": true,
+        "completed": false
+       },
+       "subConditions": [
+        {
+         "_": "QuestConditionModule",
+         "id": 0,
+         "matches": [
+          "@own X-6"
+         ],
+         "type": 77,
+         "displayType": 77,
+         "targetValue": 0,
+         "mandatory": true,
+         "state": {
+          "_": "QuestConditionStateModule",
+          "currentValue": 0,
+          "active": false,
+          "completed": false
+         },
+         "subConditions": []
+        }
+       ]
+      }
+     }
+    ]
+   },
+   "rewards": [
+    [
+     "currency_experience",
+     20000
+    ],
+    [
+     "currency_honour",
+     150
+    ],
+    [
+     "currency_uridium",
+     300
+    ],
+    [
+     "currency_credits",
+     20000
+    ]
+   ]
+  },
+  "506901": {
+   "name": "Saimon Says (MMO)",
+   "level": 12,
+   "priority": 0,
+   "kinds": [
+    5
+   ],
+   "icon": 0,
+   "portrait": "",
+   "previous": [
+    506900
+   ],
+   "source": "client 1.1.119",
+   "event": [
+    "prometheus"
+   ],
+   "repeat": "event",
+   "pvp": false,
+   "company": 1,
+   "root": {
+    "_": "QuestCaseModule",
+    "id": 50690100,
+    "active": false,
+    "mandatory": true,
+    "ordered": false,
+    "mandatoryCount": 1,
+    "modifier": [
+     {
+      "_": "QuestElementModule",
+      "questCase": {
+       "_": "QuestCaseModule",
+       "id": 0,
+       "active": false,
+       "mandatory": false,
+       "ordered": false,
+       "mandatoryCount": 0,
+       "modifier": []
+      },
+      "condition": {
+       "_": "QuestConditionModule",
+       "id": 50690101,
+       "matches": [
+        "6"
+       ],
+       "type": 6,
+       "displayType": 6,
+       "targetValue": 30,
+       "mandatory": true,
+       "state": {
+        "_": "QuestConditionStateModule",
+        "currentValue": 0,
+        "active": true,
+        "completed": false
+       },
+       "subConditions": []
+      }
+     }
+    ]
+   },
+   "rewards": [
+    [
+     "currency_experience",
+     25000
+    ],
+    [
+     "currency_honour",
+     150
+    ],
+    [
+     "currency_uridium",
+     300
+    ],
+    [
+     "currency_credits",
+     30000
+    ],
+    [
+     "resource_ore_endurium",
+     200
+    ]
+   ]
+  },
+  "506902": {
+   "name": "Look Who's Talking (MMO)",
+   "level": 12,
+   "priority": 0,
+   "kinds": [
+    5
+   ],
+   "icon": 0,
+   "portrait": "",
+   "previous": [
+    506901
+   ],
+   "source": "client 1.1.119",
+   "event": [
+    "prometheus"
+   ],
+   "repeat": "event",
+   "pvp": false,
+   "company": 1,
+   "root": {
+    "_": "QuestCaseModule",
+    "id": 50690200,
+    "active": false,
+    "mandatory": true,
+    "ordered": false,
+    "mandatoryCount": 2,
+    "modifier": [
+     {
+      "_": "QuestElementModule",
+      "questCase": {
+       "_": "QuestCaseModule",
+       "id": 0,
+       "active": false,
+       "mandatory": false,
+       "ordered": false,
+       "mandatoryCount": 0,
+       "modifier": []
+      },
+      "condition": {
+       "_": "QuestConditionModule",
+       "id": 50690201,
+       "matches": [
+        "@own X-7"
+       ],
+       "type": 34,
+       "displayType": 34,
+       "targetValue": 1,
+       "mandatory": true,
+       "state": {
+        "_": "QuestConditionStateModule",
+        "currentValue": 0,
+        "active": true,
+        "completed": false
+       },
+       "subConditions": []
+      }
+     },
+     {
+      "_": "QuestElementModule",
+      "questCase": {
+       "_": "QuestCaseModule",
+       "id": 0,
+       "active": false,
+       "mandatory": false,
+       "ordered": false,
+       "mandatoryCount": 0,
+       "modifier": []
+      },
+      "condition": {
+       "_": "QuestConditionModule",
+       "id": 50690202,
+       "matches": [],
+       "type": 3,
+       "displayType": 3,
+       "targetValue": 180000,
+       "mandatory": true,
+       "state": {
+        "_": "QuestConditionStateModule",
+        "currentValue": 0,
+        "active": true,
+        "completed": false
+       },
+       "subConditions": [
+        {
+         "_": "QuestConditionModule",
+         "id": 0,
+         "matches": [
+          "@own X-7"
+         ],
+         "type": 77,
+         "displayType": 77,
+         "targetValue": 0,
+         "mandatory": true,
+         "state": {
+          "_": "QuestConditionStateModule",
+          "currentValue": 0,
+          "active": false,
+          "completed": false
+         },
+         "subConditions": []
+        }
+       ]
+      }
+     }
+    ]
+   },
+   "rewards": [
+    [
+     "currency_experience",
+     30000
+    ],
+    [
+     "currency_honour",
+     200
+    ],
+    [
+     "currency_uridium",
+     350
+    ],
+    [
+     "currency_credits",
+     40000
+    ]
+   ]
+  },
+  "506903": {
+   "name": "Buyer Beware (MMO)",
+   "level": 12,
+   "priority": 0,
+   "kinds": [
+    5
+   ],
+   "icon": 0,
+   "portrait": "",
+   "previous": [
+    506902
+   ],
+   "source": "client 1.1.119",
+   "event": [
+    "prometheus"
+   ],
+   "repeat": "event",
+   "pvp": false,
+   "company": 1,
+   "root": {
+    "_": "QuestCaseModule",
+    "id": 50690300,
+    "active": false,
+    "mandatory": true,
+    "ordered": false,
+    "mandatoryCount": 2,
+    "modifier": [
+     {
+      "_": "QuestElementModule",
+      "questCase": {
+       "_": "QuestCaseModule",
+       "id": 0,
+       "active": false,
+       "mandatory": false,
+       "ordered": false,
+       "mandatoryCount": 0,
+       "modifier": []
+      },
+      "condition": {
+       "_": "QuestConditionModule",
+       "id": 50690301,
+       "matches": [
+        "7"
+       ],
+       "type": 6,
+       "displayType": 6,
+       "targetValue": 30,
+       "mandatory": true,
+       "state": {
+        "_": "QuestConditionStateModule",
+        "currentValue": 0,
+        "active": true,
+        "completed": false
+       },
+       "subConditions": []
+      }
+     },
+     {
+      "_": "QuestElementModule",
+      "questCase": {
+       "_": "QuestCaseModule",
+       "id": 0,
+       "active": false,
+       "mandatory": false,
+       "ordered": false,
+       "mandatoryCount": 0,
+       "modifier": []
+      },
+      "condition": {
+       "_": "QuestConditionModule",
+       "id": 50690302,
+       "matches": [
+        "5"
+       ],
+       "type": 6,
+       "displayType": 6,
+       "targetValue": 15,
+       "mandatory": true,
+       "state": {
+        "_": "QuestConditionStateModule",
+        "currentValue": 0,
+        "active": true,
+        "completed": false
+       },
+       "subConditions": []
+      }
+     }
+    ]
+   },
+   "rewards": [
+    [
+     "currency_experience",
+     40000
+    ],
+    [
+     "currency_honour",
+     250
+    ],
+    [
+     "currency_uridium",
+     400
+    ],
+    [
+     "currency_credits",
+     50000
+    ],
+    [
+     "resource_collectable_indoctrine-accelerator",
+     1
+    ]
+   ]
+  },
+  "506904": {
+   "name": "Midnight Run (MMO)",
+   "level": 12,
+   "priority": 0,
+   "kinds": [
+    5
+   ],
+   "icon": 0,
+   "portrait": "",
+   "previous": [
+    506903
+   ],
+   "source": "client 1.1.119",
+   "event": [
+    "prometheus"
+   ],
+   "repeat": "event",
+   "pvp": false,
+   "company": 1,
+   "root": {
+    "_": "QuestCaseModule",
+    "id": 50690400,
+    "active": false,
+    "mandatory": true,
+    "ordered": false,
+    "mandatoryCount": 2,
+    "modifier": [
+     {
+      "_": "QuestElementModule",
+      "questCase": {
+       "_": "QuestCaseModule",
+       "id": 0,
+       "active": false,
+       "mandatory": false,
+       "ordered": false,
+       "mandatoryCount": 0,
+       "modifier": []
+      },
+      "condition": {
+       "_": "QuestConditionModule",
+       "id": 50690401,
+       "matches": [
+        "@own X-8"
+       ],
+       "type": 34,
+       "displayType": 34,
+       "targetValue": 1,
+       "mandatory": true,
+       "state": {
+        "_": "QuestConditionStateModule",
+        "currentValue": 0,
+        "active": true,
+        "completed": false
+       },
+       "subConditions": []
+      }
+     },
+     {
+      "_": "QuestElementModule",
+      "questCase": {
+       "_": "QuestCaseModule",
+       "id": 0,
+       "active": false,
+       "mandatory": false,
+       "ordered": false,
+       "mandatoryCount": 0,
+       "modifier": []
+      },
+      "condition": {
+       "_": "QuestConditionModule",
+       "id": 50690402,
+       "matches": [
+        "5"
+       ],
+       "type": 6,
+       "displayType": 6,
+       "targetValue": 20,
+       "mandatory": true,
+       "state": {
+        "_": "QuestConditionStateModule",
+        "currentValue": 0,
+        "active": true,
+        "completed": false
+       },
+       "subConditions": [
+        {
+         "_": "QuestConditionModule",
+         "id": 0,
+         "matches": [
+          "@own X-8"
+         ],
+         "type": 77,
+         "displayType": 77,
+         "targetValue": 0,
+         "mandatory": true,
+         "state": {
+          "_": "QuestConditionStateModule",
+          "currentValue": 0,
+          "active": false,
+          "completed": false
+         },
+         "subConditions": []
+        }
+       ]
+      }
+     }
+    ]
+   },
+   "rewards": [
+    [
+     "currency_experience",
+     50000
+    ],
+    [
+     "currency_honour",
+     300
+    ],
+    [
+     "currency_uridium",
+     500
+    ],
+    [
+     "currency_credits",
+     60000
+    ],
+    [
+     "resource_collectable_diametrion",
+     2
+    ]
+   ]
+  },
+  "506905": {
+   "name": "Top Secret (MMO)",
+   "level": 12,
+   "priority": 0,
+   "kinds": [
+    5
+   ],
+   "icon": 0,
+   "portrait": "",
+   "previous": [
+    506904
+   ],
+   "source": "client 1.1.119",
+   "event": [
+    "prometheus"
+   ],
+   "repeat": "event",
+   "pvp": false,
+   "company": 1,
+   "root": {
+    "_": "QuestCaseModule",
+    "id": 50690500,
+    "active": false,
+    "mandatory": true,
+    "ordered": false,
+    "mandatoryCount": 2,
+    "modifier": [
+     {
+      "_": "QuestElementModule",
+      "questCase": {
+       "_": "QuestCaseModule",
+       "id": 0,
+       "active": false,
+       "mandatory": false,
+       "ordered": false,
+       "mandatoryCount": 0,
+       "modifier": []
+      },
+      "condition": {
+       "_": "QuestConditionModule",
+       "id": 50690501,
+       "matches": [
+        "@own X-1"
+       ],
+       "type": 34,
+       "displayType": 34,
+       "targetValue": 1,
+       "mandatory": true,
+       "state": {
+        "_": "QuestConditionStateModule",
+        "currentValue": 0,
+        "active": true,
+        "completed": false
+       },
+       "subConditions": []
+      }
+     },
+     {
+      "_": "QuestElementModule",
+      "questCase": {
+       "_": "QuestCaseModule",
+       "id": 0,
+       "active": false,
+       "mandatory": false,
+       "ordered": false,
+       "mandatoryCount": 0,
+       "modifier": []
+      },
+      "condition": {
+       "_": "QuestConditionModule",
+       "id": 50690502,
+       "matches": [],
+       "type": 3,
+       "displayType": 3,
+       "targetValue": 60000,
+       "mandatory": true,
+       "state": {
+        "_": "QuestConditionStateModule",
+        "currentValue": 0,
+        "active": true,
+        "completed": false
+       },
+       "subConditions": [
+        {
+         "_": "QuestConditionModule",
+         "id": 0,
+         "matches": [
+          "@own X-1"
+         ],
+         "type": 77,
+         "displayType": 77,
+         "targetValue": 0,
+         "mandatory": true,
+         "state": {
+          "_": "QuestConditionStateModule",
+          "currentValue": 0,
+          "active": false,
+          "completed": false
+         },
+         "subConditions": []
+        }
+       ]
+      }
+     }
+    ]
+   },
+   "rewards": [
+    [
+     "currency_experience",
+     60000
+    ],
+    [
+     "currency_honour",
+     400
+    ],
+    [
+     "currency_uridium",
+     800
+    ],
+    [
+     "currency_credits",
+     80000
+    ],
+    [
+     "resource_booty-key-prometheus",
+     5
+    ]
+   ]
+  },
+  "506906": {
+   "name": "Scammers & Jammers (EIC)",
+   "level": 12,
+   "priority": 0,
+   "kinds": [
+    5
+   ],
+   "icon": 0,
+   "portrait": "",
+   "previous": [],
+   "source": "client 1.1.119",
+   "event": [
+    "prometheus"
+   ],
+   "repeat": "event",
+   "pvp": false,
+   "company": 2,
+   "root": {
+    "_": "QuestCaseModule",
+    "id": 50690600,
+    "active": false,
+    "mandatory": true,
+    "ordered": false,
+    "mandatoryCount": 3,
+    "modifier": [
+     {
+      "_": "QuestElementModule",
+      "questCase": {
+       "_": "QuestCaseModule",
+       "id": 0,
+       "active": false,
+       "mandatory": false,
+       "ordered": false,
+       "mandatoryCount": 0,
+       "modifier": []
+      },
+      "condition": {
+       "_": "QuestConditionModule",
+       "id": 50690601,
+       "matches": [
+        "@own X-5"
+       ],
+       "type": 34,
+       "displayType": 34,
+       "targetValue": 1,
+       "mandatory": true,
+       "state": {
+        "_": "QuestConditionStateModule",
+        "currentValue": 0,
+        "active": true,
+        "completed": false
+       },
+       "subConditions": []
+      }
+     },
+     {
+      "_": "QuestElementModule",
+      "questCase": {
+       "_": "QuestCaseModule",
+       "id": 0,
+       "active": false,
+       "mandatory": false,
+       "ordered": false,
+       "mandatoryCount": 0,
+       "modifier": []
+      },
+      "condition": {
+       "_": "QuestConditionModule",
+       "id": 50690602,
+       "matches": [
+        "@own X-6"
+       ],
+       "type": 34,
+       "displayType": 34,
+       "targetValue": 1,
+       "mandatory": true,
+       "state": {
+        "_": "QuestConditionStateModule",
+        "currentValue": 0,
+        "active": true,
+        "completed": false
+       },
+       "subConditions": []
+      }
+     },
+     {
+      "_": "QuestElementModule",
+      "questCase": {
+       "_": "QuestCaseModule",
+       "id": 0,
+       "active": false,
+       "mandatory": false,
+       "ordered": false,
+       "mandatoryCount": 0,
+       "modifier": []
+      },
+      "condition": {
+       "_": "QuestConditionModule",
+       "id": 50690603,
+       "matches": [],
+       "type": 3,
+       "displayType": 3,
+       "targetValue": 120000,
+       "mandatory": true,
+       "state": {
+        "_": "QuestConditionStateModule",
+        "currentValue": 0,
+        "active": true,
+        "completed": false
+       },
+       "subConditions": [
+        {
+         "_": "QuestConditionModule",
+         "id": 0,
+         "matches": [
+          "@own X-6"
+         ],
+         "type": 77,
+         "displayType": 77,
+         "targetValue": 0,
+         "mandatory": true,
+         "state": {
+          "_": "QuestConditionStateModule",
+          "currentValue": 0,
+          "active": false,
+          "completed": false
+         },
+         "subConditions": []
+        }
+       ]
+      }
+     }
+    ]
+   },
+   "rewards": [
+    [
+     "currency_experience",
+     20000
+    ],
+    [
+     "currency_honour",
+     150
+    ],
+    [
+     "currency_uridium",
+     300
+    ],
+    [
+     "currency_credits",
+     20000
+    ]
+   ]
+  },
+  "506907": {
+   "name": "Saimon Says (EIC)",
+   "level": 12,
+   "priority": 0,
+   "kinds": [
+    5
+   ],
+   "icon": 0,
+   "portrait": "",
+   "previous": [
+    506906
+   ],
+   "source": "client 1.1.119",
+   "event": [
+    "prometheus"
+   ],
+   "repeat": "event",
+   "pvp": false,
+   "company": 2,
+   "root": {
+    "_": "QuestCaseModule",
+    "id": 50690700,
+    "active": false,
+    "mandatory": true,
+    "ordered": false,
+    "mandatoryCount": 1,
+    "modifier": [
+     {
+      "_": "QuestElementModule",
+      "questCase": {
+       "_": "QuestCaseModule",
+       "id": 0,
+       "active": false,
+       "mandatory": false,
+       "ordered": false,
+       "mandatoryCount": 0,
+       "modifier": []
+      },
+      "condition": {
+       "_": "QuestConditionModule",
+       "id": 50690701,
+       "matches": [
+        "6"
+       ],
+       "type": 6,
+       "displayType": 6,
+       "targetValue": 30,
+       "mandatory": true,
+       "state": {
+        "_": "QuestConditionStateModule",
+        "currentValue": 0,
+        "active": true,
+        "completed": false
+       },
+       "subConditions": []
+      }
+     }
+    ]
+   },
+   "rewards": [
+    [
+     "currency_experience",
+     25000
+    ],
+    [
+     "currency_honour",
+     150
+    ],
+    [
+     "currency_uridium",
+     300
+    ],
+    [
+     "currency_credits",
+     30000
+    ],
+    [
+     "resource_ore_endurium",
+     200
+    ]
+   ]
+  },
+  "506908": {
+   "name": "Look Who's Talking (EIC)",
+   "level": 12,
+   "priority": 0,
+   "kinds": [
+    5
+   ],
+   "icon": 0,
+   "portrait": "",
+   "previous": [
+    506907
+   ],
+   "source": "client 1.1.119",
+   "event": [
+    "prometheus"
+   ],
+   "repeat": "event",
+   "pvp": false,
+   "company": 2,
+   "root": {
+    "_": "QuestCaseModule",
+    "id": 50690800,
+    "active": false,
+    "mandatory": true,
+    "ordered": false,
+    "mandatoryCount": 2,
+    "modifier": [
+     {
+      "_": "QuestElementModule",
+      "questCase": {
+       "_": "QuestCaseModule",
+       "id": 0,
+       "active": false,
+       "mandatory": false,
+       "ordered": false,
+       "mandatoryCount": 0,
+       "modifier": []
+      },
+      "condition": {
+       "_": "QuestConditionModule",
+       "id": 50690801,
+       "matches": [
+        "@own X-7"
+       ],
+       "type": 34,
+       "displayType": 34,
+       "targetValue": 1,
+       "mandatory": true,
+       "state": {
+        "_": "QuestConditionStateModule",
+        "currentValue": 0,
+        "active": true,
+        "completed": false
+       },
+       "subConditions": []
+      }
+     },
+     {
+      "_": "QuestElementModule",
+      "questCase": {
+       "_": "QuestCaseModule",
+       "id": 0,
+       "active": false,
+       "mandatory": false,
+       "ordered": false,
+       "mandatoryCount": 0,
+       "modifier": []
+      },
+      "condition": {
+       "_": "QuestConditionModule",
+       "id": 50690802,
+       "matches": [],
+       "type": 3,
+       "displayType": 3,
+       "targetValue": 180000,
+       "mandatory": true,
+       "state": {
+        "_": "QuestConditionStateModule",
+        "currentValue": 0,
+        "active": true,
+        "completed": false
+       },
+       "subConditions": [
+        {
+         "_": "QuestConditionModule",
+         "id": 0,
+         "matches": [
+          "@own X-7"
+         ],
+         "type": 77,
+         "displayType": 77,
+         "targetValue": 0,
+         "mandatory": true,
+         "state": {
+          "_": "QuestConditionStateModule",
+          "currentValue": 0,
+          "active": false,
+          "completed": false
+         },
+         "subConditions": []
+        }
+       ]
+      }
+     }
+    ]
+   },
+   "rewards": [
+    [
+     "currency_experience",
+     30000
+    ],
+    [
+     "currency_honour",
+     200
+    ],
+    [
+     "currency_uridium",
+     350
+    ],
+    [
+     "currency_credits",
+     40000
+    ]
+   ]
+  },
+  "506909": {
+   "name": "Buyer Beware (EIC)",
+   "level": 12,
+   "priority": 0,
+   "kinds": [
+    5
+   ],
+   "icon": 0,
+   "portrait": "",
+   "previous": [
+    506908
+   ],
+   "source": "client 1.1.119",
+   "event": [
+    "prometheus"
+   ],
+   "repeat": "event",
+   "pvp": false,
+   "company": 2,
+   "root": {
+    "_": "QuestCaseModule",
+    "id": 50690900,
+    "active": false,
+    "mandatory": true,
+    "ordered": false,
+    "mandatoryCount": 2,
+    "modifier": [
+     {
+      "_": "QuestElementModule",
+      "questCase": {
+       "_": "QuestCaseModule",
+       "id": 0,
+       "active": false,
+       "mandatory": false,
+       "ordered": false,
+       "mandatoryCount": 0,
+       "modifier": []
+      },
+      "condition": {
+       "_": "QuestConditionModule",
+       "id": 50690901,
+       "matches": [
+        "7"
+       ],
+       "type": 6,
+       "displayType": 6,
+       "targetValue": 30,
+       "mandatory": true,
+       "state": {
+        "_": "QuestConditionStateModule",
+        "currentValue": 0,
+        "active": true,
+        "completed": false
+       },
+       "subConditions": []
+      }
+     },
+     {
+      "_": "QuestElementModule",
+      "questCase": {
+       "_": "QuestCaseModule",
+       "id": 0,
+       "active": false,
+       "mandatory": false,
+       "ordered": false,
+       "mandatoryCount": 0,
+       "modifier": []
+      },
+      "condition": {
+       "_": "QuestConditionModule",
+       "id": 50690902,
+       "matches": [
+        "5"
+       ],
+       "type": 6,
+       "displayType": 6,
+       "targetValue": 15,
+       "mandatory": true,
+       "state": {
+        "_": "QuestConditionStateModule",
+        "currentValue": 0,
+        "active": true,
+        "completed": false
+       },
+       "subConditions": []
+      }
+     }
+    ]
+   },
+   "rewards": [
+    [
+     "currency_experience",
+     40000
+    ],
+    [
+     "currency_honour",
+     250
+    ],
+    [
+     "currency_uridium",
+     400
+    ],
+    [
+     "currency_credits",
+     50000
+    ],
+    [
+     "resource_collectable_indoctrine-accelerator",
+     1
+    ]
+   ]
+  },
+  "506910": {
+   "name": "Midnight Run (EIC)",
+   "level": 12,
+   "priority": 0,
+   "kinds": [
+    5
+   ],
+   "icon": 0,
+   "portrait": "",
+   "previous": [
+    506909
+   ],
+   "source": "client 1.1.119",
+   "event": [
+    "prometheus"
+   ],
+   "repeat": "event",
+   "pvp": false,
+   "company": 2,
+   "root": {
+    "_": "QuestCaseModule",
+    "id": 50691000,
+    "active": false,
+    "mandatory": true,
+    "ordered": false,
+    "mandatoryCount": 2,
+    "modifier": [
+     {
+      "_": "QuestElementModule",
+      "questCase": {
+       "_": "QuestCaseModule",
+       "id": 0,
+       "active": false,
+       "mandatory": false,
+       "ordered": false,
+       "mandatoryCount": 0,
+       "modifier": []
+      },
+      "condition": {
+       "_": "QuestConditionModule",
+       "id": 50691001,
+       "matches": [
+        "@own X-8"
+       ],
+       "type": 34,
+       "displayType": 34,
+       "targetValue": 1,
+       "mandatory": true,
+       "state": {
+        "_": "QuestConditionStateModule",
+        "currentValue": 0,
+        "active": true,
+        "completed": false
+       },
+       "subConditions": []
+      }
+     },
+     {
+      "_": "QuestElementModule",
+      "questCase": {
+       "_": "QuestCaseModule",
+       "id": 0,
+       "active": false,
+       "mandatory": false,
+       "ordered": false,
+       "mandatoryCount": 0,
+       "modifier": []
+      },
+      "condition": {
+       "_": "QuestConditionModule",
+       "id": 50691002,
+       "matches": [
+        "5"
+       ],
+       "type": 6,
+       "displayType": 6,
+       "targetValue": 20,
+       "mandatory": true,
+       "state": {
+        "_": "QuestConditionStateModule",
+        "currentValue": 0,
+        "active": true,
+        "completed": false
+       },
+       "subConditions": [
+        {
+         "_": "QuestConditionModule",
+         "id": 0,
+         "matches": [
+          "@own X-8"
+         ],
+         "type": 77,
+         "displayType": 77,
+         "targetValue": 0,
+         "mandatory": true,
+         "state": {
+          "_": "QuestConditionStateModule",
+          "currentValue": 0,
+          "active": false,
+          "completed": false
+         },
+         "subConditions": []
+        }
+       ]
+      }
+     }
+    ]
+   },
+   "rewards": [
+    [
+     "currency_experience",
+     50000
+    ],
+    [
+     "currency_honour",
+     300
+    ],
+    [
+     "currency_uridium",
+     500
+    ],
+    [
+     "currency_credits",
+     60000
+    ],
+    [
+     "resource_collectable_diametrion",
+     2
+    ]
+   ]
+  },
+  "506911": {
+   "name": "Top Secret (EIC)",
+   "level": 12,
+   "priority": 0,
+   "kinds": [
+    5
+   ],
+   "icon": 0,
+   "portrait": "",
+   "previous": [
+    506910
+   ],
+   "source": "client 1.1.119",
+   "event": [
+    "prometheus"
+   ],
+   "repeat": "event",
+   "pvp": false,
+   "company": 2,
+   "root": {
+    "_": "QuestCaseModule",
+    "id": 50691100,
+    "active": false,
+    "mandatory": true,
+    "ordered": false,
+    "mandatoryCount": 2,
+    "modifier": [
+     {
+      "_": "QuestElementModule",
+      "questCase": {
+       "_": "QuestCaseModule",
+       "id": 0,
+       "active": false,
+       "mandatory": false,
+       "ordered": false,
+       "mandatoryCount": 0,
+       "modifier": []
+      },
+      "condition": {
+       "_": "QuestConditionModule",
+       "id": 50691101,
+       "matches": [
+        "@own X-1"
+       ],
+       "type": 34,
+       "displayType": 34,
+       "targetValue": 1,
+       "mandatory": true,
+       "state": {
+        "_": "QuestConditionStateModule",
+        "currentValue": 0,
+        "active": true,
+        "completed": false
+       },
+       "subConditions": []
+      }
+     },
+     {
+      "_": "QuestElementModule",
+      "questCase": {
+       "_": "QuestCaseModule",
+       "id": 0,
+       "active": false,
+       "mandatory": false,
+       "ordered": false,
+       "mandatoryCount": 0,
+       "modifier": []
+      },
+      "condition": {
+       "_": "QuestConditionModule",
+       "id": 50691102,
+       "matches": [],
+       "type": 3,
+       "displayType": 3,
+       "targetValue": 60000,
+       "mandatory": true,
+       "state": {
+        "_": "QuestConditionStateModule",
+        "currentValue": 0,
+        "active": true,
+        "completed": false
+       },
+       "subConditions": [
+        {
+         "_": "QuestConditionModule",
+         "id": 0,
+         "matches": [
+          "@own X-1"
+         ],
+         "type": 77,
+         "displayType": 77,
+         "targetValue": 0,
+         "mandatory": true,
+         "state": {
+          "_": "QuestConditionStateModule",
+          "currentValue": 0,
+          "active": false,
+          "completed": false
+         },
+         "subConditions": []
+        }
+       ]
+      }
+     }
+    ]
+   },
+   "rewards": [
+    [
+     "currency_experience",
+     60000
+    ],
+    [
+     "currency_honour",
+     400
+    ],
+    [
+     "currency_uridium",
+     800
+    ],
+    [
+     "currency_credits",
+     80000
+    ],
+    [
+     "resource_booty-key-prometheus",
+     5
+    ]
+   ]
+  },
+  "506912": {
+   "name": "Scammers & Jammers (VRU)",
+   "level": 12,
+   "priority": 0,
+   "kinds": [
+    5
+   ],
+   "icon": 0,
+   "portrait": "",
+   "previous": [],
+   "source": "client 1.1.119",
+   "event": [
+    "prometheus"
+   ],
+   "repeat": "event",
+   "pvp": false,
+   "company": 3,
+   "root": {
+    "_": "QuestCaseModule",
+    "id": 50691200,
+    "active": false,
+    "mandatory": true,
+    "ordered": false,
+    "mandatoryCount": 3,
+    "modifier": [
+     {
+      "_": "QuestElementModule",
+      "questCase": {
+       "_": "QuestCaseModule",
+       "id": 0,
+       "active": false,
+       "mandatory": false,
+       "ordered": false,
+       "mandatoryCount": 0,
+       "modifier": []
+      },
+      "condition": {
+       "_": "QuestConditionModule",
+       "id": 50691201,
+       "matches": [
+        "@own X-5"
+       ],
+       "type": 34,
+       "displayType": 34,
+       "targetValue": 1,
+       "mandatory": true,
+       "state": {
+        "_": "QuestConditionStateModule",
+        "currentValue": 0,
+        "active": true,
+        "completed": false
+       },
+       "subConditions": []
+      }
+     },
+     {
+      "_": "QuestElementModule",
+      "questCase": {
+       "_": "QuestCaseModule",
+       "id": 0,
+       "active": false,
+       "mandatory": false,
+       "ordered": false,
+       "mandatoryCount": 0,
+       "modifier": []
+      },
+      "condition": {
+       "_": "QuestConditionModule",
+       "id": 50691202,
+       "matches": [
+        "@own X-6"
+       ],
+       "type": 34,
+       "displayType": 34,
+       "targetValue": 1,
+       "mandatory": true,
+       "state": {
+        "_": "QuestConditionStateModule",
+        "currentValue": 0,
+        "active": true,
+        "completed": false
+       },
+       "subConditions": []
+      }
+     },
+     {
+      "_": "QuestElementModule",
+      "questCase": {
+       "_": "QuestCaseModule",
+       "id": 0,
+       "active": false,
+       "mandatory": false,
+       "ordered": false,
+       "mandatoryCount": 0,
+       "modifier": []
+      },
+      "condition": {
+       "_": "QuestConditionModule",
+       "id": 50691203,
+       "matches": [],
+       "type": 3,
+       "displayType": 3,
+       "targetValue": 120000,
+       "mandatory": true,
+       "state": {
+        "_": "QuestConditionStateModule",
+        "currentValue": 0,
+        "active": true,
+        "completed": false
+       },
+       "subConditions": [
+        {
+         "_": "QuestConditionModule",
+         "id": 0,
+         "matches": [
+          "@own X-6"
+         ],
+         "type": 77,
+         "displayType": 77,
+         "targetValue": 0,
+         "mandatory": true,
+         "state": {
+          "_": "QuestConditionStateModule",
+          "currentValue": 0,
+          "active": false,
+          "completed": false
+         },
+         "subConditions": []
+        }
+       ]
+      }
+     }
+    ]
+   },
+   "rewards": [
+    [
+     "currency_experience",
+     20000
+    ],
+    [
+     "currency_honour",
+     150
+    ],
+    [
+     "currency_uridium",
+     300
+    ],
+    [
+     "currency_credits",
+     20000
+    ]
+   ]
+  },
+  "506913": {
+   "name": "Saimon Says (VRU)",
+   "level": 12,
+   "priority": 0,
+   "kinds": [
+    5
+   ],
+   "icon": 0,
+   "portrait": "",
+   "previous": [
+    506912
+   ],
+   "source": "client 1.1.119",
+   "event": [
+    "prometheus"
+   ],
+   "repeat": "event",
+   "pvp": false,
+   "company": 3,
+   "root": {
+    "_": "QuestCaseModule",
+    "id": 50691300,
+    "active": false,
+    "mandatory": true,
+    "ordered": false,
+    "mandatoryCount": 1,
+    "modifier": [
+     {
+      "_": "QuestElementModule",
+      "questCase": {
+       "_": "QuestCaseModule",
+       "id": 0,
+       "active": false,
+       "mandatory": false,
+       "ordered": false,
+       "mandatoryCount": 0,
+       "modifier": []
+      },
+      "condition": {
+       "_": "QuestConditionModule",
+       "id": 50691301,
+       "matches": [
+        "6"
+       ],
+       "type": 6,
+       "displayType": 6,
+       "targetValue": 30,
+       "mandatory": true,
+       "state": {
+        "_": "QuestConditionStateModule",
+        "currentValue": 0,
+        "active": true,
+        "completed": false
+       },
+       "subConditions": []
+      }
+     }
+    ]
+   },
+   "rewards": [
+    [
+     "currency_experience",
+     25000
+    ],
+    [
+     "currency_honour",
+     150
+    ],
+    [
+     "currency_uridium",
+     300
+    ],
+    [
+     "currency_credits",
+     30000
+    ],
+    [
+     "resource_ore_endurium",
+     200
+    ]
+   ]
+  },
+  "506914": {
+   "name": "Look Who's Talking (VRU)",
+   "level": 12,
+   "priority": 0,
+   "kinds": [
+    5
+   ],
+   "icon": 0,
+   "portrait": "",
+   "previous": [
+    506913
+   ],
+   "source": "client 1.1.119",
+   "event": [
+    "prometheus"
+   ],
+   "repeat": "event",
+   "pvp": false,
+   "company": 3,
+   "root": {
+    "_": "QuestCaseModule",
+    "id": 50691400,
+    "active": false,
+    "mandatory": true,
+    "ordered": false,
+    "mandatoryCount": 2,
+    "modifier": [
+     {
+      "_": "QuestElementModule",
+      "questCase": {
+       "_": "QuestCaseModule",
+       "id": 0,
+       "active": false,
+       "mandatory": false,
+       "ordered": false,
+       "mandatoryCount": 0,
+       "modifier": []
+      },
+      "condition": {
+       "_": "QuestConditionModule",
+       "id": 50691401,
+       "matches": [
+        "@own X-7"
+       ],
+       "type": 34,
+       "displayType": 34,
+       "targetValue": 1,
+       "mandatory": true,
+       "state": {
+        "_": "QuestConditionStateModule",
+        "currentValue": 0,
+        "active": true,
+        "completed": false
+       },
+       "subConditions": []
+      }
+     },
+     {
+      "_": "QuestElementModule",
+      "questCase": {
+       "_": "QuestCaseModule",
+       "id": 0,
+       "active": false,
+       "mandatory": false,
+       "ordered": false,
+       "mandatoryCount": 0,
+       "modifier": []
+      },
+      "condition": {
+       "_": "QuestConditionModule",
+       "id": 50691402,
+       "matches": [],
+       "type": 3,
+       "displayType": 3,
+       "targetValue": 180000,
+       "mandatory": true,
+       "state": {
+        "_": "QuestConditionStateModule",
+        "currentValue": 0,
+        "active": true,
+        "completed": false
+       },
+       "subConditions": [
+        {
+         "_": "QuestConditionModule",
+         "id": 0,
+         "matches": [
+          "@own X-7"
+         ],
+         "type": 77,
+         "displayType": 77,
+         "targetValue": 0,
+         "mandatory": true,
+         "state": {
+          "_": "QuestConditionStateModule",
+          "currentValue": 0,
+          "active": false,
+          "completed": false
+         },
+         "subConditions": []
+        }
+       ]
+      }
+     }
+    ]
+   },
+   "rewards": [
+    [
+     "currency_experience",
+     30000
+    ],
+    [
+     "currency_honour",
+     200
+    ],
+    [
+     "currency_uridium",
+     350
+    ],
+    [
+     "currency_credits",
+     40000
+    ]
+   ]
+  },
+  "506915": {
+   "name": "Buyer Beware (VRU)",
+   "level": 12,
+   "priority": 0,
+   "kinds": [
+    5
+   ],
+   "icon": 0,
+   "portrait": "",
+   "previous": [
+    506914
+   ],
+   "source": "client 1.1.119",
+   "event": [
+    "prometheus"
+   ],
+   "repeat": "event",
+   "pvp": false,
+   "company": 3,
+   "root": {
+    "_": "QuestCaseModule",
+    "id": 50691500,
+    "active": false,
+    "mandatory": true,
+    "ordered": false,
+    "mandatoryCount": 2,
+    "modifier": [
+     {
+      "_": "QuestElementModule",
+      "questCase": {
+       "_": "QuestCaseModule",
+       "id": 0,
+       "active": false,
+       "mandatory": false,
+       "ordered": false,
+       "mandatoryCount": 0,
+       "modifier": []
+      },
+      "condition": {
+       "_": "QuestConditionModule",
+       "id": 50691501,
+       "matches": [
+        "7"
+       ],
+       "type": 6,
+       "displayType": 6,
+       "targetValue": 30,
+       "mandatory": true,
+       "state": {
+        "_": "QuestConditionStateModule",
+        "currentValue": 0,
+        "active": true,
+        "completed": false
+       },
+       "subConditions": []
+      }
+     },
+     {
+      "_": "QuestElementModule",
+      "questCase": {
+       "_": "QuestCaseModule",
+       "id": 0,
+       "active": false,
+       "mandatory": false,
+       "ordered": false,
+       "mandatoryCount": 0,
+       "modifier": []
+      },
+      "condition": {
+       "_": "QuestConditionModule",
+       "id": 50691502,
+       "matches": [
+        "5"
+       ],
+       "type": 6,
+       "displayType": 6,
+       "targetValue": 15,
+       "mandatory": true,
+       "state": {
+        "_": "QuestConditionStateModule",
+        "currentValue": 0,
+        "active": true,
+        "completed": false
+       },
+       "subConditions": []
+      }
+     }
+    ]
+   },
+   "rewards": [
+    [
+     "currency_experience",
+     40000
+    ],
+    [
+     "currency_honour",
+     250
+    ],
+    [
+     "currency_uridium",
+     400
+    ],
+    [
+     "currency_credits",
+     50000
+    ],
+    [
+     "resource_collectable_indoctrine-accelerator",
+     1
+    ]
+   ]
+  },
+  "506916": {
+   "name": "Midnight Run (VRU)",
+   "level": 12,
+   "priority": 0,
+   "kinds": [
+    5
+   ],
+   "icon": 0,
+   "portrait": "",
+   "previous": [
+    506915
+   ],
+   "source": "client 1.1.119",
+   "event": [
+    "prometheus"
+   ],
+   "repeat": "event",
+   "pvp": false,
+   "company": 3,
+   "root": {
+    "_": "QuestCaseModule",
+    "id": 50691600,
+    "active": false,
+    "mandatory": true,
+    "ordered": false,
+    "mandatoryCount": 2,
+    "modifier": [
+     {
+      "_": "QuestElementModule",
+      "questCase": {
+       "_": "QuestCaseModule",
+       "id": 0,
+       "active": false,
+       "mandatory": false,
+       "ordered": false,
+       "mandatoryCount": 0,
+       "modifier": []
+      },
+      "condition": {
+       "_": "QuestConditionModule",
+       "id": 50691601,
+       "matches": [
+        "@own X-8"
+       ],
+       "type": 34,
+       "displayType": 34,
+       "targetValue": 1,
+       "mandatory": true,
+       "state": {
+        "_": "QuestConditionStateModule",
+        "currentValue": 0,
+        "active": true,
+        "completed": false
+       },
+       "subConditions": []
+      }
+     },
+     {
+      "_": "QuestElementModule",
+      "questCase": {
+       "_": "QuestCaseModule",
+       "id": 0,
+       "active": false,
+       "mandatory": false,
+       "ordered": false,
+       "mandatoryCount": 0,
+       "modifier": []
+      },
+      "condition": {
+       "_": "QuestConditionModule",
+       "id": 50691602,
+       "matches": [
+        "5"
+       ],
+       "type": 6,
+       "displayType": 6,
+       "targetValue": 20,
+       "mandatory": true,
+       "state": {
+        "_": "QuestConditionStateModule",
+        "currentValue": 0,
+        "active": true,
+        "completed": false
+       },
+       "subConditions": [
+        {
+         "_": "QuestConditionModule",
+         "id": 0,
+         "matches": [
+          "@own X-8"
+         ],
+         "type": 77,
+         "displayType": 77,
+         "targetValue": 0,
+         "mandatory": true,
+         "state": {
+          "_": "QuestConditionStateModule",
+          "currentValue": 0,
+          "active": false,
+          "completed": false
+         },
+         "subConditions": []
+        }
+       ]
+      }
+     }
+    ]
+   },
+   "rewards": [
+    [
+     "currency_experience",
+     50000
+    ],
+    [
+     "currency_honour",
+     300
+    ],
+    [
+     "currency_uridium",
+     500
+    ],
+    [
+     "currency_credits",
+     60000
+    ],
+    [
+     "resource_collectable_diametrion",
+     2
+    ]
+   ]
+  },
+  "506917": {
+   "name": "Top Secret (VRU)",
+   "level": 12,
+   "priority": 0,
+   "kinds": [
+    5
+   ],
+   "icon": 0,
+   "portrait": "",
+   "previous": [
+    506916
+   ],
+   "source": "client 1.1.119",
+   "event": [
+    "prometheus"
+   ],
+   "repeat": "event",
+   "pvp": false,
+   "company": 3,
+   "root": {
+    "_": "QuestCaseModule",
+    "id": 50691700,
+    "active": false,
+    "mandatory": true,
+    "ordered": false,
+    "mandatoryCount": 2,
+    "modifier": [
+     {
+      "_": "QuestElementModule",
+      "questCase": {
+       "_": "QuestCaseModule",
+       "id": 0,
+       "active": false,
+       "mandatory": false,
+       "ordered": false,
+       "mandatoryCount": 0,
+       "modifier": []
+      },
+      "condition": {
+       "_": "QuestConditionModule",
+       "id": 50691701,
+       "matches": [
+        "@own X-1"
+       ],
+       "type": 34,
+       "displayType": 34,
+       "targetValue": 1,
+       "mandatory": true,
+       "state": {
+        "_": "QuestConditionStateModule",
+        "currentValue": 0,
+        "active": true,
+        "completed": false
+       },
+       "subConditions": []
+      }
+     },
+     {
+      "_": "QuestElementModule",
+      "questCase": {
+       "_": "QuestCaseModule",
+       "id": 0,
+       "active": false,
+       "mandatory": false,
+       "ordered": false,
+       "mandatoryCount": 0,
+       "modifier": []
+      },
+      "condition": {
+       "_": "QuestConditionModule",
+       "id": 50691702,
+       "matches": [],
+       "type": 3,
+       "displayType": 3,
+       "targetValue": 60000,
+       "mandatory": true,
+       "state": {
+        "_": "QuestConditionStateModule",
+        "currentValue": 0,
+        "active": true,
+        "completed": false
+       },
+       "subConditions": [
+        {
+         "_": "QuestConditionModule",
+         "id": 0,
+         "matches": [
+          "@own X-1"
+         ],
+         "type": 77,
+         "displayType": 77,
+         "targetValue": 0,
+         "mandatory": true,
+         "state": {
+          "_": "QuestConditionStateModule",
+          "currentValue": 0,
+          "active": false,
+          "completed": false
+         },
+         "subConditions": []
+        }
+       ]
+      }
+     }
+    ]
+   },
+   "rewards": [
+    [
+     "currency_experience",
+     60000
+    ],
+    [
+     "currency_honour",
+     400
+    ],
+    [
+     "currency_uridium",
+     800
+    ],
+    [
+     "currency_credits",
+     80000
+    ],
+    [
+     "resource_booty-key-prometheus",
+     5
+    ]
+   ]
   }
- }
+ },
+ "_prometheus_2026": "Quests 506900-506917 (client 1.1.119 titles and texts; no FAQ yet): six steps per company during Prometheus Days. Objectives from the texts (jamming on X-5/X-6, Saimon smuggling Endurium, intercepting at the drop site X-7, Sibelon buyers, the auction site X-8, back home), counts and rewards an adaptation on the scale of the winter storyline; the last step gives 5 Prometheus booty keys (the box holds the Prometheus designs); tools/version_119.py"
 }

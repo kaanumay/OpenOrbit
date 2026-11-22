@@ -45,7 +45,7 @@ def _register():
     for k, v in D.get('alien_spawns', {}).items():
         world_module.CFG['types'][k] = {x: y for x, y in v.items() if x not in ('count', 'sc', 'box')}
     if D.get('boss'):
-        world_module.CFG['types'][D['boss']['type']] = {x: y for x, y in D['boss'].items() if x not in ('type', 'time_sec')}
+        world_module.CFG['types'][D['boss']['type']] = {x: y for x, y in D['boss'].items() if x not in ('type', 'time_sec', 'drops')}
     # the evacuation zone's anchor: the client looks for the VisualModifier's target among ships (UnitHelper.GetShip; no effect appeared
     # on an entity, live tour Ö4): an invisible, friendly, motionless ship
     world_module.CFG['types'][ZONE_TYPE] = dict(name='', model='84', npc_id=0, hp=1, shield=0, damage=0, speed=0, aggressive=False, friendly=True,
@@ -555,6 +555,11 @@ class VogRun:
                                              % self.m.p.d['pilot'].get('userName', ''))]
             self.dirty = True
             w.log('   Vortex: the player is the treasure holder')
+            # Xeno Resonator drops of the Battleray (FAQ 130529: UC 5.7%, R 10%, EP 19%, MA 15% per type, chips, attribute items)
+            for loot, pct in D['boss'].get('drops', []):
+                if random.random() < SET.chance('drop', pct / 100.0, 'mod'):
+                    msgs += self.m.m.prize(loot, 1)
+                    w.log('   Vortex: the Battleray dropped %s' % loot)
         return msgs
 
     # death and the death screen (world.repair_offers / repair_options / kill_screen_repair hooks)

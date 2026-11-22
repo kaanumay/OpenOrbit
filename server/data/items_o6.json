@@ -133,669 +133,468 @@
  "resonator": {
   "items": {
    "equipment_xenoresonator_c-strike-resonator": {
-    "name": "C-Strike Resonator",
-    "quality": "c",
-    "order": 0,
     "type": "strike",
-    "attribute_count": 1
+    "level": 1,
+    "quality": "c"
    },
    "equipment_xenoresonator_uc-strike-resonator": {
-    "name": "UC-Strike Resonator",
-    "quality": "uc",
-    "order": 1,
     "type": "strike",
-    "attribute_count": 2
+    "level": 2,
+    "quality": "uc"
    },
    "equipment_xenoresonator_r-strike-resonator": {
-    "name": "R-Strike Resonator",
-    "quality": "r",
-    "order": 2,
     "type": "strike",
-    "attribute_count": 2
+    "level": 3,
+    "quality": "r"
    },
    "equipment_xenoresonator_ep-strike-resonator": {
-    "name": "EP-Strike Resonator",
-    "quality": "ep",
-    "order": 3,
     "type": "strike",
-    "attribute_count": 3
+    "level": 4,
+    "quality": "ep"
    },
    "equipment_xenoresonator_ma-strike-resonator": {
-    "name": "MA-Strike Resonator",
-    "quality": "ma",
-    "order": 4,
     "type": "strike",
-    "attribute_count": 3
+    "level": 5,
+    "quality": "ma"
    },
    "equipment_xenoresonator_leg-strike-resonator": {
-    "name": "LEG-Strike Resonator",
-    "quality": "leg",
-    "order": 5,
     "type": "strike",
-    "attribute_count": 4
+    "level": 6,
+    "quality": "leg"
    },
    "equipment_xenoresonator_ul-strike-resonator": {
-    "name": "UL-Strike Resonator",
-    "quality": "ul",
-    "order": 6,
     "type": "strike",
-    "attribute_count": 4
+    "level": 7,
+    "quality": "ul"
    },
    "equipment_xenoresonator_c-aegis-resonator": {
-    "name": "C-Aegis Resonator",
-    "quality": "c",
-    "order": 0,
     "type": "aegis",
-    "attribute_count": 1
+    "level": 1,
+    "quality": "c"
    },
    "equipment_xenoresonator_uc-aegis-resonator": {
-    "name": "UC-Aegis Resonator",
-    "quality": "uc",
-    "order": 1,
     "type": "aegis",
-    "attribute_count": 2
+    "level": 2,
+    "quality": "uc"
    },
    "equipment_xenoresonator_r-aegis-resonator": {
-    "name": "R-Aegis Resonator",
-    "quality": "r",
-    "order": 2,
     "type": "aegis",
-    "attribute_count": 2
+    "level": 3,
+    "quality": "r"
    },
    "equipment_xenoresonator_ep-aegis-resonator": {
-    "name": "EP-Aegis Resonator",
-    "quality": "ep",
-    "order": 3,
     "type": "aegis",
-    "attribute_count": 3
+    "level": 4,
+    "quality": "ep"
    },
    "equipment_xenoresonator_ma-aegis-resonator": {
-    "name": "MA-Aegis Resonator",
-    "quality": "ma",
-    "order": 4,
     "type": "aegis",
-    "attribute_count": 3
+    "level": 5,
+    "quality": "ma"
    },
    "equipment_xenoresonator_leg-aegis-resonator": {
-    "name": "LEG-Aegis Resonator",
-    "quality": "leg",
-    "order": 5,
     "type": "aegis",
-    "attribute_count": 4
+    "level": 6,
+    "quality": "leg"
    },
    "equipment_xenoresonator_ul-aegis-resonator": {
-    "name": "UL-Aegis Resonator",
-    "quality": "ul",
-    "order": 6,
     "type": "aegis",
-    "attribute_count": 4
+    "level": 7,
+    "quality": "ul"
    }
   },
-  "sources": {
-   "resource_attack-expansion": {
-    "type": "strike",
-    "attribute": "expansion"
-   },
-   "resource_attack-collapse": {
-    "type": "strike",
-    "attribute": "collapse"
-   },
-   "resource_attack-evernight": {
-    "type": "strike",
-    "attribute": "evernight"
-   },
-   "resource_attack-aftershock": {
-    "type": "strike",
-    "attribute": "aftershock"
-   },
-   "resource_attack-stagnation": {
-    "type": "strike",
-    "attribute": "stagnation"
-   },
-   "resource_attack-adhesion": {
-    "type": "strike",
-    "attribute": "adhesion"
-   },
-   "resource_defensive-grav-tolerance": {
-    "type": "aegis",
-    "attribute": "grav_tolerance"
-   },
-   "resource_defensive-entry-buffer": {
-    "type": "aegis",
-    "attribute": "entry_buffer"
-   },
-   "resource_defensive-zone-adaptation": {
-    "type": "aegis",
-    "attribute": "zone_adaptation"
-   },
-   "resource_defensive-slowing-resistance": {
-    "type": "aegis",
-    "attribute": "slowing_resistance"
-   },
-   "resource_defensive-detachment": {
-    "type": "aegis",
-    "attribute": "detachment"
-   }
+  "kinds": {
+   "strike": 1,
+   "aegis": 2
   },
-  "attributes": {
-   "strike": {
-    "expansion": {
-     "interval": {
-      "c": [
-       5.0,
-       7.0
-      ],
-      "uc": [
-       6.0,
-       8.0
-      ],
-      "r": [
-       6.5,
-       9.5
-      ],
-      "ep": [
-       7.5,
-       11.0
-      ],
-      "ma": [
-       8.0,
-       12.5
-      ],
-      "leg": [
-       9.0,
-       13.5
-      ],
-      "ul": [
-       9.5,
-       15.0
-      ]
-     },
-     "unit": "%",
-     "fixed": {}
-    },
-    "collapse": {
-     "interval": {
-      "c": [
-       5.0,
-       7.0
-      ],
-      "uc": [
-       6.0,
-       8.0
-      ],
-      "r": [
-       6.5,
-       9.5
-      ],
-      "ep": [
-       7.5,
-       11.0
-      ],
-      "ma": [
-       8.0,
-       12.5
-      ],
-      "leg": [
-       9.0,
-       13.5
-      ],
-      "ul": [
-       9.5,
-       15.0
-      ]
-     },
-     "unit": "%",
-     "fixed": {
-      "duration": -25
-     }
-    },
-    "evernight": {
-     "interval": {
-      "c": [
-       5.0,
-       7.0
-      ],
-      "uc": [
-       6.0,
-       8.0
-      ],
-      "r": [
-       6.5,
-       9.5
-      ],
-      "ep": [
-       7.5,
-       11.0
-      ],
-      "ma": [
-       8.0,
-       12.5
-      ],
-      "leg": [
-       9.0,
-       13.5
-      ],
-      "ul": [
-       9.5,
-       15.0
-      ]
-     },
-     "unit": "%",
-     "fixed": {
-      "duration": 25
-     }
-    },
-    "aftershock": {
-     "interval": {
-      "c": [
-       10.0,
-       13.5
-      ],
-      "uc": [
-       11.5,
-       16.5
-      ],
-      "r": [
-       13.0,
-       19.0
-      ],
-      "ep": [
-       14.5,
-       22.0
-      ],
-      "ma": [
-       16.0,
-       24.5
-      ],
-      "leg": [
-       17.5,
-       27.5
-      ],
-      "ul": [
-       19.0,
-       30.0
-      ]
-     },
-     "unit": "%",
-     "fixed": {
-      "active_share": 75,
-      "blast_share": 25
-     }
-    },
-    "stagnation": {
-     "interval": {
-      "c": [
-       20.0,
-       22.5
-      ],
-      "uc": [
-       21.0,
-       25.0
-      ],
-      "r": [
-       22.5,
-       27.0
-      ],
-      "ep": [
-       23.5,
-       29.0
-      ],
-      "ma": [
-       24.5,
-       31.0
-      ],
-      "leg": [
-       25.5,
-       33.0
-      ],
-      "ul": [
-       27.0,
-       35.0
-      ]
-     },
-     "unit": "%",
-     "fixed": {}
-    },
-    "adhesion": {
-     "interval": {
-      "c": [
-       2.0,
-       2.4
-      ],
-      "uc": [
-       2.2,
-       2.6
-      ],
-      "r": [
-       2.3,
-       2.9
-      ],
-      "ep": [
-       2.5,
-       3.2
-      ],
-      "ma": [
-       2.6,
-       3.5
-      ],
-      "leg": [
-       2.8,
-       3.7
-      ],
-      "ul": [
-       2.9,
-       4.0
-      ]
-     },
-     "unit": "sec",
-     "fixed": {}
-    }
-   },
-   "aegis": {
-    "grav_tolerance": {
-     "interval": {
-      "c": [
-       5.0,
-       6.0
-      ],
-      "uc": [
-       5.5,
-       6.5
-      ],
-      "r": [
-       6.0,
-       7.5
-      ],
-      "ep": [
-       6.0,
-       8.0
-      ],
-      "ma": [
-       6.5,
-       8.5
-      ],
-      "leg": [
-       7.0,
-       9.5
-      ],
-      "ul": [
-       7.5,
-       10.0
-      ]
-     },
-     "unit": "%",
-     "fixed": {}
-    },
-    "entry_buffer": {
-     "interval": {
-      "c": [
-       1.0,
-       1.2
-      ],
-      "uc": [
-       1.1,
-       1.3
-      ],
-      "r": [
-       1.2,
-       1.5
-      ],
-      "ep": [
-       1.2,
-       1.6
-      ],
-      "ma": [
-       1.3,
-       1.7
-      ],
-      "leg": [
-       1.4,
-       1.9
-      ],
-      "ul": [
-       1.5,
-       2.0
-      ]
-     },
-     "unit": "sec",
-     "fixed": {
-      "reduction": 30
-     }
-    },
-    "zone_adaptation": {
-     "interval": {
-      "c": [
-       10.0,
-       12.0
-      ],
-      "uc": [
-       11.0,
-       13.0
-      ],
-      "r": [
-       11.5,
-       14.5
-      ],
-      "ep": [
-       12.5,
-       16.0
-      ],
-      "ma": [
-       13.0,
-       17.5
-      ],
-      "leg": [
-       14.0,
-       18.5
-      ],
-      "ul": [
-       14.5,
-       20.0
-      ]
-     },
-     "unit": "%",
-     "fixed": {
-      "per_second": 5
-     }
-    },
-    "slowing_resistance": {
-     "interval": {
-      "c": [
-       20.0,
-       23.5
-      ],
-      "uc": [
-       21.5,
-       26.5
-      ],
-      "r": [
-       23.0,
-       29.0
-      ],
-      "ep": [
-       24.5,
-       32.0
-      ],
-      "ma": [
-       26.0,
-       34.5
-      ],
-      "leg": [
-       27.5,
-       37.5
-      ],
-      "ul": [
-       29.0,
-       40.0
-      ]
-     },
-     "unit": "%",
-     "fixed": {}
-    },
-    "detachment": {
-     "interval": {
-      "c": [
-       20.0,
-       23.5
-      ],
-      "uc": [
-       21.5,
-       26.5
-      ],
-      "r": [
-       23.0,
-       29.0
-      ],
-      "ep": [
-       24.5,
-       32.0
-      ],
-      "ma": [
-       26.0,
-       34.5
-      ],
-      "leg": [
-       27.5,
-       37.5
-      ],
-      "ul": [
-       29.0,
-       40.0
-      ]
-     },
-     "unit": "%",
-     "fixed": {}
-    }
-   }
-  },
-  "recipes": [
+  "levels": [
    {
-    "target": "equipment_xenoresonator_c-strike-resonator",
-    "type": "strike",
-    "quality": "c",
-    "uridium": 1000,
-    "source_amount": 3
+    "level": 1,
+    "damage_bp": 200,
+    "effect_chance_bp": 0,
+    "upgrade_success_bp": 10000
    },
    {
-    "target": "equipment_xenoresonator_uc-strike-resonator",
-    "type": "strike",
-    "quality": "uc",
-    "uridium": 500,
-    "input": "equipment_xenoresonator_c-strike-resonator",
-    "count": 4
+    "level": 2,
+    "damage_bp": 400,
+    "effect_chance_bp": 0,
+    "upgrade_success_bp": 10000
    },
    {
-    "target": "equipment_xenoresonator_r-strike-resonator",
-    "type": "strike",
-    "quality": "r",
-    "uridium": 1000,
-    "input": "equipment_xenoresonator_uc-strike-resonator",
-    "count": 4
+    "level": 3,
+    "damage_bp": 600,
+    "effect_chance_bp": 0,
+    "upgrade_success_bp": 10000
    },
    {
-    "target": "equipment_xenoresonator_ep-strike-resonator",
-    "type": "strike",
-    "quality": "ep",
-    "uridium": 1000,
-    "input": "equipment_xenoresonator_r-strike-resonator",
-    "count": 4
+    "level": 4,
+    "damage_bp": 800,
+    "effect_chance_bp": 0,
+    "upgrade_success_bp": 9500
    },
    {
-    "target": "equipment_xenoresonator_ma-strike-resonator",
-    "type": "strike",
-    "quality": "ma",
-    "uridium": 2000,
-    "input": "equipment_xenoresonator_ep-strike-resonator",
-    "count": 4
+    "level": 5,
+    "damage_bp": 1000,
+    "effect_chance_bp": 0,
+    "upgrade_success_bp": 8500
    },
    {
-    "target": "equipment_xenoresonator_leg-strike-resonator",
-    "type": "strike",
-    "quality": "leg",
-    "uridium": 5000,
-    "input": "equipment_xenoresonator_ma-strike-resonator",
-    "count": 4
+    "level": 6,
+    "damage_bp": 1200,
+    "effect_chance_bp": 100,
+    "upgrade_success_bp": 7500
    },
    {
-    "target": "equipment_xenoresonator_ul-strike-resonator",
-    "type": "strike",
-    "quality": "ul",
-    "uridium": 10000,
-    "input": "equipment_xenoresonator_leg-strike-resonator",
-    "count": 4
-   },
-   {
-    "target": "equipment_xenoresonator_c-aegis-resonator",
-    "type": "aegis",
-    "quality": "c",
-    "uridium": 1000,
-    "source_amount": 3
-   },
-   {
-    "target": "equipment_xenoresonator_uc-aegis-resonator",
-    "type": "aegis",
-    "quality": "uc",
-    "uridium": 500,
-    "input": "equipment_xenoresonator_c-aegis-resonator",
-    "count": 4
-   },
-   {
-    "target": "equipment_xenoresonator_r-aegis-resonator",
-    "type": "aegis",
-    "quality": "r",
-    "uridium": 1000,
-    "input": "equipment_xenoresonator_uc-aegis-resonator",
-    "count": 4
-   },
-   {
-    "target": "equipment_xenoresonator_ep-aegis-resonator",
-    "type": "aegis",
-    "quality": "ep",
-    "uridium": 1000,
-    "input": "equipment_xenoresonator_r-aegis-resonator",
-    "count": 4
-   },
-   {
-    "target": "equipment_xenoresonator_ma-aegis-resonator",
-    "type": "aegis",
-    "quality": "ma",
-    "uridium": 2000,
-    "input": "equipment_xenoresonator_ep-aegis-resonator",
-    "count": 4
-   },
-   {
-    "target": "equipment_xenoresonator_leg-aegis-resonator",
-    "type": "aegis",
-    "quality": "leg",
-    "uridium": 5000,
-    "input": "equipment_xenoresonator_ma-aegis-resonator",
-    "count": 4
-   },
-   {
-    "target": "equipment_xenoresonator_ul-aegis-resonator",
-    "type": "aegis",
-    "quality": "ul",
-    "uridium": 10000,
-    "input": "equipment_xenoresonator_leg-aegis-resonator",
-    "count": 4
+    "level": 7,
+    "damage_bp": 1400,
+    "effect_chance_bp": 200,
+    "upgrade_success_bp": 6500
    }
   ],
-  "excluded": [
-   [
-    "collapse",
-    "evernight"
+  "effects": {
+   "strike": [
+    {
+     "effect": 1,
+     "name": "expansion",
+     "material": "resource_attack-expansion",
+     "weight": 100,
+     "values": [
+      1400,
+      5000,
+      400
+     ],
+     "max_level": 10
+    },
+    {
+     "effect": 2,
+     "name": "collapse",
+     "material": "resource_attack-collapse",
+     "weight": 100,
+     "values": [
+      -1000,
+      200,
+      2000,
+      200
+     ],
+     "max_level": 10
+    },
+    {
+     "effect": 3,
+     "name": "evernight",
+     "material": "resource_attack-evernight",
+     "weight": 100,
+     "values": [
+      5000,
+      850,
+      4000,
+      350
+     ],
+     "max_level": 10
+    },
+    {
+     "effect": 4,
+     "name": "aftershock",
+     "material": "resource_attack-aftershock",
+     "weight": 100,
+     "values": [
+      7500,
+      2500,
+      5000,
+      850,
+      4000,
+      350
+     ],
+     "max_level": 10
+    },
+    {
+     "effect": 5,
+     "name": "stagnation",
+     "material": "resource_attack-stagnation",
+     "weight": 100,
+     "values": [
+      1300,
+      4000,
+      300
+     ],
+     "max_level": 10
+    },
+    {
+     "effect": 6,
+     "name": "adhesion",
+     "material": "resource_attack-adhesion",
+     "weight": 100,
+     "values": [
+      7500,
+      3000,
+      500
+     ],
+     "max_level": 10
+    }
+   ],
+   "aegis": [
+    {
+     "effect": 7,
+     "name": "grav_tolerance",
+     "material": "resource_defensive-grav-tolerance",
+     "weight": 100,
+     "values": [
+      650,
+      2000,
+      150
+     ],
+     "max_level": 10
+    },
+    {
+     "effect": 8,
+     "name": "entry_buffer",
+     "material": "resource_defensive-entry-buffer",
+     "weight": 100,
+     "values": [
+      2000,
+      750,
+      3000,
+      250
+     ],
+     "max_level": 10
+    },
+    {
+     "effect": 9,
+     "name": "zone_adaptation",
+     "material": "resource_defensive-zone-adaptation",
+     "weight": 100,
+     "values": [
+      500,
+      500,
+      750,
+      3000,
+      250
+     ],
+     "max_level": 10
+    },
+    {
+     "effect": 10,
+     "name": "slowing_resistance",
+     "material": "resource_defensive-slowing-resistance",
+     "weight": 100,
+     "values": [
+      1400,
+      5000,
+      400
+     ],
+     "max_level": 10
+    },
+    {
+     "effect": 11,
+     "name": "detachment",
+     "material": "resource_defensive-detachment",
+     "weight": 100,
+     "values": [
+      3000,
+      5000,
+      200
+     ],
+     "max_level": 11
+    }
    ]
-  ],
-  "resource_price_uridium": 2000,
+  },
+  "chips": {
+   "activation": "resource_resonance-activation-chip",
+   "calibration": "resource_resonance-calibration-chip"
+  },
+  "fragments": "resource_xeno-tech-fragments",
+  "material_count": 4,
+  "slots": {
+   "strike": 1,
+   "aegis": 2
+  },
+  "ship_bonus": {
+   "ships": [
+    "ship_a-elite",
+    "ship_a-veteran",
+    "ship_aegis",
+    "ship_basilisk",
+    "ship_bb-solemn",
+    "ship_berserker",
+    "ship_bigboy",
+    "ship_c-elite",
+    "ship_c-veteran",
+    "ship_centurion",
+    "ship_citadel",
+    "ship_citadel-plus",
+    "ship_cyborg",
+    "ship_defcom",
+    "ship_defcom-raven",
+    "ship_diminisher",
+    "ship_disruptor",
+    "ship_g-bastion",
+    "ship_g-centaur",
+    "ship_g-champion",
+    "ship_g-enforcer",
+    "ship_g-exalted",
+    "ship_g-goal",
+    "ship_g-ignite",
+    "ship_g-kick",
+    "ship_g-peacemaker",
+    "ship_g-referee",
+    "ship_g-saturn",
+    "ship_g-sovereign",
+    "ship_g-surgeon",
+    "ship_g-vanquisher",
+    "ship_g-veteran",
+    "ship_goliath",
+    "ship_goliath-plus",
+    "ship_goliath-x",
+    "ship_hammerclaw",
+    "ship_hammerclaw-plus",
+    "ship_hecate",
+    "ship_hecate-plus",
+    "ship_holo",
+    "ship_hyperion",
+    "ship_keres",
+    "ship_leonov",
+    "ship_liberator",
+    "ship_liberator-plus",
+    "ship_mimesis",
+    "ship_n-ambassador",
+    "ship_n-diplomat",
+    "ship_n-envoy",
+    "ship_nostromo",
+    "ship_orcus",
+    "ship_paladin",
+    "ship_phoenix",
+    "ship_piranha",
+    "ship_pusat",
+    "ship_pusat-plus",
+    "ship_retiarus",
+    "ship_retiarus-plus",
+    "ship_s-elite",
+    "ship_s-veteran",
+    "ship_sentinel",
+    "ship_solace",
+    "ship_solace-plus",
+    "ship_solaris",
+    "ship_solaris-plus",
+    "ship_spearhead",
+    "ship_spearhead-plus",
+    "ship_spectrum",
+    "ship_spectrum-plus",
+    "ship_tartarus",
+    "ship_tartarus-plus",
+    "ship_tempest",
+    "ship_v-adept",
+    "ship_v-avenger",
+    "ship_v-corsair",
+    "ship_v-lightning",
+    "ship_v-revenge",
+    "ship_vengeance",
+    "ship_venom",
+    "ship_yamato",
+    "ship_yamato-ronin",
+    "ship_zephyr"
+   ],
+   "bp": [
+    100,
+    500
+   ],
+   "step": 100
+  },
   "synthesis": {
-   "group": "synthesis_resonator_title",
+   "group": "xeno_resonator",
    "button": "synthesis_resonator_synthesis",
    "tables": {
-    "strike": "synthesis_resonator_strike",
-    "aegis": "synthesis_resonator_aegis"
+    "strike": "Synthesis_xeno_resonator_atk",
+    "aegis": "Synthesis_xeno_resonator_def"
    }
   },
-  "_adaptation": "Resonator is unreleased content: ranges divided by quality, attribute count (1,2,2,3,3,4,4), recipes (C: the type's 3 sources + 1,000 U; above that 4 lower qualities + uridium), success 100% (no rate in the window), the shop price of the sources, the \"best Strike Resonator active\" rule (no slot in the hangar)."
+  "vog_drops": [
+   [
+    "equipment_xenoresonator_uc-strike-resonator",
+    5.7
+   ],
+   [
+    "equipment_xenoresonator_uc-aegis-resonator",
+    5.7
+   ],
+   [
+    "equipment_xenoresonator_r-strike-resonator",
+    10
+   ],
+   [
+    "equipment_xenoresonator_r-aegis-resonator",
+    10
+   ],
+   [
+    "equipment_xenoresonator_ep-strike-resonator",
+    19
+   ],
+   [
+    "equipment_xenoresonator_ep-aegis-resonator",
+    19
+   ],
+   [
+    "equipment_xenoresonator_ma-strike-resonator",
+    15
+   ],
+   [
+    "equipment_xenoresonator_ma-aegis-resonator",
+    15
+   ],
+   [
+    "resource_resonance-activation-chip",
+    0.11
+   ],
+   [
+    "resource_resonance-calibration-chip",
+    0.27
+   ],
+   [
+    "resource_attack-expansion",
+    0.02
+   ],
+   [
+    "resource_attack-collapse",
+    0.02
+   ],
+   [
+    "resource_attack-evernight",
+    0.02
+   ],
+   [
+    "resource_attack-aftershock",
+    0.02
+   ],
+   [
+    "resource_attack-stagnation",
+    0.02
+   ],
+   [
+    "resource_attack-adhesion",
+    0.02
+   ],
+   [
+    "resource_defensive-grav-tolerance",
+    0.02
+   ],
+   [
+    "resource_defensive-entry-buffer",
+    0.02
+   ],
+   [
+    "resource_defensive-zone-adaptation",
+    0.02
+   ],
+   [
+    "resource_defensive-slowing-resistance",
+    0.02
+   ],
+   [
+    "resource_defensive-detachment",
+    0.02
+   ]
+  ],
+  "_source": "board-en 130532 (New weapon system: Xeno Resonators FAQ, 2026-11-17): Strike +2..14% Singularity Drive damage, Aegis -2..14% Singularity damage taken by level 1-7 (C..UL); one offensive and one defensive slot per ship config; Intensify 1 main + 4 of the same type and level, success 100/100/95/85/75/65% for levels 2-7 and 1%/2% chance of a special attribute at 6/7, on failure the 4 are consumed and the main kept; Assembly: C from 10 Xeno-Tech Fragments; recycle returns fragments (client disassembly table); special attributes only on max level (client: effect operations only on the max level): Activation Chip (random), the attribute item (that attribute, replaces), Calibration Chip (+1 tier). Vortex of Greed boss drops (130529): UC 5.7%, R 10%, EP 19%, MA 15% each type; Activation Chip 0.11%, Calibration Chip 0.27%, each attribute item 0.02%. Client 1.1.119 code: window xeno_resonator (153), messages XenoResonator*, extAttributes xenoEffectId / xenoEffectLevel / xenoLocked / xenoShipId / xenoShipDamageBasisPoints, slot set xeno_resonators (belgeler/istemci/xeno_resonator_istemci.md).",
+  "_adaptation": "effect weights equal (FAQ: random); SELECT keeps the tier of a replaced attribute (a new one starts at tier 1); the ship-specific drive damage bonus (xenoShipId, FAQ: \"random\") is rolled for a Strike Resonator when it is created: one of the ships with drive slots, +1..5% Singularity Drive damage on that ship, kept through Intensify; the old pre-release resonators keep their quality as level, their old attributes are dropped; Aegis only matters against enemy Singularity Drives (none in single player).",
+  "_tool": "tools/version_119.py"
  },
  "extra_recipes": {
   "group": "title_assembly",

@@ -73,7 +73,7 @@ class Synthesis:
         out = [mod('SynthesisGroupCommand', button=ACTION_KEY.get(g, 'Synthesis_button'), group=D['buttons'][g], moduleList=[
             mod('SynthesisModuleListCommand', moduleListGroupType=TABLE_KEY % t, modules=[self.module(r) for r in rs])
             for t, rs in sorted(tables.items())]) for g, tables in groups.items()]
-        out.append(RS.group_cmd(self.p))                    # Ö6: Resonator tab (rezonator.py; C's cost from the player's resources)
+        out.append(RS.synthesis_group())                    # client 1.1.119: Resonator tab (Intensify, resonator.Xeno)
         out.append(mod('SynthesisGroupCommand', button='Synthesis_button', group=EXTRA_D['group'], moduleList=[
             mod('SynthesisModuleListCommand', moduleListGroupType=EXTRA_D['table'],
                 modules=[self.extra_module(r) for r in EXTRA_D['recipes']])]))
@@ -156,8 +156,6 @@ class Synthesis:
             star = int(parts[2]) if len(parts) > 2 else 0
         except ValueError:
             star = 0
-        if RS.is_item(parts[0]):
-            return RS.synth(self, parts[0], f.get('itemIds') or [])
         if (parts[0], star) in EXTRA:
             return self.extra(EXTRA[(parts[0], star)], [int(x) for x in (f.get('itemIds') or [])])
         r = RECIPES.get((parts[0], star))

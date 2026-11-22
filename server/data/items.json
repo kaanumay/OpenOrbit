@@ -255,7 +255,14 @@
    "package_event-deal-stellar2022-1": 400000,
    "package_event-deal-stellar2022-2": 600000,
    "package_event-deal-stellar2022-3": 600000,
-   "package_event-deal-stellar2022-4": 800000
+   "package_event-deal-stellar2022-4": 800000,
+   "package_event-deal-bf26-set-asimov": 80000,
+   "package_event-deal-bf26-set-arios": 120000,
+   "package_event-deal-bf26-set-pros": 120000,
+   "package_event-deal-bfnov2026-set-all": 280000,
+   "package_event-deal-cmnov2026-levelup-s": 20000,
+   "package_event-deal-cmnov2026-levelup-m": 45000,
+   "package_event-deal-cmnov2026-levelup-l": 105000
   }
  },
  "payment_packages": {
@@ -3390,6 +3397,144 @@
    [
     "resource_collectable_energy-helios-venom",
     1
+   ]
+  ],
+  "package_event-deal-bf26-set-asimov": [
+   [
+    "ship_solaris_design_solaris-asimov",
+    1
+   ],
+   [
+    "ship_retiarus-plus_design_retiarus-plus-asimov",
+    1
+   ]
+  ],
+  "package_event-deal-bf26-set-arios": [
+   [
+    "ship_spectrum-plus_design_spectrum-plus-arios",
+    1
+   ],
+   [
+    "ship_hecate-plus_design_hecate-plus-arios",
+    1
+   ],
+   [
+    "ship_spearhead-plus_design_spearhead-plus-arios",
+    1
+   ]
+  ],
+  "package_event-deal-bf26-set-pros": [
+   [
+    "ship_paladin_design_paladin-prosperous",
+    1
+   ],
+   [
+    "ship_diminisher_design_diminisher-prosperous",
+    1
+   ],
+   [
+    "ship_sentinel_design_sentinel-prosperous",
+    1
+   ]
+  ],
+  "package_event-deal-bfnov2026-set-all": [
+   [
+    "ship_paladin_design_paladin-prosperous",
+    1
+   ],
+   [
+    "ship_diminisher_design_diminisher-prosperous",
+    1
+   ],
+   [
+    "ship_sentinel_design_sentinel-prosperous",
+    1
+   ],
+   [
+    "ship_spectrum-plus_design_spectrum-plus-arios",
+    1
+   ],
+   [
+    "ship_hecate-plus_design_hecate-plus-arios",
+    1
+   ],
+   [
+    "ship_spearhead-plus_design_spearhead-plus-arios",
+    1
+   ],
+   [
+    "ship_solaris_design_solaris-asimov",
+    1
+   ],
+   [
+    "ship_retiarus-plus_design_retiarus-plus-asimov",
+    1
+   ]
+  ],
+  "package_event-deal-cmnov2026-levelup-s": [
+   [
+    "resource_collectable_axion-beam-regulator",
+    10
+   ],
+   [
+    "resource_collectable_indoctrineoil",
+    5
+   ],
+   [
+    "resource_collectable_diametrion",
+    50
+   ],
+   [
+    "resource_collectable_horizon-shard",
+    500
+   ],
+   [
+    "resource_collectable_containment-node",
+    60
+   ]
+  ],
+  "package_event-deal-cmnov2026-levelup-m": [
+   [
+    "resource_collectable_axion-beam-regulator",
+    20
+   ],
+   [
+    "resource_collectable_indoctrineoil",
+    10
+   ],
+   [
+    "resource_collectable_diametrion",
+    120
+   ],
+   [
+    "resource_collectable_horizon-shard",
+    1200
+   ],
+   [
+    "resource_collectable_containment-node",
+    120
+   ]
+  ],
+  "package_event-deal-cmnov2026-levelup-l": [
+   [
+    "resource_collectable_axion-beam-regulator",
+    50
+   ],
+   [
+    "resource_collectable_indoctrineoil",
+    25
+   ],
+   [
+    "resource_collectable_diametrion",
+    300
+   ],
+   [
+    "resource_collectable_horizon-shard",
+    3000
+   ],
+   [
+    "resource_collectable_containment-node",
+    300
    ]
   ]
  },
@@ -7549,6 +7694,10 @@
   "drone_designs_xanthos": {
    "id": 203,
    "slot": "visual"
+  },
+  "drone_designs_drone-orcus-carbonite": {
+   "id": 207,
+   "slot": "visual"
   }
  },
  "_drone_designs_source": "IDs are from the client's game.xml <drones><designs> list (the '0|n|d|…|type|level|design|appearance' fields in space). Slot from the client's DroneItem code: DroneDesignType 'design' (with bonus), DroneCustomizationType 'visual' (appearance only). Bonuses from the wiki (belgeler/wiki/drones_pet.md): per_drone for every drone with the design, set_bonus when all owned drones carry the same design (the client's Havoc text: 'If all of the drones are equipped'; the wiki says 10 drones). npc = damage to NPCs (laser and rocket). Champion country designs (drone-champion-*) and Champion are appearance only (wiki: Visual drone designs are cosmetic; Stage 5). E5: set bonuses from the client's texts: drone_laser applies only to the drones' lasers (Havoc \"all of the drones will profit from a laser cannon efficiency bonus\" 10%, Cerberus 5%, Inferno Cerberus \"Laser Efficiency\" 8%), cooldown is the cooldown of ship abilities (Archeron 8%, Inferno Cerberus 10%, Hermes 10%), Hermes mine, rocket and Hellstorm cooldown -10%, Lepus cannon damage +10% and cannon hit +5% (top, cannon_hit). Hermes's per-drone bonus (the client does not mention it) and the scope of Spartan's \"damage and HP\" (the server covers only lasers) are from the wiki, not verified. EVENT: per_event {event (calendar key), npc_laser}: a temporary NPC laser damage bonus from the appearance design, for each one worn while the event runs (profile.design_mods; darkorbitwiki Apocalypse Booty Box: legendary 0.6%, rare 0.3%, standard 0.2%). Goal Rush's Champion/Eostra bonus is deliberately absent (events.json goal_rush._source).",
@@ -9480,6 +9629,68 @@
     "uridium": 50000,
     "template": "package_event-deal-bp-halloween",
     "_source": "official shop 2026-10-27/28 (ShopItemListCommand special, Payment); contents from the client text"
+   },
+   {
+    "lootId": "package_event-deal-bf26-set-asimov",
+    "uridium": 0,
+    "template": "package_event-deal-stellar2022-1",
+    "calendar": "black_friday_2026",
+    "once": true,
+    "_tool": "tools/version_119.py"
+   },
+   {
+    "lootId": "package_event-deal-bf26-set-arios",
+    "uridium": 0,
+    "template": "package_event-deal-stellar2022-1",
+    "calendar": "black_friday_2026",
+    "once": true,
+    "_tool": "tools/version_119.py"
+   },
+   {
+    "lootId": "package_event-deal-bf26-set-pros",
+    "uridium": 0,
+    "template": "package_event-deal-stellar2022-1",
+    "calendar": "black_friday_2026",
+    "once": true,
+    "_tool": "tools/version_119.py"
+   },
+   {
+    "lootId": "package_event-deal-bfnov2026-set-all",
+    "uridium": 0,
+    "template": "package_event-deal-stellar2022-1",
+    "calendar": "black_friday_2026",
+    "once": true,
+    "_tool": "tools/version_119.py"
+   },
+   {
+    "lootId": "package_event-deal-cmnov2026-levelup-s",
+    "uridium": 0,
+    "template": "package_event-deal-stellar2022-1",
+    "calendar": "cyber_monday_2026",
+    "once": false,
+    "_tool": "tools/version_119.py"
+   },
+   {
+    "lootId": "package_event-deal-cmnov2026-levelup-m",
+    "uridium": 0,
+    "template": "package_event-deal-stellar2022-1",
+    "calendar": "cyber_monday_2026",
+    "once": false,
+    "_tool": "tools/version_119.py"
+   },
+   {
+    "lootId": "package_event-deal-cmnov2026-levelup-l",
+    "uridium": 0,
+    "template": "package_event-deal-stellar2022-1",
+    "calendar": "cyber_monday_2026",
+    "once": false,
+    "_tool": "tools/version_119.py"
+   },
+   {
+    "lootId": "resource_xeno-tech-fragments",
+    "uridium": 50,
+    "template": "resource_collectable_luminaflux-alloy",
+    "_tool": "tools/version_119.py"
    }
   ],
   "ammunition": [
@@ -13340,6 +13551,12 @@
      "type": 2,
      "capacity": 6,
      "rocket_bonus": 0.05
+    },
+    "equipment_weapon_rocketlauncher_erebus": {
+     "type": 2,
+     "capacity": 5,
+     "blacklight_multiplier": 5.0,
+     "_source": "client 1.1.119 text items_equipment_weapon_rocketlauncher_erebus_description: \"fires up to 5 rockets and deals x5 damage to Blacklight aliens\"; Blacklight aliens = the aliens of the BL maps and of Eternal Black Light (combat_items.blacklight); tools/version_119.py"
     }
    },
    "refill_sec": 1.0,

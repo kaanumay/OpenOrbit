@@ -6972,10 +6972,15 @@
     [
      "2026-11-01",
      "2026-11-15"
+    ],
+    [
+     "2026-11-18",
+     "2026-12-02"
     ]
    ],
    "_source": "vortex_of_greed.json runs_pattern: since 2026, from the 1st of each month for 15-25 days; tools/major_content.py",
-   "_calendar": "board-en.darkorbit.com announcements 2023-2026 (belgeler/arastirma/tarama_2026-10-22/web_takvim.md)"
+   "_calendar": "board-en.darkorbit.com announcements 2023-2026 (belgeler/arastirma/tarama_2026-10-22/web_takvim.md)",
+   "_2026_11": "board-en 130529/130531 (Nov 17 2026): VoG returns with the Xeno Resonator release on the 18th; the end (15 days like the other runs) is an adaptation; tools/version_119.py"
   },
   "world_boss": {
    "name": "Treacherous Domain",
@@ -11652,6 +11657,30 @@
    },
    "_source": "board-en bp-calendar (scraped 2026-11-05): the shop sales rotate by week, Thursday-Monday (the October 2026 layout): Level Up Booster Packs and Best Subscriptions take turns, the 50C Booster Sale every 3-5 weeks; the real 52-week sequence from 2025-11-06 (BLBCLBLBCLBLBCLBLBCLBLBCLBLBCLBLBCLBCLBLBCLLBCLBLBCL) repeats; the best subscription offer in the shop",
    "_calendar": "bp-calendar weekly rotation"
+  },
+  "black_friday_2026": {
+   "name": "Black Friday 2026",
+   "kinds": [],
+   "achievement": [],
+   "periods": [
+    [
+     "2026-11-27",
+     "2026-11-29"
+    ]
+   ],
+   "_source": "client 1.1.119 packages event-deal-bfnov2026 / bf26 (no announcement yet): Black Friday weekend; tools/version_119.py"
+  },
+  "cyber_monday_2026": {
+   "name": "Cyber Monday 2026",
+   "kinds": [],
+   "achievement": [],
+   "periods": [
+    [
+     "2026-11-30",
+     "2026-11-30"
+    ]
+   ],
+   "_source": "client 1.1.119 packages event-deal-cmnov2026-levelup (no announcement yet): Cyber Monday; tools/version_119.py"
   }
  },
  "_box_hunts": "map_extra boxes, gate_reward, rover and new events via tools/event_boxes.py (Phase 7b).",

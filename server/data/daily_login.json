@@ -105,7 +105,7 @@
     "item": "equipment_generator_shield_sg3n-b03",
     "count": 1,
     "premium": {
-     "item": "equipment_weapon_laser_lf-4-pd",
+     "item": "equipment_weapon_laser_lf-5",
      "count": 1
     }
    }
@@ -323,7 +323,7 @@
     "item": "equipment_weapon_laser_lf-4-pd",
     "count": 1,
     "premium": {
-     "item": "equipment_weapon_laser_lf-4",
+     "item": "equipment_weapon_laser_lf-5",
      "count": 1
     }
    }
@@ -429,7 +429,7 @@
     "count": 15
    },
    {
-    "item": "equipment_weapon_laser_lf-4-hp",
+    "item": "equipment_weapon_laser_lf-5",
     "count": 1,
     "premium": {
      "item": "equipment_generator_shield_sg3n-px01",
@@ -538,7 +538,7 @@
     "count": 15
    },
    {
-    "item": "equipment_weapon_laser_lf-4-md",
+    "item": "equipment_weapon_laser_lf-5",
     "count": 1,
     "premium": {
      "item": "resource_collectable_indoctrine-accelerator",
@@ -647,7 +647,7 @@
     "count": 15
    },
    {
-    "item": "equipment_weapon_laser_lf-4-pd",
+    "item": "equipment_weapon_laser_lf-5",
     "count": 1,
     "premium": {
      "item": "resource_shop-discount-week-1",
@@ -756,7 +756,7 @@
     "count": 15
    },
    {
-    "item": "equipment_weapon_laser_lf-4-hp",
+    "item": "equipment_weapon_laser_lf-5",
     "count": 1,
     "premium": {
      "item": "equipment_generator_shield_sg3n-p01",
@@ -868,7 +868,7 @@
     "item": "equipment_generator_shield_sg3n-b03",
     "count": 1,
     "premium": {
-     "item": "equipment_weapon_laser_lf-px01",
+     "item": "equipment_weapon_laser_lf-5",
      "count": 1
     }
    }
@@ -977,7 +977,7 @@
     "item": "equipment_weapon_laser_lf-p01",
     "count": 1,
     "premium": {
-     "item": "equipment_weapon_laser_lf-4-hp",
+     "item": "equipment_weapon_laser_lf-5",
      "count": 1
     }
    }
@@ -1195,7 +1195,7 @@
     "item": "equipment_generator_shield_sg3n-b03",
     "count": 1,
     "premium": {
-     "item": "equipment_weapon_laser_lf-4-md",
+     "item": "equipment_weapon_laser_lf-5",
      "count": 1
     }
    }

@@ -258,8 +258,9 @@ def slot_of(loot):
 
 
 def loose_item(loot):
-    """An item that has no ship slot and enters the inventory as an instance: drone and P.E.T. design, P.E.T. gear and protocol (fitted in the hangar)."""
-    return loot in DESIGNS or loot in PETM.DESIGNS or PETM.slot_for(loot) in ('gears', 'protocols')
+    """An item that has no ship slot and enters the inventory as an instance: drone and P.E.T. design, P.E.T. gear and protocol, Xeno
+    Resonator (fitted in the hangar; a resonator that fell into the store before 1.1.119 moves to the inventory)."""
+    return loot in DESIGNS or loot in PETM.DESIGNS or PETM.slot_for(loot) in ('gears', 'protocols') or RS.is_item(loot)
 
 
 def hidden(loot):
@@ -632,7 +633,7 @@ class Shop:
         if PC.is_item(loot) and str(iid) in self.p.d['items']:
             it.update(PC.hangar_fields(self.p, iid, loot))              # cannon: base damage, attributes, star, UL's ship
         elif RS.is_item(loot) and str(iid) in self.p.d['items']:
-            it['modifiers'] = RS.modifiers_str(self.p, iid)             # attributes of the Xeno Resonator (Ö6)
+            it.update(RS.hangar_fields(self.p, iid, loot))              # Xeno Resonator: level, attribute, ship bonus (extAttributes)
         elif loot.startswith(QF.PREFIX) and QF.state(self.p, iid):
             it['ships'] = GM.ship_ids([QF.state(self.p, iid)['ship']])  # QFC: linked ship and attributes (qfc.modifiers_str)
             it['modifiers'] = QF.modifiers_str(self.p, iid)
@@ -1696,6 +1697,7 @@ class Shop:
             pc = ship['configs'].get(str(c['setId']), {})
             for slot in EQUIP_SLOTS:
                 c[slot] = list(pc.get(slot, []))
+            c['xenoResonators'] = RS.slots_msg(self.p, sid, c['setId'])       # client 1.1.119: one ATK and one DEF slot per config
             c['active'] = c['setId'] == cur
         # lootId with appearance (design attached): the client keeps the slot layout under the name in the ship list and looks it up with this (ships_cmd)
         t.update(currentConfigId=cur, lootId=self.p.ship_look(sid), hangarId=ship['hangarId'], shipId=int(sid or self.p.d['active_ship']),
@@ -2288,6 +2290,15 @@ class Shop:
                         fail('%s çıkmaz: ekstra yuvaları dolu' % loot)
                         err = 'drone_slotCPUinUse'
                     elif detach(iid):
+                        moved.append((iid, loot))
+                elif RS.is_item(loot):
+                    # Xeno Resonator: slot set "xeno_resonators", destination "ship"; one per type, the old one returns to the inventory
+                    if dst not in PANELS or (f.get('slotSet') or RS.SLOT_SET) != RS.SLOT_SET:
+                        fail('%s only fits the resonator slots of the ship (%r %r)' % (loot, dst, f.get('slotSet')))
+                    elif busy.get(iid, ship['hangarId']) != ship['hangarId']:
+                        fail('%s is fitted on another ship' % loot, 'other_ship')
+                    elif iid not in cfg.get(RS.SLOT_SET, []):
+                        moved += [(o, self.p.d['items'].get(str(o), '')) for o in RS.equip(self.p, cfg, iid, loot)]
                         moved.append((iid, loot))
                 elif pet_only(loot) and dst != 'pet':
                     fail('%s yalnız P.E.T.\'e takılır' % loot)

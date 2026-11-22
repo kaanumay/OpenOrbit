@@ -25,7 +25,7 @@ DATA = os.path.join(SERVER, 'data')
 VDIR = os.path.join(DATA, 'protocols')
 VERSION = os.path.join(VDIR, 'version.txt')
 FILES = ('protocol.json', 'protocol_read.json')
-DEFAULT_VERSION = '1.1.117'
+DEFAULT_VERSION = '1.1.119'
 
 
 def active_version():
@@ -63,12 +63,17 @@ def normalize(out):
     fixed, left = [], []
     for v in read.values():
         names = {f[0] for f in proto.get(v['name'], {}).get('fields', [])}
+        types = {f[0]: f[1] for f in proto.get(v['name'], {}).get('fields', [])}
         for st in v['steps']:
             f = st.get('f') or ''
             if not f.endswith('?'):
                 continue
             if f[:-1] in names and st.get('t') in ('string', 'bool') and st.get('x', 'v') == 'v':
                 st['f'] = f[:-1]
+                fixed.append('%s.%s' % (v['name'].rsplit('.', 1)[-1], f[:-1]))
+            elif types.get(f[:-1]) == 'long' and st.get('t') == 'double':
+                # a long is read as ReadDouble + crt_ftol (1.1.119 SectorControlSectorStateCommand.timeTillUnlock)
+                st['f'], st['t'] = f[:-1], 'long'
                 fixed.append('%s.%s' % (v['name'].rsplit('.', 1)[-1], f[:-1]))
             else:
                 left.append('%s.%s (%s)' % (v['name'].rsplit('.', 1)[-1], f, st.get('t')))

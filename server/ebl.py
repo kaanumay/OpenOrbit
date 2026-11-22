@@ -9,7 +9,10 @@ later continue where you left off (no new CPU needed). Boosters (the client's Bo
 (EternalBlacklightChooseOptionRequest {choosenOption}); the chance of the chosen type appearing again decreases; active only on this mode's maps,
 reset when the run ends. Uridium at most 75,000 per run (after that aliens give no uridium). Ranking: furthest wave (single
 player: only the player; the Hall of Fame's EternalGate list).
-In the profile: pve.ebl {gate, run {wave, points, option [3], weight {type: multiplier}, active {type: %}, uridium, start}, best, best_at}.
+Umbra Alloy (client 1.1.119, Erebus upgrades) comes with the death reward of the tier; the Erebus launcher once for the first finished
+round (wave 51); amounts: pve_modes.json ebl._umbra_adaptation.
+In the profile: pve.ebl {gate, run {wave, points, option [3], weight {type: multiplier}, active {type: %}, uridium, start}, best, best_at,
+erebus}.
 """
 import json, math, os, random, time
 
@@ -154,6 +157,13 @@ class Ebl:
             RT.grant_title(self.p, WAVE_TITLES[str(done)])
         if record:
             self.p.ach('record_ebl')                  # champion achievement: the only player in the ranking, personal record first
+        eb = D.get('erebus')
+        if eb and done == eb['wave'] and not self.st.get('erebus') and self.m:
+            with self.p.lock:                         # Erebus once, for the first finished round (version_119 adaptation)
+                self.st['erebus'] = True
+                self.p.dirty = True
+            self.world.send(self.m.prize(eb['item'], 1))
+            self.log('   EBL: first round finished, Erebus given')
         w = (done - 1) % D['type'] + 1
         pts = D['control'].get(str(w))
         self.world.send([('EternalBlacklightWaveInfoCommand', self.wave_info())])
@@ -194,6 +204,8 @@ class Ebl:
         msgs = []
         if tier and done:
             msgs += self.m.prize(D['part'], tier['part'])
+            if tier.get('umbra'):
+                msgs += self.m.prize(D['umbra'], tier['umbra'])       # Umbra Alloy from Blacklight Space (Erebus upgrades)
             if tier['iac'] and random.random() < SET.chance('drop', D['iac'][2], 'mod'):
                 msgs += self.m.prize(D['iac'][0], D['iac'][1])
         with self.p.lock:

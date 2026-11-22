@@ -13,10 +13,11 @@ import nova as NV
 import autopilot as OP
 import particle as PC
 import qfc as QF
+import resonator as RS
 import synthesis as SY
 
 LOCK_REQUESTS = {'LockAttributeItemRerollRequest'}            # sub-attributes of the drive/lens (parcacik.py)
-REQUESTS = AU.REQUESTS | NV.REQUESTS | OP.REQUESTS | QF.REQUESTS | SY.REQUESTS | LOCK_REQUESTS
+REQUESTS = AU.REQUESTS | NV.REQUESTS | OP.REQUESTS | QF.REQUESTS | SY.REQUESTS | LOCK_REQUESTS | RS.Xeno.REQUESTS
 
 
 class NewSystems:
@@ -27,7 +28,8 @@ class NewSystems:
         self.qfc = QF.Qfc(profile, log)
         self.autopilot = OP.Autopilot(profile, log)
         self.synthesis = SY.Synthesis(profile, log)                  # Stage 9b: Synthesis window
-        for x in (self.nova, self.armory, self.qfc, self.synthesis):
+        self.xeno = RS.Xeno(profile, log)                            # client 1.1.119: Xeno Resonators
+        for x in (self.nova, self.armory, self.qfc, self.synthesis, self.xeno):
             x.m = shop
         self.m = shop
         self.world = None
@@ -56,6 +58,8 @@ class NewSystems:
             return self.autopilot.handle(name, f)
         if name in SY.REQUESTS:
             return self.synthesis.handle(name, f)
+        if name in RS.Xeno.REQUESTS:
+            return self.xeno.handle(name, f)
         if name in LOCK_REQUESTS:
             iid = int(f.get('targetItemId') or 0)
             ok = PC.lock_reroll(self.p, iid, f.get('lockIndexList') or [])

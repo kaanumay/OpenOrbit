@@ -233,6 +233,17 @@ def launcher_upgrade(p):
     return max([UPG.factor(l, lv[i] if i < len(lv) else 0, UPG.ROCKET) for i, l in enumerate(eq) if l in LAUNCHERS] or [1.0])
 
 
+BLACKLIGHT_MAPS = {306, 307, 308, 460, 461, 462, 463, 464, 465}      # BL-1..3 and the Eternal Black Light rooms (ebl.py)
+
+
+def blacklight(p, map_id):
+    """The launcher's multiplier against Blacklight aliens (Erebus x5, client 1.1.119 text): the aliens of Blacklight Space, i.e. of the BL
+    maps and Eternal Black Light; with several launchers the highest."""
+    if int(map_id or 0) not in BLACKLIGHT_MAPS:
+        return 1.0
+    return max([LAUNCHERS[l].get('blacklight_multiplier', 1.0) for l in launchers(p)] or [1.0])
+
+
 def capacity(p):
     return sum(LAUNCHERS[l]['capacity'] for l in launchers(p))
 
@@ -1189,7 +1200,7 @@ class Items:
         dmg = sum(cfg.get('damage', 0) * random.uniform(0.85, 1.0) for _ in range(cnt))
         fusion = SKL.mods(p).get('rocket', 0)                  # Rocket Fusion does not boost Hellstorm (fandom Rocket launcher)
         dmg = int(dmg * (1 + mods.get('rocket', 0) - fusion + (mods.get('npc', 0) if n else 0) + mods.get('launcher_damage', 0))     # Rapid Fire Plus +%20
-                  * (1 + p.lab_bonus(1)) * launcher_upgrade(p))
+                  * (1 + p.lab_bonus(1)) * launcher_upgrade(p) * (blacklight(p, w.map_id) if n else 1.0))
         drain = cfg.get('shield_drain', 0) * cnt
         impact = w.hit_asset if asset else w.hit_npc
         kw = {} if asset else {'ammo': ammo}            # Referee-Bot takes damage only from CBR (world.hit_npc)

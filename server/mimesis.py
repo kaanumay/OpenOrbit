@@ -53,9 +53,21 @@ def _register():
     if g:
         world_module.CFG['types'][FREIGHTER] = dict(name=g['name'], model=g['model'], npc_id=g['npc_id'], hp=g['min_hp'], shield=0,
                                               damage=0, speed=g['speed'], aggressive=False, friendly=True, reward={}, cargo={})
-    if D.get('ranking'):
-        RK.TABLES[RANK_TYPE] = {'ranges': [dict(from_=r['from_'], e=r['e'], items=r['rewards'], title=r.get('title'))
-                                              for r in D['ranking']]}
+    edition()
+
+
+def edition(now=None):
+    """The ranking table of the edition running at `now` (data 'editions' by month: the November 2026 edition gives the Guardian Goliath
+    Plus design and the 202611 titles instead of the March edition's Retiarus Plus Asimov and 202603 titles) -> RK.TABLES."""
+    if not D.get('ranking'):
+        return None
+    month = datetime.datetime.fromtimestamp(now or time.time()).month
+    ed = (D.get('editions') or {}).get(str(month), {})
+    swap = {D['ranking'][0]['rewards'][0][0]: ed['design']} if ed.get('design') else {}
+    titles = dict(ed.get('titles') or {})
+    RK.TABLES[RANK_TYPE] = t = {'ranges': [dict(from_=r['from_'], e=r['e'], items=[[swap.get(l, l), n] for l, n in r['rewards']],
+                                                title=titles.get(r.get('title'), r.get('title'))) for r in D['ranking']]}
+    return t
 
 
 _register()
@@ -214,6 +226,7 @@ class Mimesis:
             with self.p.lock:
                 self.st['period'] = (CAL.period(EVENT, now) or (now,))[0]
                 self.p.dirty = True
+            edition(now)
         open_ = run_state(now)[1]
         if open_ != self.last_open:
             if self.last_open is not None and open_ and not always_open():
@@ -284,7 +297,7 @@ class Mimesis:
         msgs = []
         total = sum(sorted(st.get('trips', []), reverse=True)[:D.get('best_trip_count', 10)])
         if total > 0:                             # end-of-event ranking reward (single player: 1st)
-            r = RK.TABLES[RANK_TYPE]['ranges'][0]
+            r = edition(st['period'])['ranges'][0]
             for loot, n in r['items']:
                 msgs += self.m.prize(loot, n)
             if r.get('title') and self.titles:
