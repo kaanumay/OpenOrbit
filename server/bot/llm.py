@@ -225,6 +225,19 @@ def _memories_note(b, y):
     return (' Strong memories: %s.' % '; '.join('%s (%s)' % (a['summary'], MEM.time_ago(now - a['t'])) for a in mems)) if mems else ''
 
 
+TEAM_TEXT = {'push': 'called the team to push control point %(point)s', 'defend': 'called the team to defend control point %(point)s',
+             'retreat': 'told the team to fall back', 'regroup': 'told the team to regroup before pushing',
+             'need_heal': 'asked the team for a heal (low HP)', 'healed': 'healed %(who)s with a ship ability',
+             'point_taken': 'saw the team capture control point %(point)s', 'point_lost': 'saw the team lose control point %(point)s',
+             'carrier': 'carries the enemy beacon and asked for cover', 'goal_push': 'called the team to shoot the Spaceball to the goal'}
+MATCH_NAME = {'tdm': 'Team Deathmatch', 'sc': 'Sector Control'}
+
+
+def _match_text(name, o):
+    res = 'won' if o.get('won') else 'lost' if o.get('won') is False else 'played'
+    return '%s a %s match (%s kills, %s deaths)' % (res, name, o.get('kills', 0), o.get('deaths', 0))
+
+
 def event_text(o):
     t = o['type']
     return {'death': 'got killed by %s' % (o.get('killer') or 'aliens'), 'i_killed_player': 'killed the player %s' % o.get('name'),
@@ -233,6 +246,12 @@ def event_text(o):
             'clan_founded': 'founded the clan %s' % o.get('name'), 'joined_clan': 'joined the clan %s' % o.get('clan'),
             'joined_group': 'grouped up with %s' % o.get('name'), 'fled': 'fled from map %s' % o.get('map'),
             'i_killed_boss': 'killed the boss alien %s' % o.get('name'),
+            'team': TEAM_TEXT.get(o.get('sub'), 'made a team call') % dict(point=o.get('point') or '?', who=o.get('who') or 'a teammate'),
+            'pvp_queue': 'queued for a %s match' % MATCH_NAME.get(o.get('mode'), 'team PvP'),
+            'match_start': 'started a %s match' % MATCH_NAME.get(o.get('mode'), 'team PvP'),
+            'tdm_done': _match_text('Team Deathmatch', o), 'sc_done': _match_text('Sector Control', o),
+            'ctb_done': 'came back from a Capture the Beacon raid',
+            'entered_mode': 'entered %s' % o.get('mod'), 'mode_done': 'finished %s (reached %s)' % (o.get('mod'), o.get('progress')),
             'witness': ('saw %s kill the boss %s right next to you' % (o.get('who'), o.get('name')) if o.get('sub') == 'boss'
                       else 'saw the rare alien %s appear right next to you' % o.get('name') if o.get('sub') == 'spawn' else 'saw %s get destroyed right next to you' % o.get('name'))}.get(t, '')
 

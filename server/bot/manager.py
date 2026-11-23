@@ -60,7 +60,7 @@ DEFAULTS = {                 # the pack's settings (panel/bots.py validates the 
     'prime_pvp': 2.0,          # multiplier for PvP desire in prime time (1: no difference)
     'big_battle': True,       # in prime time the companies' PvP bots gather on a shared front map
     'permissions': {'shop': True, 'quest': True, 'pvp': True, 'chat': True, 'clan': True, 'clan_found': True, 'friend': True,
-                'group': True, 'auction': True, 'attack_player': True, 'assist': True, 'box_stealing': True, 'cargo': True, 'rocket': True, 'custom_ammunition': True, 'extras': True, 'mine': True, 'lab': True, 'skylab': True, 'technology': True, 'booty': True, 'assembly': True, 'gate': True, 'event': True, 'modes': True, 'clan_diplomacy': True, 'clan_order': True, 'gate_filler': True},
+                'group': True, 'auction': True, 'attack_player': True, 'assist': True, 'box_stealing': True, 'cargo': True, 'rocket': True, 'custom_ammunition': True, 'extras': True, 'mine': True, 'lab': True, 'skylab': True, 'technology': True, 'booty': True, 'assembly': True, 'gate': True, 'event': True, 'modes': True, 'clan_diplomacy': True, 'clan_order': True, 'gate_filler': True, 'abilities': True},
 }
 
 

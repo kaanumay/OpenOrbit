@@ -54,6 +54,7 @@ const BT_PERMS = {
   clan_cbs: [N('Clan battle stations'), N('Bot clans build, upgrade and defend Clan Battle Stations with their treasury; they race you and each other for the free asteroids. While on, there are no fake rival clans.')],
   clan_order: [N('Clan orders'), N('You give the bots in your clan orders in clan chat: "everyone farm", "3 of you go to 4-4", "defend our base", "come help me", "get lf-3", "use goliath", "full shield", "stop". They obey according to their loyalty.')],
   gate_filler: [N('Gate fillers'), N('When you write "need fillers for hades" in chat, bots with a high enough level say "inv me". Bots in your group enter the Galaxy Gate, Hades, LoW or QZ with you and you clear the waves together.')],
+  abilities: [N('Ship abilities'), N('Bots flying a ship with abilities use them: they repair themselves and their teammates (you too when you are on their side), shield, cloak, weaken and slow their targets.')],
   modes: [N('Event and PvE modes'), N('Event gates, Voyagers, Trinity, Astral, Black Light, Echoes, LoW, Vortex, Mimesis, World Boss, Apotheosis, Labyrinth; Dispatch and Galaxy Trek. They enter the modes they can handle and are rewarded for how far they get.')],
   box_stealing: [N('Cargo stealing'), N("Rude bots now and then collect someone else's cargo box (yours too); if it belongs to their own company they lose honor.")],
 };

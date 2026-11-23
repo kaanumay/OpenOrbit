@@ -73,7 +73,7 @@ def _similar(a, b):
     return sm.quick_ratio() >= 0.8 and sm.ratio() >= 0.8
 
 
-def compose(y, b, act, lang, slots, question=False, r=None, strict=False, no_ask=False, relax=False):
+def compose(y, b, act, lang, slots, question=False, r=None, strict=False, no_ask=False, relax=False, brief=False):
     """The bot's line for the act -> [message, ...] or None (no pattern, missing fields, or only stale lines).
 
     Repeats are checked on what is actually sent (after the bot's style: "where are" and "where r" are the same line): no line of two
@@ -93,6 +93,9 @@ def compose(y, b, act, lang, slots, question=False, r=None, strict=False, no_ask
     mine = {x[1] for x in st.recent if x[2] == b.uid and now - x[0] < 1200}
     fresh = {x[1] for x in st.recent if now - x[0] < 90}
     lately = {x[1] for x in st.recent if now - x[0] < (90 if relax else P['repeat_sec'])}
+    if brief:                       # a team callout ("push 2") comes again in a match: only the last half minute counts, by anyone
+        mine, fresh = set(), {x[1] for x in st.recent if now - x[0] < 30}
+        lately = fresh
     ex = G.Expander(slots, lambda c: pe.pick(c, lang, r), lambda n: r.choice(LX.act(lang, n)) if LX.act(lang, n) else None, r,
                     opt=P['opt'] * (0.6 + 0.8 * pe.verbose))
     protect = [v for v in slots.values() if isinstance(v, str)]
@@ -110,7 +113,7 @@ def compose(y, b, act, lang, slots, question=False, r=None, strict=False, no_ask
             continue
         if len(whole.split()) <= 2 and whole in fresh and len(whole) > 3:
             continue
-        if len(whole.split()) >= 3 and not relax and any(_similar(whole, x) for x in seen):
+        if len(whole.split()) >= 3 and not relax and not brief and any(_similar(whole, x) for x in seen):
             continue
         if no_ask and (out[-1].rstrip().endswith('?') or NLU.read(' '.join(out)).you):
             continue
@@ -158,7 +161,8 @@ def say(y, b, act, channel, now, slots=None, lang=None, recipient=None, meta=Non
     f = base_slots(y, b, lang)
     f.update(slots or {})
     KN.add_suffixes(f, lang, PE.of(b))
-    msgs = compose(y, b, act, lang, f, question=question, strict=(meta or {}).get('kind') in ('opener', 'event'), no_ask=no_ask)
+    msgs = compose(y, b, act, lang, f, question=question, strict=(meta or {}).get('kind') in ('opener', 'event'), no_ask=no_ask,
+                   brief=(meta or {}).get('kind') == 'callout')
     if not msgs and (priority or (meta or {}).get('reply_to')):      # an answer to someone: rather a line said before than silence
         msgs = compose(y, b, act, lang, f, question=question, no_ask=no_ask, relax=True)
     if not msgs:
@@ -1033,7 +1037,9 @@ EVENT_ACTS = {'level': ('tell_level', dict(acts=['brag'], topic='level', react='
               'pvp_win': ('tell_pvp_win', dict(acts=['brag'], topic='pvp', react='congrats_small', react_aggr='laugh')),
               'pvp_loss': ('tell_pvp_loss', dict(topic='pvp', react='sympathy_short', react_aggr='revenge', react_spite='laugh')),
               'event_start': ('tell_event_start', dict(topic='event', react='react_event')),
-              'event_end': ('tell_event_end', dict(topic='event', react='react_event_end'))}
+              'event_end': ('tell_event_end', dict(topic='event', react='react_event_end')),
+              'match_win': ('tell_match_win', dict(acts=['brag'], topic='pvp', react='congrats_small')),
+              'match_loss': ('tell_match_loss', dict(acts=['complain'], topic='pvp', react='sympathy_short', react_spite='laugh'))}
 
 
 def event_line(y, b, kind, now, channel='company', **slots):
@@ -1054,10 +1060,16 @@ def event_line(y, b, kind, now, channel='company', **slots):
     return say(y, b, act, channel, now, slots=slots, meta=meta, delay=b.r.uniform(2, 9)) is not None
 
 
+def event_name(lang, key):
+    """The short name the players of a language use for a calendar event (the language's names, English's, the calendar's)."""
+    import event_calendar as CAL
+    return (((LX.DATA.get(lang) or {}).get('names') or {}).get('ev_' + key) or (LX.DATA['en'].get('names') or {}).get('ev_' + key)
+            or re.sub(r'\s*\(.*?\)', '', (CAL.EVENTS.get(key) or {}).get('name') or key).strip().lower())
+
+
 def calendar_line(y, key, started, now):
     """An event of the calendar started or ended: in each company channel one talkative bot that speaks the language says so (the
     event's short name of its language). -> number of lines queued."""
-    import event_calendar as CAL
     from .. import playstyle as PL
     n = 0
     for fac in (1, 2, 3):
@@ -1065,11 +1077,23 @@ def calendar_line(y, key, started, now):
         if not bots:
             continue
         b = max(bots, key=lambda b: (0.25 + PE.of(b).talk) * b.r.random())
-        lang = PE.of(b).lang
-        name = (((LX.DATA.get(lang) or {}).get('names') or {}).get('ev_' + key) or (LX.DATA['en'].get('names') or {}).get('ev_' + key)
-                or re.sub(r'\s*\(.*?\)', '', (CAL.EVENTS.get(key) or {}).get('name') or key).strip().lower())
-        n += event_line(y, b, 'event_start' if started else 'event_end', now, event=name)
+        n += event_line(y, b, 'event_start' if started else 'event_end', now, event=event_name(PE.of(b).lang, key))
     return n
+
+
+def callout(y, b, act, now, **slots):
+    """A short team call in the company channel (the tactics' 'team' events): typed fast, it may come again in the same match (a call,
+    not small talk) and nobody answers it. -> True if queued."""
+    if slots.get('name'):
+        slots['name'] = short_name(slots['name'], PE.of(b))
+    return say(y, b, act, 'company', now, slots=slots, meta=dict(kind='callout', depth=P['max_depth']),
+               delay=b.r.uniform(0.8, 3.0)) is not None
+
+
+def looking_for(y, b, key, now):
+    """'tdm anyone?': the bot just queued for a team mode match (its company channel). -> True if queued."""
+    return say(y, b, 'pvp_lfg', 'company', now, slots=dict(event=event_name(PE.of(b).lang, key)),
+               meta=dict(kind='lfg', depth=P['max_depth']), delay=b.r.uniform(3, 12)) is not None
 
 
 def witness(y, b, sub, now, **slots):

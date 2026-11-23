@@ -290,6 +290,19 @@
   "tell_event_end": ["{event} (is over|ended) [<sad>]", "(aw|rip) {event} (over|ended)", "{event} (done|over) // (back to grinding|that was quick)"],
   "react_event": ["(finally|nice) [<laugh>]", "(lets go|lets goo) [<addr>]", "(oh nice|ooh) [, didnt know]", "(again|this again) <laugh>"],
   "react_event_end": ["(already|that was quick) [<sad>]", "(finally|good) <laugh>", "(aw|nooo) [, wasnt done]", "(rip|oh well) [<addr>]"],
+  "team_push": ["(push|go) {point} [now]", "(all|everyone) (to|on) {point}", "(lets take|take) {point} [<addr>]", "(go go|push push) [{point}]", "(going|heading) {point} // (come|follow)"],
+  "team_defend": ["(defend|def) {point}", "{point} (under attack|is attacked) [, help]", "(need help|help) (at|on) {point}", "(enemies|they are) (at|on) {point} // (def|defend) [<addr>]"],
+  "team_retreat": ["(back|fall back) [<addr>]", "(retreat|pull back) [, too many]", "(too many|they have more) // (back|fall back)", "(back to base|back to spawn) [, repair]"],
+  "team_regroup": ["(regroup|group up) [at base]", "(wait for|wait) (the others|the team) [, then go]", "(dont go alone|no solo) // (regroup|group up)", "(gather up|together) [then push]"],
+  "team_need_heal": ["(need heal|heal me) [pls]", "(low hp|almost dead) // (heal|need heal) [pls]", "(any healer|healer) [<addr>]"],
+  "team_healed": ["(healed|heal on) {name}", "(got u|i got u) {name}", "{name} (healed|ur healed) [, go]", "(healing|heal) {name} [now]"],
+  "team_point_taken": ["{point} (ours|taken|captured) [<laugh>]", "(took|got) {point} [<addr>]", "{point} (is ours|done) // (next|hold it)"],
+  "team_point_lost": ["(lost|we lost) {point} [<sad>]", "{point} (gone|lost) // (retake|take it back)", "(they took|they got) {point}"],
+  "team_carrier": ["(got the beacon|i have the beacon) // (cover me|escort)", "(carrying|beacon on me) [, cover me]", "(cover me|escort me) [<addr>] // (got the beacon|beacon)"],
+  "team_goal_push": ["(shoot the ball|ball) [, push]", "(push the ball|all on the ball) [<addr>]", "(ball to our portal|ball our way) // (shoot it|go)"],
+  "tell_match_win": ["(won|we won) {event} [<laugh>]", "{event} (won|gg) [, {kills} kills]", "(gg|ez) {event} // (we won|won it)", "(won|just won) {event} [with {kills} kills]"],
+  "tell_match_loss": ["(lost|we lost) {event} [<sad>]", "{event} (lost|gg) // (team was bad|no teamwork)", "(lost|lost the) {event} // (they had more|outnumbered)", "(rip|ugh) {event} [, lost]", "{event} lost [, {kills} kills tho]"],
+  "pvp_lfg": ["{event} anyone [?]", "(who plays|anyone for) {event} [?]", "(queue|join) {event} [<addr>] [, need people]", "(lf|looking for) {event} (team|people)", "{event} (queue|q) [, come]"],
   "witness_spawn": ["{alien} (spawned|is up) [on {map}]", "(heads up|fyi) {alien} [on {map}]", "{alien} on {map} [, come]", "(ooh|oh) {alien} [here]"],
   "self_fav_food": ["<dish> [tbh|for sure]", "(prob|def|easily) <dish>", "<dish> // or <dish>", "(gotta be|has to be) <dish>"],
   "excuse": ["(sorry|my bad) [<addr>], (didnt see it|was far away)", "(was too far|was on another map) [tbh]", "(didnt see chat|missed it) <sad>", "(cant get there|level too low for that map) [lol]", "(was in a fight myself|was busy grinding) // sorry"],
@@ -397,6 +410,11 @@
   "ev_dispatch_day": "dispatch day",
   "ev_upgrade_hour": "upgrade hour",
   "ev_invasion": "invasion",
-  "ev_halloween": "halloween"
+  "ev_halloween": "halloween",
+  "ev_team_deathmatch": "tdm",
+  "ev_sector_control": "sc",
+  "ev_capture_the_beacon": "ctb",
+  "ev_spaceball": "spaceball",
+  "ev_galactic_strife": "galactic strife"
  }
 }

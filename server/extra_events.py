@@ -177,4 +177,10 @@ class ExtraEvents:
     def attach(self, world):
         self.world = world
         world.kill_hooks.append(lambda w, n, x, y: self._each('on_kill', w, n, x, y))
+        world.event_resend = self.resend_msgs
         return self._each('attach', world)
+
+    def resend_msgs(self, world):
+        """The client cleared the map (respawn, ship change: world.resend): every system announces again what it put on this map
+        (resend_msgs(world) -> messages; what attach returned for the map is lost with the reload)."""
+        return self._each('resend_msgs', world)

@@ -43,6 +43,7 @@ import world               # noqa: E402
 import galaxy_gates as GALAXY        # noqa: E402
 import event_gate as EKP  # noqa: E402
 import labyrinth as LAB      # noqa: E402
+import mimesis as MM         # noqa: E402
 import pve_modes as PVM   # noqa: E402
 import low as LOW          # noqa: E402
 import assembly as ASM     # noqa: E402
@@ -732,9 +733,11 @@ class Session:
         self.pet.attach(self.world)
         self.world.gg_energy = self.gates.bonus_energy
         LAB.expire_keys(self.profile)                                     # if Frozen Labyrinth is over, the keys are deleted
+        # a Mimesis Mutiny run: its Escort maps 430/433/436 are Frozen Labyrinth map numbers, the labyrinth is not set up for it
+        escort = int(map_id) in MM.MAPS and MM.active() and bool(getattr(self.extra.mimesis, 'pending', None))
         self.world.extra_gates = (self.gates.home_portals(map_id, TEMPLATE.station(map_id)) +     # gates prepared in X-1
                                   self.event_gates.entry_portals(map_id, TEMPLATE.station(map_id)) +  # event gates
-                                  LAB.portals(map_id, self.gates.home()) +                    # the labyrinth's zone portals
+                                  ([] if escort else LAB.portals(map_id, self.gates.home())) +   # the labyrinth's zone portals
                                   self.pve.portals(map_id, TEMPLATE.station(map_id)) +              # the modes' gates (stage 8)
                                   self.extra.portals(map_id, TEMPLATE.station(map_id)))                # Ö3: Fiesta Gate
         self.world.start()
@@ -744,7 +747,7 @@ class Session:
         elif int(map_id) in EKP.BY_MAP:
             with self.world.lock:
                 self.world.gate = EKP.Run(self.event_gates, self.world, EKP.BY_MAP[int(map_id)])
-        elif int(map_id) in LAB.MAPS:
+        elif int(map_id) in LAB.MAPS and not escort:
             with self.world.lock:
                 self.world.labyrinth = LAB.Labyrinth(self.world)        # Frozen Labyrinth (labyrinth.py)
         with self.world.lock:
@@ -1065,7 +1068,9 @@ class Session:
                 self.send(self.cbs.attach(self.world), 'CBS: map reloaded')
                 self.world.resend()
             if self.ready_n > 1:                 # map loaded (portal, warp, respawn): the client rebuilds the menu
-                self.extra.on_ready()               # (the Urgent Missions icon, urgent_quests.py)
+                loaded = self.extra.on_ready()      # (the Urgent Missions icon, urgent_quests.py)
+                if loaded:
+                    self.send(loaded, 'events: map loaded')
             self.pet.on_ready()
         elif name == 'KeepAlive':
             self.send([('StayinAlive', {})], quiet=True)

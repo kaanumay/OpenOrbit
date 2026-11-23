@@ -719,3 +719,442 @@ def galaxy_trek(bot, now):
 def passive(bot, now):
     dispatch(bot, now)
     galaxy_trek(bot, now)
+
+
+# ------------------------------------------------------------------------------------------------------------ PvP matches
+# The team modes' matches the player is not in, played by the bot pilots under the player's rules (team_deathmatch.py,
+# sector_control.py: the same bands, sides, team sizes, end rules and rewards). A pilot that chose goals/pvp_match.PvpEvent queues for a
+# waiting match of its band and keeps grinding; once the sides are big enough the match is played out at once (the sides' PvP strength
+# with luck) and its pilots stay on the mode map until its end (not on an open map meanwhile: pvp_match); then the result, the rewards
+# and the history (after_match). pvp_rows / pvp_take: the same matches for the player's lobby (the modes' sim(); cross-domain).
+TDM_PAIRS = {1: (1, 2), 2: (2, 3), 3: (1, 3)}                  # team_deathmatch.PAIRS
+PVP = {'tdm': dict(event='team_deathmatch', done='tdm_done', d=EX.get('team_deathmatch') or {}),
+       'sc': dict(event='sector_control', done='sc_done', d=EX.get('sector_control') or {})}
+MATCH_DONE = {'tdm_done': 'tdm', 'sc_done': 'sc', 'ctb_done': 'ctb'}     # release events of a match (the modes' release_bots and pvp_settle)
+QUEUE_SEC = (360, 900)       # how long a pilot waits in a queue that does not move before it gives up (behaviour: it grinds meanwhile)
+QUEUE_GROW_SEC = 300         # a pilot whose queue grew waits at least this much longer from then
+QUEUE_MAX_SEC = 2400         # nobody waits longer than this in one queue (40 minutes: a queue never holds pilots for hours)
+QUEUE_PER_PILOT = 0.12       # appeal of a queue per pilot already waiting (up to 10): the lobby window shows them (behaviour weights)
+QUEUE_NEAR = 1.5             # appeal of a queue close to starting with the pilot in it (readiness squared)
+QUEUE_MATE = 0.5             # appeal per friend or clan mate waiting in it (up to 2)
+QUEUE_TASTE = 0.4            # a pilot's own liking of each mode (when the queues are empty: who opens which)
+RECRUIT_SEC = 60             # a forming queue calls its company mates at most this often
+RECRUIT_P = 0.35             # the chance a free, sociable, aggressive company mate answers the call
+RECRUIT_MATE = 0.35          # extra chance when a friend or clan mate is waiting in it
+RECRUIT_PAY = 0.7            # the intent's weight in the called pilot's next decision (brain.force)
+BUSY = ('gate', 'mod', 'duel', 'pvp_match', 'pvp_event')
+TDM_RATE = (0.03, 0.10)      # points a second per side: the range of team_deathmatch.sim (the lobby's rows)
+SC_POINTS = 4                # the most control points a company can be behind another (sector_control.bleed: all 4 held by one)
+SC_KILL_SEC = 0.004          # kills a second per pilot in Sector Control (behaviour: about one every four minutes)
+LOBBY = {}                   # (mode, band map, match id) -> {state wait|run, teams {company: [bot]}, ready, start, end, res}
+_pvp_t = [0.0]
+
+
+def pvp_open(mode, now):
+    return bool(PVP[mode]['d'].get('brackets')) and _tech().is_active(PVP[mode]['event'], now)
+
+
+def pvp_band(mode, level):
+    return next((b for b in PVP[mode]['d'].get('brackets', ()) if b['min_level'] <= level <= b['max_level']), None)
+
+
+def pvp_modes(bot, now):
+    """The team modes open now with a band for the bot."""
+    return [m for m in PVP if pvp_open(m, now) and pvp_band(m, bot.level) is not None]
+
+
+def _sides(mode, mid):
+    return TDM_PAIRS[mid] if mode == 'tdm' else (1, 2, 3)
+
+
+def _mids(mode):
+    return list(TDM_PAIRS) if mode == 'tdm' else list(range(1, int(PVP['sc']['d'].get('matches', 2)) + 1))
+
+
+def _room(mode):
+    d = PVP[mode]['d']
+    return d['team_max'] if mode == 'tdm' else d.get('team_target', d['team_max'])     # the size the bots fill (sector_control.fill)
+
+
+def recent_matches(bot, now, sec=3600):
+    """Matches the bot played in the last hour (drafted or its own)."""
+    return sum(1 for x in bot.k.get('matches') or () if now - x.get('t', 0) < sec)
+
+
+def _readiness(mode, size):
+    """How close a queue is to starting (0..1): the two biggest sides' pilots up to the mode's minimum."""
+    need = PVP[mode]['d']['team_min']
+    return sum(sorted((min(n, need) for n in size.values()), reverse=True)[:2]) / (2.0 * need)
+
+
+def _mates(bot, others):
+    """How many of the others are the bot's friends or clan mates."""
+    friends = {str(x).lower() for x in bot.k.get('friends') or ()}
+    clan = bot.k.get('clan')
+    return sum(1 for o in others if o is not bot and (o.name.lower() in friends or (clan and o.k.get('clan') == clan)))
+
+
+def _taste(bot, mode):
+    """A pilot's own liking of a mode (stable: some prefer Sector Control's big fights, some Team Deathmatch)."""
+    return random.Random('%s|%s' % (bot.name, mode)).uniform(0.0, QUEUE_TASTE)
+
+
+def _appeal(bot, mode, L, size):
+    """How much a queue draws the bot, as the lobby window shows it: pilots already waiting, how close it is to starting with the bot in
+    it, friends and clan mates in it (0 for an empty queue)."""
+    if L is None:
+        return 0.0
+    waiting = [b for v in L['teams'].values() for b in v]
+    return (QUEUE_PER_PILOT * min(len(waiting), 10) + QUEUE_NEAR * _readiness(mode, size) ** 2
+            + QUEUE_MATE * min(2, _mates(bot, waiting)))
+
+
+def pvp_join(bot, modes, now, look=False, prefer=None):
+    """Queues the bot for a waiting match of its band, of one of the modes, that has its company and room: the one that draws it most
+    (_appeal: who waits, how close it is, its friends; its own taste of the mode when the queues are empty) -> lobby key or None.
+    prefer: the queue a company mate called it to (if it still takes it). look: only -> the best queue's appeal."""
+    best = None
+    for mode in modes:
+        band = pvp_band(mode, bot.level)
+        if band is None:
+            continue
+        for mid in _mids(mode):
+            if bot.company not in _sides(mode, mid):
+                continue
+            key = (mode, band['map'], mid)
+            L = LOBBY.get(key)
+            if L is not None and (L['state'] != 'wait' or len(L['teams'][bot.company]) >= _room(mode)):
+                continue
+            size = {c: len(L['teams'][c]) if L else 0 for c in _sides(mode, mid)}
+            size[bot.company] += 1
+            s = _appeal(bot, mode, L, size)
+            if not look:
+                s += _taste(bot, mode) + 0.1 * bot.r.random() + (10.0 if key == prefer else 0.0)
+            if best is None or s > best[0]:
+                best = (s, key)
+    if look:
+        return best[0] if best else 0.0
+    if best is None:
+        return None
+    key = best[1]
+    L = LOBBY.setdefault(key, dict(state='wait', teams={c: [] for c in _sides(key[0], key[2])}, ready=None, joins=0, called=0.0))
+    L['teams'][bot.company].append(bot)
+    L['joins'] = L.get('joins', 0) + 1
+    return key
+
+
+def _recruit(y, key, L, now):
+    """A forming queue (2+ waiting) whose side is short: like 'sc need 2 more' in the company chat, a few online company mates of the band
+    who are free hear it, friends and clan mates of those waiting first; one who wants to comes (an intent for the queue: brain.force)."""
+    from . import brain as B
+    d = PVP[key[0]]['d']
+    band = next(b for b in d['brackets'] if b['map'] == key[1])
+    waiting = [b for v in L['teams'].values() for b in v]
+    if len(waiting) < 2:
+        return
+    for c, v in L['teams'].items():
+        need = d['team_min'] - len(v)
+        if need <= 0 or not v:
+            continue                               # the call goes out in the company chat: only a company with pilots waiting makes it
+        free = [b for b in y.bots if b.online and b.company == c and band['min_level'] <= b.level <= band['max_level'] and b.dead_until <= now
+                and b.permission.get('pvp', True) and (b.target is None or b.target.name not in BUSY) and not b.k.get('intent')]
+        free.sort(key=lambda b: -(b.o('sociability') + RECRUIT_MATE * _mates(b, waiting)) * b.r.random())
+        for b in free[:need + 2]:
+            if need <= 0:
+                break
+            p = RECRUIT_P * (0.3 + 0.7 * b.o('sociability')) * (0.5 + b.o('aggression')) + RECRUIT_MATE * min(1, _mates(b, waiting))
+            if b.r.random() < p / (1 + recent_matches(b, now)):
+                B.force(b, 'pvp_event', plan={'lobby': key}, pay=RECRUIT_PAY, duration=240, now=now)
+                need -= 1
+
+
+def pvp_leave(bot, key):
+    L = LOBBY.get(key)
+    if L is not None and L['state'] == 'wait':
+        v = L['teams'].get(bot.company, [])
+        if bot in v:
+            v.remove(bot)
+
+
+def pvp_tick(y, now):
+    """Every few seconds: queues that are ready start (TDM: both sides at team_min; SC: two companies at team_min; full, or the
+    mode's fill wait after that), played matches are dropped a while after their end."""
+    if now - _pvp_t[0] < 5:
+        return
+    _pvp_t[0] = now
+    for key, L in list(LOBBY.items()):
+        d = PVP[key[0]]['d']
+        if L['state'] == 'run':
+            if now > L['end'] + 300:
+                LOBBY.pop(key, None)
+            continue
+        for v in L['teams'].values():           # gone: offline, dead, chose something else, drafted into the player's match
+            v[:] = [b for b in v if b.online and b.dead_until <= now and b.target is not None and b.target.name == 'pvp_event'
+                    and b.plan.get('lobby') == key and not b.plan.get('finished')]
+        size = {c: len(v) for c, v in L['teams'].items()}
+        if not any(size.values()):
+            LOBBY.pop(key, None)
+            continue
+        if sum(1 for n in size.values() if n >= d['team_min']) < 2:
+            L['ready'] = None
+            if y is not None and now - L.get('called', 0.0) >= RECRUIT_SEC:
+                L['called'] = now
+                _recruit(y, key, L, now)
+            continue
+        L['ready'] = L['ready'] or now
+        if all(n >= _room(key[0]) for n in size.values()) or now - L['ready'] >= d['fill_wait_sec']:
+            _start(y, key, L, now)
+
+
+def _strength(b):
+    """A pilot's PvP strength: gear, CPUs, technologies and skill (abstract_sim.encounter)."""
+    from . import extras as EXT, technology as TECH, playstyle as PL
+    return max(0.5, b.value()['power']) * EXT.pvp_factor(b) * TECH.pvp_factor(b) * PL.pvp_factor(b)
+
+
+def _pick(weights, rng, items):
+    x, i = rng.random() * sum(weights), 0
+    while i < len(weights) - 1 and x >= weights[i]:
+        x -= weights[i]
+        i += 1
+    return items[i]
+
+
+def _share(weights, n, rng):
+    """n events over the weights (a multinomial draw) -> counts."""
+    out = [0] * len(weights)
+    for _ in range(int(n)):
+        out[_pick(weights, rng, range(len(weights)))] += 1
+    return out
+
+
+def _play(mode, teams, rng):
+    """The match played out -> {sec, winner (company or None), score {company: points / tickets left}, kd {uid: [kills, deaths]},
+    victims {uid: [bot]}}. TDM: 15 minutes or 100 points, 3 lives each (a side without lives loses); SC: the company bleeding slowest
+    is left; a draw (TDM) loses for both (wiki)."""
+    d = PVP[mode]['d']
+    cs = list(teams)
+    g = {c: sum(_strength(b) for b in teams[c]) for c in cs}
+    share = {c: g[c] ** 1.5 / sum(g[x] ** 1.5 for x in cs) for c in cs}
+    luck = {c: rng.uniform(0.75, 1.25) for c in cs}
+    kd = {b.uid: [0, 0] for c in cs for b in teams[c]}
+    victims = {b.uid: [] for c in cs for b in teams[c]}
+    if mode == 'tdm':
+        base = rng.uniform(*TDM_RATE)
+        rate = {c: base * 2 * (0.15 + 0.7 * share[c]) * luck[c] for c in cs}
+        sec = min(d['match_sec'], d['max_score'] / max(rate.values()))
+        pts = {c: min(d['max_score'], int(rate[c] * sec)) for c in cs}
+    else:
+        # the mode's ticket rule (sector_control.step / bleed): every company bleeds bleed_base, plus bleed_point per control point another
+        # company holds more than it (the weaker company holds fewer: up to SC_POINTS behind), late_factor times faster after late_sec, and
+        # one ticket per death (the weaker company dies more); the last company with tickets wins
+        k = len(cs)
+        top = max(share.values())
+        extra = {c: SC_POINTS * (top - share[c]) / top * luck[c] for c in cs}
+        kr = SC_KILL_SEC * sum(len(v) for v in teams.values())
+        lose = {c: (1 - share[c]) / (k - 1) for c in cs}
+        left = {c: float(d['tickets']) for c in cs}
+        out, sec = [], 0.0
+        while len(out) < k - 1 and sec < 3 * 3600:
+            f = d['late_factor'] if sec >= d['late_sec'] else 1
+            sec += 10.0
+            for c in cs:
+                if c not in out:
+                    left[c] -= ((d['bleed_base'] + d['bleed_point'] * extra[c]) * f + kr * lose[c]) * 10.0
+                    if left[c] <= 0:
+                        out.append(c)
+        pts = dict(zip(cs, _share([share[c] * luck[c] for c in cs], int(kr * sec), rng)))
+    lives = d.get('lives') if mode == 'tdm' else None
+    st = {b.uid: _strength(b) for c in cs for b in teams[c]}
+    kills = [c for c in cs for _ in range(pts[c])]
+    rng.shuffle(kills)                             # in the order they happen: a side whose lives run out first loses (TDM)
+    for i, c in enumerate(kills):                  # a kill goes to a pilot of the side by strength, the death to a pilot of the others
+        alive = [b for x in cs if x != c for b in teams[x] if lives is None or kd[b.uid][1] < lives]
+        if not alive or (lives is not None and any(all(kd[b.uid][1] >= lives for b in teams[x]) for x in cs)):
+            sec *= max(0.2, i / float(len(kills)))     # a side is out of lives: the match ends there
+            break
+        v = _pick([1.0 / max(0.3, st[b.uid]) * rng.uniform(0.5, 1.5) for b in alive], rng, alive)
+        k_ = _pick([st[b.uid] ** 1.2 * rng.uniform(0.5, 1.5) for b in teams[c]], rng, teams[c])
+        kd[k_.uid][0] += 1
+        kd[v.uid][1] += 1
+        victims[k_.uid].append(v)
+    if mode == 'tdm':
+        score = {c: sum(kd[b.uid][0] for b in teams[c]) for c in cs}
+        out = [c for c in cs if all(kd[b.uid][1] >= lives for b in teams[c])]
+        top = max(score.values())
+        winner = next((c for c in cs if c not in out), None) if out else (
+            next(c for c in cs if score[c] == top) if list(score.values()).count(top) == 1 else None)
+    else:
+        score = {c: max(0, int(left[c])) for c in cs}
+        winner = max(cs, key=lambda c: left[c])
+    return dict(sec=sec, winner=winner, score=score, kd=kd, victims=victims)
+
+
+def _start(y, key, L, now):
+    """The queue becomes a match: played out now, its pilots move to the mode map (pvp_match) until its end."""
+    from .brain import GOALS
+    from . import abstract_sim as S
+    mode, d = key[0], PVP[key[0]]['d']
+    teams = {c: list(v) for c, v in L['teams'].items() if v}
+    rng = teams[min(teams)][0].r
+    res = _play(mode, teams, rng)
+    start = now + (d.get('start_phase_sec') or d.get('start_sec') or 20) + rng.uniform(20, 60)     # confirmation, the jump, the countdown
+    L.update(state='run', start=start, end=start + res['sec'], res=res, size={c: len(v) for c, v in teams.items()})
+    for v in teams.values():
+        for b in v:
+            if b.body is not None:
+                b.body.alive = False                    # its ship on the player's map goes (as team_deathmatch.draft_bots)
+                b.body = None
+            waited = int(now - b.plan.get('joined', now))
+            b.target, b.goal_start = GOALS['pvp_match'], now
+            b.plan = {'abstract': key, 'match': key[1], 'end': L['end'], 'min': L['end'] - now + 900}
+            b.k['target'] = 'pvp_match'
+            b.session_end = max(b.session_end, L['end'] + 120)
+            b.en_route = None
+            S.jump_to(b, key[1], y, now)
+            b.event('match_start', now, mode=mode, band=key[1], match='%s_%d_%d_%d' % (mode, key[1], key[2], int(now)), waited=waited,
+                    size=sum(len(x) for x in teams.values()))
+
+
+def pvp_settle(bot, y, now):
+    """The end of the bot's own match: the rewards by the player's rules (TDM: reward_for by kills and deaths; SC: each kill's EP and
+    Honor by the PvP kill rule, the winners' bonus by kills), home to X-1, the result event (after_match)."""
+    from . import abstract_sim as S
+    key = bot.plan.get('abstract')
+    bot.plan['finished'] = True
+    L = LOBBY.get(key)
+    res = (L or {}).get('res')
+    if bot.game_map == key[1]:
+        S.jump_to(bot, K.ev(bot.company), y, now)
+    if res is None:
+        return
+    mode, d = key[0], PVP[key[0]]['d']
+    kills, deaths = res['kd'].get(bot.uid, (0, 0))
+    won = res['winner'] == bot.company
+    if mode == 'tdm':
+        import team_deathmatch as TDM
+        grant_list(bot, [list(x) for x in TDM.reward_for(kills, deaths)], bot.r)
+        bot.ist('tdm_kill', kills)
+    else:
+        from . import society as TB
+        speed = y.speed(bot) if y is not None else 1.0
+        ep = honor = 0
+        for v in res['victims'].get(bot.uid, ()):
+            ship = v.k['gear']['ship']
+            e, h = S.kill_reward(bot, v.uid, ship, now)
+            ep, honor = ep + e, honor + h
+            bot.ist('player')
+            bot.ist('player_points', TB.ship_rank_points(ship))
+        pct = min(d['bonus_max_percent'], d['bonus_percent_per_kill'] * kills) if won else 0
+        ep, honor = ep * (1 + pct / 100.0), honor * (1 + pct / 100.0)
+        if ep or honor:
+            bot.reward(None, speed, ep=ep, honor=honor)
+    mates = [b.name for b in L['teams'].get(bot.company, ()) if b is not bot]
+    bot.event(PVP[mode]['done'], now, kills=kills, deaths=deaths, won=won, mode=mode, mates=','.join(mates[:8]))
+
+
+def strife_milestones(bot, now):
+    """Galactic Strife: the reputation milestones the bot reached for the first time pay their items, as a player's do
+    (galactic_strife.GalacticStrife.update_msgs: state 'paid', milestones()). -> milestones paid."""
+    import galactic_strife as GS
+    if not GS.active(now):
+        return 0
+    from . import society as TB
+    p = TB.profile(bot)
+    st = GS.state(p, now)
+    n = 0
+    for m, items in GS.milestones(int(st['rep'])):
+        if st['paid'] < m <= st['rep']:
+            st['paid'] = m
+            p.dirty = True
+            grant_list(bot, items, bot.r)
+            n += 1
+    return n
+
+
+def pvp_rows(mode, band_map, now):
+    """The bots' own matches of a band for the player's lobby: {match id: {state 0 waiting / 1 running, queue {company: n}, size {company: n},
+    points {company: points so far} (TDM), tickets {company: left} (SC), start, end}}."""
+    out = {}
+    for mid in _mids(mode):
+        L = LOBBY.get((mode, band_map, mid))
+        if L is None:
+            continue
+        if L['state'] == 'wait':
+            out[mid] = dict(state=0, queue={c: len(v) for c, v in L['teams'].items()})
+            continue
+        f = max(0.0, min(1.0, (now - L['start']) / max(1.0, L['end'] - L['start'])))
+        r = L['res']
+        row = dict(state=1, size=dict(L['size']), start=L['start'], end=L['end'])
+        if mode == 'tdm':
+            row['points'] = {c: int(r['score'][c] * f) for c in r['score']}
+        else:
+            row['tickets'] = {c: int(PVP['sc']['d']['tickets'] - (PVP['sc']['d']['tickets'] - r['score'][c]) * f) for c in r['score']}
+        out[mid] = row
+    return out
+
+
+def pvp_take(mode, band_map, mid):
+    """The player joins this match: the bots waiting in its queue go to the player's queue instead -> {company: [bot]} (they leave the
+    bots' own queue; the mode drafts them)."""
+    L = LOBBY.get((mode, band_map, mid))
+    if L is None or L['state'] != 'wait':
+        return {}
+    LOBBY.pop((mode, band_map, mid), None)
+    for v in L['teams'].values():
+        for b in v:
+            b.plan['finished'] = True
+    return {c: list(v) for c, v in L['teams'].items()}
+
+
+def _infer(ctx):
+    """Who won a drafted match, from the last look at its state (pvp_match.concrete) when the release event does not say: TDM the higher
+    score (a draw loses), SC still in with every other company out of tickets; None if unknown."""
+    if not ctx:
+        return None
+    own = ctx['company']
+    if ctx.get('score'):
+        top = max(v for c, v in ctx['score'].items() if c != own) if len(ctx['score']) > 1 else 0
+        return ctx['score'].get(own, 0) > top
+    t = ctx.get('tickets')
+    if t:
+        out = {c for c, v in t.items() if v <= 0} | set(ctx.get('out') or ())
+        if own in out:
+            return False
+        return all(c in out for c in t if c != own) or None
+    return None
+
+
+def after_match(bot, now):
+    """The match results the bot has not taken in yet (a drafted match's release event, its own match's end): history (k['matches'], the
+    last 20), statistics, mood (a win lifts, a loss and many deaths annoy), and the teammates (and the player, if on its side) a bit closer."""
+    ctx = None
+    for o in bot.events:
+        mode = MATCH_DONE.get(o.get('type'))
+        if mode is None or o.get('seen'):
+            continue
+        o['seen'] = True
+        if ctx is None:
+            ctx = bot.__dict__.pop('_match_ctx', None) or {}
+        won = o.get('won')
+        if won is None and mode != 'ctb':
+            won = _infer(ctx)
+            if won is not None:
+                o['won'] = won
+        kills, deaths = int(o.get('kills') or 0), int(o.get('deaths') or 0)
+        hist = bot.k.setdefault('matches', [])
+        hist.append(dict(t=round(o.get('t', now)), mode=mode, won=won, k=kills, d=deaths, drafted=bool(ctx.get('drafted'))))
+        del hist[:-20]
+        bot.ist('matches')
+        if won:
+            bot.ist('matches_won')
+            bot.mood.it(morale=0.1, confidence=0.06, anger=-0.1)
+        elif won is False:
+            bot.mood.it(morale=-0.06, confidence=-0.04, anger=0.04 * min(3, deaths))
+        if kills > deaths:
+            bot.mood.it(confidence=0.03)
+        mates = [x for x in str(o.get('mates') or '').split(',') if x] or ctx.get('mates') or []
+        for name in mates[:8]:
+            bot.memory.event(name, 'hunted_together', now)
+        if ctx.get('player') and ctx.get('player_company') == bot.company:
+            bot.memory.event(ctx['player'], 'hunted_together', now)

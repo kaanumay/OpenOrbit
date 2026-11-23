@@ -252,7 +252,9 @@ class Vortex:
         return []
 
     def tick(self, now):
-        if not active(now):
+        # adaptation: a session that began while the event was on finishes under the rules it began with (the Vanguard and its
+        # evacuation multiplier stay until the run is over); only new entries are refused (attach, portals)
+        if not active(now) and not (self.run and not self.run.left and self.world is not None and self.world.gate is self.run):
             vip = D.get('vip_item', 'resource_vog-vanguard')
             if self.p.resource(vip) > 0:                  # Vanguard is for the event period
                 self.p.add_resource(vip, -self.p.resource(vip))
@@ -343,6 +345,13 @@ class VogRun:
 
     def enter_msgs(self):
         return [self.score_cmd(), self.map_info()]
+
+    def resend_msgs(self):
+        """world.resend (the free respawn, a ship change): the client built a new hero unit, whose SaeScore (the score above the ship,
+        StrikeAndExitScoreCommandHandler) is empty, and dropped its effects (the treasure holder's spotlight)."""
+        if self.left or self.w.gate is not self:
+            return []
+        return [self.score_cmd()] + ([self.spot(True)] if self.holder else [])
 
     def score_cmd(self):
         return ('StrikeAndExitScoreCommand', dict(score=int(self.score), uid=self.w.hid))

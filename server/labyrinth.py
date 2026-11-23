@@ -133,6 +133,19 @@ class Labyrinth:
         self.synk_check(time.time())
         world.send(self.info_msgs())
 
+    def close(self):
+        """The map is not the labyrinth this time (a Mimesis Mutiny run: its Escort maps 430/433/436 are labyrinth map numbers): the
+        population, the portals and the key fee go (under the world lock)."""
+        w = self.w
+        for n in [n for n in w.npcs.values() if n.tip.startswith('lab_')]:
+            w.send(w.remove_npc(n))
+        for g in [g for g in w.gates if g.get('gate') == 'labyrinth']:
+            w.remove_gate(g['gateId'])
+        if w.gate_fee == self.pay:
+            w.gate_fee = None
+        if w.labyrinth is self:
+            w.labyrinth = None
+
     @staticmethod
     def type_of(name):
         return 'lab_' + name.lower().replace(' ', '_')

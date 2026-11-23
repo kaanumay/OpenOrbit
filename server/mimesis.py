@@ -207,13 +207,17 @@ class Mimesis:
         if int(world.map_id) in MAPS and active() and getattr(self, 'pending', None):
             key, end = self.pending
             self.pending = None
+            if world.labyrinth is not None:          # the Escort maps are Frozen Labyrinth map numbers: the session set the labyrinth up
+                world.labyrinth.close()
             self.run = MmRun(self, world, end)
             world.gate = self.run
             world.ally = self.run
             self.in_map = True
             return msgs + [self.info_cmd(True)] + self.run.enter_msgs()
         if int(world.map_id) in MAPS:                       # no run (spawned on this map at login): to base
-            import vortex
+            if world.labyrinth is not None and not CAL.is_active(EKP.LAB['event']):
+                world.labyrinth.close()                     # a relog after an escort run: outside its event this map is no labyrinth
+            import vortex                                   # (send_home leaves a labyrinth alone)
             vortex.send_home(self, world)
         if self.in_map:
             self.in_map = False
@@ -227,6 +231,9 @@ class Mimesis:
 
     def tick(self, now):
         if not active(now):
+            r = self.run                 # adaptation: a run that began while the event was on finishes under the rules it began with:
+            if r is not None and r.phase != 'finished' and self.world is not None and self.world.gate is r:
+                return []                # its trip counts and the edition's ranking is paid after it
             return self.event_end()
         msgs = []
         if self.st.get('period') is None:
@@ -285,7 +292,8 @@ class Mimesis:
     def finish_run(self, score, success):
         msgs = []
         with self.p.lock:
-            if active():                                # a run that ends after event_end must not count toward the next edition
+            if active() or (self.p.d.get('mimesis') or {}).get('period') is not None:   # the edition is not closed yet (tick waits
+                # for a run in progress); a run that ends after event_end must not count toward the next edition
                 self.st['trips'] = sorted(self.st['trips'] + [int(score)], reverse=True)[:50]
             self.p.dirty = True
         if success:
@@ -354,6 +362,11 @@ class MmRun:
         self.spawn_ship()
         self.spawn_wave(D['waves']['start'], near=D['route'][0])
         return [self.score_cmd(), self.zone_poi()]
+
+    def resend_msgs(self):
+        """world.resend (respawn on the spot, a ship change): the protection zone's POI (otherwise only the freighter's next move sent it;
+        a pilot who respawned outside it never saw it). It is removed when the run ends."""
+        return [self.zone_poi()] if self.w.gate is self and self.phase != 'finished' else []
 
     def score_cmd(self):
         return ('PayloadEscortScoreCommand', dict(totalScore=self.m.total(), runScore=int(self.score)))

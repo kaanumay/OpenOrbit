@@ -203,6 +203,7 @@ class GalacticStrife:
         self.crate_due = []         # [(time, kind)] crates to place again
         self.protect_end = 0.0      # PvP protection running (spawn 5 s, loss streak 60 min): its end
         self.protect_from = 0.0
+        self.died = False           # destroyed since the map was built: the next reload is a respawn on this map (spawn protection)
 
     # ------------------------------------------------------------ client
     def info_cmd(self, now=None):
@@ -247,15 +248,38 @@ class GalacticStrife:
         world.free_repair = lambda: active() and fever() and on_map(world.map_id)
         self.labels, self.crates, self.crate_due = {}, {}, []
         self.next_shuffle = self.shuffle_at(time.time())
+        self.died = False
         if not self.here():
             self.protect_end = 0.0
             return []
-        now = time.time()
-        st = state(self.p, now)
         world.later(1.0, self.place_crates)
-        until = max(now + D.get('spawn_protection_sec', 5), st.get('protect_until', 0))     # entering / respawning on the maps
-        world.later(1.5, lambda: self.protect(until))
+        self.spawned(world)
         return []
+
+    def spawned(self, w):
+        """Entering the maps or respawning on one: 5 s PvP protection (or the loss streak's longer one), once the ship is built."""
+        now = time.time()
+        until = max(now + D.get('spawn_protection_sec', 5), state(self.p, now).get('protect_until', 0))
+        w.later(1.5, lambda: self.world is w and self.protect(until))
+
+    def resend_msgs(self, w):
+        """world.resend: the client cleared the map (a respawn here, a ship change): the reputation labels under the ships and the
+        protection / Flux looks belong to the old ship units; a respawn is a spawn (wiki: 5 s protection)."""
+        if w is not self.world or not self.here():
+            return []
+        now = time.time()
+        self.labels, self.next_label = {}, 0.0          # every label again at the next tick
+        msgs = []
+        if self.died:
+            self.died = False
+            self.spawned(w)
+        elif self.protect_end > now:
+            msgs.append(self.protect_look(True))
+        flux = [e for e in w.hero_effects.get('skill', now) if e['source'] == 'gs_flux']
+        if flux:
+            msgs.append(('VisualModifierCommand', dict(userId=w.hid, modifier=VM_FLUX, attribute=int(math.ceil(flux[0]['end_time'] - now)),
+                                                       additionalAttribute='', count=0, activated=True)))
+        return msgs
 
     # ------------------------------------------------------------ PvP protection
     def protect(self, until):
@@ -399,6 +423,7 @@ class GalacticStrife:
         """The hero was destroyed on a Galactic Strife map: the damage dealers gain, the hero loses."""
         taken, self.taken = self.taken, {}
         self.protect_end = 0.0
+        self.died = True
         if not self.here() or not (source_player is not None or getattr(killer, 'bot', None) is not None):
             return []
         winners = [(self.profile_of(k), s) for k, s in shares(taken)]
@@ -453,9 +478,14 @@ class GalacticStrife:
                 self.next_shuffle = self.shuffle_at(now)
                 self.shuffle(now)
                 return msgs
-            if any(t <= now for t, k in self.crate_due):
+            if any(t <= now for t, k in self.crate_due) or not self.crates and not self.crate_due:     # (none: the event began here)
                 self.crate_due = [(t, k) for t, k in self.crate_due if t > now]
                 self.place_crates()
+        elif self.crates:                         # the event ended while on the map: its crates go (they are not collected afterwards)
+            for h in list(self.crates):
+                if w.boxes.pop(h, None) is not None:
+                    msgs.append(('RemoveCollectableCommand', {'collected': False, 'hash': h}))
+            self.crates, self.crate_due = {}, []
         if now < self.next_label:
             return msgs
         self.next_label = now + LABEL_SEC

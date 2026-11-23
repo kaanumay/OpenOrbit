@@ -112,6 +112,12 @@ class PvpHunt(Goal):
                 import map_links as H
                 from .. import speech as SPC
                 y.speak(bot, 'company', SPC.template(bot, 'battle_call', map=H.name(target_map)), now=b.now + bot.r.uniform(3, 20))
+        if grudge is None and y is not None:
+            from .. import brain as B
+            ev = [m for m, k in sorted(B.event_maps(b.now).items()) if k in ('pvp', 'ctb') and B.event_pull(bot, m, b.now) > 1.0
+                  and K.can_enter(m, bot.company, bot.level) and K.route(bot.game_map, m, bot.company, bot.level)]
+            if ev and bot.r.random() < 0.3 + 0.5 * bot.o('rivalry'):
+                target_map = bot.r.choice(ev)              # an open-map PvP event (Spaceball, Galactic Strife, the beacons): the fight is there
         if target_map is None:
             target_map = next((m for m in (13 + bot.company - 1, 16, 29) if K.can_enter(m, bot.company, bot.level)), bot.game_map)
         bot.plan['map'] = int(target_map)
@@ -153,6 +159,8 @@ class PvpHunt(Goal):
         return True
 
     def abstract(self, bot, dt, y):
+        from .. import modes as MD
+        MD.strife_milestones(bot, y.now)                  # Galactic Strife: the reputation its fights earned pays its milestones
         if S.journey(bot, y):
             return
         if K.map_npcs(bot.game_map) and bot.r.random() < 0.5:

@@ -267,8 +267,21 @@ def encounter(a, b, y, now=None):
     pa = 0.08 + 0.84 * pa                          # a surprise is always possible
     winner, loser = (a, b) if a.r.random() < pa else (b, a)
     pvp_reward(winner, loser, y, now)
+    strife(winner, loser, now)
     death(loser, y, reason='player', killer=winner.name, now=now)
     return ('won', winner, loser)
+
+
+def strife(winner, loser, now):
+    """Galactic Strife: a bot-bot kill on its maps moves both reputations as a player's kill does (galactic_strife.settle), so a bot
+    the player meets there has the reputation its fights earned (the player's gain against it depends on it)."""
+    import galactic_strife as GS
+    if not GS.active(now) or not GS.on_map(winner.game_map):
+        return
+    from . import society as TB
+    GS.settle([(TB.profile(winner), 1.0)], TB.profile(loser), now)
+    from . import modes as MD
+    MD.strife_milestones(winner, now)                 # a milestone its reputation just reached pays at once (as the player's)
 
 
 def kill_reward(winner, victim_uid, ship, now):

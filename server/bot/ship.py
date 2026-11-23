@@ -29,6 +29,7 @@ from . import playstyle as PL
 from . import appearance as GR
 from . import society as T
 from . import manager as MGR
+from . import abilities as AB
 from .goals.pvp import order_grudge
 
 CARRIER = next(iter(WD.CFG['types']))       # a type that exists for NPC.__init__ (later replaced with the bot's values)
@@ -81,7 +82,36 @@ class BotShip(WD.NPC):
         self.images = {}
 
     def speed(self):
-        return self.d['speed']
+        return AB.speed(self, self.d['speed']) if self.__dict__.get('ab_on') else self.d['speed']
+
+    # ship abilities against the player's hits (world.hit_npc): defence and Protection, the hit's aftermath, Last Stand / Volt Back-up
+    def damage_reduction(self, atype=1):        # atype: once world.hit_npc passes it (cross-domain), Spectrum spares rockets
+        return AB.reduction(self, laser=atype == 1)
+
+    @property
+    def damage_hook(self):
+        return self._damage_hook
+
+    @damage_hook.setter
+    def damage_hook(self, f):                  # a mode's own counter (team_deathmatch.on_bot_spawn) runs beside the abilities' hook
+        self.__dict__['mode_hook'] = f
+
+    def _damage_hook(self, dealt):
+        f = self.__dict__.get('mode_hook')
+        if f is not None:
+            f(dealt)
+        AB.player_hit(self, dealt)
+
+    @property
+    def hp_floor(self):
+        return max(AB.floor(self), self.__dict__.get('fixed_floor', 0))
+
+    @hp_floor.setter
+    def hp_floor(self, v):
+        self.__dict__['fixed_floor'] = v
+
+    def at_floor(self, n):
+        AB.at_floor(self)
 
 
 # ------------------------------------------------------------------------------------------------------------ look
@@ -96,12 +126,13 @@ def appearance(w, n):
         clanTag='CM' if b.__dict__.get('moderator') else pl.get('clanTag', ''),        # chat moderator (bot/moderation.py)
         factionId=b.company, clanId=int(pl.get('clanId') or 0), dailyRank=pl.get('dailyRank', 1), warnBox=False,
         clanDiplomacy=WD.mod('ClanRelationModule', type=shown_relation(w, b)), galaxyGatesDone=GR.rings(b), useSystemFont=False, npc=False,
-        cloaked=False, motherShipId=0, positionIndex=0, designSet='', modifier=[],
+        cloaked=False, motherShipId=0, positionIndex=0, designSet='',
+        modifier=[WD.mod('VisualModifierCommand', **v) for v in n.vm.values()],      # running ability looks (reload, back in view)
         minimapStrategyModule=WD.mod('MinimapStrategyModule', minimapStrategy=0), specialNpcType=''))
 
 
 def extra_look(n):
-    return GR.messages(n)
+    return GR.messages(n) + (AB.look(n) if n.__dict__.get('ab_on') else [])      # running ship abilities (reload, back in view)
 
 
 def relation_msgs(w, n):
@@ -329,6 +360,8 @@ def remove(w, n):
     was_alive, n.alive = n.alive, False
     b = n.bot
     x, y = n.mover.pos(time.time())
+    if n.__dict__.get('ab_on'):
+        AB.on_remove(w, n)                     # running abilities end with the ship (their cooldowns stay on the pilot)
     if was_alive:                  # a ship released from outside (team_deathmatch.draft_bots moved the bot to a match) leaves its new state alone
         b.k['x'], b.k['y'] = int(x), int(y)
         b.carry = dict(t=time.time(), hp=n.hp, shield=n.shield,
@@ -386,8 +419,11 @@ def _go_to(w, n, x, y, now, threshold=80):
     h = n.movement
     if h is not None and math.hypot(h[0] - x, h[1] - y) < threshold and n.mover.t1 > now:
         return
+    v = n.speed() * n.effect.speed_factor(now)      # slowed (Mire Crate, a beacon carrier, an ability) or frozen
+    if v <= 0 and n.mover.t1 <= now:
+        return                                       # immobile (Fortify, Frozen Claw): no crawling MoveCommand
     n.movement = (x, y)
-    ms = n.mover.go(x, y, n.speed() * n.effect.speed_factor(now), now)      # slowed (Mire Crate, a beacon carrier) or frozen
+    ms = n.mover.go(x, y, v, now)
     w.send([('MoveCommand', dict(userId=n.id, x=int(x), y=int(y), timeToTarget=ms))])
 
 
@@ -565,17 +601,45 @@ def player_died(w, n):
     n.target = None
 
 
-def bot_damage(w, t, dmg, source_id, now, killer_bot=None, npc=None):
-    """The bot ship took damage (from an alien or another bot): the shield absorbs, if HP runs out the bot dies."""
+def bot_damage(w, t, dmg, source_id, now, killer_bot=None, npc=None, laser=False, hull=False, reactive=False):
+    """The bot ship took damage (from an alien or another bot): the shield absorbs, if HP runs out the bot dies. Ship abilities (abilities.py):
+    the target's defence (laser: Spectrum/Prismatic count), a marker on it, Weaken Shields / The Fortress on its shield, Protection's share to
+    a Citadel, Revenge / Prismatic Reflecting back to the attacker, Assimilate against aliens, Volt Back-up / Last Stand on a lethal hit.
+    hull: to the hull only (Venom); reactive: reflected or redirected damage (not reflected again)."""
     from . import active_items as AC
     if not t.alive or AC.is_protected(t, now):
         return
-    absorb = t.bot.value()['absorb']
+    raw = dmg
+    if t.__dict__.get('ab_on') or t.effect.d:
+        dmg = int(dmg * AB.taken_factor(t, now, laser) * (1 + t.effect.damage_bonus(now)))
+    p = AB.protector(w, t, now) if w.__dict__.get('ab_protect') and not reactive else None
+    if p is not None:                                       # Citadel Protection: a share of the damage goes to the Citadel
+        bot_damage(w, p, int(dmg * AB.PROTECT_SHARE), source_id, now, killer_bot, npc, laser, hull, reactive=True)
+        dmg = int(dmg * (1 - AB.PROTECT_SHARE))
+    if t.__dict__.get('ab_on') and not reactive:
+        back, refl = AB.effect(t, 'mirror', now), AB.effect(t, 'reflect_laser', now) if laser else None
+        amount = raw * back if back else (raw - dmg) if refl else 0
+        if amount >= 1:                                     # Revenge (the raw damage) / Prismatic Reflecting (the part taken off)
+            src = w.npcs.get(source_id)
+            if src is not None and src.alive and src.bot is not None:
+                bot_damage(w, src, int(amount), t.id, now, killer_bot=t.bot, reactive=True)
+            elif src is not None and src.alive:
+                hit_npc(w, t, src, int(amount), now, 1)
+        heal = AB.effect(t, 'absorb_hp', now) if npc is not None else None
+        if heal:                                            # Orcus Assimilate: alien damage turns into HP
+            t.hp = min(t.d['hp'], t.hp + dmg * heal)
+            dmg = int(dmg * (1 - heal))
+    absorb = 0.0 if hull else t.bot.value()['absorb']
     to_shield = min(int(t.shield), int(dmg * absorb))
-    t.shield -= to_shield
+    melt = t.effect.shield_damage(now) * (1 + (AB.mods(t, now).get('shield_damage_taken', 0) if t.__dict__.get('ab_on') else 0))
+    t.shield -= min(int(t.shield), int(to_shield * melt)) if melt != 1.0 else to_shield     # the shield melts faster / slower
     t.hp = max(0, t.hp - (dmg - to_shield))
+    if t.hp <= 0 and AB.floor(t):
+        t.hp = 1
+        AB.at_floor(t, now)
     t.last_damage = now
-    t.attacker[source_id] = now
+    if source_id:                                         # 0: no attacker (the player's share under Protection: cover_hero)
+        t.attacker[source_id] = now
     msgs = [('AttackHitCommand', dict(attackType=WD.attack_type(1), attackerId=source_id, victimId=t.id, victimHitpoints=int(t.hp),
                                       victimShield=int(t.shield), victimNanoHull=0, damage=int(dmg), skilled=False, strike=False,
                                       cannonType=0))]
@@ -583,10 +647,15 @@ def bot_damage(w, t, dmg, source_id, now, killer_bot=None, npc=None):
         msgs.append(w.selection(t))
     _broadcast(w, msgs, source_id, t.id)
     hook = getattr(getattr(w, 'gate', None), 'bot_hit', None)
-    if hook:
+    if hook and source_id:
         hook(source_id, t.id, dmg)                        # Team Deathmatch's damage statistics
     if t.hp <= 0:
         bot_die(w, t, killer_bot, npc)
+
+
+def cover_hero(w, dmg, now=None):
+    """world.hurt_hero's hook (cross-domain, guarded there with getattr): a Citadel bot's Protection takes a share of the player's damage."""
+    return AB.cover_hero(w, dmg, now)
 
 
 def bot_die(w, t, killer_bot=None, npc=None):
@@ -596,9 +665,13 @@ def bot_die(w, t, killer_bot=None, npc=None):
         msgs.insert(0, ('ShipDestroyedCommand', dict(destroyedUserId=t.id, explosionTypeId=0)))
     w.send(msgs)
     hook = getattr(getattr(w, 'gate', None), 'bot_died', None) or getattr(getattr(w, 'mode_brain', None), 'bot_died', None)
-    if hook and hook(w, t, killer_bot.uid if killer_bot is not None else getattr(npc, 'id', None)):
-        return                                            # Team Deathmatch (team_deathmatch.py)
+    handled = hook(w, t, killer_bot.uid if killer_bot is not None else getattr(npc, 'id', None)) if hook else None
     y = MGR.ACTIVE
+    if handled == 'reward' and killer_bot is not None and y is not None:
+        # Sector Control: the kill pays as on the open map (was_killed: the player's on_kill), the death is the mode's (no abstract death)
+        bots_do(y, killer_bot, lambda now=time.time(): S.pvp_reward(killer_bot, b, y, now))
+    if handled:
+        return                                            # Team Deathmatch / Sector Control (the mode's respawn)
     if y is None:
         return
 
@@ -696,7 +769,7 @@ def fire(w, n, now):
             n.fire = False
             _broadcast(w, [('AttackAbortLaserCommand', {'uid': n.id})], n.id)
         return
-    if now < n.next_shot:
+    if now < n.next_shot or n.effect.frozen(now):            # frozen (Frozen Claw, Voltage Link): no shots either
         return
     pos = _position(w, n.target, now)
     if pos is None:
@@ -705,7 +778,8 @@ def fire(w, n, now):
     nx, ny = n.mover.pos(now)
     if math.hypot(pos[0] - nx, pos[1] - ny) > LASER_RANGE:
         return
-    n.next_shot = now + COMBAT_INTERVAL
+    ddol = n.effect.get('shot_disrupted', now)               # Disruptor DDoL: the laser fires every 3-5 s
+    n.next_shot = now + (random.uniform(*ddol[0]['interval']) if ddol else COMBAT_INTERVAL)
     target = n.target
     m = w.npcs.get(target)
     o = _player(w, target) if m is None else None
@@ -734,10 +808,13 @@ def fire(w, n, now):
     is_hard = o is not None or (m is not None and (m.bot is not None or (m.d.get('hp', 0) + m.d.get('shield', 0))
                                                / max(1, n.bot.value()['dps']) > WP.HARD_SEC))
     landed = random.random() < AC.aim(n, WD.COMBAT['laser_hit_chance'], is_hard)      # AIM CPU (Xenomit)
+    if landed and m is not None and m.bot is not None and m.__dict__.get('ab_on'):
+        landed = random.random() >= AB.mods(m, now).get('evasion', 0)                 # Scramble: the target evades
+    boost = (1 + n.__dict__.get('damage_bonus', 0)) * (AB.out_factor(n, 'laser', now) if n.__dict__.get('ab_on') else 1.0)
     if o is not None:
         msgs = [run]
         if landed:
-            dmg = int(_fire(n.bot, pvp=True, ammo=ammo) * (1 + n.__dict__.get('damage_bonus', 0)))     # Sector Control's underdog bonus
+            dmg = int(_fire(n.bot, pvp=True, ammo=ammo) * boost)     # Sector Control's underdog bonus, abilities
             AC.leech(n, dmg, n.bot.value()['hp'], now)
             msgs += o.hurt_hero(dmg, killer=n, cause=0, source_asset=True, now=now)
         else:
@@ -750,11 +827,11 @@ def fire(w, n, now):
     if not landed:
         _broadcast(w, [run, ('AttackMissedCommand', dict(attackType=WD.attack_type(1), targetUserId=target, skillColorId=0))], n.id, target)
         return
-    dmg = int(_fire(n.bot, pvp=m.bot is not None, ammo=ammo) * (1 + n.__dict__.get('damage_bonus', 0)))
+    dmg = int(_fire(n.bot, pvp=m.bot is not None, ammo=ammo) * boost)
     AC.leech(n, dmg, n.bot.value()['hp'], now)
     if m.bot is not None:
         _broadcast(w, [run], n.id, target)
-        bot_damage(w, m, dmg, n.id, now, killer_bot=n.bot)
+        bot_damage(w, m, dmg, n.id, now, killer_bot=n.bot, laser=True)
         return
     hit_npc(w, n, m, dmg, now, 1, [run], ammo=ammo)
 
@@ -779,7 +856,7 @@ def salvo(w, n, target, m, o, now):
         return
     n.salvo_ready = now + mid
     r = TECH.LAUNCHER_AMMO[fr]
-    dmg = int(r.get('pvp_damage' if pvp else 'damage', r['damage']))
+    dmg = int(r.get('pvp_damage' if pvp else 'damage', r['damage']) * (AB.out_factor(n, 'launcher', now) if n.__dict__.get('ab_on') else 1.0))
     for i in range(capacity):
         def at(i=i):
             if not n.alive:
@@ -814,7 +891,7 @@ def player_near(w, m, now, reach=1500):
     return math.hypot(hx - mx, hy - my) <= reach
 
 
-def hit_npc(w, n, m, dmg, now, atype, once=(), shield=False, ammo=None):
+def hit_npc(w, n, m, dmg, now, atype, once=(), shield=False, ammo=None, hull=False):
     """The bot's laser (atype 1) or rocket (0) on an alien: the shield absorbs, then the hull; if it dies npc_kill, otherwise the alien turns on the bot.
     shield: shield only (Chain Impulse). The alien's mechanics are as in the player's hit (world.hit_npc): invulnerability while its helpers are alive,
     only specific ammo, damage reduction, a cloaked commando becoming visible, summoning when hit (the helpers spawn around the bot and
@@ -833,7 +910,9 @@ def hit_npc(w, n, m, dmg, now, atype, once=(), shield=False, ammo=None):
         w.send([legacy('0|n|INV|%d|0' % m.id)])
     w.alien.attacked(m, n.id, now)
     w.npc_summon(m, now, hitter=n)
-    absorb = 1.0 if shield else m.d.get('shield_absorb', WD.COMBAT['npc_shield_absorb'])
+    if m.effect.d and not hull:
+        dmg = int(dmg * (1 + m.effect.damage_bonus(now)))   # Target Marker on the alien (the player's or a bot's)
+    absorb = 1.0 if shield else 0.0 if hull else m.d.get('shield_absorb', WD.COMBAT['npc_shield_absorb'])
     to_shield = min(int(m.shield), int(round(dmg * absorb)))
     m.shield -= to_shield
     m.hp = max(0, m.hp - (dmg - to_shield))
@@ -874,7 +953,8 @@ def rocket(w, n, target, m, o, now):
     nx, ny = n.mover.pos(now)
     if not rocket or pos is None or math.hypot(pos[0] - nx, pos[1] - ny) > CI.rocket_range(rocket) or not WP.spend(b, rocket, 1):
         return
-    n.rocket_ready = now + WP.rocket_cooldown(b)
+    fast = AB.effect(n, 'rocket_cooldown_ms', now) if n.__dict__.get('ab_on') else None      # Rapid Fire: 1 s between rockets
+    n.rocket_ready = now + (min(WP.rocket_cooldown(b), fast / 1000.0) if fast else WP.rocket_cooldown(b))
     r = K.ITEMS['rockets'][rocket]
     landed = random.random() < r.get('hit', WD.COMBAT['rocket_hit_chance'])
     _broadcast(w, [legacy('0|v|%d|%d|%s|%d|0|0' % (n.id, target, 'H' if landed else 'M', r.get('uid', 1)))], n.id, target)
@@ -882,7 +962,7 @@ def rocket(w, n, target, m, o, now):
         return
     from . import lab as LB
     dmg = int(r.get('pvp_damage' if (o is not None or (m is not None and m.bot is not None)) else 'damage', r['damage'])
-              * random.uniform(0.85, 1.0) * (1 + LB.bonus(b, LB.ROCKET)))
+              * random.uniform(0.85, 1.0) * (1 + LB.bonus(b, LB.ROCKET)) * (AB.out_factor(n, 'rocket', now) if n.__dict__.get('ab_on') else 1.0))
     LB.spend(b, LB.ROCKET, 1)
 
     def hit():
@@ -1003,6 +1083,8 @@ def can_attack_bot(w, n, m, now):
     from . import admin_warnings as AW
     if not m.alive or m.bot.company == n.bot.company or AW.active(n.bot, 'pvp', now):
         return False
+    if now < m.__dict__.get('emp_lock', 0) and n.target != m.id:
+        return False                                     # its EMP: not selectable again for the daze (active_items.emp)
     if (n.bot.k.get('clan') and n.bot.k.get('clan') == m.bot.k.get('clan')) or T.clan_relation(n.bot, m.bot) in (1, 2):
         return False
     mx, my = m.mover.pos(now)
@@ -1083,12 +1165,14 @@ def npc_to_bot(w, m, now):
             gx, gy = tx + math.cos(a) * m.keep, ty + math.sin(a) * m.keep
             ms = m.mover.go(gx, gy, m.speed() * m.effect.speed_factor(now), now)
             w.send([('MoveCommand', dict(userId=m.id, x=int(gx), y=int(gy), timeToTarget=ms))])
-    if now >= m.next_shot and dist <= w.npc_range(m) and m.d['damage'] > 0:
-        m.next_shot = now + m.d.get('shot_interval_sec', WD.COMBAT['npc_attack_interval_sec'])
+    if now >= m.next_shot and dist <= w.npc_range(m) and m.d['damage'] > 0 and not m.effect.frozen(now):
+        ddol = m.effect.get('shot_disrupted', now)          # DDoL (the player's or a bot's): the laser fires every 3-5 s (world.npc_shoot)
+        m.next_shot = now + (random.uniform(*ddol[0]['interval']) if ddol else m.d.get('shot_interval_sec', WD.COMBAT['npc_attack_interval_sec']))
         _broadcast(w, [('AttackLaserRunCommand', dict(attackerId=m.id, targetId=t.id, laserColor=0, isDiminishedBySkillShield=False,
                                                   skilledLaser=False, visualType=0))], m.id, t.id)
-        if random.random() < m.d.get('hit', WD.COMBAT['npc_hit_chance']):
-            bot_damage(w, t, int(m.d['damage'] * random.uniform(0.8, 1.0)), m.id, now, npc=m)
+        evade = AB.mods(t, now).get('evasion', 0) if t.__dict__.get('ab_on') else 0
+        if random.random() < m.d.get('hit', WD.COMBAT['npc_hit_chance']) * (1 - evade):
+            bot_damage(w, t, int(m.d['damage'] * random.uniform(0.8, 1.0)), m.id, now, npc=m, laser=True)
     return True
 
 
@@ -1099,6 +1183,7 @@ def think(w, n, now):
         return
     b = n.bot
     fire(w, n, now)
+    AB.tick(w, n, now)                                   # running ship abilities (cheap when none runs)
     if now < n.next_think:
         return
     n.next_think = now + b.k['personality']['reaction_sec'] * random.uniform(0.6, 1.4)
@@ -1115,6 +1200,7 @@ def think(w, n, now):
         b.exit_request = b.logout_ready = None           # the session was extended / the bot came back online: stale request
     if b.__dict__.get('exit_request') and not any(now - t < 6 for t in n.attacker.values()):
         return go_logout(w, n, now)                     # session over: flies to the station or portal and leaves there
+    AB.think(w, n, now)                                  # ship abilities: heal, defend, burst, escape, help an ally (also fleeing, in a match)
     if getattr(n, 'shelter', None) is not None and sheltering(w, n, now, d):
         return                                           # fled: no box, goal or fight until it has recovered in its shelter
     goal = b.target                                      # read once: the bots thread may set it to None in between (AttributeError)
@@ -1123,6 +1209,8 @@ def think(w, n, now):
         return                                           # picks up a box on its route (on every job; when not fighting)
     if goal is not None and goal.concrete(b, n, w, now):
         return
+    if support(w, n, now):
+        return                                           # a healer flies to an ally in need (no tactics steered it)
     ratio = (n.hp + n.shield) / max(1, d['hp'] + d['shield'])
     attackers = [u for u, t in n.attacker.items() if now - t < 6]
     from . import active_items as AC
@@ -1652,6 +1740,28 @@ def escort(w, n, now):
     nx, ny = n.mover.pos(now)
     if math.hypot(hx - nx, hy - ny) > 200:
         _go_to(w, n, hx, hy, now, threshold=120)
+    return True
+
+
+SUPPORT_MIN = 0.35            # a healer goes to an ally only while its own HP+shield share is above this (otherwise it saves itself)
+
+
+def support(w, n, now):
+    """A ship with a ready repair / shield repair / Protection flies to the ally in need out of its range (abilities.support_wish: its
+    side's ships, group, escort, clan, the player when on its side); in range the ability goes off at its next decision -> moved."""
+    if not AB.kinds(n) & {'heal_ally', 'shield_ally', 'taunt'} or getattr(n, 'shelter', None) is not None or n.bot.en_route:
+        return False
+    d = n.bot.value()
+    if (n.hp + n.shield) < SUPPORT_MIN * (d['hp'] + d['shield']):
+        return False
+    x = AB.support_wish(w, n, now)
+    if x is None:
+        return False
+    nx, ny = n.mover.pos(now)
+    if math.hypot(x[1] - nx, x[2] - ny) <= x[3]:
+        return False
+    a = math.atan2(ny - x[2], nx - x[1]) + random.uniform(-0.4, 0.4)       # stops on its own side of the ally, inside the range
+    _go_to(w, n, x[1] + math.cos(a) * x[3] * 0.5, x[2] + math.sin(a) * x[3] * 0.5, now, threshold=150)
     return True
 
 

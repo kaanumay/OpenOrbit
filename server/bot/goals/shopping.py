@@ -17,6 +17,110 @@ except (OSError, ValueError):
     pass
 
 
+# ------------------------------------------------------------------------------------------------ the ship wish
+# A pilot of the mid levels wants a particular ship with abilities for its role (a repair ship, a tank, a hunter ...) and keeps uridium
+# for it instead of shooting all of it away as x2/x3 ammunition (lab 2026-11-23: level 12-15 bots earned ~10,000 U a day and spent ~9,900
+# on ammunition, 2-15% flew a ship with abilities). Behaviour parameters (not game values):
+WISH_NEVER = {'saver': 0.04, 'balanced': 0.12, 'spender': 0.35, 'impulsive': 0.6}     # share of pilots who never save for a ship
+WISH_KEEP = {'saver': 0.95, 'balanced': 0.85, 'spender': 0.6, 'impulsive': 0.4}       # share of its uridium kept for the wish
+WISH_DAYS = (12, 60)          # how many days of uridium income a ship may cost to be wished (impatient .. patient)
+WISH_RETHINK = (3, 10)        # days between two looks at the wish; on a look a pilot changes its mind with WISH_SWITCH
+WISH_SWITCH = 0.25
+WISH_POWER = {'support': 0.7, 'tank': 0.7, 'hunter': 0.5, 'runner': 0.7}    # least power share against the flown ship (same gear): a
+                                                                             # hunter takes a light Spearhead for its cloak and marker
+ROLES = {'support': ('heal_ally', 'shield_ally'), 'tank': ('taunt', 'defense'), 'hunter': ('debuff', 'burst', 'control', 'area', 'cloak'),
+         'runner': ('speed',)}
+
+
+def _u(bot, key):
+    import zlib
+    return (zlib.crc32(('%s|%s' % (bot.name, key)).encode()) % 10000) / 9999.0
+
+
+def role_fit(bot, role):
+    """How much a pilot likes a role (traits and play style)."""
+    from .. import playstyle as PL
+    o = bot.o
+    return {'support': 0.6 * o('helpfulness') + 0.3 * o('sociability') + 0.15 * (PL.like(bot, 'social') - 1),
+            'tank': 0.35 * o('patience') + 0.25 * o('loyalty') + 0.15 * (1 - o('risk')),
+            'hunter': 0.5 * o('aggression') + 0.35 * o('rivalry') + 0.15 * (PL.like(bot, 'pvp') - 1),
+            'runner': 0.35 * o('risk') + 0.2 * (1 - o('patience'))}[role]
+
+
+def ship_roles(loot):
+    """The ship's roles from its abilities' classes (abilities.CLASS): a Citadel's Protection makes it a tank, not a repair ship; speed
+    alone makes a runner."""
+    from .. import abilities as AB
+    ks = {k for i in AB.SHIPS.get(loot, {}).get('skills', ()) if i in AB.CLASS for k in AB.CLASS[i]}
+    if 'taunt' in ks:
+        ks.discard('shield_ally')
+    out = [r for r, kinds in ROLES.items() if r != 'runner' and ks & set(kinds)]
+    return out or (['runner'] if 'speed' in ks else [])
+
+
+def daily_uridium(bot):
+    """Uridium a day: the map's income per hour (income) over the pilot's usual hours a day, and its weekly payments."""
+    from .. import playstyle as PL
+    pl = PL.profile(bot)
+    return income(bot)['U'] * pl.get('daily_h', 4) + pl.get('wallet_week', 0) / 7.0
+
+
+def _pick(bot, old, now):
+    from .. import playstyle as PL
+    style = PL.profile(bot)['spend']
+    nxt = now + 86400 * (WISH_RETHINK[0] + (WISH_RETHINK[1] - WISH_RETHINK[0]) * _u(bot, 'rethink%d' % int(now // 86400)))
+    if _u(bot, 'never') < WISH_NEVER[style] and not PL.has(bot, 'hoarder'):
+        return dict(ship=None, next=nxt)
+    if old and old.get('ship') and old['ship'] != bot.k['gear']['ship'] and _u(bot, 'switch%d' % int(now // 86400)) >= WISH_SWITCH:
+        return dict(old, next=nxt)                          # keeps wanting the same ship
+    e = bot.k['gear']
+    shield_share = bot.shield_share()
+    base = K.values(e, shield_share)['power']
+    cur = K.price(e['ship']) or ('C', 0)
+    reach = bot.k['uridium'] + daily_uridium(bot) * (WISH_DAYS[0] + (WISH_DAYS[1] - WISH_DAYS[0]) * bot.o('patience'))
+    taste = PS.taste(bot.k['personality'])
+    best = None
+    for loot in K.ships():
+        f = K.price(loot)
+        roles = ship_roles(loot)
+        if not roles or loot == e['ship'] or not f or f[0] != 'U' or f[1] > reach or (cur[0] == 'U' and f[1] <= cur[1]):
+            continue
+        if K.values(dict(e, ship=loot), shield_share)['power'] < min(WISH_POWER[r] for r in roles) * base:
+            continue
+        score = max(role_fit(bot, r) for r in roles) + (0.35 if taste in loot else 0) + 0.25 * _u(bot, loot + str(int(now // 864000)))
+        score -= 0.25 * f[1] / max(1.0, reach)                  # a ship far off counts a little less
+        if best is None or score > best[0]:
+            best = (score, loot)
+    return dict(ship=best[1] if best else None, next=nxt)
+
+
+def wish(bot, now=None):
+    """The ship with abilities this pilot saves uridium for (None: none it wants, never saves, or flies it already)."""
+    if not bot.permission.get('shop', True):
+        return None
+    now = now or bot.hour()
+    w = bot.k.get('ship_wish')
+    if w is None or now >= w.get('next', 0):
+        old = w
+        w = bot.k['ship_wish'] = _pick(bot, w, now)
+        if (old or {}).get('ship') != w['ship']:
+            bot._candidates = None
+            if w['ship']:
+                bot.event('ship_wish', item=w['ship'])
+    s = w.get('ship')
+    return s if s and s != bot.k['gear']['ship'] else None
+
+
+def held(bot):
+    """Uridium kept for the ship wish (not spent on ammunition, CPUs, gates, looks ...)."""
+    s = wish(bot)
+    if not s:
+        return 0
+    from .. import playstyle as PL
+    keep = 1.0 if PL.has(bot, 'hoarder') else WISH_KEEP[PL.profile(bot)['spend']]
+    return int(min(bot.k['uridium'], K.price(s)[1]) * keep)
+
+
 def candidates(bot):
     """[(power gain, currency, price, loot)]: every purchase that has a slot or a better ship. Kept on the bot until the equipment changes."""
     if bot._candidates is None:
@@ -91,7 +195,7 @@ def _candidates(bot):
     for loot in K.ships():
         if loot != e['ship']:
             attempt(loot)
-    wanted = bot.k.get('savings')
+    wanted = bot.k.get('savings') or wish(bot)
     if wanted and not any(c[3] == wanted for c in out) and (wanted.startswith('ship_') or any(
             wanted in K.ITEMS[g] for g in ('lasers', 'shield_generators', 'speed_generators', 'drones'))):
         attempt(wanted, e.get('drone', {}).get(wanted, 0), force=True)
@@ -136,10 +240,11 @@ def candidate(bot):
     wealth = currency['C'] + currency['U'] * EXCHANGE_RATE
     efficiency = lambda c: c[0] * PL.misjudge(bot, c[3]) / max(1.0, credit_equiv(c) + 0.25 * wealth) * 1e5     # weak money sense misjudges
     t = PL.thrift(bot)                                     # frugality shifted by the spending style (saver, spender, impulsive)
-    target = next((c for c in all_candidates if c[3] == bot.k.get('savings')), None)
-    if target is not None:                       # its own chosen saving goal (the agent's save-up tool): it buys only that
-        if currency[target[1]] >= target[2]:
-            return target, target
+    wished = None if bot.k.get('savings') else wish(bot)
+    target = next((c for c in all_candidates if c[3] == (bot.k.get('savings') or wished)), None)
+    if target is not None:                       # its own chosen saving goal (the agent's save-up tool) or its ship wish: it buys only that
+        if currency[target[1]] >= target[2] or (wished and bot.k[{'C': 'credits', 'U': 'uridium'}[target[1]]] >= target[2]):
+            return target, target                # the wish: what it kept is for this (not the general reserve)
         # purchases that do not delay the goal's accumulation are free (another currency, or money left over above the goal): it used to look only
         # at the goal, a bot saving for an 80,000 U ship stood idle with 66M credits without buying shields/engines (player report 2026-11-01)
         free = [c for c in all_candidates if c[1] != target[1] and currency[c[1]] >= c[2] * (1 + 0.3 * t)

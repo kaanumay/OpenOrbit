@@ -43,6 +43,7 @@ LASER_PREP, LASER_CHARGE, LASER_SHOT = 134, 135, 136
 POI_HEAL = 'worldBossHealingBeacon'
 AMMO_BONUS = {'ammunition_laser_ucb-100': 6, 'ammunition_laser_rsb-75': 7}     # official FAQ: UCB-100 x6, RSB-75 x7 during the event
 WINDOW = 30 * 60
+RESUME_SAVE_SEC = 5.0          # how often the battle's state goes to the profile (st['resume']: a relog in the window resumes it)
 
 
 def _register():
@@ -235,8 +236,11 @@ class WorldBoss:
             import vortex
             vortex.send_home(self, world)
             return []
-        s = self.saved if self.saved and time.time() < self.saved['end'] else None
+        s = self.saved or self.st.get('resume')               # the profile's copy after a logout / disconnect (WbRun.tick)
+        s = s if s and time.time() < s['end'] else None
         self.saved = None
+        with self.p.lock:
+            self.st.pop('resume', None)
         if s:
             a, b = s['start'], s['end']
         elif SET.get('session_always_open'):                    # "always open": the battle starts at login (5 min preparation, 20 min boss)
@@ -252,6 +256,7 @@ class WorldBoss:
         """The battle ended (Fortress killed or escaped): it is not restarted when re-entering until this window ends."""
         with self.p.lock:
             self.st['done_end'] = end
+            self.st.pop('resume', None)
             self.p.dirty = True
 
     def on_kill(self, w, npc, x, y):
@@ -294,6 +299,9 @@ class WorldBoss:
         st = self.p.d.get('world_boss')
         if not st or st.get('period') is None:
             return []
+        r = self.run                    # adaptation: a battle that began while the event was on finishes under the rules it began with
+        if r is not None and r.phase not in ('finished', 'closed') and self.world is not None and self.world.gate is r:
+            return []                   # (its state, tiers and rewards); the fragments go to honor once it is over
         frag = D.get('part', 'resource_collectable_infiltrator-fragment')
         n = self.p.resource(frag)
         msgs = []
@@ -378,6 +386,13 @@ class WbRun:
         else:
             self.spawn_boss(r)
         return msgs
+
+    def resend_msgs(self):
+        """world.resend (a ship change, a respawn on the map): the healing beacon's POI (the client cleared its POIs); the exit portal, the
+        aliens and the Guardians' fields (their images) come with the world's own resend."""
+        if self.w.gate is not self or self.phase == 'closed':          # close() removed it
+            return []
+        return [poi(POI_HEAL, self.cx, self.cy, D['healing_beacon']['radius'], ptype=4, design=6)]
 
     def snapshot(self):
         """The battle's state (when the player leaves the map; when returning in the same window enter_msgs resumes it)."""
@@ -572,6 +587,12 @@ class WbRun:
         w = self.w
         if self.phase == 'closed':
             return
+        if self.phase != 'finished' and now >= self.next.get('save', 0):      # a logout / disconnect does not reset the battle
+            self.next['save'] = now + RESUME_SAVE_SEC
+            snap = self.snapshot()
+            with self.m.p.lock:
+                self.m.st['resume'] = snap
+                self.m.p.dirty = True
         self.heal_tick(now)
         if self.phase == 'prep':
             if now >= self.boss_at:

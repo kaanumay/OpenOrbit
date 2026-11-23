@@ -22,3 +22,10 @@ class RefractionZone:
             return [status('RzoneQueueingStatusModule')]
         self.queued = False                     # cancel, a refused / stale confirmation, leaving: back to the registration state
         return [status('RzoneRegistrationStatusModule')]
+
+    def attach(self, world):
+        """Every map's ready bundle carries the Registration state (the template): a pilot on standby sees the Queueing state again."""
+        return [status('RzoneQueueingStatusModule')] if self.queued else []
+
+    def resend_msgs(self, world):
+        return self.attach(world)

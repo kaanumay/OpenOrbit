@@ -24,6 +24,15 @@ REPEAT_SEC = 2700.0                      # the same line is not written a second
 BOT_GAP_SEC = 600.0                      # minimum gap between two spontaneous remarks of the same bot
 RUDE_FACTOR = (0.0, 1.0, 1.6, 2.2)      # multiplier of the probability of answering an insult, by rude_chat level
 COMPANY = {1: 'MMO', 2: 'EIC', 3: 'VRU'}
+# team callouts (the tactics' 'team' events: bot/tactics.py, bot/abilities.py): only bots on a human's map and side, in the company channel
+TEAM_ACTS = {'push': 'team_push', 'defend': 'team_defend', 'retreat': 'team_retreat', 'regroup': 'team_regroup',
+             'need_heal': 'team_need_heal', 'healed': 'team_healed', 'point_taken': 'team_point_taken', 'point_lost': 'team_point_lost',
+             'carrier': 'team_carrier', 'goal_push': 'team_goal_push'}
+TEAM_BOT_SEC = 90.0          # one pilot's callouts at most this often (behaviour: a call at a key moment, not a running commentary)
+TEAM_GAP_SEC = 12.0          # between two callouts of one side on one map
+TEAM_PER_MIN = 3             # callouts a minute of one side on one map (tools/chat_lab/callouts.py: ~2 a minute in a busy match)
+TEAM_SAME_SEC = 40.0         # the same call (kind and point) of one side is not repeated within this (someone already said it)
+LFG_SEC = 600.0              # 'tdm anyone?' at most once in this time per company and mode
 
 
 def user(b):
@@ -380,11 +389,82 @@ class ChatEngine:
                 said[k] = now
                 TALK.calendar_line(self, k, started, now)
 
+    def team_callout(self, b, o, now):
+        """A tactical moment of a bot on a human's map and side (o: {sub, point, who}) -> a short call in the company channel, rate-limited
+        per side so a match does not flood the chat. -> True if queued."""
+        act = TEAM_ACTS.get(o.get('sub'))
+        if act is None or b.body is None or not self.permission('chat'):
+            return False
+        try:
+            here = any(int(k.profile.d['position'].get('mapId', 0)) == int(b.game_map) and int(k.profile.d['pilot'].get('factionId') or 0) == b.company
+                       for k in self.online_humans())
+        except (TypeError, ValueError, KeyError):
+            here = False
+        if not here:
+            return False
+        side = (int(b.game_map), b.company)
+        calls = self.__dict__.setdefault('_team_calls', {})
+        last = self.__dict__.setdefault('_team_last', {})
+        times = calls[side] = [t for t in calls.get(side, ()) if now - t < 60]
+        same = (side, o.get('sub'), o.get('point'))
+        if (len(times) >= TEAM_PER_MIN or (times and now - times[-1] < TEAM_GAP_SEC) or now - last.get(b.uid, -1e9) < TEAM_BOT_SEC
+                or now - last.get(same, -1e9) < TEAM_SAME_SEC):
+            return False
+        from . import playstyle as PL
+        if b.r.random() > (0.3 + 0.6 * b.o('talkativeness')) * (0.3 if PL.quiet(b) else 1.0):
+            return False
+        slots = {k: o[k] for k in ('point',) if o.get(k)}
+        if o.get('who'):
+            slots['name'] = o['who']
+        if not TALK.callout(self, b, act, now, **slots):
+            return False
+        times.append(now)
+        last[b.uid] = last[same] = now
+        if len(last) > 400:
+            self._team_last = {k: v for k, v in last.items() if now - v < 120}
+        return True
+
+    def match_chat(self, b, o, now):
+        """A match it played (o: a release event): won or lost, now and then with its kills; others say gz / rip."""
+        from . import modes as MD
+        MD.after_match(b, now)                         # who won (a drafted match's last score) and the history first
+        won = o.get('won')
+        mode = MD.MATCH_DONE.get(o['type'])
+        if won is None or mode not in MD.PVP or b.r.random() > 0.15 + 0.35 * b.o('talkativeness'):
+            return False
+        from .talk import dialog as DG
+        slots = dict(event=DG.event_name(DG.PE.of(b).lang, MD.PVP[mode]['event']))
+        if int(o.get('kills') or 0) >= 3:
+            slots['kills'] = int(o['kills'])
+        return TALK.event_line(self, b, 'match_win' if won else 'match_loss', now, **slots)
+
+    def lfg_chat(self, b, o, now):
+        """Just queued for a team mode match: now and then 'tdm anyone?' (once in LFG_SEC per company and mode)."""
+        from . import modes as MD
+        key = (b.company, o.get('mode'))
+        said = self.__dict__.setdefault('_lfg_said', {})
+        if o.get('mode') not in MD.PVP or now - said.get(key, -1e9) < LFG_SEC or b.r.random() > 0.2 + 0.4 * b.o('sociability') * b.o('talkativeness'):
+            return False
+        from . import playstyle as PL
+        if PL.quiet(b) or not TALK.looking_for(self, b, MD.PVP[o['mode']]['event'], now):
+            return False
+        said[key] = now
+        return True
+
     def event_chat(self, b, o, now):
+        kind = o['type']
+        if kind == 'team':
+            self.team_callout(b, o, now)                   # a callout is typed at once: never the language model (too slow for it)
+            return
         if self.llm is not None and self.llm.event(self, b, o, now):
             return
         talk = b.o('talkativeness')
-        kind = o['type']
+        if kind in ('tdm_done', 'sc_done'):
+            self.match_chat(b, o, now)
+            return
+        if kind == 'pvp_queue':
+            self.lfg_chat(b, o, now)
+            return
         if kind == 'witness':
             if o.get('sub') == 'boss' and o.get('who') and str(o['who']).lower() != b.name.lower():
                 TALK.witness(self, b, 'boss', now, who=o['who'])

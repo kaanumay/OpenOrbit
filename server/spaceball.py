@@ -10,7 +10,7 @@ Adaptation (data/extra_events.json "_adaptation"): the ball heads for the portal
 10 seconds, faster the bigger its lead (speed 1-3); the bot pilots on 4-4 shoot it too; one box per prize; the day's winner is the company
 with the most goals (a tie: nobody); the model by season (summer 442, winter 443, football 444).
 """
-import collections, datetime, math, random, time
+import collections, datetime, math, time
 
 import event_calendar as CAL
 import game_data as DATA
@@ -130,6 +130,7 @@ class Spaceball:
         self.goal_at = goals(world.map_id)
         x, y = D.get('start') or (world.map_w // 2, world.map_h // 2)
         world.later(1.0, lambda: self.spawn(world, x, y))
+        self.next_step = time.time() + 1.5                    # the tick does not place it first (it would, the event running without a ball)
         return [self.init_cmd()]
 
     def purge(self, w):
@@ -174,6 +175,13 @@ class Spaceball:
 
     def tick(self, now):
         w, n = self.world, self.ball
+        if w is not None and n is None and now >= self.next_step and D and int(w.map_id) == D['map'] and active(now):
+            self.next_step = now + 1.0                        # the event began while the pilot is on 4-4: the ball and the window now
+            roll_day(self.p, self.company())
+            self.goal_at = goals(w.map_id)
+            self.owner, self.speed = 0, 0
+            self.spawn(w, *(D.get('start') or (w.map_w // 2, w.map_h // 2)))
+            return [self.init_cmd()]
         if w is None or n is None or now < self.next_step:
             return []
         self.next_step = now + 1.0
@@ -204,14 +212,9 @@ class Spaceball:
         return msgs
 
     def bots(self, w, n, now):
-        """The bot pilots near the ball shoot it now and then (they push it to their own portal: the most damage leads it)."""
-        bx, by = n.mover.pos(now)
-        for b in list(w.npcs.values()):
-            if b.bot is None or not b.alive or b.target is not None and b.target != n.id:
-                continue
-            x, y = b.mover.pos(now)
-            if math.hypot(x - bx, y - by) <= D['bot_range'] and random.random() < D['bot_chance']:
-                b.target = n.id
+        """The bot pilots on 4-4 and the ball: bot/tactics.py."""
+        from bot import tactics as TT
+        return TT.spaceball_bots(self, w, n, now)
 
     def goal(self, company, gx, gy, gid):
         """A goal: the company's score, the announcement, the cargo boxes at its portal, the ball back to the middle."""

@@ -21,7 +21,6 @@ import math, random, time
 
 import event_calendar as CAL
 import game_data as DATA
-import map_links as H
 
 EVENT = 'capture_the_beacon'
 D = DATA.load('extra_events.json').get('capture_the_beacon', {})
@@ -71,6 +70,29 @@ def state(p, now=None):
     return st
 
 
+def raiders_company(now):
+    """The company of a simulated delivery of the hour: in proportion to each company's online level 13+ bot pilots on the X-2 maps (who
+    could steal a beacon there; bot manager on_map), none when nobody is there; a uniform company without the bots."""
+    import bot.manager as MGR
+    y = MGR.ACTIVE
+    if y is None:
+        return random.choice(COMPANIES)
+    n = {c: 0 for c in COMPANIES}
+    for m in X2.values():
+        for b in list(y.on_map.get(m, ())):
+            if b.level >= D['min_level'] and b.dead_until <= now:
+                n[b.company] += 1
+    total = sum(n.values())
+    if not total:
+        return 0
+    x = random.random() * total
+    for c in COMPANIES:
+        x -= n[c]
+        if x < 0:
+            return c
+    return COMPANIES[-1]
+
+
 def company_mods(p):
     """The hour winner's prize for the next hour (adaptation: +5% EP and Honor)."""
     st = p.d.get('ctb', {})
@@ -110,27 +132,40 @@ class CaptureBeacon:
     def attach(self, world):
         self.world = world
         self.shown, self.wish = set(), None           # a new map: the client has none of them
+        world.death_hooks.append(self.hero_killed)    # also when the event begins while on the map (tick: setup)
         if not active():
             self.carrying = None
             return []
-        msgs = []
         m = int(world.map_id)
-        owner = next((c for c, x in X2.items() if x == m), None)
-        if owner:                                    # an X-2: its two beacon places
-            msgs += [('CTBSetHomeZonesCommand', dict(beaconId=beacon(owner, t), x=zone(beacon(owner, t))[0], y=zone(beacon(owner, t))[1]))
-                     for t in COMPANIES if t != owner]
-            world.mode_brain = self
-            self.next_raid = time.time() + random.uniform(*D['raid_first_sec'])
+        msgs = self.setup(world)
         if self.carrying:                            # the beacon goes along with its carrier (and so does the slowing)
             self.where[self.carrying] = m
             world.hero_effect('slow', 24 * 3600, D['carrier_slow'], source='ctb')
             msgs.append(('CTBBeaconPositionCommand', dict(beaconId=self.carrying, mapId=m)))
-            world.later(1.5, lambda: world.send([('CTBBeaconCapturedCommand', dict(userId=world.hid, beaconId=self.carrying))]
-                                                if self.carrying else []))
+            self.show_carried(world)
         if self.raider is not None and self.raider.get('world') is not world:
             self.end_raid(None)
-        world.death_hooks.append(self.hero_killed)
         return msgs + [self.score_cmd()] + self.beacon_msgs(world)
+
+    def setup(self, w):
+        """An X-2 while the event runs: its two beacon places (CTBSetHomeZonesCommand), the raids."""
+        owner = next((c for c, x in X2.items() if x == int(w.map_id)), None)
+        if not owner:
+            return []
+        w.mode_brain = self
+        self.next_raid = time.time() + random.uniform(*D['raid_first_sec'])
+        return self.zone_msgs(w)
+
+    def zone_msgs(self, w):
+        owner = next((c for c, x in X2.items() if x == int(w.map_id)), None)
+        return [('CTBSetHomeZonesCommand', dict(beaconId=beacon(owner, t), x=zone(beacon(owner, t))[0], y=zone(beacon(owner, t))[1]))
+                for t in COMPANIES if t != owner] if owner else []
+
+    def show_carried(self, w):
+        """The carried beacon on the player's ship (the client's BeaconEntityTrait goes with the ship's unit: a new map or a reload
+        builds a new one); a moment later, once the ship is built."""
+        w.later(1.5, lambda: w.send([('CTBBeaconCapturedCommand', dict(userId=w.hid, beaconId=self.carrying))]
+                                    if self.carrying and self.world is w else []))
 
     def beacon_msgs(self, w):
         """The beacons at rest on this X-2 in its client: the ones at home are added, a taken one is removed (collected) and added again
@@ -146,11 +181,15 @@ class CaptureBeacon:
         return msgs
 
     def resend_msgs(self, w):
-        """world.resend: the client cleared the map (respawn, reload)."""
+        """world.resend: the client cleared the map (respawn, reload): the beacon places, the beacons at rest, a carried beacon on its
+        carrier's new ship (the player's; a raider's comes with its ship: n.images['ctb'], bot/tactics.py)."""
         if w is not self.world:
             return []
         self.shown = set()
-        return self.beacon_msgs(w)
+        msgs = self.zone_msgs(w) if active() and w.mode_brain is self else []
+        if self.carrying:
+            self.show_carried(w)
+        return msgs + self.beacon_msgs(w)
 
     def near(self, w, b, now=None):
         import world as WD
@@ -184,10 +223,13 @@ class CaptureBeacon:
         msgs = []
         if now >= st.get('sim_next', 0):             # the other pilots' deliveries of the hour (bot companies)
             st['sim_next'] = now + random.uniform(*D['sim_sec'])
-            c = random.choice([c for c in COMPANIES])
-            st['scores'][str(c)] += 1
-            msgs.append(self.score_cmd())
+            c = raiders_company(now)
+            if c:
+                st['scores'][str(c)] += 1
+                msgs.append(self.score_cmd())
         w = self.world
+        if w is not None and w.mode_brain is not self and int(w.map_id) in X2.values():
+            msgs += self.setup(w) + [self.score_cmd()] + self.positions()       # the event began while the pilot is on an X-2
         if w is None or w.hero_dead:
             return msgs
         hx, hy = w.hero_pos(now)
@@ -243,94 +285,22 @@ class CaptureBeacon:
 
     # ------------------------------------------------------------ enemy bot raids on the player's X-2
     def raid_tick(self, w, now):
-        me = self.company()
-        if int(w.map_id) != X2[me]:
-            return []
-        r = self.raider
-        if r is None:
-            if now >= self.next_raid:
-                self.next_raid = now + random.uniform(*D['raid_sec'])
-                return self.start_raid(w, now)
-            return []
-        if now > r['until'] or not r['bot'].online:
-            return self.end_raid(w)
-        return []
+        from bot import tactics as TT
+        return TT.ctb_raid_tick(self, w, now)
 
     def start_raid(self, w, now):
-        import team_deathmatch as TDM
-        enemy = random.choice([c for c in COMPANIES if c != self.company()])
-        b = beacon(self.company(), enemy)
-        if self.where.get(b):
-            return []
-        band = {'min_level': D['min_level'], 'max_level': 999}
-        bots = TDM.pick_bots(enemy, band, D['min_level'] + 5, now, set())
-        if not bots:
-            return []
-        bot = bots[0]
-        TDM.draft_bots([bot], int(w.map_id), now, 1800)
-        self.raider = dict(bot=bot, beacon=b, carrying=False, until=now + D['raid_max_sec'], world=w)
-        TDM.hold(self, lambda: w, lambda: self.end_raid(None))          # logout / disconnect on the X-2: the raider is released
-        self.log('   CTB: %s (%s) raids for beacon %d' % (bot.name, NAMES[enemy], b))
-        return []
+        from bot import tactics as TT
+        return TT.ctb_start_raid(self, w, now)
 
     def end_raid(self, w):
-        import team_deathmatch as TDM
-        r, self.raider = self.raider, None
-        msgs = []
-        if r is None:
-            return msgs
-        TDM.unhold(self)
-        if r['carrying']:
-            self.where[r['beacon']] = 0
-            msgs += [('CTBBeaconReleasedCommand', dict(userId=r['bot'].uid, beaconId=r['beacon'])),
-                     ('CTBBeaconPositionCommand', dict(beaconId=r['beacon'], mapId=0))]
-        TDM.release_bots(w, [(r['bot'], {})], int(r['bot'].k['map']), 'ctb_done')
-        return msgs
+        from bot import tactics as TT
+        return TT.ctb_end_raid(self, w)
 
     def bot_think(self, w, n, now):
-        """The raider: to the beacon's place, takes it (the cloak and speed rules apply to it too), then to the nearest portal; it fights
-        back only while it does not carry the beacon."""
-        from bot import ship as BS
-        r = self.raider
-        if r is None or n.bot is not r['bot']:
-            return False
-        nx, ny = n.mover.pos(now)
-        attacked = any(now - t < 4 for t in n.attacker.values())
-        if not r['carrying']:
-            if attacked:
-                return False
-            zx, zy = zone(r['beacon'])
-            if math.hypot(nx - zx, ny - zy) <= D['zone_radius'] * 0.7:
-                r['carrying'] = True
-                self.where[r['beacon']] = int(w.map_id)
-                n.__dict__.pop('hidden', None)
-                n.effect.add('slow', 3600, D['carrier_slow'], 'ctb', now)
-                w.send([('CTBBeaconCapturedCommand', dict(userId=n.id, beaconId=r['beacon'])),
-                        ('CTBBeaconPositionCommand', dict(beaconId=r['beacon'], mapId=int(w.map_id)))])
-                self.log('   CTB: %s took beacon %d' % (n.bot.name, r['beacon']))
-            else:
-                BS._go_to(w, n, zx, zy, now)
-            return True
-        gates = H.gates(int(w.map_id), n.bot.company)
-        g = min(gates, key=lambda g: math.hypot(g['x'] - nx, g['y'] - ny))
-        if math.hypot(g['x'] - nx, g['y'] - ny) <= 200:
-            st = state(self.p)
-            st['scores'][str(n.bot.company)] += 1    # it reaches its X-2 and delivers it (the beacon goes home)
-            self.p.dirty = True
-            r['carrying'] = False
-            self.where[r['beacon']] = 0
-            w.send([('CTBBeaconReleasedCommand', dict(userId=n.id, beaconId=r['beacon'])),
-                    ('CTBBeaconPositionCommand', dict(beaconId=r['beacon'], mapId=0)), self.score_cmd()])
-            self.log('   CTB: %s escaped with beacon %d' % (n.bot.name, r['beacon']))
-            w.send(self.end_raid(w))
-            return True
-        BS._go_to(w, n, g['x'], g['y'], now)
-        return True
+        """The raiders' ships: bot/tactics.py steers them."""
+        from bot import tactics as TT
+        return TT.ctb_think(self, w, n, now)
 
     def bot_died(self, w, t, killer_uid):
-        """The raider was destroyed: the beacon goes home, the raid is over (its death is a normal one)."""
-        r = self.raider
-        if r is None or t.bot is not r['bot']:
-            return None
-        w.send(self.end_raid(w))
-        return None
+        from bot import tactics as TT
+        return TT.ctb_bot_died(self, w, t, killer_uid)

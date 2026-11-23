@@ -217,6 +217,13 @@ class TitleHunt:
         self.attached = time.time()
         return []
 
+    def resend_msgs(self, world):
+        """world.resend: the client rebuilt the map; the titles above the Underlings (not part of their ShipCreateCommand) go again, as
+        after a map entry (carriers)."""
+        if world is self.world:
+            self.attached = time.time()
+        return []
+
     def mark(self, n):
         """This player's title carried by the alien, or None."""
         return (getattr(n, 'titles', None) or {}).get(self.key)

@@ -36,6 +36,7 @@ ASSET_BASE = 158900000                            # + map (beacon), + 1000 + com
 MATCH_MAKING, RUNNING = 0, 1
 ERR_LEVEL, ERR_NO_TICKETS = 0, 1                  # SectorControlErrorCommand.ErrorType (2 QUEUE_FULL never: bots fill the room)
 NONE, CAPTURING, NEUTRALIZING = 0, 1, 2           # SectorControlSectorStateCommand.ActionType
+HUD_REOPEN_SEC = 2.0                              # after a map reload the HUD window is opened again this much later (resend_msgs)
 COMPANIES = (1, 2, 3)
 NAMES = {1: 'MMO', 2: 'EIC', 3: 'VRU'}
 mod = TDM.mod
@@ -99,30 +100,20 @@ def state(p, now=None):
 
 
 def sim(st, now, band, own=None):
-    """The matches the player is not in (bot companies): standby for a few minutes, then running until one company is left with tickets."""
-    rng = random.Random()
+    """The matches the player is not in: the bot pilots' own queues and matches of the band (bot/modes.py pvp_rows) as lobby rows
+    st['matches']['<band>_<match id>'] = {state, queue, start, end, players, tickets} (a company not in a bot match: 0 pilots and no
+    tickets); no bot queue: an empty standby. own: unused (the player's match is shown from itself)."""
+    import bot.modes as MD
+    rows = MD.pvp_rows('sc', band, now)
     for mid in range(1, D['matches'] + 1):
-        key = '%d_%d' % (band, mid)
-        m = st['matches'].setdefault(key, {'state': MATCH_MAKING, 'until': now + rng.uniform(20, 180), 'queue': [0, 0, 0]})
-        if mid == own:
-            continue
-        if now - m.get('seen', now) > 1800:
-            m.update(state=MATCH_MAKING, until=now + rng.uniform(20, 180), queue=[0, 0, 0])
-        m['seen'] = now
-        for _ in range(4):
-            if m['state'] == MATCH_MAKING:
-                k = max(0.0, 1 - (m['until'] - now) / 240.0)
-                m['queue'] = [min(D['team_max'], int(D['team_target'] * k + rng.random())) for _ in COMPANIES]
-                if now < m['until']:
-                    break
-                m.update(state=RUNNING, start=m['until'], rates=[rng.uniform(0.25, 0.9) for _ in COMPANIES],
-                         players=[rng.randint(D['team_min'], D['team_max']) for _ in COMPANIES])
-            if m['state'] == RUNNING:
-                t = now - m['start']
-                m['tickets'] = [max(0, int(D['tickets'] - r * t)) for r in m['rates']]
-                if sum(1 for x in m['tickets'] if x > 0) > 1:
-                    break
-                m.update(state=MATCH_MAKING, until=now + rng.uniform(60, 240), queue=[0, 0, 0])
+        m = st['matches'].setdefault('%d_%d' % (band, mid), {})
+        r = rows.get(mid)
+        if r is not None and r['state'] == RUNNING and now < r['end']:
+            m.update(state=RUNNING, start=r['start'], end=r['end'], queue=[0, 0, 0],
+                     players=[int(r['size'].get(c, 0)) for c in COMPANIES],
+                     tickets=[int(r['tickets'].get(c, 0)) if c in r['size'] else 0 for c in COMPANIES])
+        else:
+            m.update(state=MATCH_MAKING, queue=[int(r['queue'].get(c, 0)) if r and r['state'] == MATCH_MAKING else 0 for c in COMPANIES])
     return st
 
 
@@ -139,6 +130,7 @@ class SectorControl:
         self.queue = None             # {'teams': {company: [bots]}, 'at', 'next', 'draft', 'band', 'join_running'}
         self.match = None
         self.near = None
+        self.shown = None             # the X-1 world whose client has the beacon (the calendar can switch it while there)
 
     def level(self):
         return int(self.p.d['pilot'].get('level', 1))
@@ -202,7 +194,7 @@ class SectorControl:
         elif m['state'] == RUNNING:
             tickets = dict(zip(COMPANIES, m['tickets']))
             players = dict(zip(COMPANIES, m['players']))
-            run = int(now - m['start'])
+            run = max(0, int(now - m['start']))         # (a bot match's start includes its confirmation and jump)
         else:
             tickets = {c: D['tickets'] for c in COMPANIES}
             players = dict(zip(COMPANIES, m['queue']))
@@ -231,24 +223,28 @@ class SectorControl:
             return [('SectorControlErrorCommand', {'errorType': ERR_NO_TICKETS})]
         self.queued = mid
         self.queue = {'teams': {c: [] for c in COMPANIES}, 'at': now, 'next': now, 'draft': None, 'band': b['map']}
-        taken = set()
+        import bot.modes as MD
         if m['state'] == RUNNING:                       # a running match takes pilots while there is room (wiki): straight to the confirmation
-            self.queue['join_running'] = dict(tickets=list(m['tickets']), start=m['start'])
-            for c, n in zip(COMPANIES, m['players']):
-                if m['tickets'][c - 1] <= 0:
+            # it is the bots' own match: its pilots are the player's match's pilots and it takes over its tickets; once confirmed (start)
+            # the bots' abstract match is dropped (bot/modes.LOBBY), so it neither goes on beside it nor pays its pilots a second time
+            key = ('sc', b['map'], mid)
+            L = MD.LOBBY.get(key)
+            self.queue['join_running'] = dict(tickets=list(m['tickets']), start=m['start'], take=(key, L))
+            for c in COMPANIES:
+                if m['tickets'][c - 1] <= 0 or L is None:
                     continue
-                want = min(n, D['team_target']) - (1 if c == self.company() else 0)
-                got = TDM.pick_bots(c, b, self.level(), now, taken)[:max(0, want)]
-                self.queue['teams'][c] = got
-                taken |= {x.uid for x in got}
+                room = D['team_target'] - (1 if c == self.company() else 0)
+                self.queue['teams'][c] = [x for x in L['teams'].get(c, ()) if x.online and x.dead_until <= now][:room]
+        if m['state'] == RUNNING and any(v for c, v in self.queue['teams'].items() if c != self.company()):
             self.queue['draft'] = now
             self.log('   SC: joining running match %d' % mid)
             return [self.overview(), stm('msg_sectorcontrol_queue_status', '%POSITION%', 1, '%MATCHID%', mid),
                     ('SectorControlDraftConfirmationCommand', {'seconds': D['draft_sec']})]
-        for c, n in zip(COMPANIES, m['queue']):         # the pilots already on standby (the lobby row): real bots take their places
-            got = TDM.pick_bots(c, b, self.level(), now, taken)[:max(0, min(n, D['team_target']) - (1 if c == self.company() else 0))]
-            self.queue['teams'][c] = got
-            taken |= {x.uid for x in got}
+        # no enemy pilot (bot PvP off in the panel, a tiny pack): not a match won at its first step, standby like any other
+        self.queue.pop('join_running', None)
+        took = MD.pvp_take('sc', b['map'], mid)         # the bots on standby for this match (the lobby row) come into the player's queue
+        for c in COMPANIES:
+            self.queue['teams'][c] = [x for x in took.get(c, ()) if x.dead_until <= now][:D['team_target'] - (1 if c == self.company() else 0)]
         self.log('   SC: queued for match %d (%s)' % (mid, H.name(b['map'])))
         return [self.overview(), stm('msg_sectorcontrol_queue_status', '%POSITION%', 1, '%MATCHID%', mid)]
 
@@ -319,6 +315,11 @@ class SectorControl:
         if b is None or MGR.ACTIVE is None:
             return []
         now = time.time()
+        key, L = (q.get('join_running') or {}).get('take') or (None, None)
+        if L is not None:
+            import bot.modes as MD
+            if MD.LOBBY.get(key) is L:
+                MD.LOBBY.pop(key)                       # the bots' match goes on as the player's (draft_bots ends their abstract plan)
         self.match = Match(self, mid, b['map'], self.company(), q['teams'], now, q.get('join_running'))
         self.log('   SC: match %d on %s' % (mid, H.name(b['map'])))
         if self.change_map:
@@ -342,7 +343,7 @@ class SectorControl:
     # ------------------------------------------------------------ world
     def attach(self, world):
         self.world = world
-        self.near = None
+        self.near = self.shown = None
         msgs = []
         if world.gate is not None and self.queue is not None and not on_map(world.map_id):
             msgs += [stm('msg_sectorcontrol_kicked_from_queue')]       # gate / mode map: no standby (wiki)
@@ -360,9 +361,36 @@ class SectorControl:
             self.match.close('left')
             self.match = None
         if active() and int(world.map_id) in TDM.x1_maps().values():
-            x, y = self.beacon_pos(world)
-            msgs.append(TDM.asset_cmd(ASSET_BASE + int(world.map_id), BATTLEMASTER, x, y, 'Sector Control'))
+            msgs += self.x1_msgs(world)
+            self.shown = world
         return msgs
+
+    def resend_msgs(self, w):
+        """world.resend: the client cleared the map (the free respawn at the start area, a ship change): the start areas, control
+        points and doors of the match again (their states follow with on_ready), or the X-1 beacon."""
+        if w is not self.world:
+            return []
+        self.near = None                                 # the door / beacon marker again at the next near_step
+        if on_map(w.map_id):
+            g = self.match
+            if g is None or g.over or g.w is not w:
+                return []
+            g.participating = None                       # the capture bar of the sector the pilot is in comes again
+            # the reload's CleanUp closed the HUD window (UISectorControlGame.CleanUp), and the match state opens it only once per join
+            # (SectorControlComponent.IsOpen, reset by the join request alone): the menu item opens it again. Not with the ready
+            # bundle: live (2026-11-23) the window sent then did not stay, the same command 2 s later did (the scene is still loading)
+            it = self.p.window_item('sectorcontrol')
+            if it:
+                w.later(HUD_REOPEN_SEC, lambda: w.send([('WindowItemCommand', dict(it, visible=True, maximized=True))]
+                                                       if self.match is g and g.w is w and not g.over else []))
+            return g.enter_msgs()
+        return self.x1_msgs(w) if self.shown is w else []
+
+    def x1_msgs(self, w, on=True):
+        if on:
+            x, y = self.beacon_pos(w)
+            return [TDM.asset_cmd(ASSET_BASE + int(w.map_id), BATTLEMASTER, x, y, 'Sector Control')]
+        return [('AssetRemoveCommand', {'assetType': mod('AssetTypeModule', typeValue=BATTLEMASTER), 'uid': ASSET_BASE + int(w.map_id)})]
 
     def beacon_pos(self, w):
         """Near the middle of the X-1 (wiki); adaptation: the exact place is not published."""
@@ -386,6 +414,9 @@ class SectorControl:
         elif self.queue is not None:
             self.leave_queue(False)
         w = self.world
+        if w is not None and int(w.map_id) in TDM.x1_maps().values() and (self.shown is w) != active(now):
+            msgs += self.x1_msgs(w, not self.shown)      # the event began / ended while the pilot is on X-1
+            self.shown = None if self.shown else w
         if w is not None and not w.hero_dead:
             msgs += self.near_step(w, now)
         return msgs
@@ -652,14 +683,15 @@ class Match:
             for s in self.sectors:
                 if s['owner'] == c or s['prog_owner'] == c:
                     s.update(owner=0, prog_owner=0, progress=0.0, action=NONE)
-            TDM.release_bots(w, [(x['bot'], dict(kills=x['kills'], deaths=x['deaths'])) for x in self.stats.values() if x['company'] == c],
-                             self.map, 'sc_done')
+            TDM.release_bots(w, [(x['bot'], dict(kills=x['kills'], deaths=x['deaths'], won=False)) for x in self.stats.values()
+                                 if x['company'] == c], self.map, 'sc_done')      # out of tickets: lost
             if c == self.own:
-                self.end(now, won=False)
+                left = [c for c in self.companies if c not in self.out]
+                self.end(now, won=False, winner=left[0] if len(left) == 1 else None)
                 return
         left = [c for c in self.companies if c not in self.out]
         if len(left) <= 1:
-            self.end(now, won=left == [self.own])
+            self.end(now, won=left == [self.own], winner=left[0] if left else None)
 
     def repair_step(self, now, dt):
         """The start area repairs 10,000 HP a second for its company (the player and the bots)."""
@@ -698,52 +730,9 @@ class Match:
 
     # ------------------------------------------------------------ bots
     def bot_think(self, w, n, now):
-        """A drafted bot: still in the start area in the countdown; an enemy near it first (the body's combat), otherwise a control point
-        its company does not hold (the nearest, kept for a while), back to the start area to repair when badly damaged."""
-        from bot import ship as BS
-        if self.over:
-            return True
-        if now < self.attack_at:
-            BS._stop(w, n, now)
-            return True
-        b = n.bot
-        nx, ny = n.mover.pos(now)
-        d = b.value()
-        t = n.target
-        if t is not None and (t == w.hid and not w.hero_dead or t in w.npcs and w.npcs[t].alive and w.npcs[t].bot is not None):
-            return False
-        if (n.hp + n.shield) < 0.3 * (d['hp'] + d['shield']):
-            sx, sy = self.spawn(b.company)
-            if math.hypot(nx - sx, ny - sy) > D['home_radius'] * 0.6:
-                BS._go_to(w, n, sx, sy, now)
-            return True
-        best = None
-        if not w.hero_dead and self.own != b.company and BS.can_attack_player(w, n, w, now):
-            hx, hy = w.hero_pos(now)
-            best = (math.hypot(hx - nx, hy - ny), w.hid)
-        for m in w.npcs.values():
-            if m.bot is None or m is n or not m.alive or m.bot.company == b.company:
-                continue
-            mx, my = m.mover.pos(now)
-            dd = math.hypot(mx - nx, my - ny)
-            if (best is None or dd < best[0]) and BS.can_attack_bot(w, n, m, now):
-                best = (dd, m.id)
-        if best is not None and best[0] <= D['bot_engage_range']:
-            n.target = best[1]
-            return False
-        goal = n.__dict__.get('sc_goal')
-        if goal is None or now >= n.__dict__.get('sc_goal_until', 0):
-            options = [s for s in self.sectors if s['owner'] != b.company or s['action'] != NONE]
-            options = options or self.sectors
-            goal = min(options, key=lambda s: math.hypot(s['x'] - nx, s['y'] - ny) * random.uniform(0.7, 1.4))
-            n.sc_goal, n.sc_goal_until = goal, now + random.uniform(8, 16)
-        if math.hypot(goal['x'] - nx, goal['y'] - ny) > D['sector_radius'] * 0.6:
-            a, r = random.uniform(0, 2 * math.pi), random.uniform(0, D['sector_radius'] * 0.5)
-            BS._go_to(w, n, goal['x'] + math.cos(a) * r, goal['y'] + math.sin(a) * r, now)
-        elif best is not None:
-            n.target = best[1]
-            return False
-        return True
+        """A drafted bot's ship: bot/tactics.py steers it."""
+        from bot import tactics as TT
+        return TT.sc_think(self, w, n, now)
 
     def on_bot_spawn(self, n, now):
         """At its start area: protected in the countdown and, after a respawn, like the in-place repair."""
@@ -812,17 +801,18 @@ class Match:
         import settings as SET
         if kind != SC_REPAIR or self.over or self.player.get('removed') or self.repair_left() <= -0.5:
             return None
-        self.w.invuln_until = time.time() + SET.get('on_spot_protection')     # the in-place repair's protection (wiki)
+        # the in-place repair's protection (wiki); a death in the countdown (its radiation) keeps the countdown's protection to its end
+        self.w.invuln_until = max(self.attack_at, time.time() + SET.get('on_spot_protection'))
         return self.spawn(self.own, 250)
 
     # ------------------------------------------------------------ end
-    def end(self, now, won):
+    def end(self, now, won, winner=None):
         """The match is over for the player: the winners get the kill statistics and the EP & Honor bonus (a percentage of what they earned
-        in the match), everybody goes to X-1."""
+        in the match), everybody goes to X-1. winner: the company left with tickets (None: not decided), the bots' release event."""
         w = self.w
         self.over = True
         msgs = []
-        if won:
+        if won and not self.player.get('removed'):        # out of the match after the 15 s (only the X-1 repair left): no bonus (wiki)
             msgs.append(stm('msg_sectorcontrol_team_won', '%COMPANY%', NAMES[self.own]))
             k, d = self.player['kills'], self.player['deaths']
             pct = min(D['bonus_max_percent'], D['bonus_percent_per_kill'] * k)
@@ -837,7 +827,7 @@ class Match:
             w.log('   SC: won (%d kills, +%d%% EP %d Honor %d)' % (k, pct, ep_b, honor_b))
         w.send(msgs)
         TDM.unhold(self)
-        TDM.release_bots(w, [(s['bot'], dict(kills=s['kills'], deaths=s['deaths'])) for s in self.stats.values()], self.map, 'sc_done')
+        TDM.release_bots(w, self.still_drafted(winner), self.map, 'sc_done')
         w.mode_bots = None
         self.p.pvp_mods = None
         # dead (out of the match, or killed at the end): the death screen's X-1 repair takes them home (a jump would bring a 0 HP ship)
@@ -847,9 +837,18 @@ class Match:
         if not self.over:
             self.over = True
             TDM.unhold(self)
-            TDM.release_bots(self.w, [(s['bot'], dict(kills=s['kills'], deaths=s['deaths'])) for s in self.stats.values()],
-                             self.map, 'sc_done')          # also before the map (w None): the drafted bots must not stay frozen
+            # also before the map (w None): not left frozen. Left early (door, X-1 repair, logout): the company with the most tickets
+            # then counts as the winner, a tie nobody
+            top = sorted(((t, c) for c, t in self.tickets.items() if c not in self.out), reverse=True)
+            winner = top[0][1] if top and (len(top) == 1 or top[0][0] > top[1][0]) else None
+            TDM.release_bots(self.w, self.still_drafted(winner), self.map, 'sc_done')
             if self.w is not None:
                 self.w.mode_bots = None
         if getattr(self.p, 'pvp_mods', None) == self.player_mods:      # an orphan closed later must not clear a newer match's bonus
             self.p.pvp_mods = None
+
+    def still_drafted(self, winner=None):
+        """[(bot, event fields)] of the companies still in the match: those of a company that went out were released then (again
+        would end what they took up since and log the match twice). won: the bot's company is the winner (bot/modes.after_match)."""
+        return [(s['bot'], dict(kills=s['kills'], deaths=s['deaths'], won=s['company'] == winner)) for s in self.stats.values()
+                if s['company'] not in self.out]

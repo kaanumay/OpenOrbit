@@ -290,6 +290,19 @@
   "tell_event_end": ["{event} bitti [<sad>]", "(of|eyvah) {event} (bitti|kapandı)", "{event} (bitti|sona erdi) // (kasmaya devam|çabuk bitti)"],
   "react_event": ["(sonunda|güzel) [<laugh>]", "(hadi bakalım|hadi gidelim) [<addr>]", "(oo güzel|vay) [, bilmiyordum]", "(yine mi|yine o) <laugh>"],
   "react_event_end": ["(şimdiden mi|ne çabuk) [<sad>]", "(sonunda|iyi oldu) <laugh>", "(of ya|yaa) [, bitirmemiştim]", "(olsun|neyse) [<addr>]"],
+  "team_push": ["{point} (alalım|basalım) [hadi]", "(herkes|hepimiz) {point} noktasına", "(hadi|hadi hadi) {point} [<addr>]", "(bas bas|gidelim) [{point}]", "{point} gidiyorum // (gelin|takip edin)"],
+  "team_defend": ["{point} (savunun|koruyun)", "{point} saldırı var [, yardım]", "{point} (yardım|yardıma gelin)", "(düşman|adam var) {point} // (savunun|koruyun) [<addr>]"],
+  "team_retreat": ["(geri|geri çekilin) [<addr>]", "(çok kalabalıklar|sayıca fazlalar) // (geri|geri çekilin)", "(üsse dönün|spawna dönün) [, tamir]"],
+  "team_regroup": ["(toplanalım|toplanın) [üste]", "(tek gitmeyin|yalnız girmeyin) // (toplanalım|toplanın)", "(bekleyin|ekibi bekleyin) [, sonra gideriz]"],
+  "team_need_heal": ["(heal lazım|heal at) [pls]", "(canım az|ölüyorum) // (heal|heal lazım) [pls]", "(healer var mı|heal atan var mı) [<addr>]"],
+  "team_healed": ["(heal attım|healledim) {name}", "{name} (heal geldi|tamamdır) [, devam]", "(tmm|tamam) {name} // heal attım"],
+  "team_point_taken": ["{point} (bizim|aldık) [<laugh>]", "(aldık|aldım) {point} [<addr>]", "{point} tamam // (sıradaki|tutun)"],
+  "team_point_lost": ["{point} (gitti|kaybettik) [<sad>]", "{point} (aldılar|kaptırdık) // geri alalım", "(of|yaa) {point} gitti"],
+  "team_carrier": ["(beacon bende|fener bende) // (koruyun|eşlik edin)", "(beacon taşıyorum|beaconla geliyorum) [, koruyun]"],
+  "team_goal_push": ["(topa vurun|topu itin) [<addr>]", "(herkes topa|top bizim kaleye) // (vurun|hadi)", "(topa sıkın|topu vurun) [hadi]"],
+  "tell_match_win": ["{event} (kazandık|aldık) [<laugh>]", "(kazandık|gg) {event} [, {kills} kill]", "{event} bitti // (kazandık|biz aldık)"],
+  "tell_match_loss": ["{event} (kaybettik|gitti) [<sad>]", "{event} kaybettik // (takım kötüydü|kimse oynamadı)", "(of|yaa) {event} [, kaybettik]", "{event} (kaybettik|gg) // (sayıca fazlaydılar|çok kalabalıklardı)"],
+  "pvp_lfg": ["{event} (gelen var mı|kim geliyor) [?]", "{event} (sıraya girin|sıra) [<addr>]", "{event} için (adam|kişi) lazım", "(kim|gelen) {event} [?]"],
   "witness_spawn": ["{alien} (çıktı|doğdu) [{map_de}]", "(dikkat|haberiniz olsun) {alien} [{map_de}]", "{map_de} {alien} var [, gelin]", "(oo|vay) {alien} [burda]"],
   "self_fav_food": ["<dish> [tabi|valla]", "(bence|valla|kesin) <dish>", "<dish> // bir de <dish>", "(en sevdiğim|benim için) <dish>"],
   "excuse": ["(kusura bakma|sorry) [<addr>], (görmedim|uzaktaydım)", "(ben uzaktaydım|ben başka mapteydim) [ya]", "(görmedim valla|chate bakmadım) <sad>", "(level yetmiyor oraya|oraya giremiyorum) [ya]", "(ben de kasıyordum|ben de savaştaydım) // sorry"],
@@ -399,6 +412,11 @@
   "ev_dispatch_day": "sevkiyat günü",
   "ev_upgrade_hour": "yükseltme saati",
   "ev_invasion": "istila",
-  "ev_halloween": "cadılar bayramı"
+  "ev_halloween": "cadılar bayramı",
+  "ev_team_deathmatch": "tdm",
+  "ev_sector_control": "sc",
+  "ev_capture_the_beacon": "ctb",
+  "ev_spaceball": "spaceball",
+  "ev_galactic_strife": "galactic strife"
  }
 }

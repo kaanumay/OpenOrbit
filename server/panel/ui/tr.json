@@ -360,6 +360,7 @@
 "Bots below this level don't go PvP hunting.": "Bu seviyenin altındaki botlar PvP avına çıkmaz.",
 "Bots can enter enemy companies' maps.": "Botlar düşman firmaların haritalarına girebilir.",
 "Bots fight each other.": "Botlar birbirleriyle savaşır.",
+"Bots flying a ship with abilities use them: they repair themselves and their teammates (you too when you are on their side), shield, cloak, weaken and slow their targets.": "Yetenekli gemi kullanan botlar yeteneklerini kullanır: kendilerini ve takım arkadaşlarını onarır (aynı taraftaysan seni de), kalkan basar, görünmez olur, hedeflerini zayıflatır ve yavaşlatır.",
 "Bots of the enemy company may attack when they see you.": "Düşman firmadaki botlar seni görünce saldırabilir.",
 "Bots per map": "Harita başına bot",
 "Bots play with the game's own rewards and aliens; your game settings don't affect them.": "Botlar oyunun kendi ödülleri ve uzaylılarıyla oynar; senin oyun ayarların onları etkilemez.",

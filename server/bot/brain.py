@@ -120,25 +120,91 @@ def map_candidates(bot, value, y=None):
         utility = (earnings / 1000.0) * preference * (1 - min(0.9, risk)) / (1 + 0.04 * max(0, crowd)) - jump * 0.03 * (1.2 - o['patience'])
         utility *= PL.map_bias(bot, m, y.now if y is not None else time.time())      # misjudging (map knowledge), favourite map, habits
         out.append((utility, m, r))
+    pull = {m: event_pull(bot, m, y.now if y is not None else time.time()) for _, m, _ in out}
+    if any(v > 1.0 for v in pull.values()):
+        # an open-map event draws who it fits: a share of the best map's utility on top (the event map's own aliens may pay little;
+        # its draw is the event), as long as the pilot can fight there at all (r['targets'])
+        best = max(u for u, _, _ in out)
+        out = [(u + EVENT_PULL_SHARE * (pull[m] - 1.0) * max(0.0, best), m, r) for u, m, r in out]
     out.sort(key=lambda x: -x[0])
     return out
+
+
+EVENT_MAPS_SEC = 60.0            # the open-map events' maps are looked up once a minute
+EVENT_PULL_SHARE = 0.6           # an event map gains this share of the best map's utility per unit of pull (event_pull - 1): a keen
+#                                  PvP pilot (pull ~2) ranks 4-4 near its best map, a calm one (pull ~1.1) hardly moves (behaviour weight)
+_event_maps = {'t': -1e9, 'maps': {}}
+
+
+def event_maps(now):
+    """The open-map events on now -> {map: kind}: 'pvp' (Spaceball's 4-4, Galactic Strife's 4-1..4-4), 'ctb' (the X-2 maps of Capture the
+    Beacon), 'aliens' (an active event's map section with event aliens: events.sections)."""
+    if abs(now - _event_maps['t']) < EVENT_MAPS_SEC:
+        return _event_maps['maps']
+    import event_calendar as CAL
+    from . import events as EV, modes as MD
+    out = {}
+    for m in K.MAPS:
+        if any(s.get('alien_spawns') for _, s in EV.sections(m)):
+            out[m] = 'aliens'
+    ids = {v: k for k, v in K.H.NAMES.items()}
+    gs = MD.EX.get('galactic_strife') or {}
+    if gs and CAL.is_active(gs.get('event', 'galactic_strife'), now):
+        out.update({ids[n]: 'pvp' for n in gs.get('maps', ()) if n in ids})
+    if MD.EX.get('capture_the_beacon') and CAL.is_active('capture_the_beacon', now):
+        import capture_beacon as CB
+        out.update({m: 'ctb' for m in CB.X2.values()})
+    sb = MD.EX.get('spaceball') or {}
+    if sb and CAL.is_active('spaceball', now):
+        out[int(sb['map'])] = 'pvp'
+    _event_maps.update(t=now, maps=out)
+    return out
+
+
+def event_pull(bot, m, now):
+    """How much an open-map event on map m draws this pilot (1: not at all). PvP events draw the aggressive and competitive (Capture the
+    Beacon: raiders to the enemy X-2 more than defenders to their own, from the beacon level), event aliens the ambitious ones strong
+    enough for them. Gone when the event ends (map choice at the next decision). Behaviour weights, not game values."""
+    kind = event_maps(now).get(m)
+    if kind is None:
+        return 1.0
+    o = bot.traits
+    if kind == 'aliens':
+        from . import events as EV
+        return 1.0 + 0.5 * (0.4 + o['ambition']) if bot.permission.get('event', True) and EV.event_types(bot, m) else 1.0
+    if not bot.permission.get('pvp', True):
+        return 1.0
+    pvp = o['aggression'] * (0.5 + o['rivalry'])
+    if kind == 'ctb':
+        import capture_beacon as CB
+        if bot.level < CB.D.get('min_level', 13):
+            return 1.0
+        return 1.0 + (0.4 if m == CB.X2.get(bot.company) else 0.8) * pvp
+    return 1.0 + pvp
 
 
 def decision(bot, y, now=None):
     """The bot's new goal (the same one if unchanged). The running goal's commitment and the LLM intent are taken into account."""
     now = now or time.time()
     from . import weapons as WP, skylab as SK, appearance as GR
-    WP.resupply(bot)                                   # buys when ammo and rockets run low (like a player, between jobs)
-    SK.invest(bot, now)
-    GR.shopping(bot, now)                          # ship design and drone formation (by showiness and money)                            # upgrades Skylab (if money and resources allow)
-    from . import technology as TECH
-    TECH.produce(bot)                                    # Assembly: technology items
-    TECH.resupply(bot)                                   # launcher rocket
-    from . import loot as LT, galaxy_gates as GT
-    LT.assembly(bot)                                # Assembly: the most valuable recipe whose materials it has (key, item ...)
-    GT.generator(bot)                                 # Galaxy Gate generator: a spin if it has energy (or uridium)
-    from . import modes as MD
-    MD.passive(bot, now)                              # Dispatch, Galaxy Trek
+    from .goals import shopping as SHP
+    kept = SHP.held(bot)                               # the uridium it saves for its ship wish is out of reach of these purchases
+    bot.k['uridium'] -= kept
+    try:
+        WP.resupply(bot)                               # buys when ammo and rockets run low (like a player, between jobs)
+        SK.invest(bot, now)                            # upgrades Skylab (if money and resources allow)
+        GR.shopping(bot, now)                          # ship design and drone formation (by showiness and money)
+        from . import technology as TECH
+        TECH.produce(bot)                                # Assembly: technology items
+        TECH.resupply(bot)                               # launcher rocket
+        from . import loot as LT, galaxy_gates as GT
+        LT.assembly(bot)                                # Assembly: the most valuable recipe whose materials it has (key, item ...)
+        GT.generator(bot)                                 # Galaxy Gate generator: a spin if it has energy (or uridium)
+        from . import modes as MD
+        MD.passive(bot, now)                              # Dispatch, Galaxy Trek
+    finally:
+        bot.k['uridium'] += kept
+    MD.after_match(bot, now)                          # a match it just played: history, mood, teammates
     b = Context(bot, y, now)
     current = bot.target
     mood = bot.mood

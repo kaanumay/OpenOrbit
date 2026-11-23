@@ -363,8 +363,10 @@ class EventGates:
         """The point record in this event period {period, points}: Easy and Normal together; from scratch in a new period."""
         ev = GATES[key].get('event') or key
         p = CAL.period(ev, now) if ev in CAL.EVENTS else None
-        period = int(p[0]) if p else 0
         rec = self.d.setdefault('points', {}).get(ev)
+        # no period (the event is over): a run that began while it was on goes on scoring in its edition (adaptation: a run finishes
+        # under the rules it began with); a period-0 record wiped the edition's points at the first kill after the end
+        period = int(p[0]) if p else (rec['period'] if rec else 0)
         if not rec or rec.get('period') != period:
             rec = self.d['points'][ev] = {'period': period, 'points': 0}
         return rec
@@ -498,10 +500,18 @@ class Run(GALAXY.Run):
             d = random.uniform(*spec['distance']) if i else spec['distance'][0]
             m = spec['radius']
             circles.append((min(max(m, hx + math.cos(a) * d), w.map_w - m), min(max(m, hy + math.sin(a) * d), w.map_h - m)))
-        self.rad = dict(circles=circles, end_time=now + spec['warning_sec'] + spec['duration_sec'], next=now + spec['warning_sec'])
-        w.send([GALAXY.screen('Plutus: Space Uncertainty! Get into a green circle!', big=True)]
-               + [poi('plutusSpaceUncertainty%d' % i, x, y, spec['radius']) for i, (x, y) in enumerate(circles)])
+        self.rad = dict(circles=circles, radius=spec['radius'], end_time=now + spec['warning_sec'] + spec['duration_sec'],
+                        next=now + spec['warning_sec'])
+        w.send([GALAXY.screen('Plutus: Space Uncertainty! Get into a green circle!', big=True)] + self.rad_pois())
         w.log('   %s: radioactive field (%d circles, %d s)' % (self.g['name'], len(circles), spec['duration_sec']))
+
+    def rad_pois(self):
+        r = self.rad
+        return [poi('plutusSpaceUncertainty%d' % i, x, y, r['radius']) for i, (x, y) in enumerate(r['circles'])] if r else []
+
+    def resend_msgs(self):
+        """world.resend (a ship change during a field): its green circles again (the client cleared its POIs)."""
+        return self.rad_pois() if self.w.gate is self else []
 
     def radio_pulse(self, boss, spec, now):
         """Per-second pulse: heal if inside the circle, damage if outside."""

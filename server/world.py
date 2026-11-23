@@ -494,6 +494,8 @@ class World:
         self.crit = False              # the last laser_damage was an Odysseus crit (strike in the hit message)
         self.quick_buy = None          # when money changes, the state of the quick-buy items in the shortcut bar (shop.py)
         self.map_msgs = None           # the map's objects on entry (station, turrets): sent again on reload
+        self.event_resend = None       # the events' map objects (zones, beacons, doors) again on reload (extra_events.ExtraEvents.resend_msgs)
+        self.mode_resend = None        # the PvE modes' map objects again on reload (pve_modes.PveModes.resend_msgs)
         self.on_home = None            # repair at the station on a map without one: the session takes the player to the company's home map
         self.money_msgs = None         # UI update when money changes (shop.py)
         self.death_pos = None          # place of death (the nearest portal for repair on the spot, repair at the portal)
@@ -1925,7 +1927,11 @@ class World:
                    [self.box_cmd(h, b) for h, b in self.boxes.items()] + \
                    [self.ore_msg(h) for h in self.ores] + [H.jumpgate_create(g) for g in self.gates if 'designId' in g] + \
                    self.alien.capsule_msgs() + (self.low.asset_msgs() if self.low else []) + self.items.mine_msgs() + \
-                   (self.mode_brain.resend_msgs(self) if getattr(self.mode_brain, 'resend_msgs', None) else [])     # CTB beacons
+                   (self.event_resend(self) if self.event_resend else []) + \
+                   (self.mode_resend(self) if self.mode_resend else [])       # Sector Control zones, CTB beacons, the Echoes hangar ...
+            for o in (self.gate, self.labyrinth):           # a run's own map objects (resend_msgs() -> messages; optional)
+                if getattr(o, 'resend_msgs', None):
+                    msgs += o.resend_msgs()
             self.near_assets, self.near_giver = None, None
             left = self.invuln_until - time.time()
             if left > 0:
@@ -2511,7 +2517,7 @@ class World:
                 dmg = int(dmg * (1 + n.effect.damage_bonus(now) + self.particle.vulnerability(n.id, now)))
             red = getattr(n, 'damage_reduction', None)                # Ö4: Dreadfyre Fortress's Guardian shields (25% each)
             if red:
-                dmg = int(dmg * max(0.0, 1 - red()))
+                dmg = int(dmg * max(0.0, 1 - (red(atype) if n.bot is not None else red())))     # a bot's Spectrum spares rockets
             if shield_only:
                 dmg = min(dmg, int(n.shield))
             absorb = n.d.get('shield_absorb', COMBAT['npc_shield_absorb'])           # the type's absorption
@@ -3848,7 +3854,7 @@ class World:
             self.send(self.hurt_hero(dmg, n, now=time.time()))
 
     def hurt_hero(self, dmg, killer=None, atype=1, msgs=None, now=None, cause=None, source_player=None, shield_only=False, source_asset=False,
-                  inverse_absorb=False):
+                  inverse_absorb=False, hull_only=False):
         """Damage to the player (the alien's laser, rocket, bomb, singularity, explosion): Fortify, Insta-Shield; the shield absorbs at the generators'
         ratio, the nano hull melts after the shield and before the hull; Anti-AI base; test invulnerability. -> messages
         (AttackHitCommand; if HP runs out, the death screen)."""
@@ -3859,6 +3865,8 @@ class World:
         k = 1.0 if (source_player or source_asset) else SET.multiplier('npc_damage', place)      # the panel's damage multiplier
         raw = dmg * k                                                     # damage before the damage_taken reduction: Revenge reflects this
         dmg = int(dmg * max(0.0, 1 + m.get('damage_taken', 0)) * k)       # Fortify, Revenge (damage taken 5%)
+        if dmg and self.__dict__.get('ab_protect'):
+            dmg = BG.cover_hero(self, dmg, now)                           # an allied Citadel bot's Protection takes its share (bot/abilities.py)
         if self.hero_effects.invulnerable(now) or ((source_player or source_asset) and (self.invulnerable or now < self.invuln_until)):
             dmg = 0                                 # Insta-Shield (combat_items.py)
         if YM.spectator(self.p):
@@ -3885,6 +3893,8 @@ class World:
             absorption = max(0.0, absorption - source_player.p.mods().get('shield_penetration', 0))
         if inverse_absorb:
             absorption = round(1 - absorption, 6)   # Kamikaze Mimesis (forum 127094): 80/20 shields take its blast 20/80
+        if hull_only:
+            absorption = 0.0                        # a bot's Venom Singularity passes the shield (bot/abilities.py)
         to_shield = min(sh, dmg if shield_only else int(dmg * absorption))   # the shield generators' absorption ratio (esyalar.json)
         if shield_only:
             dmg = to_shield

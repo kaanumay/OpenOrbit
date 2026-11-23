@@ -44,6 +44,7 @@ ICE, RIFT, GUIDE = 158, 159, 160
 WAITING, COLLECTING, FIGHT = 0, 1, 2       # ApotheosisProgressCommand.phase (the client's Phase enum)
 SLICE = 2 * 3600                           # session_always_open: window slice
 KEY = 'resource_booty-key-apotheosis'
+RESUME_SAVE_SEC = 5.0                      # how often the fight's state goes to the profile (st['resume'])
 
 
 def _register():
@@ -150,6 +151,7 @@ class Apotheosis:
         if open_ and st.get('windowed') != a and st.get('state') != 'boss':      # a boss fight in progress is not reset by a new window
             with self.p.lock:
                 st.update(windowed=a, points=0, state='collecting')
+                st.pop('resume', None)
                 self.p.dirty = True
             self.saved = None
             msgs.append(legacy('0|A|STM|kristallon_apotheosis_start_event'))
@@ -220,8 +222,9 @@ class Apotheosis:
     def boss_left(self):
         if self.run and self.run.boss and self.run.boss.alive:
             return self.run.left()
-        if self.saved:
-            return self.saved['ratio']
+        s = self.saved or self.st.get('resume')
+        if s:
+            return s['ratio']
         return 1.0
 
     def handle(self, name, f):
@@ -240,6 +243,7 @@ class Apotheosis:
             return []
         with self.p.lock:
             st.update(state='boss', boss_start=time.time())
+            st.pop('resume', None)
             self.p.dirty = True
         self.saved = None
         self.log('   Kristallon Apotheosis: target points reached, portals opened')
@@ -302,8 +306,10 @@ class Apotheosis:
                 import vortex
                 vortex.send_home(self, world)              # no fight (spawned on this map on login): to the base
                 return msgs
-            self.run = ApoRun(self, world, self.saved)
+            self.run = ApoRun(self, world, self.saved or self.st.get('resume'))      # the profile's copy after a logout (ApoRun.tick)
             self.saved = None
+            with self.p.lock:
+                self.st.pop('resume', None)
             world.gate = self.run
             return msgs + self.run.enter_msgs()
         if active() and self.st.get('state') == 'collecting' and self.collect_rows(world):
@@ -428,6 +434,10 @@ class ApoRun:
             return []
         return [GALAXY.screen('Emperor Kristallon arrives in %d s.' % max(1, int(self.boss_at - time.time())), big=True)]
 
+    def resend_msgs(self):
+        """world.resend (a ship change): the radiation guide on the hero (the arrow to the safe point; the client dropped the hero's effects)."""
+        return [self.vm(self.w.hid, GUIDE, True, extra='%d|%d' % self.guide)] if self.guide and self.w.gate is self else []
+
     def snapshot(self):
         b = self.boss
         return dict(ratio=self.left(), hp=b.hp / float(max(1, b.d['hp'])), shield=b.shield / float(max(1, b.d['shield'])),
@@ -490,6 +500,12 @@ class ApoRun:
             self.escape()
             return
         b = self.boss
+        if b and b.alive and now >= self.next.get('save', 0):        # a logout / disconnect does not reset the fight (attach resumes it)
+            self.next['save'] = now + RESUME_SAVE_SEC
+            snap = self.snapshot()
+            with self.m.p.lock:
+                self.m.st['resume'] = snap
+                self.m.p.dirty = True
         if not b or not b.alive or w.hero_dead:
             return
         attacks = D['attacks']
@@ -580,6 +596,7 @@ class ApoRun:
                  legacy('0|A|STM|kristallon_apotheosis_completed'), GALAXY.screen('key:kristallon_apotheosis_completed', big=True)]
         with self.m.p.lock:
             self.m.st['state'] = 'finished'
+            self.m.st.pop('resume', None)
             self.m.p.dirty = True
         w.log('   Kristallon Apotheosis: Emperor Kristallon defeated')
         return msgs
@@ -595,6 +612,7 @@ class ApoRun:
             w.send(w.remove_npc(b))
         with self.m.p.lock:
             self.m.st['state'] = 'finished'
+            self.m.st.pop('resume', None)
             self.m.p.dirty = True
         w.send(msgs)
         w.log('   Kristallon Apotheosis: boss escaped')

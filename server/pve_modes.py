@@ -76,6 +76,7 @@ class PveModes:
         self.world = world
         world.portal_cpu = self.portal_cpu
         world.gate_window = self.window
+        world.mode_resend = self.resend_msgs           # world.resend: the Echoes hall's hangar again on reload
         mode = self.maps.get(int(world.map_id))
         if mode:
             mode.attach(world)
@@ -83,6 +84,13 @@ class PveModes:
                 jump = self.echoes.jump_info_cmd()
                 world.send([self.echoes.info_cmd()] + ([jump] if jump[1]['levels'] else []))
         return mode
+
+    def resend_msgs(self, world):
+        """world.resend (a ship change in the Echoes Command Hall): the hall's hangar building (attach sent it once). A mode map's run
+        (world.gate) resends its own; the portals come with the world's resend."""
+        if world is self.world and int(world.map_id) == EC.D['hall']:
+            return [self.echoes.hangar_cmd()]
+        return []
 
     def portal_cpu(self, item):
         """Gate CPU from the shortcut bar (under the world lock)."""
