@@ -311,7 +311,8 @@ def period(key, now=None):
         p = _hours(t, lambda d: e.get('hours', [[0, 24]]) if _week_day(e, d) else [])
     if p:
         return p[0].timestamp(), p[1].timestamp()
-    return next(filter(None, (period(k, now) for k in COUNTED_AS.get(key, ()))), None)      # 'counts_as': the period of the event that counts in its place
+    # 'counts_as': the period of the event that counts in its place, only while it is really on (not off in the panel, not beaten in a conflict)
+    return next(filter(None, (period(k, now) for k in COUNTED_AS.get(key, ()) if is_active(k, now))), None)
 
 
 def window(s, now=None):
@@ -466,6 +467,8 @@ def _on(key, now=None):
         return e['world_status'] == 'on'
     yearly = 'periods' in e
     if key in FORCED or (yearly and MODE == 'all'):
+        return True
+    if any(is_active(k, now) for k in COUNTED_AS.get(key, ())):    # 'counts_as': also one forced open without its dates
         return True
     if yearly and MODE == 'none':
         return False

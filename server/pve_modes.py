@@ -36,6 +36,8 @@ class PveModes:
         self.trinity = AR.Trinity(profile, log)
         for a in (self.voyagers, self.trinity):
             a.m = shop
+            if shop is not None:
+                a.reward_pass.grant = a.reward              # last month's unclaimed pass rewards (mode_passes.Pass.pay_carry)
         if shop is not None:
             shop.on_bought.append(self.bought)
         self.astral = AS.Astral(profile, shop, log)

@@ -60,7 +60,7 @@ import season as SE
 import skill_tree as SKL
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-ITEMS = json.load(open(os.path.join(HERE, 'data', 'items.json'), encoding='utf8'))
+ITEMS = DATA.shared('items.json')
 _F = json.load(open(os.path.join(HERE, 'data', 'prices.json'), encoding='utf8'))
 PRICE, EXCHANGE_RATE = _F['prices'], _F['exchange_rate']        # market balance (tools/market_balance.py); KUR: how many credits 1 U is
 WORLD_SHOP = DATA.load('shop')['products']    # World Editor: lootId -> {price, currency ('C' | 'U'), on_sale}; refreshed with refresh() while the game is open
@@ -84,6 +84,7 @@ PANELS = {'ship': None, 'laser': 'laser', 'lasers': 'laser', 'generator': 'gener
           'extra': 'extra', 'extras': 'extra', 'rocket': 'rocket', 'rockets': 'rocket', 'rocketlauncher': 'rocket',
           'upgrades': 'upgrades', 'upgrade': 'upgrades', 'ship_upgrades': 'upgrades', 'shipupgrade': 'upgrades'}
 INVENTORY = ('inventory', '')
+STATION_ONLY = ('HangarShipMoveItemsRequest', 'HangarShipClearConfigRequest', 'HangarShipLoadConfigRequest', 'HangarShipImportConfigRequest')
 DEFAULT_SLOTS = {'laser': 15, 'generators': 15, 'extra': 3, 'rocket': 1, 'upgrades': 3, 'QuantumFluidCore': 2, 'cannon': 3,
                  'cannonShield': 6, 'drive': 0, 'lens': 0}
 EQUIP_SLOTS = ('laser', 'generators', 'extra', 'rocket', 'upgrades', 'QuantumFluidCore', 'cannon', 'cannonShield', 'drive', 'lens')
@@ -127,7 +128,7 @@ def mod(name, **f):
     return f
 
 
-from legacy_protocol import legacy, loot_kind, loot_line  # noqa: E402,F401  (old text protocol: legacy_protocol.py)
+from legacy_protocol import legacy, loot_line  # noqa: E402,F401  (old text protocol: legacy_protocol.py)
 
 
 def keyed(key, **wild):
@@ -216,6 +217,8 @@ REASONS = {
                   "Quantum Fluid Core satılamaz; Hyperforge'da (Assembly) geri dönüştürebilirsin."),
     'rh_bond_duration': ('Returnees must bond with an active player within 24 hours of logging in.',
                       'Dönen oyuncular girişten sonraki 24 saat içinde aktif bir oyuncuya bağlanmalı.'),
+    'special_rocket_pvp': ('Special rockets cannot be used against players.', 'Özel roketler oyunculara karşı kullanılamaz.'),
+    'rented_sale': ('Rented items cannot be sold.', 'Kiralık eşyalar satılamaz.'),
 }
 
 
@@ -282,7 +285,7 @@ CLASS_PATHS = {c.split('.')[-1]: 'net.bigpoint.darkorbit.asset.' + c for c in (
     'shipupgrade.ShipUpgradeType', 'extra.ExtraType', 'extra.ModuleType', 'extra.UpgradeType', 'module.StationModuleType',
     'drone.DroneType', 'drone.formation.DroneFormationType', 'drone.design.DroneCustomizationType', 'drone.design.DroneDesignType',
     'pet.PetType', 'pet.design.PetCustomizationType', 'item.HardwareType', 'item.SynthesisResourceType', 'captain.CaptainType')}
-_ist = json.load(open(os.path.join(HERE, 'data', 'client_items.json'), encoding='utf8'))['items']
+_ist = DATA.shared('client_items.json')['items']
 CLIENT_CLASS = {k: v['class_name'] for k, v in _ist.items() if v.get('class_name') in CLASS_PATHS}
 # Extras fitted to drones: those with DRONE in the client's 'equipable' trait (AGS-X, RG-SL and PA-X only to the ship). Slot CPUs
 # (SLE-*) are left out for now: the extras whose slots they open are in the ship's config, removing them while on a drone would cause overflow.
@@ -445,6 +448,11 @@ class Shop:
                         'HangarShipSellDroneRequest', 'HangarShipFavouriteRequest', 'HangarShipClearConfigRequest',
                         'HangarShipSaveConfigRequest', 'HangarShipLoadConfigRequest', 'HangarShipImportConfigRequest')
 
+    def docked(self):
+        """Can the equipment change now: at a station (world.in_station: hangar place, alive, out of combat) or with no map loaded."""
+        w = self.world()
+        return w is None or w.in_station()
+
     def ship_sid(self, ship_id):
         """The active ship if the shipId in the request is not in the profile."""
         return str(ship_id) if str(ship_id) in self.p.d['ships'] else self.p.d['active_ship']
@@ -489,6 +497,18 @@ class Shop:
             return pre + [self.ships_cmd()]
         if name == 'HangarShipDetailRequest':
             return [self.detail_cmd(self.ship_sid(f.get('shipId')))] if self.detail_tpl else None
+        if name in STATION_ONLY and not self.docked():
+            # the client has its own panel for this key on a move ("Not close enough to a Station with a Hangar"; HangarShipMoveItemsCommandHandler);
+            # wiki: "may only be equipped while the player's ship is at a base or not logged in". Equipment used to change anywhere in space
+            err = stack_msg('eqt_error_playerMayNotEquip2')
+            self.log('   hangar: %s refused (not at a station)' % name)
+            return [{'HangarShipMoveItemsRequest': ('HangarShipMoveItemsCommand', {'result': 0, 'errorMessage': err}),
+                     'HangarShipClearConfigRequest': ('HangarShipClearConfigCommand', {'resultId': 0, 'errorMessage': err}),
+                     'HangarShipLoadConfigRequest': ('HangarShipLoadConfigCommand', {'title': stack_msg('eqt_error_generic'),
+                                                                                     'description': err, 'resultId': 0}),
+                     'HangarShipImportConfigRequest': ('HangarShipImportConfigCommand', {
+                         'shipId': int(str(f.get('targetShipId'))) if str(f.get('targetShipId')).isdigit() else 0,
+                         'errorMessage': err, 'resultId': 0})}[name]]
         if name == 'HangarShipMoveItemsRequest':
             return self.move(f)
         if name == 'HangarShipFavouriteRequest':
@@ -722,6 +742,8 @@ class Shop:
                 skipped.append((g, 1, 'eqt_error_generic'))
             elif g in FORMS and (g == 'drone_formation_default' or g in self.p.d['formations']):
                 skipped.append((g, 1, 'items_drone_formation_already_in_use'))
+            elif design_base(g) and any(g in s.get('designs', []) for s in self.p.d['ships'].values()):
+                skipped.append((g, 1, 'items_design_already_in_use'))      # buy() skipped it silently (Black Friday design sets)
             elif g in DRONES:
                 single = DRONES[g].get('single')
                 k = max(0, min(n, self.drone_slots(g) - (0 if single else taken)))
@@ -989,8 +1011,8 @@ class Shop:
             self.log('   booster subscription ended: %s' % loot)
             return [self.buy_cmd(loot, category, buy_category, 1, success=self.reason('subscription_ended'))]
         msgs = self.buy(loot, 1, category, buy_category)
-        if not BOOSTER.left(self.p, loot):
-            return msgs                                  # could not be bought (no money): the subscription does not start
+        if not any(m[0] == 'ShopItemBuyCommand' and m[1].get('resultId') == 1 for m in msgs):
+            return msgs                                  # could not be bought (no money): the subscription does not start (even with time left)
         with self.p.lock:
             subs[loot] = {'state': 'active'}
             self.p.dirty = True
@@ -1105,7 +1127,6 @@ class Shop:
             amount = min(amount, self.fuel_room())
         pr = self.buy_price(loot, level)
         grants = self.contents(loot, amount)
-        is_ammo = loot.startswith('ammunition_')
         fail = lambda key: [] if quick else [self.buy_cmd(loot, category, buy_category, 0, error=stack_msg(key))]
         if not pr or not grants:
             self.log('   no purchase: %s (%s)' % (loot, 'not in the shop' if not pr else 'contents not on the server yet'))
@@ -1247,7 +1268,9 @@ class Shop:
         for g, n in grants:                            # hint (once): second ship -> ship warp, first equipment -> fit in the hangar
             msgs += self.p.hint(IP.for_purchase(self.p, g, bool(slot_of(g)) and not g.startswith('ammunition_')))
         if not quick:
-            buy = self.buy_cmd(loot, category, buy_category, 1, amount, equip_ids=equip_ids, free=free)
+            # away from a station equipping is refused (STATION_ONLY): no "auto-equip?" question, whose confirmation opened the MoveFail panel;
+            # allowAutoEquip 0 makes the client say "Auto-equip not possible. Item moved to inventory." (UIShopSystem, hint_no_equip_s)
+            buy = self.buy_cmd(loot, category, buy_category, 1, amount, equip_ids=equip_ids if self.docked() else (), free=free)
             lst = self.shop_list(category)
             # when the list arrives the client (ShopItemListCommandHandler -> CreateItem -> OnClickItem) hides the purchase window:
             # the question "You have free slots on your ship, equip it?" vanished as soon as it appeared (live test 2026-10-18). If there is a
@@ -1319,6 +1342,11 @@ class Shop:
             got = self.new_.reward(loot, n)
             if got is not None:
                 return got
+        if loot.startswith('resource_premium-') and UPG.ITEMS.get(loot, {}).get('type') == 'PREMIUM':   # Premium days/weeks: always on in single
+            with self.p.lock:                                    # player, only the record (like event_gate's premium_30); they piled up unseen in the store
+                self.p.d['pilot']['premium'] = True
+                self.p.dirty = True
+            return msgs + [legacy('0|LM|ST|LOT|%s|%d' % (loot, n))]
         if loot in PAY_CURRENCY:                    # money / EP in the package (not counted in the account history or the Uridium Bank)
             field, kind = PAY_CURRENCY[loot]
             with self.p.lock:
@@ -1525,7 +1553,8 @@ class Shop:
         can be sold they are sold (InventoryItemRemovedCommand / counter update + money), otherwise none."""
         fail = lambda reason=None: [('HangarShipSellItemCommand', dict(
             errorMessage=self.reason(reason) if reason else stack_msg('eqt_error_generic'), resultId=0))]
-        equipped = self.p.equipped_ids()
+        import inventory as INV
+        equipped, rented = self.p.equipped_ids(), INV.on_loan(self.p)[1]
         ammo_ids = {self.item_id(l): l for l in self.p.d['ammunition']}
         plan = []
         for pk in f.get('itemList') or []:
@@ -1537,6 +1566,9 @@ class Shop:
                 if iid in equipped:
                     self.log('   no sale: %s is fitted' % loot)
                     return fail('equipped_sale')
+                if iid in rented:                               # Astral's rented items: the run's end deletes them
+                    self.log('   no sale: %s is rented' % loot)
+                    return fail('rented_sale')
                 if UPG.busy(self.p, iid):
                     self.log('   no sale: %s is being upgraded' % loot)
                     return fail('upgrading')
@@ -1559,7 +1591,7 @@ class Shop:
             if str(iid) in self.p.d['items']:
                 with self.p.lock:
                     del self.p.d['items'][str(iid)]
-                    self.p.d.get('item_level', {}).pop(str(iid), None)
+                    INV.forget(self.p, iid)                 # upgrade, payment, module/particle/resonator records go too (used to stay)
                     self.p.dirty = True
                 msgs.append(('InventoryItemRemovedCommand', {'itemId': iid}))
             else:

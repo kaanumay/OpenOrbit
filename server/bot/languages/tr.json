@@ -450,56 +450,6 @@
    "{level} level oldum hala ne yaptığımı bilmiyorum :D",
    "avlanmak için güzel bir gece"
   ],
-  "complaint": [
-   "lag var mı sizde de",
-   "uridium kasmak çok zor",
-   "uri kasmak çile",
-   "bir an ping fırladı"
-  ],
-  "status_gate": [
-   "{gate} bitti sonunda",
-   "{gate} tamam, uzun sürdü",
-   "{gate} temizlendi :D",
-   "{gate} oturunca o kadar da zor değilmiş"
-  ],
-  "status_purchase": [
-   "az önce {item} aldım",
-   "{item} aldım, bakalım işe yarayacak mı",
-   "kendime {item} aldım :)",
-   "yeni oyuncak: {item}"
-  ],
-  "status_death": [
-   "{map} da bir uzaylıya yenildim, rip",
-   "{map} daki uzaylılar göründüğünden sert vuruyor",
-   "{map} da pusuya düştüm, daha dikkatli olmalı",
-   "{map} da npc lere kaybettim lol"
-  ],
-  "status_quest": [
-   "{name} görevini bitirdim",
-   "{name} tamam, sıradaki",
-   "{name} görevi bitti, kolay ödül"
-  ],
-  "status_fled": [
-   "{map} dan kaçtım, orası çok sıcak",
-   "{map} dan son anda çıktım",
-   "{map} şu an değmez"
-  ],
-  "status_cargo": [
-   "kargo %{percent} dolu, satmaya gidiyorum",
-   "kargo neredeyse dolu, dönme vakti",
-   "o kadar cevher taşıyorum ki gemi sürünüyor"
-  ],
-  "status_grind": [
-   "bir süre {map} da kasıyorum",
-   "{map} şu an kasmak için fena değil",
-   "{map} da npc kesiyorum, kimse var mı",
-   "{level} levelda {map} da kasıyorum, gidiyor"
-  ],
-  "status_stats": [
-   "şimdiye kadar {npc} uzaylı kestim, devam",
-   "{npc} kesimi geçtim, fena değil",
-   "{npc} kesim {death} ölüm, başabaş sayılır"
-  ],
   "exit": [
    "bb",
    "ben kaçtım",
@@ -690,5 +640,6 @@
   "roll_call": ["kimse var mı", "kim var", "online olan", "aktif olan", "burada kimse", "kimse yok mu"],
   "game": ["harita", "uzaylı", "görev", "gemi", "lazer", "kalkan", "uridyum", "kredi", "seviye", "klan", "dron", "drone", "boss", "kasma", "kasılır", "npc", "jeneratör", "portal", "kapı", "cephane"]
  },
- "harmful": ["kendini öldür", "kendini as", "intihar et", "geber", "gebersin", "öl de kurtul", "ölsen iyi olur", "ölsene", "kanser ol", "orospu", "kahpe", "ibne", "tecavüz", "zenci", "hitler", "nazi"]
+ "harmful": ["kendini öldür", "kendini as", "intihar et", "geber", "gebersin", "öl de kurtul", "kanser ol", "orospu", "kahpe", "ibne", "tecavüz", "zenci", "hitler", "nazi"],
+ "harmful_exact": ["ölsene", "ölsen iyi olur"]
 }

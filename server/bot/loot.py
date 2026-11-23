@@ -10,14 +10,16 @@
   booster   10 hours (booster data); EP, honor, resource, damage, HP, shield shares, capped by the type
 Values are in credit terms (1 U = 100 C): by money, ammo and items by shop price, a key box by its expected value.
 """
-import json, os, random
+import random
+
+import game_data as DATA
 
 from . import catalog as K
 
 EXCHANGE_RATE = 100
 import loot as LOOT                                   # noqa: E402  (the game's loot module: boxes, maps, calendar)
 
-RECIPES = json.load(open(os.path.join(K.HERE, 'data', 'recipes.json'), encoding='utf8'))['recipes']
+RECIPES = DATA.shared('recipes.json')['recipes']      # read only (game_data.shared)
 BOOSTER = K.ITEMS['boosters']
 ORE_LOOT = {v: int(k) for k, v in K.ITEMS['ores']['kinds'].items()}     # resource_ore_* -> cargo ore
 CURRENCY = {'currency_credits': 'credits', 'currency_uridium': 'uridium', 'currency_experience': 'ep', 'currency_honour': 'honor'}

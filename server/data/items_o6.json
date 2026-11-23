@@ -1,6 +1,6 @@
 {
  "_description": "Missing item systems -> server/data/items_o6.json and items.json extra_shop (roadmap Ö6).",
- "_source": "belgeler/wiki/esyalar_o6.json; tools/esyalar_o6.py",
+ "_source": "belgeler/wiki/esyalar_o6.json; tools/items_o6.py",
  "phrases": {
   "items": [
    "ammunition_specialammo_emote_alien-angry",

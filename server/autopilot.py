@@ -6,8 +6,8 @@ the window's APPLY&START button requires Premium ("You need to purchase the Prem
 The server's job:
   AutopilotInfoRequest                  -> AutopilotInfoCommand {remainingSeconds, laserRange, result, autopilotInfos (the settings' JSON)}
   AutopilotInfoSaveRequest {autopilotInfos} -> AutopilotInfoSaveCommand {result}; settings are kept in the profile
-  AutopilotStatus {status: 0 START, 1 STOP}  the client's notification (STOP on login and on movement); logged, duration is counted
-In the profile: autopilot {setting, state, start, total_sec, session, selection}.
+  AutopilotStatus {status: 0 START, 1 STOP}  the client's notification (STOP on login and on movement); logged with its duration
+In the profile: autopilot {setting, state, start, selection} (state: world.quickslot_stop; older saves may still hold total_sec/session).
 
 Selected aliens and boxes (2026-10-18, user report: selections reset when the map changes, the list only shows what is in view):
   - The client keeps selections per map (NPCSelectedList / CollectSelectedList: map -> list; the settings themselves are in PlayerPrefs
@@ -55,7 +55,7 @@ class Autopilot:
         self.laser_range = lambda: D['laser_range']      # bound per session: the world's laser range
         self.maps = lambda: (None, {})                    # bound per session: (current map, map -> names of the aliens that appear there)
         with profile.lock:
-            self.d = profile.d.setdefault('autopilot', {'setting': '', 'state': STOP, 'start': 0, 'total_sec': 0, 'session': 0})
+            self.d = profile.d.setdefault('autopilot', {'setting': '', 'state': STOP, 'start': 0})
             self.d['state'] = STOP                        # new session: the client reports STOP on login
 
     # ------------------------------------------------------------ selections
@@ -170,11 +170,11 @@ class Autopilot:
             st = int(st or 0)
             with self.p.lock:
                 if st == START and self.d['state'] != START:
-                    self.d.update(state=START, start=now, session=self.d.get('session', 0) + 1)
+                    self.d.update(state=START, start=now)
                     self.log('   autopilot started')
                 elif st == STOP and self.d['state'] == START:
                     dt = max(0, int(now - self.d.get('start', now)))
-                    self.d.update(state=STOP, total_sec=self.d.get('total_sec', 0) + dt)
+                    self.d['state'] = STOP     # (total_sec/session were never read and lost the running time at a crash: removed)
                     self.log('   autopilot stopped (%d s)' % dt)
                 self.p.dirty = True
             return []

@@ -525,9 +525,11 @@ def start(game, folder, log=print):
             self._reply(404, {'error': 'none'})
 
         def do_POST(self):
-            n = int(self.headers.get('Content-Length') or 0)
+            if not secrets.compare_digest(self.headers.get('X-Anahtar') or '', key):
+                return self._reply(403, {'error': 'key'})           # before the body: an unauthenticated request reads nothing
             try:
-                b = json.loads(self.rfile.read(n).decode('utf8') or '{}') if n else {}
+                n = int(self.headers.get('Content-Length') or 0)
+                b = json.loads(self.rfile.read(n).decode('utf8') or '{}') if n > 0 else {}
             except ValueError:
                 return self._reply(400, {'error': 'json'})
             paths = {'/shop/buy': buy, '/shop/subscribe': subscriber, '/hangar/move': carry, '/hangar/activate': active, '/hangar/design': design,

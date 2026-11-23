@@ -39,7 +39,6 @@ FREIGHTER = 'mm_freighter'
 POI_ZONE = 'payloadEscortProtectionZone'
 RANK_TYPE = 5
 KEY = D.get('key', 'resource_key_access-escort')
-RUN_SEC = 3600
 BYTE = 'resource_collectable_byte-remnant'
 
 
@@ -193,10 +192,18 @@ class Mimesis:
         go(self.my_map(), (x - 600, y + 300))
 
     # ------------------------------------------------------------ world
+    def leave_run(self):
+        """Left the map mid-run (another map, the base repair, logout): the run's score stays (kept even on a failed run; the key is spent);
+        a run that already arrived keeps its success (its 5 s explosion timer goes with the world)."""
+        r, self.run = getattr(self, 'run', None), None
+        if r is None or r.phase == 'finished' or not r.score:
+            return []
+        success, r.phase = r.phase == 'arrival', 'finished'
+        return self.finish_run(r.score, success)
+
     def attach(self, world):
         self.world = world
-        self.run = None
-        msgs = []
+        msgs = self.leave_run()
         if int(world.map_id) in MAPS and active() and getattr(self, 'pending', None):
             key, end = self.pending
             self.pending = None
@@ -204,7 +211,7 @@ class Mimesis:
             world.gate = self.run
             world.ally = self.run
             self.in_map = True
-            return [self.info_cmd(True)] + self.run.enter_msgs()
+            return msgs + [self.info_cmd(True)] + self.run.enter_msgs()
         if int(world.map_id) in MAPS:                       # no run (spawned on this map at login): to base
             import vortex
             vortex.send_home(self, world)
@@ -278,7 +285,8 @@ class Mimesis:
     def finish_run(self, score, success):
         msgs = []
         with self.p.lock:
-            self.st['trips'] = sorted(self.st['trips'] + [int(score)], reverse=True)[:50]
+            if active():                                # a run that ends after event_end must not count toward the next edition
+                self.st['trips'] = sorted(self.st['trips'] + [int(score)], reverse=True)[:50]
             self.p.dirty = True
         if success:
             row = next((r for r in D['trip_tiers'] if score >= r['from_'] and (r['e'] is None or score <= r['e'])), None)
@@ -341,9 +349,6 @@ class MmRun:
     @property
     def npcs(self):
         return set(self.wave)
-
-    def wave_name(self):
-        return self.phase
 
     def enter_msgs(self):
         self.spawn_ship()
@@ -408,9 +413,7 @@ class MmRun:
                                           victimHitpoints=int(a.hp), victimShield=0, victimNanoHull=0, damage=dmg,
                                           skilled=False, strike=False, cannonType=0))])
         if a.hp <= 0:
-            a.alive = False
-            w.npcs.pop(a.id, None)
-            w.send([('ShipDestroyedCommand', dict(destroyedUserId=a.id, explosionTypeId=0)), ('ShipRemoveCommand', {'userId': a.id})])
+            w.send([('ShipDestroyedCommand', dict(destroyedUserId=a.id, explosionTypeId=0))] + w.remove_npc(a))   # view, target, P.E.T.
             self.fail('msg_mutiny_escort_failed_destroyed')
         return True
 
@@ -513,9 +516,7 @@ class MmRun:
 
         def boom():
             if a and a.alive:
-                a.alive = False
-                w.npcs.pop(a.id, None)
-                w.send([('ShipDestroyedCommand', dict(destroyedUserId=a.id, explosionTypeId=0)), ('ShipRemoveCommand', {'userId': a.id})])
+                w.send([('ShipDestroyedCommand', dict(destroyedUserId=a.id, explosionTypeId=0))] + w.remove_npc(a))   # view, target, P.E.T.
             self.end_run(True)
         w.later(5.0, boom)
 

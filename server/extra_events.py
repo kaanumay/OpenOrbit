@@ -14,6 +14,7 @@ Plutus' Experiments (plutus_experiments.py; beacon tower on maps X-1 / X-5 / 4-4
 Event points, progress thresholds and end-of-event ranking/participation rewards (event_points.py: Hatching Out, Blacklight Surge, Pirate
 Raid, Europa; official Turkish forum).
 """
+import contextlib
 import traceback
 
 import chromin as CHR
@@ -40,11 +41,14 @@ import refraction_zone as RZ
 import spaceball as SB
 import capture_beacon as CTB
 import monthly_rankings as MR
+import event_gate as EKP
+import event_calendar as CAL
 
 
 class ExtraEvents:
     def __init__(self, profile, shop, event_gates=None, log=print):
         self.p, self.m, self.log = profile, shop, log
+        self.event_gates = event_gates
         self.chromin = CHR.Chromin(profile, shop, log)
         shop.chromin = self.chromin
         self.hitac = HP.HitacLottery(profile, shop, log)
@@ -115,7 +119,7 @@ class ExtraEvents:
         return out
 
     def login_msgs(self):
-        return self._each('login_msgs')
+        return self._each('login_msgs') + self.plutus()          # the ready bundle: the Plutus window is filled before it is opened
 
     def on_ready(self):
         """Map loaded (a ReadyRequest other than the first login)."""
@@ -126,8 +130,15 @@ class ExtraEvents:
         return self._each('event', kind, kw)
 
     def window(self, item):
-        """Window opened (UIButtonTriggerRequest itemId)."""
-        return self._each('window', item)
+        """Window opened (UIButtonTriggerRequest itemId). Gauntlet of Plutus: only a gate run sent PlutusInfoCommand, outside one the
+        window was empty (status, time left, points, records; S5 A1)."""
+        return self._each('window', item) + (self.plutus() if item == 'plutus' else [])
+
+    def plutus(self):
+        """The Gauntlet of Plutus window's state while the event runs (event_gate.EventGates.plutus_cmds)."""
+        if self.event_gates and CAL.is_active(EKP.GATES['plutus']['event']):
+            return self.event_gates.plutus_cmds('plutus')
+        return []
 
     def window_update(self, f):
         """The window's state (UIWindowUpdateRequest {itemId, maximized, ...}): on opening, moving, closing."""
@@ -143,6 +154,21 @@ class ExtraEvents:
 
     def tick(self, now):
         return self._each('tick', now)
+
+    def close(self):
+        """The session ended (game.Session.run): a running Team Deathmatch / Sector Control match closes and a Capture the Beacon raid
+        ends, so the drafted bots are free at once (not ORPHAN_SEC after the next login: team_deathmatch.sweep); a Mimesis run keeps its score.
+        Under the world's lock (the world thread may still be in a step: the bots' ships leave its npcs). Idempotent, never raises."""
+        w = self.world
+        with (w.lock if w is not None else contextlib.nullcontext()):
+            for name, fn in (('tdm', lambda: self.tdm.match and self.tdm.match.close('logout')),
+                             ('sc', lambda: self.sc.match and self.sc.match.close('logout')),
+                             ('ctb', lambda: self.ctb.end_raid(None)),
+                             ('mimesis', self.mimesis.leave_run)):
+                try:
+                    fn()
+                except Exception:
+                    self.log('   extra events: close error (%s):\n%s' % (name, traceback.format_exc()))
 
     def portals(self, map_id, station):
         """The map's Ö3 portals (Fiesta Gate's X-1 portal)."""

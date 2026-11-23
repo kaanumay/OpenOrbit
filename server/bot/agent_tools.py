@@ -145,6 +145,9 @@ def go_offline(y, bot):
 def write_chat(y, bot, channel='company', text=''):
     if channel not in ('global', 'company', 'clan', 'group') or not str(text).strip():
         return _error('invalid channel or text')
+    from .chat_engine import channel_path
+    if channel_path(bot, channel) is None:                # the line went only into the history, nobody read it
+        return _error('you are not in a %s' % channel)
     y.speak(bot, channel, str(text).strip()[:200])
     return _ok()
 

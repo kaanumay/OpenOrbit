@@ -210,7 +210,6 @@ def _follow(y, b, name, who, game_map, text, now):
     if not K.can_enter(m, b.company, b.level) or not K.route(b.game_map, m, b.company, b.level):
         return _result('followup', False, 'You CANNOT go to %s (your level is too low or it is enemy land): say so.' % H.name(m),
                       ('cant_come', {}))
-    from . import society
     fac = int(who.get('factionId') or 0)
     p = 0.2 + 0.5 * b.o('helpfulness') + 0.6 * b.memory.relation(name, now) - 0.3 * b.mood['fatigue']
     if fac and fac != b.company:

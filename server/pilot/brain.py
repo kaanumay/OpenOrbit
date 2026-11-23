@@ -30,6 +30,8 @@ WAY_CHECK = 6               # on a map with walls: the distance flown around the
 LURE_HP = 70                # % HP: below it the ship does not go into an immobile alien's zone to draw a target out
 LURE_HITS = 4               # a lure only if HP + shield take this many shots of the immobile alien (Mindfire Behemoth: 145k)
 LURE_W = 6000               # a target only a lure can reach counts as this much farther
+DIP_HP, DIP_HITS = 70, 20   # a dip into a short rocket range (rocket_band): HP at this % or more, HP + shield for this many of the target's shots
+DIP_IN, DIP_OUT = 0.96, 0.995    # the dip's band, share of the rocket's range (just inside it: the least time in the alien's range)
 
 
 def dist(ax, ay, bx, by):
@@ -69,18 +71,38 @@ def static_zones(npcs, margin):
 def threats(s, cfg, target_id):
     """[(x, y, radius)] to keep away from: aliens attacking the hero (their firing range), aggressive ones not attacking yet (their notice
     distance), the immobile ones always (their firing range)."""
+    return [z for i, z in _threats(s, cfg) if i != target_id]      # an alien that cannot be attacked still shoots
+
+
+def _threats(s, cfg):
+    """threats() of every alien, with its id: [(id, (x, y, radius))]."""
     m = cfg['threat_margin']
     out = []
     for n in s['npcs']:
-        if n['id'] == target_id:                    # an alien that cannot be attacked still shoots
-            continue
         if n.get('static') and not n['allowed']:
-            out.append((n['x'], n['y'], n['fire_range'] + m))
+            out.append((n['id'], (n['x'], n['y'], n['fire_range'] + m)))
         elif n['engaged']:
-            out.append((n['x'], n['y'], n['fire_range'] + m))
+            out.append((n['id'], (n['x'], n['y'], n['fire_range'] + m)))
         elif cfg['avoid_aggressive'] and n['aggressive']:
-            out.append((n['x'], n['y'], n['notice'] + m))
+            out.append((n['id'], (n['x'], n['y'], n['notice'] + m)))
     return out
+
+
+def danger_but(s, cfg):
+    """-> f(x, y, id): danger(x, y, threats(s, cfg, id)), the same sum term by term (in the same order), from a grid of the zones: a zone
+    whose cell is not next to the point's is farther than its radius (it adds exactly 0), so a call costs the nearby zones only
+    (pick_target scores every alien: threats() for each was O(n²), 5 ms for 300 aliens)."""
+    thr = _threats(s, cfg)
+    cell = max([z[2] for _, z in thr], default=0) + 1.0      # wider than every radius (the float division keeps its margin)
+    grid = {}
+    for k, (i, (x, y, r)) in enumerate(thr):
+        grid.setdefault((math.floor(x / cell), math.floor(y / cell)), []).append(k)
+
+    def f(x, y, uid):
+        cx, cy = math.floor(x / cell), math.floor(y / cell)
+        near = sorted(k for dx in (-1, 0, 1) for dy in (-1, 0, 1) for k in grid.get((cx + dx, cy + dy), ()))
+        return sum(_depth(dist(x, y, tx, ty), r) for i, (tx, ty, r) in (thr[k] for k in near) if i != uid)
+    return f
 
 
 def _depth(d, r):
@@ -225,12 +247,13 @@ def pick_target(s, cfg):
     zones = s.get('statics') or ()
     if zones:                                       # inside an immobile alien's zone: from outside it, else a lure (enough HP)
         cand = [n for n in cand if not needs_lure(s, cfg, n) or can_lure(s, cfg, n)]
+    other = danger_but(s, cfg) if cfg['avoid_aggressive'] and cand else None     # = danger(x, y, threats(s, cfg, id))
 
     def score(n, d):
         d -= PRIORITY_W if n.get('priority') else 0
         if zones and danger(n['x'], n['y'], zones):
             d += DANGER_W * danger(n['x'], n['y'], zones) + (LURE_W if needs_lure(s, cfg, n) else 0)
-        return d + DANGER_W * danger(n['x'], n['y'], threats(s, cfg, n['id'])) if cfg['avoid_aggressive'] else d
+        return d + DANGER_W * other(n['x'], n['y'], n['id']) if cfg['avoid_aggressive'] else d
     return by_way(s, cand, score)
 
 
@@ -304,6 +327,22 @@ def kite_point(s, cfg, t, thr):
         f = max(0.0, d - ideal) / d if d else 0.0
         best = (hx + (t['x'] - hx) * f, hy + (t['y'] - hy) * f)
     return best
+
+
+def rocket_band(s, cfg, t, thr, reach):
+    """A rocket ready whose range (reach) falls short of the kiting band (R-310: 450, the aliens' own firing range, while the band starts
+    at 0.80 x 600 = 480): the band moved just inside that range for the shot (DIP_IN..DIP_OUT of reach) when the target is an aggressive
+    alien (it chases the ship into its range anyway: kiting does not keep its fire off, a passive one stays out of range and a dip would
+    only add hits; SW4 measurement), the ship takes its fire easily (HP at DIP_HP % or more, HP + shield for DIP_HITS of its shots) and
+    no other alien's zone covers the target (thr: the threats but t); cfg otherwise. Once the rocket is gone the band is the normal one
+    again: the ship backs off."""
+    R, (hx, hy) = s['R'], s['hero']
+    if not reach or reach >= cfg['kite_min'] * R or dist(hx, hy, t['x'], t['y']) <= reach:
+        return cfg
+    if (not t.get('aggressive') or hp_pct(s) < DIP_HP or s['hp'] + s.get('shield', 0) < DIP_HITS * t.get('damage', 0)
+            or danger(t['x'], t['y'], [(x, y, r + reach) for x, y, r in thr])):     # no point within reach of t in another's zone
+        return cfg
+    return dict(cfg, kite_min=DIP_IN * reach / R, kite_max=DIP_OUT * reach / R)
 
 
 def safe_point(s):

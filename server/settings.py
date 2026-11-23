@@ -445,6 +445,8 @@ def configure(argv=None, path=None):
 
 
 def _current():
+    if _state['mtime'] is not None and time.monotonic() - _state['read_at'] < REFRESH_SEC:
+        return _state['d']           # read recently: no lock (each read is atomic; a world step asks ~1,500 times, A1-P06)
     with _lock:
         if not _state['route']:
             return _state['d']
@@ -457,8 +459,13 @@ def _current():
         except OSError:
             m = 0
         if m != _state['mtime']:
-            _state['mtime'] = m
-            _state['d'] = read(_state['route']) if m else {}
+            if m:
+                try:
+                    with open(_state['route'], encoding='utf8') as fh:
+                        d = clean(json.load(fh))
+                except (OSError, ValueError):     # locked for a moment (a virus scanner, the panel's replace) or half written: the last good
+                    return _state['d']            # settings stay and it is read again at the next look (it used to stay at the defaults)
+            _state['mtime'], _state['d'] = m, d if m else {}
         return _state['d']
 
 

@@ -5696,7 +5696,13 @@
      "max_count": 6,
      "cooldown_sec": 300,
      "when_all_dead": true,
-     "guard": {"radius": [150, 350], "leash": 1500},
+     "guard": {
+      "radius": [
+       150,
+       350
+      ],
+      "leash": 1500
+     },
      "_cooldown": "Replacements come 300 s after all the helpers are destroyed (adaptation; fandom Hitac Event: \"There are replacement Minions inside the Mothership\"; player report 2026-10-30: 90 s was counted from every summon, the helpers were being renewed in 1-2 minutes). guard: the helpers are tied to the mothership (fandom: \"six Hitac-Minions attached to it\"), they let go of a player who moves 1,500 units away from the mothership"
     }
    },
@@ -7430,7 +7436,13 @@
      "max_count": 6,
      "cooldown_sec": 300,
      "when_all_dead": true,
-     "guard": {"radius": [150, 350], "leash": 1500},
+     "guard": {
+      "radius": [
+       150,
+       350
+      ],
+      "leash": 1500
+     },
      "_cooldown": "Replacements come 300 s after all the helpers are destroyed (adaptation; fandom Hitac Event: \"There are replacement Minions inside the Mothership\"; player report 2026-10-30: 90 s was counted from every summon, the helpers were being renewed in 1-2 minutes). guard: the helpers are tied to the mothership (fandom: \"six Hitac-Minions attached to it\"), they let go of a player who moves 1,500 units away from the mothership"
     }
    },
@@ -9896,14 +9908,28 @@
    66
   ],
   "laser_hit_chance": 0.8,
-  "laser_range": 700,
+  "laser_range": 600,
+  "_laser_range": "official server recordings: AutopilotInfoCommand.laserRange 600 (two connections) and AttackRangeExceededCommand LASER maxRange 600 (36 samples); it used to be 700 from private server code",
   "rocket_damage": [
    850,
    1000
   ],
   "rocket_cooldown_ms": 4000,
   "rocket_flight_sec": 0.8,
-  "rocket_range": 900,
+  "rocket_range": 525,
+  "rocket_ranges": {
+   "ammunition_rocket_r-310": 450,
+   "ammunition_rocket_plt-2026": 488,
+   "ammunition_rocket_plt-2021": 525,
+   "ammunition_rocket_plt-3030": 525,
+   "ammunition_rocket_bdr-1211": 525,
+   "ammunition_specialammo_dcr-250": 525,
+   "ammunition_specialammo_pld-8": 525,
+   "ammunition_specialammo_k-300m": 500,
+   "ammunition_specialammo_r-ic3": 700,
+   "ammunition_specialammo_rc-100": 700
+  },
+  "_rocket_range": "per rocket from the client's ammunition table (istemci_kaynak DarkOrbit/Ammunition.cs, AmmunitionAttributes.Range); the official recordings match it (AttackRangeExceededCommand ROCKET maxRange 488 while PLT-2026 was selected, 525 with PLT-2021/PLT-3030, 450 later; 99 samples). rocket_range is the default for rockets the table has no range for (AGT-500, SR-5, SP-100X, WIZ-X: adaptation, the common ROCKET_LAUNCHER value); it used to be 900 for every rocket",
   "rocket_hit_chance": 0.8,
   "_rocket_hit": "if the rocket has no hit chance of its own, the base (items.json rockets.<id>.hit: R-310 70%, PLT-2026 80%, PLT-2021 90%, PLT-3030 65%, BDR-1211 100%; special ammo this base, adaptation); raised by the Heat-Seeking Missiles ability (rocket_hit_chance) and the DMG-H01 booster (hit), lowered by effects like PLD-8",
   "npc_shield_absorb": 0.7,
@@ -9912,7 +9938,7 @@
   "_npc_shield_absorb": "Default shield absorb ratio; if the type has a shield_absorb value, that one applies (fandom: Aider Streuner, Kristallon, Uber Kristallon 90%, Cubikon 80%, Uber Annihilator 85%, Uber Interceptor 60%)",
   "npc_hit_chance": 0.7,
   "npc_range": 450,
-  "_npc_range": "Aliens' firing range (if the type has no range field): private server code (Ow, Attackable.AttackRange: alien 450, player laser 700); DarkBot aliens turn back at 550-610 units (turning). Previously 600: they were hit from too far while turning (user report 2026-10-25, Boss Sibelon). Kristallon family 550 (fandom: \"longest range\")",
+  "_npc_range": "Aliens' firing range (if the type has no range field): private server code (Ow, Attackable.AttackRange: alien 450; the player laser is 600 from the official recordings, combat.laser_range); DarkBot aliens turn back at 550-610 units (turning). Previously 600: they were hit from too far while turning (user report 2026-10-25, Boss Sibelon). Kristallon family 550 (fandom: \"longest range\")",
   "npc_attack_interval_sec": 1.1,
   "respawn_sec": [
    12,
@@ -9989,7 +10015,7 @@
   "box_drop": 1150,
   "_box_view": "Recording: boxes and ores arrive via AddBoxCommand/AddOreCommand when ~1,000 units from the hero, and when moving away without being collected they are removed via RemoveCollectableCommand (161 times, 900-1,150 units). The drop distance is an adaptation.",
   "npc_fixed_range": 1000,
-  "_npc_range_fixed": "firing range of stationary aliens (Mindfire Behemoth, Cubikon …): must be longer than the player's laser (700) and rocket (900) range, otherwise they are cut down without retaliating (wiki: Behemoth \"longest range\"; value is an adaptation)",
+  "_npc_range_fixed": "firing range of stationary aliens (Mindfire Behemoth, Cubikon …): must be longer than the player's laser (600) and rocket (at most 700) range, otherwise they are cut down without retaliating (wiki: Behemoth \"longest range\"; value is an adaptation)",
   "respawn_special": {
    "boss": [
     90,

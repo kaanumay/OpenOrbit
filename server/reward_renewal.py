@@ -22,10 +22,12 @@ The algorithm (all deterministic: the same month / event year always gives the s
 """
 import json, math, os, random, statistics, zlib
 
+import game_data as DATA
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 _load = lambda n: json.load(open(os.path.join(HERE, 'data', n), encoding='utf8'))
 LOGIN = _load('daily_login.json')['months']
-TICKETS = _load('tickets.json')
+TICKETS = DATA.shared('tickets.json')
 BASE_YEAR = 2026                       # the year of the client's rewards.xml lists
 DELUXE_BASE = '2026-11'                # the month of the recorded Monthly Deluxe list
 WINTER = (1, 12)

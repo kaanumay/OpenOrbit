@@ -48,10 +48,11 @@ PORT = 7771
 P_JSON, P_BIN, P_GZIP, P_INTRO, P_PING, P_PONG = 0x50, 0x53, 0x61, 0x10, 0x11, 0x12
 T_REQUEST, T_RESPONSE, T_INIT, T_MESSAGE, T_REMOVE, T_REGISTER = 1, 2, 3, 8, 14, 15
 T_LISTENING_LIST = 30             # GetListeningList: the chat's /users command (room listeners; Infinicast ListenerQueryExecutor)
+T_LISTEN_TERMINATE = 43           # ListenTerminate (Eps2ConnectorMessageTypeConverter): a room's listening ended by the server
 PING_SEC = 15
 SYSTEM_KEY = 'dochat.chat.system'
 SYSTEM_TEXT = {'en': 'System', 'tr': 'Sistem'}       # the client's translation (resource_chat); in another language both are tried
-ROOM_LIMIT = 3                    # one private room per player (adaptation: the client has the noMorePrivateRoomsAllowed text, but no number)
+ROOM_LIMIT = 3                    # at most 3 private rooms per player (adaptation: the client has the noMorePrivateRoomsAllowed text, but no number)
 FLOOD_LIMIT, FLOOD_SEC = 8, 10        # server-side flood control: more than 8 messages in 10 s are dropped (adaptation; the client's floodWarning warns on its own)
 REPORT_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'logs', 'chat_reports.jsonl')
 
@@ -393,7 +394,9 @@ class Chat:
 
     def room_create(self, c, name, d):
         me = c.user.get('id')
-        if not name.startswith('private_') or len(name) <= len('private_') or '/' in name:
+        # '<' '>': the tab draws the name as TMP rich text (ChatTabListItem richText = true), a <size>/<color> tag in it reached the invited
+        # players' tabs; the client keys the room by this name, so it is refused rather than changed
+        if not name.startswith('private_') or len(name) <= len('private_') or '/' in name or '<' in name or '>' in name:
             return 'invalid room name'
         with self.lock:
             if name in self.rooms:
@@ -437,20 +440,34 @@ class Chat:
         o = self.rooms.get(name)
         if not o or o['creator'] != c.user.get('id'):
             return 'Not creator of this channel'
+        path = self.room_path(name)
         with self.lock:
             del self.rooms[name]
+            gone = [x for x in self.conns.values() if path in x.handlers]
             for x in self.conns.values():
-                x.handlers.discard(self.room_path(name))
-                x.joined.discard(self.room_path(name))
+                x.handlers.discard(path)
+                x.joined.discard(path)
+        for x in gone:                       # every member's tab closes, the closer's too (its HandleClosePr is empty)
+            self.terminate(x, path, 'PathDeleted')
         return None
 
     def room_leave(self, c, name, d):
         o = self.rooms.get(name)
         if o:
             o['members'].discard(c.user.get('id'))
-        c.handlers.discard(self.room_path(name))
-        c.joined.discard(self.room_path(name))
+        path = self.room_path(name)
+        listening = path in c.handlers
+        c.handlers.discard(path)
+        c.joined.discard(path)
+        if listening:                        # /leave: the client closes the tab only on this (it has no success callback)
+            self.terminate(c, path, 'UserRemoved')
         return None
+
+    def terminate(self, c, path, reason):
+        """Infinicast ListenTerminate (Eps2ConnectorMessageType 43; ConnectorMessageReceiver.onListenTerminate {paths, handlerType, reason:
+        ListenTerminateReason}): the room's listening ends -> AChatGameClientConnection.listenOnRoom's termination callback ->
+        ChatComponent.OnRemoveRoom closes the tab. Nothing was sent: the closed room stayed open in every member's chat."""
+        c.send({'t': T_LISTEN_TERMINATE, 'data': {'paths': [path], 'handlerType': 'Message', 'reason': reason}})
 
     def member(self, c, path):
         return any(path.startswith(p) for p in c.joined)
@@ -534,6 +551,9 @@ class Chat:
             c = self.conns.get(ep)
         if not c:
             self.log('chat: unknown endpoint %s' % ep)
+            return False
+        if c.user and c.user.get('id') != user.get('id'):     # friend server: another player's endpoint id must not take that connection over
+            self.log('chat: endpoint %s belongs to %s, refused for %s' % (ep, c.user.get('userId'), user.get('userId')))
             return False
         c.user, c.lang = dict(user), lang
         c.send({'t': T_MESSAGE, 'path': c.path + 'serverStatus/', 'data': {'type': 'loggedIn', 'wordFilter': []},

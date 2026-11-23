@@ -14,7 +14,7 @@ import map_links as H
 import settings as SET
 
 HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-ITEMS = json.load(open(os.path.join(HERE, 'data', 'items.json'), encoding='utf8'))
+ITEMS = DATA.shared('items.json')              # read only (audit 2026-11-22: static scan + mutation harness over the bot tests)
 NPC = DATA.load('npc.json')
 COMBAT = NPC['combat']
 

@@ -5,9 +5,12 @@ the active ship's abilities are made visible and usable, the player can drag the
 actionType 0: timer item, from the client's code; the tests send 1 too}. Timer MenuItemTimerCommand {activatable, timerState
 (the client's TimerState: READY 0, ACTIVE 1, COOLING_DOWN 2), menuItemId, maxTime, time}: milliseconds, time is the time left (like MenuItemCooldownGroupTimerCommand in the rocket cooldown).
 Visuals from the client's code: skill code 1 Solace, 2 Diminisher, 3 Spectrum, 4 Sentinel, 5 Venom, 6 speed effect. The client's
-AbilityEffectActivationCommand handler draws only 1 (and 111, 140, 145); 2-6 with the old text: 0|n|SD|A or D|code|permanent|
-activator[|target] (SkillAssemblyHelper -> EventAssemblySkills; Frida trace and live view, 2026-10-23). AbilityStartCommand
-(102 Draw Fire, 106 Target Marker, 110 EMP visual, 111 Recon) and AbilityStopCommand. The visual ids of the others were not found.
+AbilityEffectActivationCommand handler turns 1, 140 and 145 into the old SD text, handles 111 (minimap) and draws 101-108 in its
+default branch (AbilityEffectActivationAssemblyHelper: 101 heal beam, 102 Draw Fire, 103 sound, 104 shield beam, 106 Target Marker on the
+target, 107 speed buff, 108 Citadel Protection); it draws nothing for 2-6, those go with the old text: 0|n|SD|A or D|code|permanent|
+activator[|target] (SkillAssemblyHelper -> EventAssemblySkills; Frida trace and live view, 2026-10-23). AbilityStartCommand draws only
+102 Draw Fire, 103, 110 EMP visual, 111 Recon (sounds for 101/104); 106, 107 and 108 also get AbilityEffectActivationCommand (ACTIVATION_ONLY).
+AbilityStopCommand ends them; Ultimate Cloaking (103) cloaks with 0|n|INV|uid|1 (ULTIMATE_CLOAK).
 Rules (wiki): the cooldown starts when the effect ends; a CD booster shortens the cooldown; Elite designs have a duration/cooldown/effect multiplier. Speed
 Boost toggles on/off (10 s between two presses). Cloaking ends on attacking, collecting a box, jumping. Ongoing effects end on death.
 Cooldowns stay in the profile (map change, re-login); effects bound to a target (Venom, Diminisher, marker) stay on the map.
@@ -24,6 +27,20 @@ ABILITIES = D['skills']
 SHIPS = D['ships']
 READY, ACTIVE, COOLING = 0, 1, 2           # the client's TimerState
 VISUAL_HOLD = 1.0                          # the visual of instant abilities is removed after this long
+# AbilityStartCommandHandler ignores these ids (it routes only 101/104 sounds and 102/103/110/111/146 visuals): Target Marker 106, Citadel
+# Travel Mode 107 (GameDefine.ShipAbilityCitadelTravelMode: SpeedBuffEffect, AbilityStopCommand 107 removes it) and Citadel Protection 108
+# are drawn by AbilityEffectActivationCommand's default branch (AbilityEffectActivationAssemblyHelper)
+ACTIVATION_ONLY = (106, 107, 108)
+# Ultimate Cloaking (GameDefine.ShipAbilitySpearheadUltimateCloaking): AbilityStartCommand 103 only plays sound 99 and AbilityStopCommand 103
+# sets ShipInfo.Cloaked false; the only server command that sets it true is 0|n|INV|uid|1 (MapEventsAssemblyHelper.AssembleTargetInvisible)
+ULTIMATE_CLOAK = 103
+# Retiarus Plus visuals (VisualModifierAssemblyHelper): CHSP_UP 147 "charge_shot_plus_charge_up", SPCP_UP 148 "supercharge_plus"; the
+# *_W_UP 149/150 variants load the "_wyvern" prefabs (ChargeShotUpEffect/SuperchargeEffect type 1): the Wyvern design
+WYVERN = {147: 149, 148: 150}
+WYVERN_DESIGN = 'ship_retiarus-plus_design_retiarus-plus-wyvern'
+# Super Charge Shot's discharge (PlayVisualEffectCommand.VisualEffectType; PlayVisualEffectCommandHandler): CHSP_OUT_BREAK 12 at the
+# shooter's cannon point, CHSP_SHOT 11 from the shooter to each target, CHSP_HIT 13 on each unit hit; the Wyvern ones 15/14/16
+CHSP_VISUALS = {False: (12, 11, 13), True: (15, 14, 16)}
 
 
 def mod(name, **f):
@@ -280,8 +297,12 @@ class Engine:
         uid, a, extra = self.shown.pop(item, (None, 0, '')) if not on else self.shown[item]
         if uid is None:
             return []
-        return [('VisualModifierCommand', dict(userId=uid, modifier=g['appearance'], attribute=int(a), additionalAttribute=extra,
+        m = WYVERN.get(g['appearance'], g['appearance']) if self.wyvern() else g['appearance']
+        return [('VisualModifierCommand', dict(userId=uid, modifier=m, attribute=int(a), additionalAttribute=extra,
                                                count=0, activated=on))]
+
+    def wyvern(self):
+        return self.p.ship().get('design') == WYVERN_DESIGN
 
     def visual_on(self, item, target):
         g = ABILITIES[item].get('visual', {})
@@ -302,7 +323,13 @@ class Engine:
             return [('AbilityEffectActivationCommand', dict(selectedAbilityId=g['effect'], activatorId=self.w.hid,
                                                             isPersistent=persistent, targetIds=[target or self.w.hid]))]
         if 'launch' in g:
-            return [('AbilityStartCommand', dict(selectedAbilityId=g['launch'], activatorId=self.w.hid, noStopCommand=False))]
+            msgs = [('AbilityStartCommand', dict(selectedAbilityId=g['launch'], activatorId=self.w.hid, noStopCommand=False))]
+            if g['launch'] in ACTIVATION_ONLY:
+                msgs.append(('AbilityEffectActivationCommand', dict(selectedAbilityId=g['launch'], activatorId=self.w.hid,
+                                                                    isPersistent=True, targetIds=[target or self.w.hid])))
+            if g['launch'] == ULTIMATE_CLOAK:
+                msgs.append(legacy('0|n|INV|%d|1' % self.w.hid))
+            return msgs
         return []
 
     def visual_off(self, item, target):
@@ -318,7 +345,10 @@ class Engine:
             return [('AbilityEffectDeActivationCommand', dict(selectedAbilityId=g['effect'], activatorId=self.w.hid,
                                                               targetIds=[target or self.w.hid]))]
         if 'launch' in g:
-            return [('AbilityStopCommand', dict(selectedAbilityId=g['launch'], activatorId=self.w.hid, targetIds=[target or self.w.hid]))]
+            msgs = [('AbilityStopCommand', dict(selectedAbilityId=g['launch'], activatorId=self.w.hid, targetIds=[target or self.w.hid]))]
+            if g['launch'] == ULTIMATE_CLOAK and self.p.d.get('cpu_hidden'):
+                msgs.append(legacy('0|n|INV|%d|1' % self.w.hid))          # the cloaking CPU still hides the ship (Stop 103 uncloaked it)
+            return msgs
         return []
 
     def mates(self, now, radius=GROUP_RANGE):
@@ -636,6 +666,11 @@ class Engine:
         if not n or not n.alive or dmg <= 0:
             return
         hit = [n] + ([m for m in self.near(d['split_radius'], now, n.mover.pos(now)) if m is not n] if d.get('split_radius') else [])
+        if ABILITIES[item].get('visual', {}).get('appearance') == 147:     # Super Charge Shot: CHSP_UP fires nothing when it ends (CHARGESHOT 94 did)
+            out, shot, hv = CHSP_VISUALS[self.wyvern()]
+            self.send([('PlayVisualEffectCommand', dict(activatorId=self.w.hid, targetIds=[], visualEffect=out)),
+                       ('PlayVisualEffectCommand', dict(activatorId=self.w.hid, targetIds=[n.id], visualEffect=shot))] +
+                      [('PlayVisualEffectCommand', dict(activatorId=m.id, targetIds=[], visualEffect=hv)) for m in hit])
         for m in hit:
             self.w.hit_npc(m.id, int(dmg / len(hit)), 1)
         self.w.log('   Charge Shot: %d damage, %d targets' % (dmg, len(hit)))

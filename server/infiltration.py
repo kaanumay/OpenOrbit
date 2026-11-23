@@ -14,15 +14,16 @@ Company ranking (official Turkish forum Infiltration FAQ: "will appear in the si
 shows the sidebar_infiltration_title_long title for this type; il2cpp 1.1.115). The player's company gets +1 for every team it destroys; the other
 companies are virtual: at the end of every round +1 with 50% probability (adaptation). Scores are in the profile, per event period; rounds are per session.
 """
-import json, os, random, time
+import os, random, time
 
+import game_data as DATA
 import map_links as H
 import event_calendar as CAL
 from legacy_protocol import legacy
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 _PATH = os.path.join(HERE, 'data', 'extra_events.json')
-D = (json.load(open(_PATH, encoding='utf8')) if os.path.exists(_PATH) else {}).get('infiltration', {})
+D = (DATA.shared('extra_events.json') if os.path.exists(_PATH) else {}).get('infiltration', {})
 EVENT = 'infiltration'
 
 

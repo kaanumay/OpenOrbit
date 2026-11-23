@@ -20,6 +20,8 @@ C resonators come from Assembly (10 fragments, the client's recipes); the higher
 """
 import json, os, random
 
+import game_data as DATA
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 D = json.load(open(os.path.join(HERE, 'data', 'items_o6.json'), encoding='utf8'))['resonator']
 ITEMS, KINDS, LEVELS = D['items'], D['kinds'], {r['level']: r for r in D['levels']}
@@ -73,7 +75,7 @@ def roll_ship(rng=random):
 def _model(loot):
     global _CL
     if _CL is None:
-        _CL = json.load(open(os.path.join(HERE, 'data', 'client_items.json'), encoding='utf8'))['items']
+        _CL = DATA.shared('client_items.json')['items']
     return (_CL.get(loot) or {}).get('model')
 
 

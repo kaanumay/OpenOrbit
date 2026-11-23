@@ -36,7 +36,7 @@ ROCKETS = _E['rockets']
 MINES = S['mines']
 # Curcubitor's Trick mine is born when the event alien dies; the player neither buys nor places it: it stays in MINES for damage and visuals,
 # removed from inventory and menu operations
-EVENT_MINES = frozenset({'curcubitor_mayini'})
+EVENT_MINES = frozenset({'curcubitor_mayini', 'ammunition_mine_ice-01'})      # + Iceterion's IceMine (labyrinth.py)
 PLAYER_MINES = frozenset(MINES) - EVENT_MINES
 LAUNCHERS = S['launcher']['kinds']
 LAUNCHER_AMMO = S['launcher_ammo']
@@ -111,6 +111,11 @@ def ammo_kind(loot):
 
 def special(rocket):
     return bool(ROCKETS.get(rocket, {}).get('special'))
+
+
+def rocket_range(rocket):
+    """The rocket's firing range (npc.json combat.rocket_ranges <- the client's Ammunition table; recordings 450/488/525)."""
+    return _N['combat']['rocket_ranges'].get(rocket, _N['combat']['rocket_range'])
 
 
 def item_cooldown(loot):
@@ -1169,7 +1174,7 @@ class Items:
         nx, ny = asset if asset else n.mover.pos(now)
         rng = S['launcher']['range']
         if math.hypot(nx - hx, ny - hy) > rng:
-            self.send([('AttackRangeExceededCommand', {'uid': uid, 'maxRange': rng, 'type': 0})])
+            self.send([('AttackRangeExceededCommand', {'uid': uid, 'maxRange': rng, 'type': 2})])     # the client's HELLSTORM marker
             return
         w.end_invuln(force=True)
         w.abilities.reveal()
@@ -1383,7 +1388,12 @@ class Items:
             self.log('   jump CPU strayed to the Cubikon Graveyard')
         if w.on_jump:
             self.send([stm('msg_cpu_jump_sequence_complete')])     # "CPU jump completed. Map switched." (forum 127075)
-            w.on_jump(dest, None, pos)
+            try:
+                w.on_jump(dest, None, pos)
+            except Exception:                    # the map change failed before this world stopped: not 'jumping' for good (world.jump_done)
+                if not w.stopped:
+                    w.jumping = False
+                raise
 
     def pay_ajp(self, dest):
         p, c = self.p, S['advanced_jump']

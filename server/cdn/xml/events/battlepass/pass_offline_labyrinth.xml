@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <battlePass>
-    <!-- Çevrimdışı sunucunun yazdığı Battle Pass (tools/biletler.py, wiki verisi: tools/biletler_wiki.json; resmî dosya değil) -->
+    <!-- Çevrimdışı sunucunun yazdığı Battle Pass (tools/tickets.py, wiki verisi: tools/tickets_wiki.json; resmî dosya değil) -->
     <objectiveList>
         <!-- Ice Cubes -->
         <objective questId="500385">

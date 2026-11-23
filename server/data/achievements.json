@@ -391,6 +391,39 @@
     }
    ]
   },
+  "achievement_seasonpass_202611": {
+   "group": "SEASONPASS_Q15",
+   "enabled": true,
+   "event": "SeasonPass",
+   "levels": [
+    {
+     "class_name": "LevelAbsolute",
+     "operator": ">=",
+     "value": 50,
+     "incident": "SEASONPASS_Q15",
+     "parameters": {
+      "avatar": [
+       "PLAYER"
+      ]
+     },
+     "points": 40,
+     "title": "title_seasonpass_202611_1"
+    },
+    {
+     "class_name": "LevelAbsolute",
+     "operator": ">=",
+     "value": 80,
+     "incident": "SEASONPASS_Q15",
+     "parameters": {
+      "avatar": [
+       "PLAYER"
+      ]
+     },
+     "points": 40,
+     "title": "title_seasonpass_202611_2"
+    }
+   ]
+  },
   "achievement_misc_3d": {
    "group": "MISC",
    "enabled": true,
@@ -2533,12 +2566,6 @@
      "points": 100
     }
    ]
-  },
-  "null": {
-   "group": null,
-   "enabled": false,
-   "event": null,
-   "levels": []
   },
   "achievement_dispatch_gate": {
    "group": "DISPATCH",
@@ -7420,6 +7447,8 @@
   "title_worldboss_recoverhp_june2025": 1212,
   "title_worldboss_recoverhp_june2026": 1213,
   "title_worldboss_takedamage_june2025": 1214,
-  "title_worldboss_takedamage_june2026": 1215
+  "title_worldboss_takedamage_june2026": 1215,
+  "title_seasonpass_202611_1": 1216,
+  "title_seasonpass_202611_2": 1217
  }
 }

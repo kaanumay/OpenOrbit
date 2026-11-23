@@ -482,56 +482,6 @@
    "lvl {level} and still no clue what im doing :D",
    "good night for hunting"
   ],
-  "complaint": [
-   "lag for anyone else?",
-   "uridium is so slow",
-   "uri farming is a grind",
-   "ping spiked for a sec there"
-  ],
-  "status_gate": [
-   "just finished {gate}, finally",
-   "{gate} done, took long enough",
-   "cleared {gate} :D",
-   "{gate} wasnt that bad once i got it going"
-  ],
-  "status_purchase": [
-   "bought {item} just now",
-   "picked up {item}, lets see if it helps",
-   "got myself {item} :)",
-   "new toy: {item}"
-  ],
-  "status_death": [
-   "died on {map} to some random alien, rip",
-   "those aliens on {map} hit harder than they look",
-   "got jumped on {map}, need to be more careful",
-   "lost a fight with npcs on {map} lol"
-  ],
-  "status_quest": [
-   "finished the quest {name}",
-   "{name} done, next one",
-   "quest {name} complete, easy rewards"
-  ],
-  "status_fled": [
-   "ran from {map}, too hot there",
-   "got out of {map} just in time",
-   "{map} is not worth it right now"
-  ],
-  "status_cargo": [
-   "cargo is {percent}% full, heading to sell",
-   "hold is almost full, time to go back",
-   "carrying so much ore my ship is crawling"
-  ],
-  "status_grind": [
-   "farming {map} for a bit",
-   "{map} is decent for farming rn",
-   "grinding npcs on {map}, anyone around?",
-   "farming {map} at lvl {level}, going ok"
-  ],
-  "status_stats": [
-   "{npc} aliens down so far, still going",
-   "just passed {npc} kills, not bad",
-   "{npc} kills and {death} deaths, i call it even"
-  ],
   "exit": [
    "bb",
    "gtg",

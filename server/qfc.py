@@ -16,12 +16,13 @@ In the profile: qfc {itemId: {ship, level, attributes: [[name, value (%)]]}}.
 """
 import json, os, random
 
+import game_data as DATA
 import inventory as INV
 from ship_module import ATTR_KEYS
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 D = json.load(open(os.path.join(HERE, 'data', 'new_systems.json'), encoding='utf8'))['qfc']
-ITEMS = json.load(open(os.path.join(HERE, 'data', 'client_items.json'), encoding='utf8'))['items']
+ITEMS = DATA.shared('client_items.json')['items']
 TYPES = D['kinds']
 LUMI = D['luminaflux']
 SLOT = 'QuantumFluidCore'

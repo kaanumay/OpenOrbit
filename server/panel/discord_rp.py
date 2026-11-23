@@ -136,11 +136,29 @@ class Connection:
     def _read(self, n):
         out = b''
         while len(out) < n:
+            if os.name == 'nt':
+                self._wait()
             k = self.f.read(n - len(out))
             if not k:
                 raise OSError('discord closed')
             out += k
         return out
+
+    TIMEOUT = 5                     # seconds; the socket's timeout on Linux and macOS
+
+    def _wait(self):
+        """Windows: a named pipe has no read timeout (a Discord stuck in the handshake held the thread forever): wait for data with
+        PeekNamedPipe, at most TIMEOUT seconds."""
+        import ctypes, msvcrt
+        from ctypes import wintypes
+        h, avail, end = msvcrt.get_osfhandle(self.f.fileno()), wintypes.DWORD(), time.time() + self.TIMEOUT
+        while ctypes.windll.kernel32.PeekNamedPipe(wintypes.HANDLE(h), None, 0, None, ctypes.byref(avail), None):
+            if avail.value:
+                return
+            if time.time() > end:
+                raise OSError('discord timed out')
+            time.sleep(0.05)
+        raise OSError('discord closed')
 
     def event(self, e):
         op, d = self.request(1, {'cmd': 'SET_ACTIVITY', 'args': {'pid': os.getpid(), 'activity': e}, 'nonce': str(uuid.uuid4())})

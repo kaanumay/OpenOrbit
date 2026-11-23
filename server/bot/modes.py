@@ -12,11 +12,14 @@ The Breach, Devolarium Attack), Voyagers' Ascent, Trinity Trials, Astral Ascensi
 Battle of LoW, Vortex of Greed, Mimesis Mutiny, World Boss, Kristallon Apotheosis, Frozen Labyrinth. Passes (Dispatch,
 Galaxy Trek) via pasif() at decision time.
 """
-import json, os, random, time
+import random, time
+
+import game_data as DATA
 
 from . import catalog as K
 
-D = lambda f: json.load(open(os.path.join(K.HERE, 'data', f), encoding='utf8'))
+# read only: the one parse per process (event_gates.json is not event_gate's own copy, which fiesta/invasion extend)
+D = DATA.shared
 PVE = D('pve_modes.json')
 EVG = D('event_gates.json')
 BIG_CONTENT = D('major_content.json')

@@ -247,7 +247,9 @@ def open_save(path):
 
 
 def levels():
-    return PA._load('levels.json').get('levels') or [[1, 0]]
+    """The EP table of the save's world (saves.py runs the editor with its OO_WORLD; player_profile.level_for reads the same)."""
+    import game_data as GD
+    return GD.load('levels.json').get('levels') or [[1, 0]]
 
 
 def level_of(ep):
@@ -578,7 +580,9 @@ def op_pilot(pr, m, o):
         if key in o:
             pl[field] = _int(o[key], lo, hi)
     if 'level' in o:                                  # level: EP is that level's threshold (the game also computes the level from EP)
-        pl['level'], pl['ep'] = PA.level_ep(_int(o['level'], 1, 10 ** 3))
+        table = levels()
+        pl['level'] = max(table[0][0], min(_int(o['level'], 1, 10 ** 3), table[-1][0]))
+        pl['ep'] = next(need for lv, need in table if lv == pl['level'])
     if 'ep' in o:
         pl['ep'] = _int(o['ep'], 0, 2 ** 62)
         pl['level'] = level_of(pl['ep'])
@@ -652,7 +656,7 @@ def op_delete(pr, m, o):
         if i in busy:
             raise ValueError("An equipped item can't be deleted: unequip it first.")
         pr.d['items'].pop(str(i), None)
-        for k in ('item_level', 'upgrade_level'):
+        for k in ('item_level', 'upgrade_level', 'unstable', 'particle', 'qfc', 'resonators'):    # every record kept per item id
             pr.d.get(k, {}).pop(str(i), None)
     pr.dirty = True
 
@@ -803,10 +807,14 @@ def op_booster(pr, m, o):
         if not BOOSTER.is_booster(loot):
             raise ValueError('Unknown item: %s', loot)
         sec = _int(sec, 0, 10 ** 8)
-        if sec:
-            b[loot] = {'end_time': 0, 'remaining': float(sec)}
-        else:
-            b.pop(loot, None)
+        b.pop(loot, None)                               # an alias written as is by an older panel goes too
+        # an alias (a booster the client does not know: MAX-BP01, PCOMB ...) is stored as its equivalents, as booster.add does: the game's
+        # booster code knows only real kinds
+        for kind in [x for x, _h in BOOSTER.ALIAS[loot]] if loot in BOOSTER.ALIAS else [loot]:
+            if sec:
+                b[kind] = {'end_time': 0, 'remaining': float(sec)}
+            else:
+                b.pop(kind, None)
     m.apply_stats()
     pr.dirty = True
 

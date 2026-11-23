@@ -19,7 +19,7 @@ Message flows from the real server recording (belgeler/istemci/kayit_analizi.md,
           KillScreenRepairRequest -> ShipInitializationCommand (repair at the station / portal / on the spot)
 Numeric values come from data/npc.json, repair prices from data/items.json (death_screen).
 """
-import json, math, os, random, re, string, threading, time, traceback, weakref
+import math, os, random, re, string, threading, time, traceback, weakref
 import game_data as DATA
 
 import map_links as H
@@ -56,7 +56,6 @@ CREDITS_ITEM, URIDIUM_ITEM = -1908845164, -707736347      # InventoryItemModule.
 # on-screen lines for the kill reward and their texts in the client (flashres: "You received %! EP." …); at most this often on screen (kill_notice)
 REWARD_LINES = ('0|LM|ST|EP|', '0|LM|ST|HON|', '0|LM|ST|CRE|', '0|LM|ST|URI|')
 NOTICE_GAP_SEC = 1.0
-LASER_AMMO = 'ammunition_laser_lcb-10'
 DEATH = ITEMS['death_screen']
 # the client's KillScreenOptionTypeModule.OptionType enum (global-metadata.dat)
 RAPID_AMMO, RAPID_VOLLEYS, RAPID_STEP = 'ammunition_laser_rsb-75', 4, 0.5     # RSB-75 salvo: pulse laser (laserColor 6, sound 32 laser6_0 1.23 s) 4 commands x 0.5 s (the user's official game video)
@@ -114,8 +113,12 @@ REPAIR_VOUCHERS = 10             # coupon cost of an instant repair at the repai
 COMBAT_OUT_OF_RANGE, COMBAT_CONTINUES, COMBAT_ESCAPED = 0, 1, 2
 
 
+# AttackRangeExceededCommand.AttackType (client enum and recording: lasers 0, rockets 1; not AttackTypeModule's order)
+RANGE_LASER, RANGE_ROCKET, RANGE_HELLSTORM = 0, 1, 2
+
+
 def range_exceeded(uid, max_range, kind):
-    """Out of range: the client shows a range effect on the target (AttackRangeExceededCommand; type 0 rocket, 1 laser)."""
+    """Out of range: the client shows a range effect on the target (AttackRangeExceededCommand; kind RANGE_LASER/ROCKET/HELLSTORM)."""
     return ('AttackRangeExceededCommand', {'uid': uid, 'maxRange': int(max_range), 'type': kind})
 
 
@@ -314,6 +317,7 @@ def rand_hash():
 # gathered by going back and forth through a portal). Galaxy Gate maps are not saved (galaxy_gates.py keeps its own state).
 ROCKET_ALLOWANCE = 0.25               # the allowance given to the client in the rocket cooldown (s)
 WORLD_CACHE = {}
+CACHE_LOCK = threading.Lock()     # friend server: two worlds store/take at once (the eviction's min() over a changing dict, a double del)
 WORLD_CACHE_SEC = 600             # adaptation: 10 minutes
 WORLD_CACHE_MAX = 8
 
@@ -369,7 +373,9 @@ class World:
         self.perf = Metrics()                 # duration of the loop step (ms): live status and panel
         self.step_errors = {}               # last line of the loop error -> the moment it was last written to the log (step_error)
         self.step_peace = None              # in the step's alien loop: hero position -> in a safe zone (hero_in_peace)
+        self.shot_memo = None               # in the step's alien loop: [the hero's p.mods()] for the aliens' shots (npc_shoot)
         self._batch = None                 # what is to be sent while the loop step runs (in a single frame at the end of the step)
+        self.due = []                      # the step's due timers not run yet (step; stop takes them over)
         self._loop_ident = None             # the loop's thread (defer: also queues the session's messages inside the step)
         self.cbs_trade = None               # ore sale at the Clan Battle Station: () -> price multiplier or None (cbs.py)
         self.last_asset_attacker = None     # (CBS module uid, hit time): PET guard retaliation.
@@ -406,6 +412,7 @@ class World:
         self.target = None
         self.last_target = None        # the target that just died: the killing hit's number still shows (hit_shown)
         self.attacking = False
+        self.lit = None                # laser ammo whose attack highlight the client shows (ammo_highlight)
         self.next_laser = 0.0
         self.ammo_ready = {}           # ammo with its own cooldown (RSB-75, RCB-140: 3 s) -> the moment it can fire again
         self.ammo_timer_end = {}       # cooldown group -> end of the countdown shown on the shortcut bar (ammo_timer)
@@ -523,6 +530,7 @@ class World:
         self.shared = OH.take(self.map_id) if shared else None     # shared map: lock, aliens, boxes, ores, spawns
         self.shared_released = False
         self.stopped = False             # stop once (when the session reconnects it is also stopped on login, game.Session.devret)
+        self.closed = False              # stop() finished: nothing more goes to this world's client (deliver)
         self.cache_key = self.map_id   # WORLD_CACHE key (on the friend server the player's own copy is per player; game.start_world)
         if self.shared:
             o = self.shared
@@ -556,6 +564,8 @@ class World:
     def deliver(self, msgs, hold=True):
         """To this world's client (through the view filters; if in a loop step, at the end of the step). hold: the hero's damage waits for the
         window's single number (merge_hits)."""
+        if self.closed:
+            return
         if self.npcs:       # the movement of an NPC out of view does not go to the client (it does not know it)
             msgs = [m for m in msgs if not (m[0] == 'MoveCommand' and m[1]['userId'] in self.npcs and m[1]['userId'] not in self.visible)]
         msgs = [self.hero_miss(m) for m in msgs if self.item_filter(m) and self.hit_shown(m)]
@@ -705,8 +715,20 @@ class World:
             if self.running and not self.hero_dead and not self.jumping and self.on_jump:
                 self.jumping, self.attacking, self.target = True, False, None
                 self.send([('JumpInitiatedCommand', {'mapId': g['target'], 'gateId': g['gateId']})])
-                self.later(H.JUMP_DELAY_SEC, lambda: self.hero_dead or self.on_jump(g['target'], g))
+                self.later(H.JUMP_DELAY_SEC, lambda: self.jump_done(g))
         self.later(delay, go)
+
+    def jump_done(self, g):
+        """The jump countdown is over (died in it: no jump): the session's map change. If that fails before this world stops, the ship
+        must not stay 'jumping' for good (no attack, no portal, no move saved); the error goes on to the step's log."""
+        if self.hero_dead:
+            return
+        try:
+            self.on_jump(g['target'], g)
+        except Exception:
+            if not self.stopped:
+                self.jumping = False
+            raise
 
     def schedule(self, delay, kind, value=None):
         """Respawn (alien, bonus box, ore): saved together with the map state (WORLD_CACHE)."""
@@ -742,14 +764,17 @@ class World:
                 n.engaged, n.flee, n.children, n.foe, n.park, n.firing = False, False, set(), None, None, False
                 n.pend_dmg = 0                   # their timers went with the world: if they stayed, the alien never dealt damage again (npc_hit_tick)
                 n.ab.pop('summon_queued', None)
-            WORLD_CACHE[self.cache_key] = dict(an=time.time(), npcs=npcs, boxes=dict(self.boxes), ores=dict(self.ores),
-                                            pending=list(self.pending), ore_fields=list(self.ore_fields), next_uid=self.next_uid)
-        while len(WORLD_CACHE) > WORLD_CACHE_MAX:
-            del WORLD_CACHE[min(WORLD_CACHE, key=lambda k: WORLD_CACHE[k]['an'])]
+            c = dict(an=time.time(), npcs=npcs, boxes=dict(self.boxes), ores=dict(self.ores),
+                     pending=list(self.pending), ore_fields=list(self.ore_fields), next_uid=self.next_uid)
+        with CACHE_LOCK:
+            WORLD_CACHE[self.cache_key] = c
+            while len(WORLD_CACHE) > WORLD_CACHE_MAX:
+                del WORLD_CACHE[min(WORLD_CACHE, key=lambda k: WORLD_CACHE[k]['an'])]
 
     def restore_state(self):
         """Saved state (if it has not expired) -> True: aliens in place, boxes and ores the same, pending spawns continue."""
-        c = WORLD_CACHE.pop(self.cache_key, None) if self.keep_state else None
+        with CACHE_LOCK:
+            c = WORLD_CACHE.pop(self.cache_key, None) if self.keep_state else None
         now = time.time()
         if not c or now - c['an'] > WORLD_CACHE_SEC:
             return False
@@ -823,6 +848,9 @@ class World:
         now = time.time() if now is None else now
         x, y = self.hero_pos(now)
         here = self.in_peace(x, y) if SET.get('portal_hangar') else bool(self.station_at(x, y)) or ML.in_safe(self.map_id, x, y)
+        # combat delay: the official server holds EquipReadyCommand back in combat (recording 20261025_152841: in the station at t=1301.7,
+        # ready only at 1309.8, 10.0 s after the last hit) but also gave it 3-7 s after a hit (20261027_235305 t=2468.3, 20261025_152841
+        # t=665.8): no fixed time; out_of_combat_sec (5 s) is the adaptation between them
         return (not self.hero_dead and not self.jumping and now - self.last_combat >= ITEMS['out_of_combat_sec']
                 and (here or bool(self.low and self.low.docking_station(x, y))))
 
@@ -915,7 +943,7 @@ class World:
             self.seen_items.add(f['hash'])
         elif name == 'RemoveCollectableCommand':
             if f['hash'] not in self.seen_items:
-                return False
+                return str(f['hash']).startswith('CTB-')      # a Capture the Beacon beacon (capture_beacon.HASH; it keeps its own list)
             self.seen_items.discard(f['hash'])
         return True
 
@@ -1188,7 +1216,7 @@ class World:
         """owner: the box belongs only to this hero (loot that drops for everyone in a group; other players do not see it and cannot collect it). owner_tag: the cargo box's
         owner ('h', hero) or ('b', bot): others see it blue, and if they collect it they lose honor if from the same company (cargo_penalty)."""
         h = rand_hash()
-        while h in self.boxes:
+        while h in self.boxes or h in self.ores:           # one hash space on the client (RemoveCollectableCommand, seen_items)
             h = rand_hash()
         self.boxes[h] = dict(tip=kind, x=int(x), y=int(y), contents=content, end_time=time.time() + life if life else None)
         if owner is not None:
@@ -1344,6 +1372,16 @@ class World:
         if self.stopped:
             return
         self.stopped = True
+        with self.lock:                        # kill rewards still waiting for their 0.3 s (npc_reward) are given now, not lost with the timers
+            due, self.due = self.due, []       # stopped by a timer of its own step: that step's timers not run yet end here too
+            keep = [t for t in due + self.timers if getattr(t[1], 'on_stop', False)]
+            self.timers = [t for t in self.timers if not getattr(t[1], 'on_stop', False)]
+            del due[:]                         # (the step's loop over them ends)
+            for _, fn in keep:
+                try:
+                    fn()
+                except Exception:
+                    self.step_error('timer')
         BG.detach(self)                        # bot ships are not stored with the map state
         with self.lock:
             self.particle.clear()
@@ -1367,6 +1405,17 @@ class World:
                 self.send(self.stats_msgs())
         if getattr(self.p, 'world_mods', None) == self.all_mods:
             self.p.world_mods = None
+        with self.lock:
+            # stopped inside its own step (the portal jump's timer runs the session's map change): what the step gathered so far goes now,
+            # before the session's JumpToServerCommand; nothing of this map reaches the client afterwards (its aliens' movement used to
+            # arrive after the new map's login bundle)
+            if self._batch and threading.get_ident() == self._loop_ident:
+                batch, self._batch = self._batch, []
+                try:
+                    self.send_raw(batch)
+                except OSError:
+                    pass
+            self.closed = True
 
     def cinematic(self, x, y, hold=3.0):
         """Cinematic camera (Ö2; the panel's 'cinematic' setting): the camera goes to a point (CameraLockToCoordinatesCommand; the client locks
@@ -1858,7 +1907,7 @@ class World:
             self.send([('JumpInitiatedCommand', {'mapId': g['target'], 'gateId': g['gateId']})])
             self.log('   portal %d: %s -> %s jump started' % (g['gateId'], H.name(self.map_id), H.name(g['target'])))
             if self.on_jump:
-                self.later(H.JUMP_DELAY_SEC, lambda: self.hero_dead or self.on_jump(g['target'], g))     # died in the countdown: no jump
+                self.later(H.JUMP_DELAY_SEC, lambda: self.jump_done(g))
             return True
 
     def resend(self):
@@ -1874,7 +1923,8 @@ class World:
             msgs = self.visible_msgs(time.time()) + \
                    [self.box_cmd(h, b) for h, b in self.boxes.items()] + \
                    [self.ore_msg(h) for h in self.ores] + [H.jumpgate_create(g) for g in self.gates if 'designId' in g] + \
-                   self.alien.capsule_msgs() + (self.low.asset_msgs() if self.low else []) + self.items.mine_msgs()
+                   self.alien.capsule_msgs() + (self.low.asset_msgs() if self.low else []) + self.items.mine_msgs() + \
+                   (self.mode_brain.resend_msgs(self) if getattr(self.mode_brain, 'resend_msgs', None) else [])     # CTB beacons
             self.near_assets, self.near_giver = None, None
             left = self.invuln_until - time.time()
             if left > 0:
@@ -1976,8 +2026,8 @@ class World:
                 if denied:
                     self.send(denied)
                     return
-            if (not asset and not pet and not player and (not n or not n.alive)) or self.hero_dead:
-                return
+            if (not asset and not pet and not player and (not n or not n.alive or n.d.get('friendly'))) or self.hero_dead or self.jumping:
+                return                                      # friendly ship (Echoes, Mimesis escort): hit_npc refuses it, every salvo only spent ammo
             if asset:                                       # entity (double click: AttackLaserRequest) - cannot be hit while the deflector is on
                 err = self.asset_targets.asset_attackable(f.get('targetId'))
                 if err:
@@ -1989,21 +2039,33 @@ class World:
             self.items.reveal()                  # the cloak CPU too
             self.target, self.attacking = uid, True
             self.next_laser = max(self.next_laser, time.time())
-            self.send([('UIItemAddHighlightCommand', dict(
-                soundModule=mod('SoundTriggerModule', playSound=False, soundId=0), itemSource=mod('UiItemSourceModule', itemSource=0),
-                highlightType=mod('HighlightTypeModule', type=6), itemId=LASER_AMMO)),
-                legacy('0|n|LSH|%d|%d' % (uid, self.hid))])
+            ammo = self.p.d['selected'].get('laser')
+            self.send(([self.ammo_highlight(self.lit, False)] if self.lit and self.lit != ammo else [])
+                      + ([self.ammo_highlight(ammo, True)] if ammo else []) + [legacy('0|n|LSH|%d|%d' % (uid, self.hid))])
+
+    def ammo_highlight(self, ammo, on):
+        """The attack's highlight on the selected laser ammo in the shortcut bar (UIItemAdd/RemoveHighlightCommand ACTIVE 6; recording
+        20261027_235305: the selected ammo, not always LCB-10). The client keeps it until the Remove: self.lit is the lit ammo."""
+        f = dict(itemId=ammo, itemSource=mod('UiItemSourceModule', itemSource=0), highlightType=mod('HighlightTypeModule', type=6))
+        self.lit = ammo if on else None
+        if on:
+            return ('UIItemAddHighlightCommand', dict(f, soundModule=mod('SoundTriggerModule', playSound=False, soundId=0)))
+        return ('UIItemRemoveHighlightCommand', f)
+
+    def highlight_moves(self, kind, ammo):
+        """The laser ammo changed during an attack: Remove(old) then Add(new) (recording 20261027_235305 t=50.658, 63.904)."""
+        if kind != 'laser' or not self.attacking or self.lit == ammo:
+            return []
+        return ([self.ammo_highlight(self.lit, False)] if self.lit else []) + [self.ammo_highlight(ammo, True)]
 
     def laser_stop(self, notify=True):
         with self.lock:
-            was = self.attacking
             self.attacking = False
             if notify:
                 self.fire = False            # the end goes to everyone below (so step does not resend it)
                 msgs = [('AttackAbortLaserCommand', {'uid': self.hid})]
-                if was:
-                    msgs.append(('UIItemRemoveHighlightCommand', dict(itemId=LASER_AMMO, itemSource=mod('UiItemSourceModule', itemSource=0),
-                                                                     highlightType=mod('HighlightTypeModule', type=6))))
+                if self.lit:                 # also after a kill (attacking already dropped): the client's AttackAbortLaserRequest (recording)
+                    msgs.append(self.ammo_highlight(self.lit, False))
                 self.send(msgs)
 
     def rocket(self, f):
@@ -2020,7 +2082,8 @@ class World:
             special = CIT.special(rocket)          # the special rocket has its own cooldown (combat_items.py)
             # cooldown allowance: since the client starts its counter when the message arrives, a request can arrive just before the cooldown ends (live trial:
             # a rocket arriving at 3.89 s in a 4 s cooldown was silently ignored)
-            if (not special and now < self.rocket_ready - ROCKET_ALLOWANCE) or (not asset and (not n or not n.alive)) or self.hero_dead or self.jumping:
+            if (not special and now < self.rocket_ready - ROCKET_ALLOWANCE) or (not asset and (not n or not n.alive or n.d.get('friendly'))) \
+                    or self.hero_dead or self.jumping:
                 return
             if asset:
                 denied = self.asset_targets.asset_attackable(uid)
@@ -2031,8 +2094,9 @@ class World:
                     return
             hx, hy = self.hero_pos(now)
             nx, ny = asset if asset else n.mover.pos(now)
-            if math.hypot(nx - hx, ny - hy) > COMBAT['rocket_range']:
-                self.send([range_exceeded(uid, COMBAT['rocket_range'], 0)])
+            rng = CIT.rocket_range(rocket)         # per rocket (npc.json combat.rocket_ranges; special rockets too)
+            if math.hypot(nx - hx, ny - hy) > rng:
+                self.send([range_exceeded(uid, rng, RANGE_ROCKET)])
                 return
             if special:
                 self.items.fire_special(rocket, n if n else uid, now)
@@ -2092,6 +2156,9 @@ class World:
         itself, in 2D its Y is always 0 (in 2D boxes were not being collected, H80). If the ship is still on its way the box is taken on arrival."""
         with self.lock:
             h = f.get('itemHash')
+            if h not in self.boxes and getattr(self.mode_brain, 'collect', None):       # a beacon at rest (capture_beacon.collect)
+                self.send(self.mode_brain.collect(self, h))
+                return
             if h not in self.boxes or not self.own(self.boxes[h]) or self.hero_dead or self.jumping:
                 return
             if not self.box_near(h):
@@ -2803,6 +2870,7 @@ class World:
             self.log('   %s destroyed%s: +%d EP, +%d honor, +%d credits, +%d uridium (level %d)' % (
                 n.d['name'], ' (group share 1/%d%s)' % (share, '' if own else ', hit by a group member') if share > 1 else '',
                 o['ep'], o['honor'], o['credits'], o['uridium'], tot['level']))
+        reward.on_stop = True                 # given even if the world stops within the 0.3 s (stop: disconnect, map change)
         self.later(0.3, reward)
         cargo = {} if EVT.no_cargo(n) or not box else self.cargo_of(n)        # Curcubitor: only its chest (event_maps)
         kind = self.event.cargo_kind() or ('CANDY_CARGO' if CAL.has_type('CandyCargo') else 'FROM_SHIP')
@@ -2993,7 +3061,7 @@ class World:
             name = sub.rsplit('_', 1)[-1].upper()
             msgs = [('MenuItemStatusCommand', st) for st in (self.p.menu_status(empty), self.p.menu_status(sub)) if st]
             self.log('   ammo ran out (%s): switched to %s ammo' % (empty, sub))
-            return sub, msgs + [stm('chgbat' if code == 'L' else 'chgrok', '%!', name)]
+            return sub, msgs + self.highlight_moves(kind, sub) + [stm('chgbat' if code == 'L' else 'chgrok', '%!', name)]
         self.log('   ammo ran out (%s): %s' % (empty, 'other ammo in hand' if sub else 'none at all'))
         return None, [legacy('0|W|%s|0|1' % code) if sub else legacy('0|W|%s' % code)] + ([] if sub else self.p.hint(IP.GET_MORE_AMMO))
 
@@ -3149,7 +3217,7 @@ class World:
         if math.hypot(pos[0] - hx, pos[1] - hy) > rng:
             if self.range_warned != uid:
                 self.range_warned = uid
-                self.send([range_exceeded(uid, rng, 1)] + self.combat_state(COMBAT_OUT_OF_RANGE, now))
+                self.send([range_exceeded(uid, rng, RANGE_LASER)] + self.combat_state(COMBAT_OUT_OF_RANGE, now))
             return
         if self.range_warned == uid:
             self.send(self.combat_state(COMBAT_CONTINUES, now))
@@ -3217,7 +3285,7 @@ class World:
         if math.hypot(nx - hx, ny - hy) > rng:
             if self.range_warned != n.id:               # the client draws a range effect (AttackRangeExceededCommandHandler)
                 self.range_warned = n.id
-                self.send([range_exceeded(n.id, rng, 1)] + self.combat_state(COMBAT_OUT_OF_RANGE, now))
+                self.send([range_exceeded(n.id, rng, RANGE_LASER)] + self.combat_state(COMBAT_OUT_OF_RANGE, now))
             return
         if self.range_warned == n.id:                   # back in range: "The battle continues."
             self.send(self.combat_state(COMBAT_CONTINUES, now))
@@ -3297,7 +3365,8 @@ class World:
                     return
                 self.p.d['selected'][kind] = item
                 self.p.dirty = True
-                self.send([('MenuItemStatusCommand', st) for st in (self.p.menu_status(old), self.p.menu_status(item)) if st])
+                self.send([('MenuItemStatusCommand', st) for st in (self.p.menu_status(old), self.p.menu_status(item)) if st]
+                          + self.highlight_moves(kind, item))
                 self.log('   %s ammo: %s' % (kind, item))
                 if act == 1 and kind == 'laser' and self.quickslot_on() and not self.attacking:
                     self.quickslot_start()
@@ -3739,7 +3808,10 @@ class World:
             return                              # the shot went to a friendly ship (echoes.py, mimesis.py)
         ddol = n.effect.get('shot_disrupted', now)          # Disruptor DDoL: laser cooldown 3-5 s
         n.next_shot = now + (random.uniform(*ddol[0]['interval']) if ddol else n.d.get('shot_interval_sec', COMBAT['npc_attack_interval_sec']))
-        m = self.p.mods()
+        memo = self.shot_memo               # once per alien loop (~50-115 us a call): nothing in the loop changes the evasion or laser_taken read here
+        m = memo[0] if memo else self.p.mods()
+        if memo is not None and not memo:
+            memo.append(m)
         msgs = [('AttackLaserRunCommand', dict(attackerId=n.id, targetId=self.hid, laserColor=self.alien.laser_color(n, now),
                                                isDiminishedBySkillShield=m.get('laser_taken', 0) < 0 or self.skill_shield(),  # Spectrum
                                                skilledLaser=False, visualType=0))]
@@ -4013,6 +4085,7 @@ class World:
         for n in self.npcs.values():
             if self.ours(n):
                 n.engaged = False
+                n.pend_dmg = 0              # shots summed for the next second (npc_hit_tick) do not hit the ship after a quick repair
         msgs.append(('ShipDestroyedCommand', dict(destroyedUserId=self.hid, explosionTypeId=0)))
         bot_killer = killer is not None and getattr(killer, 'bot', None) is not None     # bot player (bot/ship.py)
         killer_name = source_player.p.d['pilot'].get('userName', '') if source_player else killer.d['name'] if killer else ''
@@ -4476,11 +4549,12 @@ class World:
                     ms = n.mover.go(tx, ty, n.speed() * n.effect.speed_factor(now), now)
                     self.send([('MoveCommand', dict(userId=n.id, x=int(tx), y=int(ty), timeToTarget=ms))])
                 n.next_think = now + (max(0.5, ms / 1000) + n.ab.pop('wait', 0) if post else 1.0)
-            if dist <= self.npc_range(n) and now >= n.next_shot and n.d['damage'] > 0 and now >= self.invuln_until:
+            reach = self.npc_range(n)
+            if dist <= reach and now >= n.next_shot and n.d['damage'] > 0 and now >= self.invuln_until:
                 if n.next_shot == 0.0:
                     self.send([legacy('0|n|LSH|%d|%d' % (self.hid, n.id))])
                 self.npc_shoot(n, now)
-            elif dist > self.npc_range(n):
+            elif dist > reach:
                 self.alien_ceasefire(n)         # went out of range: the laser state closes on the client
             return
         if hunt:
@@ -4569,13 +4643,16 @@ class World:
         """One step of the loop (0.1 s; under the world lock): timers, view, aliens, boxes … The measuring tool
         (tools/performance.py) calls it without a thread."""
         self.timers, timers = [], self.timers       # later() from a packet thread appends to one of the two lists, never lost
-        due = [t for t in timers if t[0] <= now]
+        self.due = due = [t for t in timers if t[0] <= now]     # stop() inside one of them takes over the rest (a kill reward due now)
         self.timers.extend(t for t in timers if t[0] > now)
-        for _, fn in due:
+        while due:
+            _, fn = due.pop(0)
             try:                               # if one fails, the other timers in the same step must not be lost
                 fn()
             except Exception:
                 self.step_error('timer')
+        if self.stopped:
+            return                             # a timer changed the map (portal jump, auto jump): this world's map is over
         if self.collect_wish:
             self.collect_tick(now)
         if self.opening:
@@ -4626,14 +4703,23 @@ class World:
         if self.labyrinth:
             self.labyrinth.tick(now)
         if self.session_tick:
-            self.session_tick(now)
-        self.step_peace = {}
+            try:                               # a session system's error (quests, Assembly …) must not freeze the map's aliens
+                self.session_tick(now)
+            except Exception:
+                self.step_error('session')
+            if self.stopped:
+                return                         # a session system changed the map (Galactic Strife shuffle, a mode's end): as after the timers
+        self.step_peace, self.shot_memo = {}, []
         try:
             for n in list(self.npcs.values()):
-                if self.owner(n, now):        # the world that owns the alien on a shared map (the one it fights or the nearest player)
-                    self.think(n, now)
+                # n.alive: one destroyed earlier in this loop (by a bot ship's shot, reflected damage) does not fire or move once more
+                if n.alive and self.owner(n, now):        # the world that owns the alien on a shared map (the one it fights or the nearest player)
+                    try:
+                        self.think(n, now)
+                    except Exception:          # one alien's error must not stop the others (bot ships: think itself)
+                        self.step_error('alien %s' % n.tip)
         finally:
-            self.step_peace = None
+            self.step_peace = self.shot_memo = None
         for h, b in list(self.boxes.items()) if leader else ():
             if b['end_time'] and now > b['end_time']:
                 del self.boxes[h]

@@ -164,6 +164,8 @@ def _write(p, d):
     tmp = p + '.tmp'
     with open(tmp, 'w', encoding='utf8', newline='\n') as fh:
         json.dump(d, fh, ensure_ascii=False, indent=1)
+        fh.flush()
+        os.fsync(fh.fileno())                 # a power cut during the migration must not leave an empty profile (player_profile.save)
     os.replace(tmp, p)
 
 
@@ -349,6 +351,8 @@ def _backup(root, log, files=None, beat=lambda: None, again=False, prefix='v1_ba
                     except OSError as e:
                         log('could not back up: %s (%s)' % (p, e))
                     beat()
+    with open(tmp, 'r+b') as fh:              # on disk before it counts: an existing .zip stops later backups (the check above)
+        os.fsync(fh.fileno())
     os.replace(tmp, os.path.join(root, name))
     log('backup of the saves: %s' % os.path.join(root, name))
     return name

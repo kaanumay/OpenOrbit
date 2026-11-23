@@ -12,7 +12,7 @@ new ones once: a change made while the game is closed at the next login, while i
 It works by name: when the roster is regenerated the new bots take the old ones' ids (1800000000 + sequence).
 Mail already sent and received is history and stays as it is.
 """
-import json, os, threading, time
+import bisect, json, os, threading, time
 
 import paths as PTH
 
@@ -60,12 +60,15 @@ def add(events):
     if not events:
         return last()
     with LOCK:
+        _cache['mtime'] = None                 # from the file, not the 1 s cache: an event the other process (panel/game) just wrote is kept
         all_ = list(read())
         n = all_[-1]['n'] if all_ else 0
         t = time.time()
         for x in events:
             n += 1
             all_.append(dict(x, n=n, t=t))
+        low = min(positions(), default=n)            # what every consumer has applied goes (the file grew without bound: 635 KB)
+        all_ = [x for x in all_ if x['n'] > low or t - x.get('t', t) < KEEP_SEC] or all_[-1:]    # the last stays: the sequence goes on
         p = file()
         os.makedirs(os.path.dirname(p), exist_ok=True)
         with open(p + '.tmp', 'w', encoding='utf8') as f:
@@ -75,8 +78,36 @@ def add(events):
         return n
 
 
+KEEP_SEC = 86400            # an event stays at least a day: a consumer not on disk yet (a bot pack that has not saved) applies it meanwhile
+
+
+def positions():
+    """The read position of every consumer on disk: the save slots' and trashed slots' profiles ('bot_name_log'), the clan files ('bot_name_log'),
+    the bot packs' state.json ('name_log'). One that cannot be read counts as 0 (nothing is pruned)."""
+    import glob, re
+    out = []
+    for pattern, key in ((os.path.join(PTH.SAVES, '*', 'profile.json'), 'bot_name_log'), (os.path.join(PTH.TRASH, '**', 'profile.json'), 'bot_name_log'),
+                         (PTH.LEGACY_PROFILE, 'bot_name_log'), (os.path.join(PTH.SAVE, 'clans.json'), 'bot_name_log'),
+                         (os.path.join(PTH.SAVE, 'bots', '*', 'clans.json'), 'bot_name_log'), (os.path.join(PTH.SAVE, 'bots', '*', 'state.json'), 'name_log')):
+        for p in glob.glob(pattern, recursive=True):
+            try:
+                if key == 'name_log':                # the pack's head comes first (bot/manager.save); the file can be several MB
+                    with open(p, encoding='utf8') as f:
+                        m = re.search(r'"name_log":(\d+)', f.read(4096))
+                    out.append(int(m.group(1)) if m else 0)
+                else:
+                    with open(p, encoding='utf8') as f:
+                        out.append(int(json.load(f).get(key) or 0))
+            except (OSError, ValueError, TypeError, AttributeError):
+                out.append(0)
+    return out
+
+
 def events_since(n):
-    return [x for x in read() if x['n'] > int(n or 0)]
+    """The events after sequence n. The list is in rising n (add appends n+1, its pruning keeps the order): a binary search; the linear
+    scan ran twice on every clan bind (each bot's social round) over a log of thousands of events."""
+    ev = read()
+    return ev[bisect.bisect_right(ev, int(n or 0), key=lambda x: x['n']):]
 
 
 # ------------------------------------------------------------------------------------------------------------ apply
@@ -152,7 +183,7 @@ def apply_profile(p):
                 if x is not None:
                     r[name], changed = x, True
         k = p.d.get('clan')
-        if k and 'members' in k:
+        if k and 'members' in k and not getattr(p, 'shared_clan', False):    # a bot profile's is the main record: apply_clans does it
             s = apply_clan(k, new_)
             if s == 'vacant':
                 p.d['clan'] = None
@@ -168,11 +199,12 @@ def apply_clans(KL):
     new_ = events_since(KL.BOT_NAME_N)
     if not new_:
         return []
-    out = []
+    out, gone = [], []
     with KL.LOCK:
         for cid, k in list(KL.CLANS.items()):
             s = apply_clan(k, new_)
             if s == 'vacant':
+                gone.append(k.get('id', cid))
                 KL.CLANS.pop(cid, None)
                 KL.DELETED[cid] = k.get('key')
                 for c in KL.CLANS.values():
@@ -181,6 +213,12 @@ def apply_clans(KL):
             elif s:
                 out.append(k)
         KL.BOT_NAME_N = new_[-1]['n']
+    if gone:                                             # its Clan Battle Station falls too (otherwise it kept the dead clan id, nameless,
+        import cbs as CB                                 # its modules to an unreachable owner): like clan_stations.clean_up
+        h = CB.shared()
+        for aid, a in list((((h.d.get('cbs') or {}).get('asteroids') or {}) if h else {}).items()):
+            if a.get('owner') == 'bot' and a.get('clan') in gone and a.get('state') in ('building', 'built'):
+                CB.bot_demolish(int(aid))
     for k in out:
         KL.changed(k)                                    # the version increases, the connected members' copies are refreshed
     KL.save()

@@ -4,8 +4,9 @@ porting.passevent.PassEventCommand: VoyagersPassCommand, TrinityTrialsPassComman
 A pass: levels (each level's point threshold), the rewards of the free and VIP tracks (one item per level). Points come from the mode's
 finishes; when a level is reached the reward can be claimed (PassItemModule.statusType: 0 LOCK, 1 CLAIMED, 2 CLAIMABLE,
 3 BELOW_LEVEL; the client's PassItemStatusType). The VIP pass is bought in the shop with uridium (single-player rule); the VIP track opens, points
-rise by the 'vip_points' ratio. The mode's VIP badge (Trinity / Voyagers VIP Badge) in the inventory also opens the VIP track. The period is the calendar month: when the month changes, points, level and claimed rewards reset (VIP too).
-In the profile: passes {name: {period, points, vip, claimed: {"n": [level], "v": [level]}}}.
+rise by the 'vip_points' ratio. The mode's VIP badge (Trinity / Voyagers VIP Badge) in the inventory also opens the VIP track. The period is the calendar month: when the month changes, points, level and claimed rewards reset (VIP too); rewards reached but not
+claimed are given afterwards (carry; adaptation).
+In the profile: passes {name: {period, points, vip, claimed: {"n": [level], "v": [level]}, carry: [[lootId, count]]}}.
 """
 import datetime, time
 
@@ -30,6 +31,7 @@ class Pass:
     def __init__(self, profile, name, data, badge=None):
         self.p, self.name, self.D = profile, name, data
         self.badge = badge               # VIP badge lootId (e.g. resource_trinity-vip-badge): owning it unlocks the VIP track
+        self.grant = None                # (lootId, count) -> messages, bound with the shop: last month's unclaimed rewards (carry)
 
     def is_vip(self):
         """VIP track open: bought (st['vip']) or the mode's VIP badge is in the inventory (kept, not consumed)."""
@@ -40,9 +42,28 @@ class Pass:
         g = self.p.d.setdefault('passes', {})
         s = g.get(self.name)
         if not s or s.get('period') != period():
-            s = g[self.name] = dict(period=period(), points=0, vip=False, claimed={'n': [], 'v': []})
+            carry = (s or {}).get('carry', []) + self.unclaimed(s) if s else []
+            s = g[self.name] = dict(period=period(), points=0, vip=False, claimed={'n': [], 'v': []}, carry=carry)
             self.p.dirty = True
         return s
+
+    def unclaimed(self, s):
+        """A month's rewards reached but not claimed [[lootId, count]] (they were lost with the monthly restart; given by pay_carry; the
+        restart itself, VIP included, is the mode's rule: Trinity Trials restarts on the 1st of every month, official FAQ)."""
+        lv = sum(1 for t in self.D['levels'] if s.get('points', 0) >= t)
+        vip = bool(s.get('vip')) or bool(self.badge and self.p.resource(self.badge) > 0)
+        return [[loot, n] for v, rows in ((False, self.D['free']), (True, self.D['vip'])) for l, loot, n in rows
+                if l <= lv and l not in (s.get('claimed') or {}).get('v' if v else 'n', []) and (vip or not v)]
+
+    def pay_carry(self):
+        """Last month's unclaimed rewards (st carry) -> messages."""
+        s = self.st
+        if not s.get('carry') or self.grant is None:
+            return []
+        with self.p.lock:
+            rows, s['carry'] = s['carry'], []
+            self.p.dirty = True
+        return [m for loot, n in rows for m in self.grant(loot, n)]
 
     def level(self):
         pts = self.st['points']
@@ -68,6 +89,7 @@ class Pass:
         return CLAIMABLE
 
     def cmd(self, name, now=None):
+        self.pay_carry()                     # shown without a claim (login, the window): the items go to the inventory all the same
         s, cur = self.st, self.level()
         th = self.D['levels']
         prev = th[cur - 1] if cur > 0 else 0
@@ -81,8 +103,13 @@ class Pass:
     def claim(self, lvl, vip, grant):
         """Claim the reward (grant: lootId, count -> messages) -> messages or None (cannot be claimed). lvl 0: all claimable rewards of both
         tracks (whichever reward is clicked, the client sends rewardLevel 0, isVip false; live 2026-10-27)."""
+        pre = self.pay_carry()
+        out = self._claim(lvl, vip, grant)
+        return pre + out if out is not None else (pre or None)
+
+    def _claim(self, lvl, vip, grant):
         if lvl == 0:
-            out = [self.claim(r[0], v, grant) for v, rows in ((False, self.D['free']), (True, self.D['vip']))
+            out = [self._claim(r[0], v, grant) for v, rows in ((False, self.D['free']), (True, self.D['vip']))
                    for r in rows if self.status(r[0], v) == CLAIMABLE]
             return sum(out, []) if out else None
         if self.status(lvl, vip) != CLAIMABLE:

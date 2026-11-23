@@ -1,4 +1,4 @@
-"""The World Editor's store and sections (panel.py's /api/dunya... endpoints; user request 2026-10-28, belgeler/DUNYA_EDITORU.md).
+"""The World Editor's store and sections (panel.py's /api/world... endpoints; user request 2026-10-28, belgeler/DUNYA_EDITORU.md).
 
 World: a layer of changes placed on top of the standard game data (server/data), save/worlds/<id>.json:
   {version, name, description, cover, created, update, patches: {file: {JSON Pointer: full value | {"$delete": true}}}}
@@ -7,7 +7,7 @@ The server applies it with game_data.py (OO_WORLD). The standard world ("standar
 Only allowed paths are written (PATHS); values are cleaned by type (so the game server does not open with corrupt data).
 Sections (the editor's views): standard value + the world's + a changed marker; map, quest and shop details are separate.
 """
-import base64, copy, datetime, hashlib, json, os, re, threading, zlib
+import base64, copy, datetime, glob, hashlib, json, os, re, threading, time, zlib
 
 import paths as PTH
 import save_migration as SM
@@ -34,7 +34,8 @@ SECTIONS = {
     'economy': [('levels.json', '/levels'), ('ranks.json', '/')],
 }
 PATHS = [(d, re.compile(r)) for d, r in (
-    ('npc.json', r'^/types/[^/]+$'), ('npc.json', r'^/maps/[^/]+/(npc|bonus_boxes)$'), ('map_layout.json', r'^/maps/[^/]+$'),
+    # map keys are map ids: map_layout.py and world.py read them with int() (a world code with "/maps/x" broke the server's import)
+    ('npc.json', r'^/types/[^/]+$'), ('npc.json', r'^/maps/\d+/(npc|bonus_boxes)$'), ('map_layout.json', r'^/maps/\d+$'),
     ('quests.json', r'^/quests/\d+$'), ('quest_extras.json', r'^/quests/\d+$'), ('shop', r'^/products/[^/]+$'),
     ('social.json', r'^/auction/lots$'), ('npc.json', r'^/bonus_(boxes|box_4x)$'), ('boxes.json', r'^/boxes/[^/]+$'),
     ('gates.json', r'^/gates/[^/]+$'), ('events.json', r'^/events/[^/]+$'),
@@ -44,6 +45,7 @@ GATE_ALIEN = ('count', 'hp', 'shield', 'damage', 'speed')                       
 PACKAGE = 'package'                                                             # loot.PACKAGE: a row with several items in a box reward
 NPC_NUMBERS = ('hp', 'shield', 'damage', 'speed')
 REWARD = ('ep', 'honor', 'credits', 'uridium')
+ALIEN_EDITED = NPC_NUMBERS + ('name', 'aggressive', 'reward', 'cargo')       # what the editor changes on an alien (alienDetail)
 # quest condition types (quest.py, quest_tracker.py): what the editor understands -> the meaning of the match
 CONDITION = {6: 'npc', 27: 'npc', 34: 'map', 67: 'item', 51: 'none', 55: 'none', 52: 'ore', 28: 'none', 53: 'none', 62: 'none',
          35: 'none', 42: 'none', 2: 'duration', 3: 'duration', 63: 'duration', 13: 'none', 12: 'none', 7: 'none', 9: 'none', 80: 'gate'}
@@ -84,7 +86,16 @@ def _write_file(p, d):
     tmp = p + '.tmp'
     with open(tmp, 'w', encoding='utf8') as fh:
         json.dump(d, fh, ensure_ascii=False, indent=1)
-    os.replace(tmp, p)
+        fh.flush()
+        os.fsync(fh.fileno())                      # a power cut right after the rename must not leave an empty world
+    for k in range(6):                             # Windows: the game server reading the world (watch_world) blocks the rename for a moment
+        try:
+            os.replace(tmp, p)
+            return
+        except PermissionError:
+            if k == 5:
+                raise
+            time.sleep(0.1 * (k + 1))
 
 
 def _now():
@@ -279,6 +290,19 @@ def import_(data):
                 cleared.setdefault(file, {})[y] = v
             else:
                 skipped += 1
+    # its new quests get ids no world here uses (a save moved between worlds keeps its quest progress by id)
+    mine = [int(DATA.path_parts(y)[1]) for f in ('quests.json', 'quest_extras.json') for y in cleared.get(f) or {}]
+    used = _used_quest_ids()
+    nxt, remap = max([NEW_QUEST - 1] + list(used) + mine) + 1, {}
+    for n in sorted(set(mine)):
+        if n >= NEW_QUEST and n in used:
+            remap[n], nxt = nxt, nxt + 1
+    for f in ('quests.json', 'quest_extras.json'):
+        if remap and cleared.get(f):
+            cleared[f] = {DATA.build_path('quests', remap.get(int(DATA.path_parts(y)[1]), int(DATA.path_parts(y)[1]))): x for y, x in cleared[f].items()}
+            for x in cleared[f].values():
+                if isinstance(x, dict) and isinstance(x.get('previous'), list):
+                    x['previous'] = [remap.get(_quest_id(p), p) for p in x['previous']]
     did = create(data.get('name') or _('Imported world'), data.get('description', ''), data.get('cover', 'nebula'))
     issues = []
     with _LOCK:
@@ -293,6 +317,7 @@ def import_(data):
                 del cleared[f][y]
                 issues.append('%s %s: %s' % (f, y, e))
         d['patches'] = {f: patch_count for f, patch_count in cleared.items() if patch_count}
+        _prune_spawns(d)                       # rows of a new alien that was skipped above
         _save(did, d)
     now = data_signature(data.get('data') or {})
     differs = sorted(f for f, h in (data.get('data') or {}).items() if now.get(f) != h)
@@ -325,7 +350,22 @@ def patch(did, file, route, value):
             patch_count[route] = value
         if not patch_count:
             d['patches'].pop(file, None)
+        _prune_spawns(d)
         _save(did, d)
+
+
+def _prune_spawns(d):
+    """Drops the spawn rows of alien types the world no longer has (a new alien deleted or reverted): world.NPC would fail on them."""
+    p = d['patches'].get('npc.json') or {}
+    types = set(raw('npc.json')['types'])
+    for y, v in p.items():
+        part = DATA.path_parts(y)
+        if len(part) == 2 and part[0] == 'types':
+            (types.discard if isinstance(v, dict) and v.get(DATA.DELETE) else types.add)(part[1])
+    for y, v in p.items():
+        part = DATA.path_parts(y)
+        if len(part) == 3 and part[0] == 'maps' and part[2] == 'npc' and isinstance(v, list):
+            p[y] = [g for g in v if g.get('tip') in types]
 
 
 def revert(did, file=None, route=None, section=None):
@@ -338,6 +378,7 @@ def revert(did, file=None, route=None, section=None):
                     del d['patches'][f][y]
             if not d['patches'][f]:
                 del d['patches'][f]
+        _prune_spawns(d)
         _save(did, d)
 
 
@@ -373,6 +414,38 @@ def world_data(did, file):
     return v
 
 
+_ALIENS, _LOOT = {}, {}
+
+
+def _alien_values():
+    """Field -> the values the game's aliens have (a new alien's behavior, range, box ... must be one of them: a shared world code cannot
+    give it a behavior the server would fail on, e.g. summoning a type that does not exist)."""
+    if 'k' not in _ALIENS:
+        out = {}
+        for t in raw('npc.json')['types'].values():
+            for k, x in t.items():
+                if x not in out.setdefault(k, []):
+                    out[k].append(x)
+        _ALIENS['k'] = out
+    return _ALIENS['k']
+
+
+def loot_ids():
+    """lootIds a reward row may name: the item picker's (item_list) and every id the standard data already gives. An unknown id from a shared
+    world would land in the saves as an item the game does not know."""
+    if 'k' not in _LOOT:
+        s = set(item_list())
+        for f in ('quests.json', 'quest_extras.json'):
+            s |= {str(r[0]) for q in raw(f)['quests'].values() for r in q.get('rewards', [])}
+        n = raw('npc.json')
+        s |= {str(r[0]) for k in ('bonus_boxes', 'bonus_box_4x') for r in n.get(k) or []}
+        s |= {str(r[0]) for b in raw('boxes.json')['boxes'].values() for r in b.get('reward') or []}
+        s |= {str(l) for g in raw('gates.json')['gates'].values() for l in g['reward'].get('ammunition') or {}}
+        s |= {str(l[0]) for l in raw('social.json')['auction']['lots']}
+        _LOOT['k'] = s
+    return _LOOT['k']
+
+
 def _int(v, sub=0, parent=10 ** 9):
     try:
         return max(sub, min(parent, int(round(float(v)))))
@@ -388,11 +461,21 @@ def clean_up(did, file, route, v):
             raise WorldError(_("The game's own aliens can't be deleted; you can remove them from spawn lists."))
         if file in ('quests.json', 'quest_extras.json') and int(part[1]) < NEW_QUEST:
             raise WorldError(_("The game's own quests can't be deleted; you can switch them off."))
+        if not (file == 'npc.json' and part[0] == 'types') and file not in ('quests.json', 'quest_extras.json'):
+            raise WorldError(_("This content can't be edited."))     # only new aliens and quests are deleted (a map, box ... the server needs)
         return {DATA.DELETE: True}
     if file == 'npc.json' and part[0] == 'types':
         if not isinstance(v, dict):
             raise WorldError(_('Alien data is corrupt.'))
-        v = dict(v)
+        base = raw('npc.json')['types']
+        if part[1] in base:             # the game's alien: only the edited fields change; behavior, model, npc_id ... stay the game's
+            v = dict(base[part[1]], **{k: v[k] for k in ALIEN_EDITED if k in v})
+        else:                           # a new alien (deriveAlien copies its source): any other field must be a value a game alien has
+            if not part[1].startswith(NEW_ALIEN):
+                raise WorldError(_('Alien data is corrupt.'))
+            seen = _alien_values()
+            v = {k: x for k, x in v.items() if k in ALIEN_EDITED or (k == 'model' and re.fullmatch(r'[\w-]{1,40}', str(x)))
+                 or (k.startswith('_') and isinstance(x, str)) or (k not in ('npc_id', 'event', 'maps') and x in seen.get(k, ()))}
         v['name'] = ' '.join(str(v.get('name') or '').split())[:60] or '?'
         for k in NPC_NUMBERS:
             v[k] = _int(v.get(k, 0), 0, 50_000_000 if k in ('hp', 'shield') else 1_000_000 if k == 'damage' else 2000)
@@ -402,6 +485,8 @@ def clean_up(did, file, route, v):
         if part[1].startswith(NEW_ALIEN) and not v.get('model'):
             raise WorldError(_('The new alien needs a model.'))
         return v
+    if file in ('npc.json', 'map_layout.json') and part[0] == 'maps' and part[1] not in raw(file)['maps']:
+        raise WorldError(_('Map not found.'))          # only the game's maps (an unknown id would be a map the server has no links for)
     if file == 'npc.json' and part[0] == 'maps':
         types = world_data(did, 'npc.json')['types']
         if len(part) == 3 and part[2] == 'bonus_boxes':
@@ -424,7 +509,10 @@ def clean_up(did, file, route, v):
     if file == 'map_layout.json':
         if not isinstance(v, dict):
             raise WorldError(_('The map layout is corrupt.'))
-        v = copy.deepcopy(v)
+        # only safe zones, lairs and portals are edited (absent: none); the rest from the standard (map_layout.py reads it at import)
+        edited = {k: v[k] for k in ('safe', 'lairs', 'portals') if k in v}
+        v = {k: x for k, x in copy.deepcopy(raw('map_layout.json')['maps'].get(part[1]) or {}).items() if k not in ('safe', 'lairs', 'portals')}
+        v.update(edited)
         if 'safe' in v:
             v['safe'] = [[_int(a, 0, 42000), _int(b, 0, 26200), _int(r, 100, 6000)] for a, b, r in v['safe']]
         if 'lairs' in v:
@@ -433,19 +521,9 @@ def clean_up(did, file, route, v):
             v['portals'] = {str(k): [_int(p[0], 0, 42000), _int(p[1], 0, 26200)] for k, p in v['portals'].items()}
         return v
     if file in ('quests.json', 'quest_extras.json'):
-        if not isinstance(v, dict) or 'root' not in v:
+        if not isinstance(v, dict) or not isinstance(v.get('root'), dict):
             raise WorldError(_('Quest data is corrupt.'))
-        v = copy.deepcopy(v)
-        v['level'] = _int(v.get('level', 1), 0, 40)
-        v['rewards'] = [[str(l), _int(n, 1, 10 ** 9)] for l, n in v.get('rewards', []) if str(l)]
-        v['previous'] = [_int(x, 0) for x in v.get('previous', [])]
-        for k, n in (('title', 80), ('description', 600)):          # text shown in the game (the plugin's QuestTexts patch)
-            t = ' '.join(str(v.get(k) or '').split()) if k == 'title' else str(v.get(k) or '').strip()
-            if t:
-                v[k] = t[:n]
-            else:
-                v.pop(k, None)
-        return v
+        return _clean_quest(did, file, int(part[1]), v)
     if file == 'shop':
         if not isinstance(v, dict):
             raise WorldError(_('Product data is corrupt.'))
@@ -457,7 +535,7 @@ def clean_up(did, file, route, v):
             out['on_sale'] = False
         return out
     if file == 'npc.json' and part[0] in ('bonus_boxes', 'bonus_box_4x'):
-        out = [[str(l), _int(n, 1, 10 ** 7)] for l, n in (v if isinstance(v, list) else []) if str(l)]
+        out = [[str(l), _int(n, 1, 10 ** 7)] for l, n in (v if isinstance(v, list) else []) if str(l) in loot_ids()]
         if not out:
             raise WorldError(_('A bonus box needs at least one reward.'))
         return out
@@ -467,7 +545,7 @@ def clean_up(did, file, route, v):
         return _clean_gate(part[1], v, world_data(did, 'npc.json')['types'])
     if file == 'levels.json':
         base = raw('levels.json')['levels']
-        ep = [_int(x[1] if isinstance(x, list) else x, 0, 10 ** 20) for x in (v if isinstance(v, list) else [])]
+        ep = [_int(x[1] if isinstance(x, list) else x, 0, 2 ** 62) for x in (v if isinstance(v, list) else [])]   # EP is a signed 64-bit number
         # the browser rounds numbers above 2^53 (last levels ~10^18): a value within the rounding margin is the standard
         ep = [b[1] if abs(n - b[1]) <= b[1] * 1e-12 else n for n, b in zip(ep, base)]
         if len(ep) != len(base) or ep[0] != 0 or any(b <= a for a, b in zip(ep, ep[1:])):
@@ -500,6 +578,8 @@ def clean_up(did, file, route, v):
         out = []
         for l in v:
             loot, kind = str(l[0]), l[2] if l[2] in ('hour', 'day', 'week') else 'hour'
+            if loot not in loot_ids():
+                continue
             out.append([loot, str(l[1] or 'other'), kind, _int(l[3], 1, 10 ** 7), bool(l[4]), _int(l[5], 0, 10 ** 9)])
         seen = set()
         return [l for l in out if (l[2], l[0]) not in seen and not seen.add((l[2], l[0]))]      # the lot key (type, item) is unique
@@ -531,6 +611,8 @@ def _clean_box(kind, v):
             if r[0] == PACKAGE:
                 if any(b[0] == PACKAGE and b[1] == r[1] for b in base['reward']):
                     rows.append([PACKAGE, r[1], w])
+                continue
+            if str(r[0]) not in loot_ids():
                 continue
             n = sorted(_int(x, 1, 10 ** 7) for x in r[1]) if isinstance(r[1], list) and len(r[1]) == 2 else _int(r[1], 1, 10 ** 7)
             rows.append([str(r[0]), n, w])
@@ -578,7 +660,7 @@ def _clean_gate(key, v, types=None):
         if k in value_reward and k in o:
             o[k] = _int(value_reward[k], 0, 10 ** 10)
     if isinstance(value_reward.get('ammunition'), dict):
-        o['ammunition'] = {str(l): _int(n, 1, 10 ** 8) for l, n in value_reward['ammunition'].items() if str(l)}
+        o['ammunition'] = {str(l): _int(n, 1, 10 ** 8) for l, n in value_reward['ammunition'].items() if str(l) in loot_ids()}
     for i, x in enumerate(value_reward.get('chance') or []):
         if i < len(o.get('chance', [])) and isinstance(x, dict):
             if 'probability' in x:
@@ -650,10 +732,15 @@ def _clean_event(key, v, types):
         rows = []
         for r in v['periods']:
             if isinstance(r, list) and len(r) >= 2:
+                if isinstance(r[0], str) and isinstance(r[1], str) and (r[0], r[1]) in queue:
+                    rows.append([r[0], r[1]] + list(queue[(r[0], r[1])]))     # the game's row as it is ('easter-3', '2023-01-06 10:00')
+                    continue
                 a, b = _date(r[0]), _date(r[1])
                 if len(a) != len(b):
                     raise WorldError(_('Both ends of the period must use the same format (with a year or every year).'))
-                rows.append([a, b] + list(queue.get((r[0], r[1]), [])))
+                if len(a) == 10 and a > b:                  # dated: it would never open ('MM-DD' may run over the new year)
+                    raise WorldError(_("A period can't end before it starts."))
+                rows.append([a, b])
         out['periods'] = rows
     h, value_map = out.get('map'), v.get('map')
     if h and isinstance(value_map, dict):
@@ -671,6 +758,103 @@ def _clean_event(key, v, types):
             for k, parent in (('count', 50), ('duration_sec', 86400)):
                 if k in value_map['boss']:
                     h['boss'][k] = _int(value_map['boss'][k], 0 if k == 'count' else 60, parent)
+    return out
+
+
+def _leaves(case, depth=0):
+    """The conditions of a quest tree (with an id), also of a malformed one (a shared world): [condition]."""
+    out = []
+    for el in (case.get('modifier') if isinstance(case, dict) and depth < 12 else None) or []:
+        if isinstance(el, dict):
+            c = el.get('condition')
+            if isinstance(c, dict) and isinstance(c.get('id'), int) and c['id']:
+                out.append(c)
+            out += _leaves(el.get('questCase'), depth + 1)
+    return out
+
+
+def _quest_id(x):
+    return int(x) if isinstance(x, int) or (isinstance(x, str) and x.isdigit()) else None
+
+
+def _clean_quest(did, file, qid, v):
+    """A quest as quest.py reads it. The game's quest: its tree and fields are the standard's, only what the editor changes comes from v
+    (level, prerequisites, rewards, off, texts; the conditions' target, match and map). A new quest (NEW_QUEST+) is rebuilt like new_quest
+    makes it. Prerequisites must exist and must not lead back to the quest; reward items must be known (loot_ids)."""
+    base = raw(file)['quests'].get(str(qid))
+    if base is None and qid < NEW_QUEST:
+        raise WorldError(_('Quest not found.'))
+    given = {c['id']: c for c in _leaves(v['root'])}
+    if base:
+        q = copy.deepcopy(base)
+        for c in _leaves(q['root']):
+            y = given.get(c['id'])
+            if not y:
+                continue
+            c['targetValue'] = _int(y.get('targetValue', c.get('targetValue', 1)), 0, 10 ** 9)
+            if isinstance(y.get('matches'), list) and CONDITION.get(c['type']) in ('npc', 'map', 'item', 'ore'):
+                c['matches'] = [map_match(x) if CONDITION[c['type']] == 'map' else str(x) for x in y['matches'] if str(x)] or c['matches']
+            subs = [s for s in y.get('subConditions') or [] if isinstance(s, dict) and s.get('type') == SUB_MAP and isinstance(s.get('matches'), list)]
+            own = [s for s in c.get('subConditions', []) if s['type'] == SUB_MAP]
+            if not (own and subs and [str(x) for x in subs[0]['matches']] == own[0]['matches']):      # the game's own map limit stays as it is
+                c['subConditions'] = [s for s in c.get('subConditions', []) if s['type'] != SUB_MAP] + (
+                    [_sub_map(c['id'], [str(x) for x in subs[0]['matches']])] if subs and subs[0]['matches'] else [])
+    else:
+        kinds = {k for k, _d in QUEST_TEMPLATES.values()}
+        conds = [c for c in given.values() if c.get('type') in kinds][:8]
+        if not conds:
+            raise WorldError(_('Add at least one objective to the quest.'))
+        root_id = 1_900_000_000 + (qid - NEW_QUEST) * 100
+        mods = []
+        for i, c in enumerate(conds):
+            kind = c['type']
+            es = [map_match(x) if CONDITION[kind] == 'map' else str(x) for x in (c.get('matches') if isinstance(c.get('matches'), list) else []) if str(x)]
+            if CONDITION[kind] in ('npc', 'item', 'ore', 'map') and not es:
+                raise WorldError(_('Choose what to do for each objective.'))
+            sub = next((s for s in c.get('subConditions') or [] if isinstance(s, dict) and s.get('type') == SUB_MAP and isinstance(s.get('matches'), list)), None)
+            mods.append(_condition(root_id + 1 + i, kind, es, _int(c.get('targetValue', 1), 0, 10 ** 9), [str(x) for x in sub['matches']] if sub else None))
+        q = {'name': ' '.join(str(v.get('name') or '').split())[:60] or _('New quest'), 'priority': 500, 'kinds': [2], 'icon': 0, 'source': 'world',
+             'pvp': False, 'root': {'_': 'QuestCaseModule', 'id': root_id, 'active': False, 'mandatory': True, 'ordered': False,
+                                    'mandatoryCount': len(mods), 'modifier': mods}}
+    q['level'] = _int(v.get('level', q.get('level', 1)), 0, 40)
+    q['rewards'] = [[str(l), _int(n, 1, 10 ** 9)] for l, n in v.get('rewards') or [] if str(l) in loot_ids()]
+    world = _all_quests(did)
+    prev = [x for x in dict.fromkeys(map(_quest_id, v['previous'] if isinstance(v.get('previous'), list) else [])) if x is not None and x != qid and str(x) in world]
+    after = {int(k): [p for p in map(_quest_id, w['previous']) if p is not None] for k, (_f, w) in world.items()
+             if isinstance(w, dict) and isinstance(w.get('previous'), list)}
+    after[qid], todo, seen = prev, list(prev), set()
+    while todo:                                           # A needs B, B needs A: neither could ever be accepted
+        x = todo.pop()
+        if x == qid:
+            raise WorldError(_("A quest can't require itself through its prerequisites."))
+        if x not in seen:
+            seen.add(x)
+            todo += after.get(x, [])
+    q['previous'] = prev
+    if v.get('off'):
+        q['off'] = True
+    else:
+        q.pop('off', None)
+    for k, n in (('title', 80), ('description', 600)):          # text shown in the game (the plugin's QuestTexts patch)
+        t = ' '.join(str(v.get(k) or '').split()) if k == 'title' else str(v.get(k) or '').strip()
+        if t:
+            q[k] = t[:n]
+        else:
+            q.pop(k, None)
+    return q
+
+
+def _used_quest_ids():
+    """New quest ids in any world (the draft and the trash too): a save moved to another world must not find its finished or accepted quest
+    there under the same id (the progress is kept by id)."""
+    out = set()
+    for p in glob.glob(os.path.join(glob.escape(folder()), '*.json')) + glob.glob(os.path.join(glob.escape(folder()), '_trash', '*.json')):
+        patches = (_read_file(p) or {}).get('patches') or {}
+        for f in ('quests.json', 'quest_extras.json'):
+            for y in patches.get(f) or {} if isinstance(patches, dict) else ():
+                n = _quest_id(DATA.path_parts(y)[-1])
+                if n is not None and n >= NEW_QUEST:
+                    out.add(n)
     return out
 
 
@@ -783,10 +967,6 @@ def game_map(did, mid):
 
 
 # ---- quests
-def _quest_file(qid):
-    return 'quests.json' if str(qid) in raw('quests.json')['quests'] else 'quest_extras.json'
-
-
 def _all_quests(did):
     a = world_data(did, 'quests.json')['quests']
     b = world_data(did, 'quest_extras.json')['quests']
@@ -895,7 +1075,8 @@ def map_match(x):
 
 
 def _sub_map(cid, maps_):
-    return {'_': 'QuestConditionModule', 'id': cid * 10 + 7, 'matches': [map_match(x) for x in maps_], 'type': SUB_MAP,
+    # the id is a 32-bit int on the wire: a new quest's condition (1.9e9+) gets an id in its own block of 100 (protocol.py clamped them all)
+    return {'_': 'QuestConditionModule', 'id': cid * 10 + 7 if cid * 10 + 7 < 2 ** 31 else cid + 50,'matches': [map_match(x) for x in maps_], 'type': SUB_MAP,
             'displayType': SUB_MAP, 'targetValue': 0, 'mandatory': True,
             'state': {'_': 'QuestConditionStateModule', 'currentValue': 0, 'active': True, 'completed': False}, 'subConditions': []}
 
@@ -915,7 +1096,8 @@ def new_quest(did, name, level, targets, rewards):
     if not targets:
         raise WorldError(_('Add at least one objective to the quest.'))
     all_ = _all_quests(did)
-    qid = max([NEW_QUEST - 1] + [int(k) for k in all_ if int(k) >= NEW_QUEST]) + 1
+    # a deleted quest's id stays used (saves' progress), and so do the other worlds' (a save can move between worlds)
+    qid = max([NEW_QUEST - 1] + [int(k) for k in all_ if int(k) >= NEW_QUEST] + list(_used_quest_ids())) + 1
     root_id = 1_900_000_000 + (qid - NEW_QUEST) * 100
     mods = []
     for i, x in enumerate(targets[:8]):
@@ -1029,7 +1211,7 @@ TEXT_FILE = os.path.join('BepInEx', 'openorbit', 'quest_texts.json')
 
 
 def quest_texts(did):
-    """The titles and descriptions to show in the game for the world's quests: {"<quest>": {baslik, aciklama}}."""
+    """The titles and descriptions to show in the game for the world's quests: {"<quest>": {title, description}}."""
     out = {}
     for qid, (_, q) in _all_quests(did).items():
         m = {k: q[k] for k in ('title', 'description') if q.get(k)}

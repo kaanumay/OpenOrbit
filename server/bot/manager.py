@@ -6,9 +6,8 @@ thread. The simulation script (tools/bot_simulation.py) and the tests drive the 
 On each tick only the bots that have work are processed: offline ones ask "should I log in" once a minute; online ones think at their own decision moments,
 abstract effects are applied in a batch every ABSTRACT_SEC. The worlds (ship.py) learn the bots on their maps through hooks.
 """
-import json, math, os, random, threading, time, traceback
+import collections, contextlib, json, math, os, random, threading, time, traceback
 
-import map_links as H
 from . import brain as B
 from . import catalog as K
 from . import personality as PS
@@ -28,6 +27,8 @@ SIGNUP_SEC = 60.0
 LOGIN_RETRY_SEC = 60.0
 VERSION = 1
 SAVE_CHUNK = 50                 # bots serialized per hold of the lock (save)
+STOP_WAIT_SEC = 1.5             # shutdown: wait this long for the running tick, then save within STOP_SAVE_SEC (panel: 6 s for the whole stop)
+STOP_SAVE_SEC = 3.0
 ACTIVE = None                   # the game server's manager (game.py sets it up; ship.py reads it)
 PRIME_POPULATION = 1.3              # multiplier for the tendency to be online in prime time
 FRONTS = (16, 16, 29, 13, 14, 15)        # 4-4 iki kat, 4-5, 4-1, 4-2, 4-3
@@ -73,6 +74,8 @@ class Manager(ChatEngine):
         self.mode = package.get('mode', 'normal')
         self.game_settings = GS.Profile(self.settings.get('game_settings'))      # the bots' game-setting profile (separate from the player's)
         self.lock = threading.RLock()
+        self._save_lock = threading.Lock()
+        self.deferred = collections.deque()      # (bot, fn): the world thread's bookkeeping that found the lock busy (ship.bots_do)
         self.bots = []
         self.name_index = {}                  # name lowercased -> Bot
         self.on_map = {}             # map -> {Bot}: online bots
@@ -110,6 +113,10 @@ class Manager(ChatEngine):
                     save = json.load(f)
             except (OSError, ValueError) as e:
                 self.log('   bots: could not read state (%s), starting over' % e)
+                try:                                     # kept aside: the next save would overwrite the pilots' progress for good
+                    os.replace(self.state_path, self.state_path + '.unreadable')
+                except OSError:
+                    pass
         old = {str(k): v for k, v in (save.get('bots') or {}).items()}
         self.name_log_n = int(save.get('name_log') or 0)
         new_ = []
@@ -120,20 +127,34 @@ class Manager(ChatEngine):
         multilingual = PRV.multilingual()
         for roster_row in self.package.get('roster', []):
             k = old.get(str(roster_row['no']))
-            if k is None:
+            if not isinstance(k, dict):
                 k = dict(no=roster_row['no'], name=roster_row['name'], company=roster_row['company'], personality=roster_row['personality'], registered=not ordered)
                 new_.append(k)
             else:
                 k.update(name=roster_row['name'], company=roster_row['company'], personality=roster_row['personality'])      # the name may have been changed in the panel
             if self.mode == 'advanced' and not multilingual:
                 k['personality'] = dict(k['personality'], lang='en')      # the built-in language model is English only (llm.py; free with other providers)
-            b = Bot(k)
+            try:
+                b = Bot(k)
+            except Exception as e:                       # one broken record (hand edit, old format) must not keep the whole pack away
+                self.log('   bots: record of %s unusable (%r), starts over' % (roster_row['name'], e))
+                k = dict(no=roster_row['no'], name=roster_row['name'], company=roster_row['company'], personality=k['personality'])
+                b = Bot(k)
+            if b.game_map not in K.MAPS:                 # saved on a gate/mode map: the run did not survive the restart, back to base
+                k['map'], k['x'], k['y'] = K.ev(b.company), None, None
             b.permission = self.settings['permissions']
             b.rude = int(self.setting('rude_chat', 1))       # rough chat level (llm.style, chat_engine)
             b.hour = lambda: self.now
             b.game_settings = self.game_settings
             b.memory.listener = (lambda b: lambda name, kind, now: MEM.from_event(self, b, name, kind, now))(b)     # memory book (strong provider)
             b.next_login = now + b.r.uniform(0, 20)
+            if isinstance(k.get('mode_run'), dict):      # a mode run a restart interrupted: its result was decided and paid for at its start
+                from .goals import mode_run as MR
+                try:
+                    MR.settle(b, k['mode_run'], self)
+                except Exception as e:
+                    k.pop('mode_run', None)
+                    self.log('   bots: mode run of %s not settled (%r)' % (b.name, e))
             self.bots.append(b)
             self.name_index[b.name.lower()] = b
         self.apply_name_log(loading=True)            # bots renamed or deleted in the panel while the game was closed
@@ -205,30 +226,35 @@ class Manager(ChatEngine):
             self.log('   bots: name record applied (%d events)' % len(new_))
         return len(new_)
 
-    def save(self, now=None):
+    def save(self, now=None, timeout=None, lockless=False):
+        """timeout (s): the shutdown save gives up (TimeoutError) rather than wait without limit behind a long tick holding the lock;
+        lockless: its fallback (stop)."""
         if not self.state_path:
             return
         now = now or time.time()
         dump = lambda v: json.dumps(v, ensure_ascii=False, separators=(',', ':'))
         bots, parts = list(self.bots), []
+        end = None if timeout is None else time.time() + timeout
+        hold = contextlib.nullcontext if lockless else (lambda: self.lock) if end is None else (lambda: _held(self.lock, end))
         # each bot's text inside the lock (so the world loop does not see it half done while adding to the dicts), but SAVE_CHUNK bots at a
         # time: the whole record in one go held the lock and the GIL ~250 ms for 1500 bots at level 12+ (7 MB), the world loop froze
         # every minute (player reports 2026-11-06)
         for i in range(0, len(bots), SAVE_CHUNK):
-            with self.lock:
+            with hold():
                 parts += ['%s:%s' % (dump(str(b.k['no'])), dump(b.save())) for b in bots[i:i + SAVE_CHUNK]]
             time.sleep(0)                                # the world loop waiting for the lock goes first
-        with self.lock:
+        with hold():
             head = dict(version=VERSION, t=now, name_log=self.name_log_n)
             if self.llm is not None:
                 head['llm'] = self.llm.summary()                 # the panel's usage line (last hour: requests, tokens)
         text = dump(head)[:-1] + ',"bots":{' + ','.join(parts) + '}}'
         tmp = self.state_path + '.tmp'
         os.makedirs(os.path.dirname(self.state_path), exist_ok=True)
-        with open(tmp, 'w', encoding='utf8') as f:
-            f.write(text)
-        os.replace(tmp, self.state_path)
-        self.last_save = now
+        with self._save_lock:                            # the bots thread's minute save and stop() on shutdown share the .tmp file
+            with open(tmp, 'w', encoding='utf8') as f:
+                f.write(text)
+            os.replace(tmp, self.state_path)
+            self.last_save = now
 
     # ------------------------------------------------------------ running
     def launch(self):
@@ -240,9 +266,21 @@ class Manager(ChatEngine):
 
     def stop(self):
         self.running = False
+        if self._thread is not None and self._thread is not threading.current_thread():
+            self._thread.join(STOP_WAIT_SEC)             # the running tick ends first (with a big pack it holds the lock for seconds)
         try:
-            self.save()
-        except Exception as e:                           # on shutdown the other saves (guests, clan) must not be skipped
+            self.save(timeout=STOP_SAVE_SEC)             # the panel gives the server 6 s for a graceful stop
+        except TimeoutError:
+            # the lock is still held (a stuck LLM job, a panel call): the bots thread has stopped, so the records are written without
+            # the lock rather than not at all; a dict changing under json.dumps raises RuntimeError: tried again
+            self.log('   bots: bot lock busy at shutdown, saving without it')
+            for i in range(3):
+                try:
+                    self.save(lockless=True)
+                    break
+                except Exception as e:                   # on shutdown the other saves (guests, clan) must not be skipped
+                    self.log('   bots: could not be saved (attempt %d: %r)' % (i + 1, e))
+        except Exception as e:
             self.log('   bots: could not be saved (%r)' % e)
 
     def _loop(self):
@@ -252,16 +290,19 @@ class Manager(ChatEngine):
                 self.tick(t0)
             except Exception:
                 self.log('   bots: tick error\n' + traceback.format_exc())
-            time.sleep(max(0.05, 1.0 - (time.time() - t0)))
+            # at least 0.12 s free: the world loop tries the lock for 20 ms every 0.1 s step (ship.tick); with 0.05 a tick of ~1 s left
+            # its bot ships unsynced for up to 7 s (audit 2026-11-22 starvation test), now at most ~1.6 s
+            time.sleep(max(0.12, 1.0 - (time.time() - t0)))
 
     def tick(self, now=None):
         now = self.now = now or time.time()
         with self.lock:
+            self.run_deferred()
             online = sum(1 for b in self.bots if b.online)
             limit = self.setting('max_online', 0) or len(self.bots)
             online += self.signup_tick(now, online, limit)
             for b in self.bots:
-                if not b.saved:
+                if not b.saved or b.__dict__.get('_deferred'):      # a death or jump the world queued during this tick: next tick
                     continue
                 try:                                     # one bot's error (a broken or old record) must not stop the others and the save
                     if not b.online:
@@ -291,11 +332,25 @@ class Manager(ChatEngine):
         if now - self.last_save >= SIGNUP_SEC:
             self.save(now)
 
+    def run_deferred(self):
+        """Under the lock: the world thread's queued bookkeeping (kill, death, portal jump), in the order it happened."""
+        while self.deferred:
+            b, fn = self.deferred.popleft()
+            b.__dict__.pop('_deferred', None)
+            try:
+                fn()
+            except Exception:
+                self.log_error('deferred')
+
     def _society_tick(self, now):
-        if self.society and now - self.last_social >= ABSTRACT_SEC:
-            self.last_social = now
+        # every tick, each bot at its own next_social: run every ABSTRACT_SEC the whole round fell into one tick (500 bots: the slowest
+        # 1% of ticks spent 56 of 73 ms there); invitations and the clean-up keep the ABSTRACT_SEC cadence
+        if self.society:
+            full = now - self.last_social >= ABSTRACT_SEC
+            if full:
+                self.last_social = now
             from . import society
-            society.tick(self, now)
+            society.tick(self, now, full)
 
     def bot_error(self, b):
         """Once per bot to the log (so the same trace is not dumped every second); after 10 errors the bot rests in this session."""
@@ -337,6 +392,8 @@ class Manager(ChatEngine):
         if now >= b.next_decision:
             B.decision(b, self, now)
             b.next_decision = now + B.next_decision_interval(b)
+            if b.game_map not in K.MAPS and (b.target is None or b.target.name not in ('gate', 'mod', 'pvp_match') or b.plan.get('finished')):
+                S.jump_to(b, K.ev(b.company), self, now)   # left on a gate/mode map with no run there (a match never released it): to base
         dt = now - b.last_abstract
         if dt >= ABSTRACT_SEC:
             b.last_abstract = now
@@ -582,6 +639,7 @@ class Manager(ChatEngine):
             hour = b.r.lognormvariate(math.log(avg) - 0.5, 1.0) * float(fg[b.company - 1]) * (0.6 + 0.8 * b.o('ambition'))
             hour = min(hour, avg * 8)
             self.fast(b, hour * 3600, now, step=max(1800.0, hour * 3600 / 60))
+            PL.topup(b, now, cap=None)                 # the packs of its whole simulated history (on_login's one-week cap is for time away)
         self.log('   bots: jumpstart %d bots, %.1f s' % (len(bots), time.time() - t0))
 
     def catch_up(self, seconds, now):
@@ -597,10 +655,19 @@ class Manager(ChatEngine):
         self.log('   bots: offline catch-up %.0f min, %.1f s' % (seconds / 60, time.time() - t0))
 
 
+@contextlib.contextmanager
+def _held(lock, end):
+    if not lock.acquire(timeout=max(0.0, end - time.time())):
+        raise TimeoutError('the bot lock stayed busy')
+    try:
+        yield
+    finally:
+        lock.release()
+
+
 def server(route, log=print):
     """When the game server opens (game.main, OO_BOT): reads the pack, sets up the manager in the background (jumpstart and offline catch-up
     can take seconds; the game does not wait) and runs it. The pack's state is in <id>/state.json next to the pack file."""
-    global ACTIVE
     try:
         with open(route, encoding='utf8') as f:
             package = json.load(f)
@@ -609,6 +676,12 @@ def server(route, log=print):
         return
 
     def rate():
+        try:
+            _rate()
+        except Exception:                                # a malformed pack: no bots this session, said in the game log (not a silent thread death)
+            log('   bots: could not start the pack (%s)\n%s' % (route, traceback.format_exc()))
+
+    def _rate():
         global ACTIVE
         uid = os.path.splitext(os.path.basename(route))[0]
         state = os.path.join(os.path.dirname(route), uid, 'state.json')
@@ -628,6 +701,8 @@ def server(route, log=print):
                 y.llm.launch()
             else:
                 log('   bots: Advanced mode but no language model installed (Bots > Advanced mode): continuing like Normal mode')
+        from .talk import nlu
+        nlu.cues()                                       # the chat cues compiled here (~140 ms), not at the first line under the bot lock
         ACTIVE = y
         y.launch()
         log('bots: "%s" (%s, %d bots) %.1f s' % (package.get('name', uid), package.get('mode', 'normal'), len(y.bots), time.time() - t0))
@@ -638,6 +713,10 @@ def server(route, log=print):
 def close():
     """The server is shutting down (game.stop_gracefully): the state is saved."""
     if ACTIVE is not None:
-        ACTIVE.stop()
-        if ACTIVE.llm is not None:
-            ACTIVE.llm.stop()
+        try:
+            ACTIVE.stop()
+        finally:                                         # the llama-server child must not stay behind
+            if ACTIVE.llm is not None:
+                ACTIVE.llm.stop()
+    import clan as KL
+    KL.flush(timeout=1.0)                                # the bots' last clan changes (clan.SAVE_SEC writer); __main__'s finally too

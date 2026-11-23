@@ -14,6 +14,7 @@ MODEL_FILE = 'Qwen3-4B-Q4_K_M.gguf'
 CONTEXT_SIZE = 8192
 DEFAULT_PORT = 8095
 _THINK = re.compile(r'<think>.*?</think>\s*', re.S)
+_USAGE_LOCK = threading.Lock()
 
 
 def folder():
@@ -45,6 +46,64 @@ def free_port(preference=DEFAULT_PORT):
     raise RuntimeError('No free port.')
 
 
+_JOB = []
+
+
+def _bind_to_parent(proc):
+    """Windows: llama-server is put in a job object that kills its processes when its last handle closes; the handle lives as long as
+    this process, so the child dies with the game server however it ends (forced stop, crash, os._exit, an exception in main: before,
+    it stayed behind holding the model in memory and the port)."""
+    if sys.platform != 'win32':
+        return
+    try:
+        import ctypes
+        from ctypes import wintypes
+        k32 = ctypes.WinDLL('kernel32', use_last_error=True)
+        k32.CreateJobObjectW.restype = wintypes.HANDLE
+        k32.SetInformationJobObject.argtypes = (wintypes.HANDLE, ctypes.c_int, ctypes.c_void_p, wintypes.DWORD)
+        k32.AssignProcessToJobObject.argtypes = (wintypes.HANDLE, wintypes.HANDLE)
+        if not _JOB:
+            class Basic(ctypes.Structure):
+                _fields_ = [('a', ctypes.c_int64), ('b', ctypes.c_int64), ('LimitFlags', wintypes.DWORD), ('c', ctypes.c_size_t),
+                            ('d', ctypes.c_size_t), ('e', wintypes.DWORD), ('f', ctypes.c_size_t), ('g', wintypes.DWORD),
+                            ('h', wintypes.DWORD)]
+
+            class Extended(ctypes.Structure):
+                _fields_ = [('basic', Basic), ('io', ctypes.c_uint64 * 6), ('m', ctypes.c_size_t * 4)]
+            job = k32.CreateJobObjectW(None, None)
+            info = Extended()
+            info.basic.LimitFlags = 0x2000                       # JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE
+            if not job or not k32.SetInformationJobObject(job, 9, ctypes.byref(info), ctypes.sizeof(info)):   # JobObjectExtendedLimitInformation
+                return
+            _JOB.append(job)
+        k32.AssignProcessToJobObject(_JOB[0], int(proc._handle))
+    except (OSError, AttributeError, ValueError):
+        pass                                                     # (the normal stop still terminates it)
+
+
+# Linux and macOS: llama-server runs under this watcher, which ends it once the game server is gone however that happened (crash, kill -9,
+# os._exit; the panel's forced stop signals the server's descendants itself). PR_SET_PDEATHSIG would need preexec_fn, unsafe in a
+# threaded process, and it fires when the launching thread ends (Brain starts the model from a short-lived thread), not the process.
+WATCHER = r'''
+import os, signal, subprocess, sys, time
+parent, child = int(sys.argv[1]), subprocess.Popen(sys.argv[2:])
+def stop(*_):
+    child.terminate()
+    try:
+        child.wait(4)
+    except subprocess.TimeoutExpired:
+        child.kill()
+    sys.exit(0)
+signal.signal(signal.SIGTERM, stop)
+signal.signal(signal.SIGINT, stop)
+while child.poll() is None:
+    if os.getppid() != parent:
+        stop()
+    time.sleep(1)
+sys.exit(child.returncode)
+'''
+
+
 class Server:
     """The llama-server process. launch() returns once the health check passes (or raises RuntimeError)."""
 
@@ -66,9 +125,12 @@ class Server:
         kw = {}
         if sys.platform == 'win32':
             kw['creationflags'] = 0x08000000                 # CREATE_NO_WINDOW
-        daily = open(os.path.join(PTH.LOGS, 'llm_server.log'), 'ab')
-        self.proc = subprocess.Popen(cmd, stdout=daily, stderr=subprocess.STDOUT, stdin=subprocess.DEVNULL,
-                                     cwd=os.path.dirname(k['server']), **kw)
+        else:
+            cmd = [sys.executable, '-I', '-c', WATCHER, str(os.getpid())] + cmd
+        with open(os.path.join(PTH.LOGS, 'llm_server.log'), 'ab') as daily:     # the child has its own copy of the handle
+            self.proc = subprocess.Popen(cmd, stdout=daily, stderr=subprocess.STDOUT, stdin=subprocess.DEVNULL,
+                                         cwd=os.path.dirname(k['server']), **kw)
+        _bind_to_parent(self.proc)
         last = time.time() + wait_sec
         while time.time() < last:
             if self.proc.poll() is not None:
@@ -88,13 +150,13 @@ class Server:
 
     def stop(self):
         self.ready = False
-        if self.proc is not None and self.proc.poll() is None:
-            self.proc.terminate()
+        p, self.proc = self.proc, None                   # taken first: Brain._open and Brain.stop may both stop it (AttributeError on None)
+        if p is not None and p.poll() is None:
+            p.terminate()
             try:
-                self.proc.wait(5)
+                p.wait(5)
             except subprocess.TimeoutExpired:
-                self.proc.kill()
-        self.proc = None
+                p.kill()
 
     def ask(self, system, user, schema=None, max_count=220, temperature=0.8, timestamp=60):
         """One call -> (text or JSON object, duration in s). If schema is given the reply conforms to that JSON schema (llama-server grammar)."""
@@ -109,14 +171,17 @@ class Server:
         with urlopen(req, timeout=timestamp) as r:
             d = json.loads(r.read())
         u, k = d.get('usage') or {}, self.usage
-        k['request'] += 1
-        k['input'] += int(u.get('prompt_tokens') or 0)
-        k['cache'] += int((u.get('prompt_tokens_details') or {}).get('cached_tokens') or 0)
-        k['output'] += int(u.get('completion_tokens') or 0)
+        with _USAGE_LOCK:                                  # several llm-N worker threads count at once (+= is not atomic)
+            k['request'] += 1
+            k['input'] += int(u.get('prompt_tokens') or 0)
+            k['cache'] += int((u.get('prompt_tokens_details') or {}).get('cached_tokens') or 0)
+            k['output'] += int(u.get('completion_tokens') or 0)
         text = _THINK.sub('', d['choices'][0]['message'].get('content') or '').strip()
         if schema is not None:                     # the first valid JSON object (the model sometimes writes a second one after it)
             i = text.find('{')
             text = json.JSONDecoder().raw_decode(text[i if i >= 0 else 0:])[0]
+            if not isinstance(text, dict):
+                raise ValueError('the reply is not a JSON object')     # like llm_provider._json: Brain.ask asks once more
         return text, time.time() - t0
 
 

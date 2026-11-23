@@ -11,7 +11,7 @@ When it thinks (llm.Brain._agent_tick): once every llm_decision_min; on an impor
 savings goal reached) and when a reminder is due. Once the hourly request limit (llm_hourly) is exceeded the rule-based engine drives.
 The bot's latest steps are in k['agent'] (for watching), the notebook in k['ledger'], the reminders in k['reminder'].
 """
-import json, time
+import json
 
 import map_links as H
 import player_profile as PF
@@ -360,13 +360,15 @@ def run(br, y, b, tool, arg):
         return SELF[tool][0](y, b, arg)
     if tool not in ACTIONS:
         return 'failed: unknown tool %s' % tool
-    if tool in ('whisper', 'write_chat'):
+    if tool in ('whisper', 'write_chat', 'send_mail'):
         # does not write back to back: to the same person once per 2 min without waiting for their reply, to the same channel once a minute
-        # (chat trial 2026-10-30: the bot whispered "geliyorum" to the player twice 6 s apart; two tools in one step or two close wake-ups)
-        target = ('whisper', str(arg.get('name') or '').lower()) if tool == 'whisper' else ('channel', str(arg.get('channel') or 'company'))
+        # (chat trial 2026-10-30: the bot whispered "geliyorum" to the player twice 6 s apart; two tools in one step or two close wake-ups);
+        # mail to the same person once per 10 min (up to 4 mails per thinking step otherwise)
+        target = (('whisper', str(arg.get('name') or '').lower()) if tool == 'whisper' else ('mail', str(arg.get('name') or '').lower())
+                  if tool == 'send_mail' else ('channel', str(arg.get('channel') or 'company')))
         last = b.__dict__.setdefault('_agent_wrote', {})
         t = last.get(target)
-        if t is not None and y.now - t < (120 if tool == 'whisper' else 60) and not (tool == 'whisper' and any(
+        if t is not None and y.now - t < {'whisper': 120, 'mail': 600}.get(target[0], 60) and not (tool == 'whisper' and any(
                 x[0] > t and str(x[1]).lower() == target[1] and x[2] == 'whisper:' + b.name for x in y.history[-40:])):
             return 'failed: you just wrote there; wait for an answer before writing again'
     if tool in ('whisper', 'write_chat', 'send_mail'):
@@ -379,6 +381,8 @@ def run(br, y, b, tool, arg):
         if tool != 'send_mail':
             b.__dict__.setdefault('_agent_wrote', {})[target] = y.now
     r = TL.call(y, b, tool, {k: v for k, v in arg.items() if v not in (None, '')} if tool != 'save_up' else arg)
+    if tool == 'send_mail' and r.get('ok'):
+        b.__dict__.setdefault('_agent_wrote', {})[target] = y.now       # only a mail that went out counts
     return ('ok' if r.get('ok') else 'failed') + (': %s' % r['message'] if r.get('message') else '')
 
 

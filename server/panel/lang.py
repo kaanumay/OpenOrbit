@@ -1,4 +1,4 @@
-"""The panel's language (chosen in the setup wizard on first launch; save/panel.json 'dil', changed from the Panel page).
+"""The panel's language (chosen in the setup wizard on first launch; save/panel.json 'lang', changed from the Panel page).
 
 Texts are written in English in the code (the source language); those of the other languages are in ui/<code>.json, the key being the
 English text itself (like gettext; Turkish included: ui/tr.json). The UI (panel.js T()) and Python (t()) use the same dictionaries. A text
@@ -22,13 +22,13 @@ LANGUAGES = {
 }
 UI_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'ui')
 DICTIONARY = os.path.join(UI_DIR, 'tr.json')          # every message id has a Turkish translation
-_selected = None                  # the panel binds: () -> a code from DILLER | None
+_selected = None                  # the panel binds: () -> a code from LANGUAGES | None
 _dictionary = {}
 _lock = threading.Lock()
 
 
 def bind(fn):
-    """Bind the function that returns the selected language (panel: CFG.get('dil'))."""
+    """Bind the function that returns the selected language (panel: CFG.get('lang'))."""
     global _selected
     _selected = fn
 

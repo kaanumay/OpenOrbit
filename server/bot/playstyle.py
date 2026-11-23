@@ -20,7 +20,6 @@ touched: adding play styles does not change any existing roster.
 """
 import math, random, time, zlib
 
-from . import personality as PS
 
 DOMAINS = ('combat', 'pvp', 'survival', 'economy', 'navigation', 'focus')
 ACTIVITIES = ('grind', 'quest', 'pvp', 'gate', 'explore', 'social', 'rest', 'trade', 'collect')
@@ -295,7 +294,7 @@ def sell_shift(bot):
 
 def map_bias(bot, m, now):
     """Multiplier on a map's grinding utility: misjudging (navigation skill, stable for 6-hour windows), the favourite map, habits."""
-    pl, st = profile(bot), state(bot)
+    st = state(bot)
     nav = st['skill']['navigation']
     u = zlib.crc32(('%s|%s|%d' % (bot.name, m, int(now // 21600))).encode()) / 4294967295.0
     noise = math.exp((u - 0.5) * 2.2 * (1 - nav))
@@ -345,8 +344,16 @@ def on_login(bot, now):
         st['theme'] = bot.r.choices(acts, [pl['likes'][a] ** 2.5 for a in acts])[0]
     else:
         st['theme'] = None
+    topup(bot, now)
+
+
+def topup(bot, now, cap=604800.0):
+    """The wallet top-up (payment packs) built up since the last one, at most cap seconds' worth: after the server was off for a month a
+    whale got four weeks of packs in one login. The jumpstart's simulated history (Manager.jumpstart) is played time: cap None."""
+    pl, st = profile(bot), state(bot)
     if pl.get('wallet_week'):
-        due = pl['wallet_week'] * (now - st.get('paid', now)) / 604800.0
+        span = now - st.get('paid', now)
+        due = pl['wallet_week'] * (span if cap is None else min(cap, span)) / 604800.0
         if due >= 0.25 * pl['wallet_week']:            # buys a pack once enough "budget" built up
             n = int(due)
             bot.k['uridium'] += n

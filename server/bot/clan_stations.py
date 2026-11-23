@@ -10,7 +10,7 @@ opened empty; the leaders of bot clans (and officers with the right to build) re
   growth     modules of a built station rise level by level (0-15), a destroyed satellite is repaired as the budget allows: every station is different
   defense    when a player attacks, the leader sends online members to the station (clan_orders 'git'), announcement and mass mail, grudge against the attacker
 The clan's record holds k['ksi'] = {target, plan, stock: [module], last_*}; the asteroid's record is in the shared profile (cbs.shared)."""
-import random, time
+import random
 
 import cbs as CB
 import map_links as H
@@ -421,6 +421,18 @@ def clean_up(y, h, asteroids):
                 a['version'] = a.get('version', 0) + 1
     for o in [o for o in (d.get('pending') or {}) if o.startswith('@klan:') and int(o[6:]) not in KL.CLANS]:
         d['pending'].pop(o, None)
+
+
+def sweep(y, now, force=False):
+    """clean_up without waiting for a bot clan's own turn (society.tick): once the shared record exists (a stale station in the save at
+    start), then every 60 s, and at once (force) when a bot leader dissolves its clan. Also with clan_cbs off: a dead clan keeps nothing."""
+    if not force and now < y.__dict__.get('_cbs_sweep', 0):
+        return
+    h, asteroids = _registry()
+    if h is None:
+        return
+    y._cbs_sweep = now + 60
+    clean_up(y, h, asteroids)
 
 
 def manage(y, b, k, kl, now):

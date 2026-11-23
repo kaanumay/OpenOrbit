@@ -41,6 +41,8 @@ def state(p, ev, now=None):
     st = root.get(ev)
     if st is None or (per and st.get('period') != per[0]):
         with p.lock:
+            if st and (st.get('points') or st.get('joined')):     # the last run's end was never seen (offline in the gap, the panel's
+                root.setdefault('_unpaid', []).append([ev, st])  # on/off): its reward comes at the next tick (EventPoints.tick)
             st = root[ev] = dict(period=per[0] if per else None, points=0, progress=0, threshold=0, joined=False)
             p.dirty = True
     return st
@@ -122,6 +124,11 @@ class EventPoints:
         msgs = []
         for ev in events():
             if CAL.is_active(ev, now):
+                state(self.p, ev, now)                   # a new period: the last one's state goes to _unpaid first
+        for ev, old in self.p.d.get('event_points', {}).pop('_unpaid', []):
+            msgs += self.finish(ev, old) if cfg(ev) else []
+        for ev in events():
+            if CAL.is_active(ev, now):
                 st = state(self.p, ev, now)
                 if not st['joined']:
                     with self.p.lock:
@@ -131,9 +138,9 @@ class EventPoints:
                 msgs += self.finish(ev)
         return msgs
 
-    def finish(self, ev):
-        """Event ended: the participation and ranking reward once (single-player rank: 1st)."""
-        c, st = cfg(ev), self.p.d['event_points'][ev]
+    def finish(self, ev, old=None):
+        """Event ended: the participation and ranking reward once (single-player rank: 1st). old: a past run's state (_unpaid)."""
+        c, st = cfg(ev), old or self.p.d['event_points'][ev]
         msgs = []
         k = c.get('participation') if st.get('joined') else None
         if k:
@@ -152,6 +159,7 @@ class EventPoints:
         self.log('   %s ended: points %d, progress %d%s' % (CAL.EVENTS[ev]['name'], st.get('points', 0), st.get('progress', 0),
                                                        ', 1st place reward' if r else ''))
         with self.p.lock:
-            del self.p.d['event_points'][ev]
+            if old is None:
+                del self.p.d['event_points'][ev]
             self.p.dirty = True
         return msgs + (self.m.money_msgs() if msgs and self.m else [])

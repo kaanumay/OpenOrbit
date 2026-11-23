@@ -120,7 +120,8 @@ desktop shortcut.
   modules, particle cannons and refractors, Singularity Drive, Omega AutoTactic, pilot skills, achievements and titles,
   ranks, daily login.
 - **Events:** yearly and weekly events follow the real calendar; switch each one on or off in the panel.
-- **Social, single-player:** chat, mail, clans and the auction, with optional virtual rivals. Bot players are planned.
+- **Social, single-player:** chat, mail, clans and the auction, with optional virtual rivals.
+- **Bot players (beta):** bots that level up, chat, team up, found clans and fight in PvP modes, set up on the **Bots** page.
 
 ### In the panel
 
@@ -132,6 +133,7 @@ desktop shortcut.
 | **Character editor** | Edit everything in a save with the game's own images: pilot, company, level, honor and wallet; ships, designs and both configs; drones, P.E.T., inventory, ammunition, ores, resources and boosters. Equip by clicking a slot, hover any item for its description and values, and edit upgrade levels, unstable-module and particle-weapon attributes, Quantum Fluid Cores and CPU charges. Changes follow the game's own hangar rules and stay in a draft until you save; the previous state is backed up |
 | **Game Settings** | Multipliers and rules (damage, rewards, drop chances, alien and box counts, prices, cooldowns …), presets such as Relaxed, Fast progress and Hard, your own templates, and settings per save |
 | **World Editor** | Build your own worlds on top of the standard game: aliens (stats, rewards, new variants), maps, quests (targets, rewards, prerequisites, new quests in a few clicks), shop prices, boxes and loot, Galaxy Gate waves, events and economy. Each save picks its world, and worlds can be shared as a file or a code |
+| **Bots** (beta) | Create a bot pack (Simple, Normal or Advanced mode with a local or online language model), tune its size, companies and permissions, and assign it to a world |
 | **Events** and **Event Calendar** | Each event by calendar or on / off by hand, and every session laid out over time |
 | **In-game pages** | While you play: Shop, Hangar, Skylab and Auction right in the panel, applied to the running game at once |
 | **Client**, **Server**, **Panel** | Game folder, download and version check, display; processes, ports and live logs; language, updates, shortcut and folders |
@@ -256,7 +258,6 @@ off or check by hand.
   `pip install capstone`).
 - A save that is being played opens read-only in the character editor; every save from the editor keeps a backup of the
   previous state.
-- Bot players are not in yet, so missions that need other players don't progress.
 
 </details>
 

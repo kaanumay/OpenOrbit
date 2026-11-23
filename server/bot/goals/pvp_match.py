@@ -22,4 +22,9 @@ class PvpMatch(Goal):
         return m.bot_think(w, g, now)
 
     def finished(self, bot, b):
+        # safety beside the mode's own release: off the match's map, or past the draft's longest hold (a match that was never closed
+        # kept its bots on the mode map forever); manager.bot_tick then sends the bot home
+        m = bot.plan.get('match')
+        if (m is not None and bot.game_map != int(m)) or b.now - bot.goal_start > bot.plan.get('min', self.min_sec):
+            bot.plan['finished'] = True
         return bot.plan.get('finished', False)

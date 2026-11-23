@@ -3,7 +3,6 @@ them), ship abilities (ship_ability.py, World.abilities), technologies (technolo
 as game.py's "S|CFG|n" handler does it) and the P.E.T. (pet.py, World.pet)."""
 import combat_items as CIT
 import pet as PETM
-import world as W
 import ship_ability as SA
 import technology as TECH
 
@@ -23,24 +22,31 @@ class Combat:
         if loot and self.rocket() != loot and self.p.ammo(loot) > 0:
             self.w.menu_action({'menuItemId': loot, 'actionType': 0})
 
+    def rocket_reach(self, now):
+        """The selected rocket's range when it can be fired now (its cooldown over, in stock or another stock to switch to), else 0."""
+        w, r = self.w, self.rocket()
+        if not r or w.hero_dead or w.jumping:
+            return 0
+        if self.p.ammo(r) <= 0 and (CIT.special(r) or not w.other_ammo('rocket', r, 1)):
+            return 0                                        # empty with nothing to switch to; otherwise World.rocket switches (autoChangeAmmo)
+        if not (w.items.ready(CIT.item_cooldown(r)[0], now) if CIT.special(r) else now >= w.rocket_ready):
+            return 0
+        return CIT.rocket_range(r)
+
     def fire_rocket(self, uid, dist, now):
         """The selected rocket at the target once it is ready and in rocket range (World.rocket checks the rest) -> whether it went."""
-        w, r = self.w, self.rocket()
-        if not r or dist > W.COMBAT['rocket_range'] or w.hero_dead or w.jumping:
+        reach = self.rocket_reach(now)
+        if not reach or dist > reach:
             return False
-        if self.p.ammo(r) <= 0 and (CIT.special(r) or not w.other_ammo('rocket', r, 1)):
-            return False                                    # empty with nothing to switch to; otherwise World.rocket switches (autoChangeAmmo)
-        if not (w.items.ready(CIT.item_cooldown(r)[0], now) if CIT.special(r) else now >= w.rocket_ready):
-            return False
-        w.rocket({'targetId': uid})
+        self.w.rocket({'targetId': uid})
         return True
 
-    def fire_launcher(self, uid, now):
-        """The rocket launcher (RL-LB1 / HST) once it is fully loaded -> whether it fired."""
+    def fire_launcher(self, uid, dist, now):
+        """The rocket launcher (RL-LB1 / HST) once it is fully loaded and within its range (CombatItems.launcher_fire's) -> whether it fired."""
         p, w = self.p, self.w
         cap = CIT.capacity(p)
         n = w.npcs.get(uid)
-        if not cap or n is None or CIT.loaded(p)[1] < cap or now < getattr(w.items, 'launcher_cd', 0):
+        if not cap or n is None or dist > CIT.S['launcher']['range'] or CIT.loaded(p)[1] < cap or now < getattr(w.items, 'launcher_cd', 0):
             return False
         w.items.launcher_fire(now, n)
         return True
@@ -131,6 +137,8 @@ class Combat:
         if pet is None or not pet.d.get('destroyed'):
             return 0
         cost = pet.repair_cost()
+        if cost > self.p.d['pilot'].get('uridium', 0):
+            return None                                     # pet.repair would only send "not enough uridium" again every PET_FAIL_SEC
         pet.repair()
         return cost if not pet.d.get('destroyed') else None
 

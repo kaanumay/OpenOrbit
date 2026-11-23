@@ -14,7 +14,6 @@ import json, math, os, random, time
 
 import ship_ability as SA
 import technology as TECH
-from legacy_protocol import stm
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 _PATH = os.path.join(HERE, 'data', 'major_content.json')

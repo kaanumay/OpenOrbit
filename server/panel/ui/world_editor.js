@@ -1,4 +1,4 @@
-/* OpenOrbit panel — World Editor (worlds.py, /api/dunya...; belgeler/DUNYA_EDITORU.md). Uses panel.js's helpers.
+/* OpenOrbit panel — World Editor (worlds.py, /api/world...; belgeler/DUNYA_EDITORU.md). Uses panel.js's helpers.
    World: a layer of changes placed on top of the standard game data. The standard world is read-only: changes stay in a draft,
    "Save as new world" turns them into a world. The save's default world opens on PLAY.
    Views: library (world cards, pilots' worlds) and editor (world bar, section menu, section). Changes are saved
@@ -121,7 +121,7 @@ function weWorldMenu(anchor, w) {
   ];
   if (!w.standard) items.push({ label: T('Rename'), ic: 'edit', fn: () => weRename(w) }, '-',
     { label: T('Delete'), ic: 'trash', danger: true, fn: async () => {
-      if (!await confirmBox(T('Delete "{0}"?', w.name), T('The world is deleted; pilots whose default world is this one go back to the standard world. A deleted world is kept in the save/dunyalar/_silinenler folder.'), { ok: T('Delete'), danger: true })) return;
+      if (!await confirmBox(T('Delete "{0}"?', w.name), T('The world is deleted; pilots whose default world is this one go back to the standard world. A deleted world is kept in the save/worlds/_trash folder.'), { ok: T('Delete'), danger: true })) return;
       const x = await act(() => api('/api/world/delete', { id: w.id }), T('World deleted.')); if (x) { DE.entries = x; if (DE.did === w.id) DE.did = null; renderWorld(); } } });
   popMenu(anchor, items);
 }
@@ -244,14 +244,16 @@ const weTitle = (b, ...extras) => h('div', { class: 'row between wrap we-section
   h('div', { class: 'muted small' }, T(b[3]))), h('div', { class: 'row wrap', style: { gap: '8px' } }, ...extras));
 
 // change: patch (file + path -> full value); on standard, to the draft. Debounced (for the same key the last value goes).
+// The world is taken when the change is made: a change still waiting when another world opens goes to its own world.
 function wePatch(file, route, value, { ms = 450, after } = {}) {
-  const k = file + route;
+  const did = DE.did, k = did + file + route;
   clearTimeout(DE.timer[k]); weSaveStatus('saving');
   return new Promise(res => {
     DE.timer[k] = setTimeout(async () => {
       delete DE.timer[k];
-      const r = await act(() => api('/api/world/patch', { world: DE.did, file, route, value }));
-      if (r) { DE.summary = Object.assign(DE.summary, r); weMenuCount(); weWarning(); weSaveStatus('saved'); if (after) after(r); }
+      const r = await act(() => api('/api/world/patch', { world: did, file, route, value }));
+      if (r && did !== DE.did) { /* another world is open now: its view stays */ }
+      else if (r) { DE.summary = Object.assign(DE.summary, r); weMenuCount(); weWarning(); weSaveStatus('saved'); if (after) after(r); }
       else weSaveStatus('ready');
       res(r);
     }, ms);
@@ -707,11 +709,12 @@ async function questDetail(qid, box, updated) {
   if (box.dataset.q !== String(qid)) fill(box, h('div', { class: 'empty' }, h('div', { class: 'spin', style: { margin: '30px auto' } })));
   box.dataset.q = qid;
   const g = await act(() => api('/api/world/quest?world=' + encodeURIComponent(DE.did) + '&id=' + qid)); if (!g || box.dataset.q !== String(qid)) return;
-  const std = g.standard;
+  const std = g.standard, did = DE.did;
   const save = async (changes, regenerate = true) => {
     weSaveStatus('saving');
-    const x = await act(() => api('/api/world/quest', { world: DE.did, id: qid, changes }));
+    const x = await act(() => api('/api/world/quest', { world: did, id: qid, changes }));
     if (!x) return weSaveStatus('ready');
+    if (did !== DE.did) return;                 // a delayed change finished after another world opened
     const summary = await api('/api/world?world=' + encodeURIComponent(DE.did)).catch(() => null); if (summary) { DE.summary = summary; weMenuCount(); weWarning(); }
     weSaveStatus('saved'); updated({ id: x.id, rewards: x.rewards, level: x.level, conditions: x.conditions.map(c => ({ type: c.type, target: c.target, matches: c.matches })), changed: x.changed, off: x.off, name: x.name });
     if (regenerate) questDetail(qid, box, updated);
@@ -854,7 +857,7 @@ function newQuest() {
 async function weShop(area, b) {
   const r = await act(() => api('/api/world/section?section=shop&world=' + encodeURIComponent(DE.did))); if (!r || DE.section !== 'shop') return;
   const cats = Object.keys(r.categories);
-  if (!cats.length) return fill(area, h('div', { class: 'card' }, weTitle(b), h('div', { class: 'empty muted' }, T('Shop catalog not found (data/yanitlar.json).'))));
+  if (!cats.length) return fill(area, h('div', { class: 'card' }, weTitle(b), h('div', { class: 'empty muted' }, T('Shop catalog not found (data/responses.json).'))));
   const f = DE.sec.shop || (DE.sec.shop = { multiplier: cats[0], q: '', filter_by: 'all' });
   if (!cats.includes(f.multiplier)) f.multiplier = cats[0];
   const grid = h('div', { class: 'shop-grid we-shop' });
@@ -910,10 +913,11 @@ function bulkPrice(products, refresh) {
     h('div', { class: 'we-field-row' }, h('label', null, T('Standard price')), weNumber(percent, v => { percent = v; }, { min: 0, max: 1000, step: 10, width: 70 }), h('span', null, '%')),
     h('div', { class: 'chips' }, [25, 50, 75, 150, 200].map(p => h('button', { type: 'button', class: 'chip link', onclick: e => { percent = p; e.currentTarget.closest('.body').querySelector('input').value = p; } }, '%' + p)))),
     foot: [btn(T('Cancel'), () => m.close(), 'ghost'), btn(T('Apply'), async () => {
-      m.close(); const l = products.filter(it => !it.fixed && it.world?.on_sale !== false);
+      m.close(); const l = products.filter(it => !it.fixed && it.world?.on_sale !== false), did = DE.did;
       for (const it of l) {
+        if (did !== DE.did) return;               // another world was opened meanwhile: the rest are not written to it
         const value = { price: Math.round(it.price * percent / 100), currency: it.currency };
-        const r = percent === 100 ? await weRevert('shop', jp('products', it.lootId)) : await act(() => api('/api/world/patch', { world: DE.did, file: 'shop', route: jp('products', it.lootId), value }));
+        const r = percent === 100 ? await weRevert('shop', jp('products', it.lootId)) : await act(() => api('/api/world/patch', { world: did, file: 'shop', route: jp('products', it.lootId), value }));
         if (r) { it.world = percent === 100 ? null : value; DE.summary = Object.assign(DE.summary, r); }
       }
       weMenuCount(); weWarning(); weSaveStatus('saved'); toast(T('Price of {0} products updated.', l.length), 'ok'); refresh();
@@ -1189,7 +1193,9 @@ function eventDetail(e, r, f) {
       fill(box, ...lines.map(([d, i]) => {
         const yearly = d[0].length === 5;
         const entry = (j) => h('input', { class: 'input we-date', type: yearly ? 'text' : 'date', value: d[j], placeholder: yearly ? T('MM-DD') : null,
-          onchange: ev => { d[j] = ev.target.value; save(); } });
+          onchange: ev => {        // an emptied or malformed date snaps back (an empty end hid the row while every later save of the event failed)
+            if (!(yearly ? /^\d\d-\d\d$/ : /^\d{4}-\d\d-\d\d$/).test(ev.target.value.trim())) { ev.target.value = d[j]; return; }
+            d[j] = ev.target.value.trim(); save(); } });
         return h('div', { class: 'we-period' + (!yearly && d[1] < todayStr ? ' past' : '') + (!yearly && d[0] <= todayStr && todayStr <= d[1] ? ' now' : '') },
           entry(0), h('span', { class: 'muted' }, '–'), entry(1), yearly ? badge(T('Every year'), 'info') : null,
           !yearly && d[0] <= todayStr && todayStr <= d[1] ? badge(T('Now'), 'ok') : null, h('span', { class: 'spacer' }),
@@ -1242,7 +1248,7 @@ async function weEconomy(area, b) {
   const saveLevels = () => wePatch('levels.json', jp('levels'), lv.map(x => x[1]));
   const limit = f.all ? lv.length : 26;
   const levels = h('div', { class: 'we-level-grid' }, lv.slice(1, limit).map((x, i) => h('label', { class: 'we-wave-value' + (x[1] !== r.levels_default[i + 1][1] ? ' changed' : '') },
-    h('span', { class: 'we-lv' }, x[0]), weNumber(x[1], v => { x[1] = v; saveLevels(); }, { min: 1, max: 1e15, step: 1000, width: 112 }))));
+    h('span', { class: 'we-lv' }, x[0]), weNumber(x[1], v => { x[1] = v; saveLevels(); }, { min: 1, max: 2 ** 62, step: 1000, width: 112 }))));
   const percent = h('div', { class: 'chips' }, [50, 75, 125, 200].map(p => h('button', { type: 'button', class: 'chip link', onclick: () => {
     lv.forEach((x, i) => { if (i) x[1] = Math.max(lv[i - 1][1] + 1, Math.round(r.levels_default[i][1] * p / 100)); }); saveLevels().then(() => weRenderSection()); } }, '%' + p)));
   const formula = h('div', { class: 'stack', style: { gap: '4px' } }, RANK_FORMULA.filter(([k]) => k in fo).map(([k, name]) => h('div', { class: 'we-field-row' + (fo[k] !== r.formula_default[k] ? ' changed' : '') },

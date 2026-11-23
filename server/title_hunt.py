@@ -16,8 +16,9 @@ In the profile: title_hunt {period, points (min), titles {id: {owner: 'npc'|'pla
 On a multiplayer server each player's titles are their own; a title on an alien of the shared map goes by the player's name (titles {name: id}):
 so two players do not take the same Underling to be the carrier of their own title (a single n.title used to be shared). Other players on the server are in the ranking too.
 """
-import json, os, random, time
+import os, random, time
 
+import game_data as DATA
 import map_links as H
 import rankings as RK
 import event_calendar as CAL
@@ -25,7 +26,7 @@ from legacy_protocol import legacy
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 _PATH = os.path.join(HERE, 'data', 'extra_events.json')
-D = (json.load(open(_PATH, encoding='utf8')) if os.path.exists(_PATH) else {}).get('title_hunt', {})
+D = (DATA.shared('extra_events.json') if os.path.exists(_PATH) else {}).get('title_hunt', {})
 EVENT = D.get('event', 'title_hunt')
 RANK_TYPE = 12                                     # RankRewardRequest.RankType.TITLE_FRENZY
 WINDOWS = [tuple(w) for w in D.get('hours', [[7, 9], [12, 14], [18, 20], [22, 24]])]
@@ -77,6 +78,8 @@ class TitleHunt:
         self.next_rival = 0.0
         self.base_title = None                     # the achievement's title above the ship (binds the session: achievement.title_msgs)
         register_titles()
+        self.fresh = [tid for tid, t in ((profile.d.get('title_hunt') or {}).get('titles') or {}).items()
+                      if t.get('owner') == 'player']           # titles still held from the last session: lost at the first tick (logout)
 
     @property
     def st(self):
@@ -181,21 +184,26 @@ class TitleHunt:
     def owner_one(self, tid):
         return next(m for m in self.owner_cmds() if m[1]['titleId'] == int(tid))
 
-    def drop(self, why, now=None):
-        """The player loses titles (death, logout, base, gate, 30 min): time to score, the title to another alien."""
+    def drop(self, why, now=None, only=None):
+        """The player loses titles (death, logout, base, gate, 30 min; only: just these): time to score, the title to another alien."""
         now = time.time() if now is None else now
         msgs = []
-        for tid in self.held():
+        for tid in only or self.held():
             t = self.st['titles'][tid]
-            gained = min(HOLD_MAX, max(0, now - t['start'])) / 60.0    # offline time between logout and login is not hold time
+            end = t.get('seen', t['start']) if why == 'logout' else now      # logout: the last tick of that session, not the offline time
+            gained = min(HOLD_MAX, max(0, end - t['start'])) / 60.0
             with self.p.lock:
                 self.st['points'] += gained
                 self.p.dirty = True
             self.log('   Prestige title %s dropped (%s): +%.1f min' % (tid, why, gained))
             msgs += self.to_npc(tid, avoid=t.get('class_name'), now=now)
-        if msgs:
+        if msgs and not self.held():
             msgs += self.title_reset_msgs()
         return msgs
+
+    def event(self, kind, kw):
+        """Game event (extra_events.event): death loses the titles (pve_icerik.md, Pursuit of Prestige: death/logout/30 min/base/gate)."""
+        return self.drop('death') if kind == 'death' else []
 
     def title_reset_msgs(self):
         """The Prestige title is gone: the achievement's selected title (none if no title)."""
@@ -296,14 +304,20 @@ class TitleHunt:
         return msgs
 
     def tick(self, now):
+        msgs = []
+        if self.fresh:
+            old, self.fresh = [t for t in self.fresh if t in self.held()], []
+            msgs += self.drop('logout', now, old) if old else []
         if not self.enabled(now):
-            return self.event_end(now)
+            return msgs + self.event_end(now)
+        cur = (CAL.period(EVENT, now) or (None,))[0]
+        if cur is not None and self.st.get('period') not in (None, cur):
+            msgs += self.event_end(now)            # a new run, the last one never closed (offline in the gap between two runs): pay it first
         if self.st.get('period') is None:
             with self.p.lock:
                 self.st['period'] = (CAL.period(EVENT, now) or (now,))[0]
                 self.p.dirty = True
         on = in_window(now)[0]
-        msgs = []
         if self.was is not None and on != self.was:
             msgs += self.start_window(now) if on else self.end_window(now)
         elif self.was is None and on and not self.st['titles']:
@@ -312,10 +326,11 @@ class TitleHunt:
         if on:
             msgs += self.carriers(now)
             msgs += self.rivals_tick(now)
-            for tid in self.held():                        # 30 dk kesintisiz tutma
+            for tid in self.held():                        # 30 min held without a break: only that title
                 if now - self.st['titles'][tid]['start'] >= HOLD_MAX:
-                    msgs += self.drop('30 dk', now)
-                    break
+                    msgs += self.drop('30 min', now, [tid])
+                else:
+                    self.st['titles'][tid]['seen'] = now   # for the logout drop of the next session
             w = self.world
             if self.held() and w and (w.in_station() or getattr(w, 'gate', None)):
                 msgs += self.drop('base/gate', now)

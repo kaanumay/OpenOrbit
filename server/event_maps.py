@@ -215,8 +215,10 @@ class MapEvents:
             agatus = b['command'] == 'AgatusEventInfoCommand'
             pre = 'AgatusEvent' if agatus else 'NpcEvent'
             to_end, to_next = spawn_times(k, s, now)
+            # type 0 STANDARD has a boss (NpcEventUIData.UpdateInfo: _hasBoss); with no boss/quota (Protegit: the client has only its _title and
+            # _event_description texts) STANDARD said "There are no %NPC% on this map" on the event's own map (leftToKill 0): 1 STANDARD_NO_BOSS
             msgs.append((b['command'], dict(
-                textKey=b['text'], type=0, npcID=b['npc'],
+                textKey=b['text'], type=0 if s.get('boss') else 1, npcID=b['npc'],
                 bossInfoCommand=mod(pre + 'BossInfoCommand', bossCount=len(alive), leftToKill=max(0, quota - st['counter']) if quota else 0),
                 timeInfoCommand=mod(pre + 'TimeInfoCommand', timeToNextSpawn=to_next, timeToEndSpawn=to_end))))
         # the indicator also on a map with no event (Ö1, live test): boss and remaining kills 0 -> the client writes "There are no %NPC%

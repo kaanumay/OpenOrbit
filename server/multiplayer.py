@@ -189,6 +189,8 @@ def valid_profile(d):
         return 'the save has no pilot, ship or position'
     if not isinstance(pl.get('userId'), int) or isinstance(pl.get('userId'), bool) or not str(pl.get('userName') or '').strip():
         return 'the pilot has no id or name'
+    if '|' in str(pl.get('userName')):        # the old text protocol's separator (0|A|STM|...|%NAME%|<name>): the in-game rename forbids it too
+        return 'the pilot name contains "|"'
     if not all(isinstance(k.get(a), (int, float)) for a in ('mapId', 'x', 'y')):
         return 'the position in the save is invalid'
     return None
@@ -535,13 +537,34 @@ class SendQueue:
     def _cut(self, shutdown=False):
         self.closed = True
         self.cond.notify_all()                   # let the waiting calis wake up (it used to get stuck on overflow)
-        try:
-            if shutdown:
-                self.sock.shutdown(socket.SHUT_RDWR)
-            else:
-                self.sock.close()
+        try:                                     # shutdown first: on Linux close() alone does not wake the session's blocked recv (ghost ship)
+            self.sock.shutdown(socket.SHUT_RDWR)
         except OSError:
             pass
+        if not shutdown:
+            try:
+                self.sock.close()
+            except OSError:
+                pass
+
+
+KEEPALIVE_IDLE, KEEPALIVE_GAP, KEEPALIVE_COUNT = 60, 10, 6      # adaptation: a silent peer is found in ~2 min (the OS default is 2 h)
+
+
+def keepalive(sock):
+    """TCP keepalive on a game connection of the friend server: a guest gone without FIN (Wi-Fi drop, sleep) ends the session's recv with an
+    error, otherwise its ship stayed on the shared map until it reconnected. The peer's OS answers the probes (a paused client is not cut)."""
+    try:
+        sock.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
+        if hasattr(socket, 'SIO_KEEPALIVE_VALS'):                                  # Windows
+            sock.ioctl(socket.SIO_KEEPALIVE_VALS, (1, KEEPALIVE_IDLE * 1000, KEEPALIVE_GAP * 1000))
+        else:
+            for name, v in (('TCP_KEEPIDLE', KEEPALIVE_IDLE), ('TCP_KEEPALIVE', KEEPALIVE_IDLE), ('TCP_KEEPINTVL', KEEPALIVE_GAP),
+                            ('TCP_KEEPCNT', KEEPALIVE_COUNT)):                     # Linux; macOS calls the idle time TCP_KEEPALIVE
+                if hasattr(socket, name):
+                    sock.setsockopt(socket.IPPROTO_TCP, getattr(socket, name), v)
+    except (OSError, ValueError):
+        pass
 
 
 # ------------------------------------------------------------------ HTTP (on the game port)

@@ -1,8 +1,6 @@
 """Auto Mode: other pilots on the hero's map that could attack it: players on a shared map (friend server, shared_maps.py) and the player
 bots (server/bot, World.npcs entries with n.bot). Read only: nothing is sent (player_combat.attack_error has a side effect, the friendly
 fire warning, so the same rules are read here without it)."""
-import time
-
 import clan as KL
 import world as W
 import bot.manager as MGR
@@ -69,7 +67,7 @@ class Players:
             px, py = n.mover.pos(now + 0.6)
             firing = getattr(n, 'target', None) == w.hid and bool(getattr(n, 'fire', False))
             out.append(dict(id=n.id, tip='pvp', name=getattr(b, 'name', ''), x=x, y=y, px=px, py=py, engaged=firing, aggressive=False,
-                            notice=W.COMBAT['npc_notice_distance'], fire_range=W.COMBAT['npc_notice_distance'], hp=n.hp,
+                            notice=W.COMBAT['npc_notice_distance'], fire_range=W.COMBAT['laser_range'], hp=n.hp,     # bot/ship.py fires within it
                             hp_max=max(1, n.d.get('hp', n.hp) or 1), shield=getattr(n, 'shield', 0), shield_max=n.d.get('shield', 0),
                             ok=not BG.attack_error(w, n, now), forbidden=False, allowed=True, priority=False))
         return out

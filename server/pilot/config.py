@@ -1,6 +1,6 @@
 """Auto Mode settings: defaults, validation, the file the panel writes (pilot.json next to the save slot's profile.json) and the status
 file the bot writes for the panel (<log folder>/pilot_status_<slot>.json). Standard library only: the panel imports it too."""
-import json, os
+import glob, json, os, threading, time
 
 WHEN = ('hp', 'shield', 'fight', 'big', 'always')
 # operating modes (tasks/modes.py): one at a time; a mode with nothing left to do goes on with its 'then' (stop, or another mode)
@@ -163,7 +163,7 @@ BLOCKS = {
         'harvest': ('bool', False),                # harvest ore between fights
         'types': ('ints', [], 12),                 # ore types (world.ITEMS ores.kinds); empty: all
         'radius': ('int', 3000, 0, 30000),
-        'sell': ('bool', False),                   # sell the cargo at the station when it is full
+        'sell': ('bool', False),                   # sell the cargo at the station when it is full (Hunt; Quests mode too: off, only a sale quest's ore)
         'sell_free': ('int', 0, 0, 100000),        # free cargo space at or below which the ship goes to sell
     },
     'supply': {                                    # ammo resupply
@@ -343,13 +343,35 @@ def read_json(path):
 
 def write_json(path, d):
     os.makedirs(os.path.dirname(path), exist_ok=True)
-    tmp = path + '.tmp'
-    with open(tmp, 'w', encoding='utf8') as fh:
-        json.dump(d, fh, ensure_ascii=False, indent=1)
-    os.replace(tmp, path)
+    tmp = '%s.%d.%d.tmp' % (path, os.getpid(), threading.get_ident())     # the panel and the game (and their threads) write the same file
+    try:
+        with open(tmp, 'w', encoding='utf8') as fh:
+            json.dump(d, fh, ensure_ascii=False, indent=1)
+        os.replace(tmp, path)
+    except BaseException:
+        try:
+            os.remove(tmp)                          # a failed write (the file in use on Windows, a full disk) leaves no temporary file
+        except OSError:
+            pass
+        raise
+
+
+STALE_TMP_SEC = 60            # a writer's temporary file lives for milliseconds: older ones are left by a process that crashed meanwhile
+
+
+def clean_tmp(path, now=None):
+    """Removes the temporary files of write_json(path) that a crashed writer left behind (each process / thread has its own name)."""
+    now = time.time() if now is None else now
+    for f in glob.glob(glob.escape(path) + '.*.tmp'):
+        try:
+            if now - os.path.getmtime(f) > STALE_TMP_SEC:
+                os.remove(f)
+        except OSError:
+            pass
 
 
 def load(path):
+    clean_tmp(path)
     return clean(read_json(path))
 
 

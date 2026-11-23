@@ -14,15 +14,16 @@ on failure the coupon is lost, the player returns to X-1; when the gate ends AP;
 The gates are in the event gate engine (event_gate.py): each difficulty is a gate (fiesta_1..5, maps 494-498); registered here.
 In the profile: fiesta {ap, claimed [level], on (highest open difficulty)}.
 """
-import json, os, time
+import os
 
+import game_data as DATA
 import event_gate as EKP
 import event_calendar as CAL
 from galaxy_gates import screen
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 _PATH = os.path.join(HERE, 'data', 'extra_events.json')
-D = (json.load(open(_PATH, encoding='utf8')) if os.path.exists(_PATH) else {}).get('fiesta', {})
+D = (DATA.shared('extra_events.json') if os.path.exists(_PATH) else {}).get('fiesta', {})
 EVENT = 'fiesta'
 COUPON = D.get('voucher', 'resource_collectable_galaxy-coupon')
 BY_LEVEL = {z['level']: z for z in D.get('difficulties', [])}
@@ -135,12 +136,14 @@ class Fiesta:
             return [self.gate_cmd()]
         if z['level'] > self.st['on']:
             return [self.gate_cmd(), screen('Clear the previous difficulty first.')]
-        if self.p.resource(COUPON) < z['voucher']:
-            return [self.gate_cmd(), screen('key:bday2025_entry_info')]
-        self.p.add_resource(COUPON, -z['voucher'])
-        self.k.enter(z['gate'])
-        self.log('   Fiesta Gate %s: %d coupons' % (z['name'], z['voucher']))
-        msgs = self.m.resource_msgs(COUPON, self.p.resource(COUPON), -z['voucher'])
+        msgs = []
+        if not self.k.running(z['gate']):           # a running gate (left between waves) continues without a second payment
+            if self.p.resource(COUPON) < z['voucher']:
+                return [self.gate_cmd(), screen('key:bday2025_entry_info')]
+            self.p.add_resource(COUPON, -z['voucher'])
+            self.k.enter(z['gate'])
+            self.log('   Fiesta Gate %s: %d coupons' % (z['name'], z['voucher']))
+            msgs = self.m.resource_msgs(COUPON, self.p.resource(COUPON), -z['voucher'])
         if self.change_map:
             self.change_map(z['map'], {'event_gate': True, 'gate': z['gate'], 'arrival': EKP.center(z['map'])}, None)
         return msgs
@@ -173,5 +176,5 @@ class Fiesta:
         if name == 'Birthday2025ClaimRequest':
             return self.claim(int(f.get('rewardLevel') or 0))
         if name == 'Birthday2025GateEnterRequest':
-            return self.enter(f.get('level'))
+            return self.enter(f.get('level') or 0)
         return []

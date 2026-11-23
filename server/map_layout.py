@@ -8,12 +8,13 @@ aliens walk around the obstacles with A* on a grid (on pirate maps the aliens go
 them"); portal positions and the arrival point on the target map; the Palladium area (ShieldDamage POI); mine fields (Mines POIs); safe
 zones (the 5-2 pirate base).
 """
-import heapq, json, math, os, random
+import heapq, math, os, random
 import game_data as DATA
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 _D = DATA.load('map_layout.json')
-MAPS = {int(k): v for k, v in _D['maps'].items()}
+# a world's patch can name any /maps/<text> (an imported world code): a key that is not a map id or a value that is not a layout is skipped
+MAPS = {int(k): v for k, v in _D['maps'].items() if str(k).strip().isdigit() and isinstance(v, dict)}
 _WALLS = {m: [tuple(e[1:5]) for e in d.get('obstacles', [])] for m, d in MAPS.items()}
 MINE = _D['mine']
 NO_ACCESS, SHIELD_DAMAGE, MINES = 5, 3, 10     # POIType (official server record: Palladium area "ShieldDamage", mine field "Mines1")

@@ -17,14 +17,15 @@ keys are deleted.
 In the profile: galaxy_trek {period, planet (1-40), percent, done, claimed [tier], day, quests [id], value {uid: condition
 values}, finished [id]}.
 """
-import datetime, json, os, random, time
+import datetime, os, random, time
 from xml.sax.saxutils import quoteattr
 
+import game_data as DATA
 import event_calendar as CAL
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 _PATH = os.path.join(HERE, 'data', 'extra_events.json')
-D = (json.load(open(_PATH, encoding='utf8')) if os.path.exists(_PATH) else {}).get('galaxy_trek', {})
+D = (DATA.shared('extra_events.json') if os.path.exists(_PATH) else {}).get('galaxy_trek', {})
 EVENT = 'galaxy_trek'
 KEY = D.get('key', 'resource_ftl-key')
 PLANETS = D.get('planet', 40)
@@ -202,12 +203,12 @@ class GalaxyTrek:
         if count <= 0:
             self.log('   Galaxy Trek: no FTL Key')
             return [self.info_cmd(), self.key_cmd()]
-        self.p.add_resource(KEY, -count * D.get('cost', 1))
         events, planets, got = [], [], {}
         kinds = D.get('events', [])
         for _ in range(count):
             if st['done'] >= PLANETS:
-                break
+                break                      # the last planet is finished: the remaining explorations cost nothing
+            self.p.add_resource(KEY, -D.get('cost', 1))
             e = random.choices(kinds, [k['chance'] for k in kinds])[0]
             eid = random.choice(e['ids'])
             planet = st['planet']
@@ -232,10 +233,10 @@ class GalaxyTrek:
             else:
                 planets.append(mod('PlanetCommand', planetId=planet, increase=inc,
                                    planetPct=100 if st['planet'] != planet or st['done'] >= PLANETS else st['percent']))
-        msgs = self.m.resource_msgs(KEY, self.keys(), -count)
+        msgs = self.m.resource_msgs(KEY, self.keys(), -len(events) * D.get('cost', 1))
         for l, n in sorted(got.items()):
             msgs += self.m.prize(l, n)
-        self.log('   Galaxy Trek: %d explorations, planet %d (%%%d), done %d' % (count, st['planet'], st['percent'], st['done']))
+        self.log('   Galaxy Trek: %d explorations, planet %d (%%%d), done %d' % (len(events), st['planet'], st['percent'], st['done']))
         return [('SpaceSearchEventsCommand', dict(rewards=[mod('RewardModule', lootId=l, amount=n) for l, n in sorted(got.items())],
                                                   eventIds=events, planets=planets)),
                 self.info_cmd(), self.key_cmd()] + msgs + self.m.money_msgs()

@@ -24,8 +24,6 @@ import world as W
 from bot import catalog as K
 from bot.goals import quest as BQ
 
-from .economy import SELL_ORES
-
 KILL, DAMAGE_NPCS = (6, 27), 29              # KILL_NPC and its counted variant; damage these aliens ([count, npcId ..., 0])
 VISIT_MAP, ON_MAP, GIVER, COORDINATES = 34, 77, 62, 11
 TRAVEL, ENDURANCE, BONUS, CARGO, LOOT = (12, 13), 3, 55, 51, 67
@@ -172,7 +170,7 @@ class Quests:
         on = self.spec_maps(specs)
         out = dict(kind=None, aliens=None, maps=on or None, point=None, ore=None, box=None, harvest=None, refine=None, gate=None, pvp=None,
                    need=c['targetValue'] - value, sell=False, upgrade=None, action=None, radiation=misc == [[RADIATION]],
-                   hidden=misc == [[HIDDEN]])
+                   hidden=misc == [[HIDDEN]], room=False)      # room: it needs cargo room (ore harvested, ore in cargo boxes)
         t, m = c['type'], [str(x) for x in c.get('matches', [])]
         if specs and not on:                                # a gate's maps (@Epsilon Gate): its waves, else out of reach
             gates = [GATE_MAPS[x] for x in self.spec_maps_all(specs) if x in GATE_MAPS]
@@ -260,7 +258,7 @@ class Quests:
         if t == BONUS:
             return dict(out, kind='boxes', box='bonus')
         if t == CARGO:
-            return dict(out, kind='grind', box='cargo')
+            return dict(out, kind='grind', box='cargo', room=True)
         if t in (TAKE_DAMAGE, LEVEL) or (t == AMMUNITION and m and m[0] in ('0', '1')):
             return dict(out, kind='grind')
         if t == LOOT and len(m) == 1:
@@ -311,12 +309,12 @@ class Quests:
             room = self.p.cargo_free() + sum(self.ore_counts().values())       # the sellable ores make room at the station
             fits = ore != PALLADIUM or need <= room or self.reach(int(W.PIRATE_MARKET))
             if spawn and fits and self.p.ore_count(XENOMIT) >= need_x:
-                return dict(out, kind='ore', maps=spawn, ore=ore, harvest=sorted(raw), refine=ore if ore in RECIPES else None)
+                return dict(out, kind='ore', maps=spawn, ore=ore, harvest=sorted(raw), refine=ore if ore in RECIPES else None, room=True)
         tips = sorted(set(droppers(loot)) - set(forbid))
         maps = [x for x in NPC_MAPS if (not on or x in on) and any(v['tip'] in tips for v, _ in K.map_npcs(x)) and self.reach(x)]
         if not maps:
             return None
-        return dict(out, kind='kill', aliens=tips, maps=maps, box='cargo')
+        return dict(out, kind='kill', aliens=tips, maps=maps, box='cargo', room=loot not in W.RESOURCE_BOXES)    # a resource box needs no room
 
     def quest_goals(self, only=None, now=None, skip=()):
         """The open conditions the bot can play, the quest to play first in front -> [dict(qid, cid, name, kind, aliens, maps, point,
@@ -436,15 +434,17 @@ class Quests:
 
     # ------------------------------------------------------------ one-off quest actions
     def ore_upgrade(self, item, ore, n):
-        """The laboratory's upgrade of a part with ore from the cargo (Shop.upgrade; item 0 laser, 1 rocket, 2 speed, 3 shield)."""
+        """The laboratory's upgrade of a part with ore from the cargo (Shop.upgrade; item 0 laser, 1 rocket, 2 speed, 3 shield) -> whether
+        ore went in (not when the part is full)."""
         shop = getattr(self.session, 'shop', None)
-        n = min(n, self.p.ore_count(ore))
+        before = self.p.ore_count(ore)
+        n = min(n, before)
         if shop is None or n <= 0:
             return False
         msgs = shop.upgrade({'itemToUpdate': {'itemValue': item}, 'updateWith': {'oreType': {'typeValue': ore}, 'count': n}})
         if msgs:
             self.session.send(msgs, 'auto mode: laboratory')
-        return True
+        return self.p.ore_count(ore) < before
 
     def slot_put(self, bar, item):
         """Puts an item on a slot bar (Profile.slot_bar_set, the first free slot, else the last) and lets the quests read the bars."""
@@ -469,26 +469,36 @@ class Quests:
             self.session.send(msgs, 'auto mode: quest state')
         return True
 
-    def skylab_up(self, module, level):
-        """A Skylab module up to `level`: its upgrade (credits and Skylab ores) when it is not on the way already."""
+    def skylab_cost(self, module, level):
+        """The credits of the Skylab module's next upgrade while it is below `level`; None: nothing to do now (reached, or on the way up);
+        -1: it cannot be upgraded (no Skylab, no such module, at its maximum)."""
+        import skylab as SKY
+        sk = getattr(self.session, 'skylab', None)
+        if sk is None or module not in SKY.MODULES:
+            return -1
+        if sk.levels().get(module, 0) >= level or sk.state(module) == 'UPGRADE':
+            return None
+        c = sk.upgrade_cost(module)
+        return c['credits'] if c else -1
+
+    def skylab_up(self, module):
+        """The Skylab module's upgrade (credits and Skylab ores, Skylab.upgrade) -> whether it started."""
         sk = getattr(self.session, 'skylab', None)
         if sk is None:
             return False
-        if sk.levels().get(module, 0) < level and sk.state(module) != 'UPGRADE':       # not already on the way up
-            msgs = sk.action({'construction': module, 'subaction': 'upgrade'}) or []
-            if msgs:
-                self.session.send(msgs, 'auto mode: Skylab')
-        return self.state_events()
+        msgs = sk.action({'construction': module, 'subaction': 'upgrade'}) or []
+        if msgs:
+            self.session.send(msgs, 'auto mode: Skylab')
+        return sk.state(module) == 'UPGRADE'
 
     def lay_mine(self, now):
-        """A mine where the ship is (CombatItems.place_mine), bought first when none is in stock -> whether one was laid."""
+        """A mine where the ship is (CombatItems.place_mine) -> whether one was laid; None: no mine in stock (tasks/quests.mine buys MINE
+        within the resupply budget)."""
         import combat_items as CIT
         p, w = self.p, self.w
         loot = next((m for m in CIT.MINES if m.startswith('ammunition_mine_') and p.ammo(m) > 0), None)
         if loot is None:
-            if not self.buy(MINE, 10):
-                return False
-            loot = MINE
+            return None
         before = p.ammo(loot)
         w.items.place_mine(loot, now)
         return p.ammo(loot) < before

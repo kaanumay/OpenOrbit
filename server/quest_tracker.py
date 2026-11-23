@@ -31,7 +31,7 @@ DURING_EVENT = 97
 EVENT_NAMES = {'HitacAssault2016': 'hitac'}       # sub-condition 97's name -> calendar key (PVPSummerEvent: PvP, not in the calendar)
 THROTTLE_SEC = 1.0                 # the intermediate value of the same condition at most once a second (distance, ammo, damage are frequent; save: once a second)
 FREQUENT = ('damage', 'damage_taken', 'damage_player', 'distance', 'ammo')
-LAST_SENT = {}                    # condition -> last send
+LAST_SENT = {}                    # (profile, condition) -> last send (per player: friend mode's two players shared one throttle)
 # ore -> the client's old ore id (GameDefineSystem.Init; SELL_ORE and SALVAGE matches): 1 Prometium, 2 Endurium,
 # 3 Terbium, 4 Xenomit, 11 Prometid, 12 Duranium, 13 Promerium, 14 Seprom, 15 Palladium, 42 Osmium
 OLD_ORE = {'resource_ore_prometium': '1', 'resource_ore_endurium': '2', 'resource_ore_terbium': '3', 'resource_ore_xenomit': '4',
@@ -179,8 +179,8 @@ def advance(p, root, vals, kind, kw, map_id=None, notify=True, fn=measure, only=
         for c in conditions(root):
             v = cap(c, vals.get(str(c['id']), 0))
             moved = after[c['id']] != before[c['id']]
-            if c['id'] in ids and (moved or kind not in FREQUENT or now - LAST_SENT.get(c['id'], 0) >= THROTTLE_SEC):
-                LAST_SENT[c['id']] = now
+            if c['id'] in ids and (moved or kind not in FREQUENT or now - LAST_SENT.get((id(p), c['id']), 0) >= THROTTLE_SEC):
+                LAST_SENT[(id(p), c['id'])] = now
                 msgs.append(cond_update(c['id'], v, True, False))
             if moved:
                 msgs.append(cond_update(c['id'], v, *after[c['id']]))

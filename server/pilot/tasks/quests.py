@@ -5,6 +5,8 @@ when no active quest can be played and a slot is free, the bot flies to a quest 
 quest can be played nor taken, the mode ends (Pilot.mode_end: its 'then', stop or another mode).
 A chosen quest (quests.qid; 0: automatic) is the only one played, no other is taken; when it is done (or no longer accepted, or cannot be
 played) the mode ends the same way."""
+from ..act import quests as QA
+from . import economy as ECON
 
 REFRESH_SEC = 1.0             # the quests are read again this often (a condition done: its aliens are not hunted a moment longer)
 BLOCK_SEC = 300.0             # no quest to take at the giver: not asked again for this long
@@ -13,6 +15,9 @@ HUNTS = ('kill', 'grind', 'pvp')     # the goals that take new targets (inside a
 PALLADIUM = 8
 ASSET_OUT = 700               # the quest counts an arrival within 500 of the object
 RADIATION_OUT = 300           # this far past a map edge the ship is in the radiation zone (World.radiation: outside the map)
+MINE_BUY = 10                 # mines bought at once for "lay mines"
+STUCK_SEC = 600.0             # a step of these kinds that made no progress this long is set aside (a point out of reach, a portal that
+WATCHED = ('point', 'asset', 'die', 'mine', 'visit', 'stay', 'travel')     # refuses the jump, a cloak used up ...); kills, ore, gates: no
 
 
 def clear(pilot):
@@ -51,6 +56,14 @@ def update(pilot, now):
     if g is None:
         pilot.quest_maps = pilot.quest_aliens = None
         return
+    key, t = (g['qid'], g['cid'], g['need'], pilot.act.map_id()), pilot.quest_track
+    if g['kind'] not in WATCHED or t is None or t[0] != key or pilot.mode in ('flee', 'repair', 'hide'):
+        pilot.quest_track = (key, now)              # progress, another map on the way (or a repair, a hide): the clock starts again
+    elif now - t[1] >= STUCK_SEC:
+        pilot.quest_track = None
+        pilot.note('Quest step made no progress for {0} minutes: set aside.', int(STUCK_SEC // 60))
+        skip(pilot, g, now)
+        return
     pilot.quest_maps = g['maps'] or (pilot.cfg['travel']['maps'] if g['kind'] == 'grind' else None)
     pilot.quest_aliens = g.get('by_map') if g['kind'] == 'kill' else None
 
@@ -75,6 +88,10 @@ def goal(pilot, s, now):
     if now < pilot.quest_block or not pilot.quest_at:
         return None
     g, act = pilot.quest_goal, pilot.act
+    if g is not None and g.get('room') and not g['sell'] and not pilot.cfg['ore']['sell'] and act.cargo_free() < 1 and not act.in_gate():
+        pilot.note('Cargo full and selling is off: quest step set aside.')     # nothing to make room with (the Quests card's sale)
+        skip(pilot, g, now)
+        return None
     if g is not None and g['kind'] in STEPS:
         return STEPS[g['kind']](pilot, s, g, now)
     if g is not None and g['sell']:
@@ -92,6 +109,8 @@ def goal(pilot, s, now):
         pilot.quest_block = now + BLOCK_SEC
         if not hand_in:
             pilot.mode_end('no_quest')
+        else:
+            pilot.note('No route to {0}: staying here.', act.map_name(act.home_map()))     # tried again after BLOCK_SEC
         return None
     if st != 'here':
         return 'quest'
@@ -117,13 +136,19 @@ def skip(pilot, g, now, sec=BLOCK_SEC):
     pilot.quest_at = 0.0
 
 
+def set_aside(pilot, g, now, reason):
+    """skip() with the reason in the journal (a stop reason key: the panel translates it)."""
+    pilot.note('Quest step set aside: {0}', reason)
+    skip(pilot, g, now)
+
+
 def gate(pilot, s, g, now):
     """A galaxy gate to finish, or the aliens only a gate has: the gate's run (tasks/gates.run; built with the Galaxy gate settings' spin
     budget) -> its label, or None inside."""
     from . import gates as GATES
     if pilot.gate_done and not pilot.act.in_gate():
         pilot.gate_done = False
-    return GATES.run(pilot, s, now, g['gate'], lambda reason: skip(pilot, g, now))
+    return GATES.run(pilot, s, now, g['gate'], lambda reason: set_aside(pilot, g, now, reason))
 
 
 def ore(pilot, s, g, now):
@@ -133,7 +158,9 @@ def ore(pilot, s, g, now):
     if g['refine'] is not None:
         act.refine(g['refine'])
     if g['upgrade'] is not None and act.p.ore_count(g['ore']) > 0:
-        act.ore_upgrade(g['upgrade'], g['ore'], g['need'])
+        if not act.ore_upgrade(g['upgrade'], g['ore'], g['need']):
+            pilot.note('Laboratory upgrade not possible (the part is full): quest step set aside.')
+            skip(pilot, g, now)
         pilot.quest_at = 0.0
         return None
     if g['sell']:
@@ -160,7 +187,7 @@ def sell(pilot, s, g, now):
     else:
         st = act.go_to_station(now, act.sell_maps())
         if st == 'here':
-            act.sell_all()
+            act.sell_all(None if ore is None else (ore,))     # a quest naming an ore counts only that one: the rest of the cargo stays
     if st == 'no_route':
         skip(pilot, g, now)
         return None
@@ -177,15 +204,32 @@ def action(pilot, s, g, now):
     pilot.act_at = now
     a, act = g['action'], pilot.act
     if a[0] == 'upgrade':
-        act.ore_upgrade(a[1], a[2], g['need'])
+        if not act.ore_upgrade(a[1], a[2], g['need']):
+            pilot.note('Laboratory upgrade not possible (the part is full): quest step set aside.')
+            skip(pilot, g, now)
     elif a[0] == 'slot':
         act.slot_put(a[1], a[2])
     elif a[0] == 'skylab':
-        act.skylab_up(a[1], a[2])
+        skylab(pilot, g, a[1], a[2], now)
     elif a[0] == 'craft' and act.craft(a[1], 1, now) == 'no':
         skip(pilot, g, now)
     pilot.quest_at = 0.0
     return None
+
+
+def skylab(pilot, g, module, level, now):
+    """A Skylab module up to the quest's level: its upgrade's credits count against the resupply budget (supply.max_credits) and in the
+    spending; over the budget, short of credits or of the Skylab's own resources, the step is set aside."""
+    act = pilot.act
+    cost = act.skylab_cost(module, level)
+    if cost is not None:
+        before = act.money('credits')
+        if cost < 0 or cost > pilot.cfg['supply']['max_credits'] - pilot.stats['spent_credits'] or cost > before or not act.skylab_up(module):
+            pilot.note('Skylab upgrade not possible (budget, credits or resources): quest step set aside.')
+            skip(pilot, g, now)
+            return
+        pilot.stats.add('spent_credits', before - act.money('credits'))
+    act.state_events()
 
 
 def asset(pilot, s, g, now):
@@ -218,7 +262,9 @@ def egate(pilot, s, g, now):
     if portal is None:
         skip(pilot, g, now)
         return None
-    act.enter_portal(portal, now)
+    if act.enter_portal(portal, now) == 'refused':    # the portal kept refusing the jump (act/travel.REFUSED_SEC)
+        set_aside(pilot, g, now, 'gate_no_route')
+        return None
     return 'gate_trip'
 
 
@@ -235,7 +281,16 @@ def mine(pilot, s, g, now):
     if g['maps'] and s['map'] not in g['maps']:
         return None
     act = pilot.act
-    if act.lay_mine(now):
+    laid = act.lay_mine(now)
+    if laid is None:                                # none in stock: bought like a resupply, within its budget and counted
+        cost = ECON.affordable(pilot, QA.MINE, MINE_BUY)
+        if cost is None or not act.buy(QA.MINE, MINE_BUY):
+            pilot.note('Could not buy {0} (budget or money).', QA.MINE)
+            skip(pilot, g, now)
+            return None
+        pilot.stats.add('spent_' + cost[0], cost[1])
+        laid = act.lay_mine(now)
+    if laid:
         pilot.quest_at = 0.0
     elif not act.flying(now):
         hx, hy = s['hero']

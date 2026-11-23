@@ -191,7 +191,7 @@
      "route": "box",
      "event": "empyrian",
      "box": "EMPYRIAN_BOOTY_BOX",
-     "weight": 0.5
+     "weight": 0.429
     }
    ],
    "source": "EMPYRIAN MARCH 2025"
@@ -233,7 +233,7 @@
      "route": "box",
      "event": "empyrian",
      "box": "EMPYRIAN_BOOTY_BOX",
-     "weight": 0.5
+     "weight": 0.429
     }
    ],
    "source": "Astral Discovery Event (2022) | EVENT Empyrian March: Galaxy Gate 'Empyrian Reward Package' (5% per Alpha/Beta/Gamma completion; not available via Dispatch) 25% within package"
@@ -579,7 +579,7 @@
      "route": "box",
      "event": "empyrian",
      "box": "EMPYRIAN_BOOTY_BOX",
-     "weight": 0.5
+     "weight": 0.429
     }
    ],
    "source": "EMPYRIAN MARCH EVENT 2025"
@@ -822,7 +822,8 @@
      "route": "box",
      "event": "empyrian",
      "box": "EMPYRIAN_BOOTY_BOX",
-     "weight": 0.5
+     "table": true,
+     "weight": 0.429
     }
    ],
    "source": "EMPYRIAN MARCH EVENT 2024"
@@ -841,7 +842,7 @@
      "route": "box",
      "event": "empyrian",
      "box": "EMPYRIAN_BOOTY_BOX",
-     "weight": 0.5
+     "weight": 0.429
     }
    ],
    "source": "Prometheus Day Event (2020) / SHOP PAYMENTS / Astral Discovery Event (2022) | EVENT Astral Discovery: Galaxy Gate special additional reward for completing Alpha, Beta, Gamma gates (drop table of ship "
@@ -949,8 +950,7 @@
      "route": "box",
      "event": "empyrian",
      "box": "EMPYRIAN_BOOTY_BOX",
-     "table": true,
-     "weight": 0.5
+     "weight": 0.429
     }
    ],
    "source": "SHOP PAYMENTS | EVENT Empyrian March: Empyrian Box - EPIC DESIGNS PACKAGE (0.1%) package 1 of 4 (25% each); package contents: Argon G-Champion Ship Design; Argon Diminisher P.E.T. Design; Argon Sentin"
@@ -1236,7 +1236,7 @@
      "route": "box",
      "event": "empyrian",
      "box": "EMPYRIAN_BOOTY_BOX",
-     "weight": 0.5
+     "weight": 0.429
     }
    ],
    "source": "EMPYRIAN MARCH 2026"
@@ -1392,7 +1392,7 @@
      "route": "box",
      "event": "empyrian",
      "box": "EMPYRIAN_BOOTY_BOX",
-     "weight": 0.5
+     "weight": 0.429
     }
    ],
    "source": "EMPYRIAN BOX | EVENT Empyrian March: Galaxy Gate 'Empyrian Reward Package' (5% per Alpha/Beta/Gamma completion; not available via Dispatch) 15% within package"
@@ -1751,7 +1751,7 @@
      "route": "box",
      "event": "empyrian",
      "box": "EMPYRIAN_BOOTY_BOX",
-     "weight": 0.5
+     "weight": 0.429
     }
    ],
    "source": "EMPYRIAN BOX | EVENT Empyrian March: Galaxy Gate 'Empyrian Reward Package' (5% per Alpha/Beta/Gamma completion; not available via Dispatch) 5% within package"
@@ -1918,7 +1918,7 @@
      "route": "box",
      "event": "empyrian",
      "box": "EMPYRIAN_BOOTY_BOX",
-     "weight": 0.5
+     "weight": 0.429
     }
    ],
    "source": "BOXES"
@@ -2009,7 +2009,7 @@
      "route": "box",
      "event": "empyrian",
      "box": "EMPYRIAN_BOOTY_BOX",
-     "weight": 0.5
+     "weight": 0.429
     }
    ],
    "source": "Empyrian March Event 2023"
@@ -2048,7 +2048,7 @@
      "route": "box",
      "event": "empyrian",
      "box": "EMPYRIAN_BOOTY_BOX",
-     "weight": 0.5
+     "weight": 0.429
     }
    ],
    "source": "EMPYRIAN MARCH 2026"
@@ -2155,7 +2155,7 @@
      "route": "box",
      "event": "empyrian",
      "box": "EMPYRIAN_BOOTY_BOX",
-     "weight": 0.5
+     "weight": 0.429
     }
    ],
    "source": "EMPYRIAN MARCH EVENT 2023"
@@ -2174,7 +2174,7 @@
      "route": "box",
      "event": "empyrian",
      "box": "EMPYRIAN_BOOTY_BOX",
-     "weight": 0.5
+     "weight": 0.429
     },
     {
      "route": "box",
@@ -2200,8 +2200,7 @@
      "route": "box",
      "event": "empyrian",
      "box": "EMPYRIAN_BOOTY_BOX",
-     "table": true,
-     "weight": 0.5
+     "weight": 0.429
     }
    ],
    "source": "OBSIDIAN BOX | EVENT Empyrian March: Empyrian Box - EPIC DESIGNS PACKAGE (0.1%) package 2 of 4 (25% each); package contents: Lava Sentinel Ship Design; Lava Cyborg P.E.T. Design; 2x Inferno Drone Desi"
@@ -2264,7 +2263,7 @@
      "route": "box",
      "event": "empyrian",
      "box": "EMPYRIAN_BOOTY_BOX",
-     "weight": 0.5
+     "weight": 0.429
     }
    ],
    "source": "EMPYRIAN MARCH 2025"
@@ -2394,7 +2393,7 @@
      "route": "box",
      "event": "empyrian",
      "box": "EMPYRIAN_BOOTY_BOX",
-     "weight": 0.5
+     "weight": 0.429
     }
    ],
    "source": "EVENT Empyrian March: Galaxy Gate 'Empyrian Reward Package' (5% per Alpha/Beta/Gamma completion; not available via Dispatch) 25% within package"
@@ -2511,7 +2510,7 @@
      "route": "box",
      "event": "empyrian",
      "box": "EMPYRIAN_BOOTY_BOX",
-     "weight": 0.5
+     "weight": 0.429
     }
    ],
    "source": "Empyrian March Event 2024"
@@ -2644,7 +2643,7 @@
      "route": "box",
      "event": "empyrian",
      "box": "EMPYRIAN_BOOTY_BOX",
-     "weight": 0.5
+     "weight": 0.429
     }
    ],
    "source": "EMPYRIAN MARCH EVENT 2024"
@@ -2757,7 +2756,7 @@
      "route": "box",
      "event": "empyrian",
      "box": "EMPYRIAN_BOOTY_BOX",
-     "weight": 0.5
+     "weight": 0.429
     }
    ],
    "source": "BOXES"
@@ -2822,7 +2821,7 @@
      "route": "box",
      "event": "empyrian",
      "box": "EMPYRIAN_BOOTY_BOX",
-     "weight": 0.5
+     "weight": 0.429
     }
    ],
    "source": "BOXES / Empyrian March Event (2023)"
@@ -2894,7 +2893,7 @@
      "route": "box",
      "event": "empyrian",
      "box": "EMPYRIAN_BOOTY_BOX",
-     "weight": 0.5
+     "weight": 0.429
     }
    ],
    "source": "EMPRYRIAN MARCH EVENT 2024"
@@ -3020,7 +3019,7 @@
      "route": "box",
      "event": "empyrian",
      "box": "EMPYRIAN_BOOTY_BOX",
-     "weight": 0.5
+     "weight": 0.429
     }
    ],
    "source": "Empyrian March Event 2023"
@@ -3098,7 +3097,7 @@
      "route": "box",
      "event": "empyrian",
      "box": "EMPYRIAN_BOOTY_BOX",
-     "weight": 0.5
+     "weight": 0.429
     }
    ],
    "source": "Empyrian March Event"
@@ -3115,6 +3114,32 @@
     }
    ],
    "source": "Frozen Labyrinth Event (2019) / BOXES"
+  },
+  "ship_citadel-plus_design_citadel-plus-empyrian": {
+   "type": "ship",
+   "event": "empyrian",
+   "paths": [
+    {
+     "route": "box",
+     "event": "empyrian",
+     "box": "EMPYRIAN_BOOTY_BOX",
+     "weight": 0.429
+    }
+   ],
+   "source": "EVENT Empyrian March 2022-2023 (darkorbitwiki ships-plus/citadel-plus, events/empyrian-march: WIZ-X transformation target 30%; Empyrian Box LEGEND DESIGNS until board-en FAQ 130486, November 2026)"
+  },
+  "ship_hyperion_design_hyperion-empyrian": {
+   "type": "ship",
+   "event": "empyrian",
+   "paths": [
+    {
+     "route": "box",
+     "event": "empyrian",
+     "box": "EMPYRIAN_BOOTY_BOX",
+     "weight": 0.429
+    }
+   ],
+   "source": "EVENT Empyrian March 2026 (darkorbitwiki ships/hyperion, events/empyrian-march: WIZ-X transformation target 30%; Empyrian Box LEGEND DESIGNS until board-en FAQ 130486, November 2026)"
   },
   "drone_designs_beacon": {
    "type": "drone",
@@ -3342,8 +3367,7 @@
      "route": "box",
      "event": "empyrian",
      "box": "EMPYRIAN_BOOTY_BOX",
-     "table": true,
-     "weight": 0.5
+     "weight": 0.429
     },
     {
      "route": "box",
@@ -3426,8 +3450,7 @@
      "route": "box",
      "event": "empyrian",
      "box": "EMPYRIAN_BOOTY_BOX",
-     "table": true,
-     "weight": 0.5
+     "weight": 0.429
     }
    ],
    "source": "BOXES | BOX Empyrian Box: EPIC DESIGNS PACKAGE (0.1%) / package 3 (25%)"
@@ -3440,8 +3463,7 @@
      "route": "box",
      "event": "empyrian",
      "box": "EMPYRIAN_BOOTY_BOX",
-     "table": true,
-     "weight": 0.5
+     "weight": 0.429
     }
    ],
    "source": "BOXES | BOXES"
@@ -3473,7 +3495,7 @@
      "route": "box",
      "event": "empyrian",
      "box": "EMPYRIAN_BOOTY_BOX",
-     "weight": 0.5
+     "weight": 0.429
     }
    ],
    "source": "Prometheus Day Event (2020) / SHOP PAYMENTS / Astral Discovery Event (2022)"
@@ -3669,7 +3691,7 @@
      "event": "empyrian",
      "box": "EMPYRIAN_BOOTY_BOX",
      "table": true,
-     "weight": 0.5
+     "weight": 0.429
     }
    ],
    "source": "BOXES | EVENT Prosperous Mutation Event: Prosperous Box - EPIC DESIGNS (0.1%) package 2 of 4 (25% each); package contents: Inferno Orcus Ship Design; Inferno Sentinel Ship Design; Inferno Drone Design"
@@ -3784,8 +3806,7 @@
      "route": "box",
      "event": "empyrian",
      "box": "EMPYRIAN_BOOTY_BOX",
-     "table": true,
-     "weight": 0.5
+     "weight": 0.429
     }
    ],
    "source": "OBSIDIAN BOX | EVENT Empyrian March: Empyrian Box - EPIC DESIGNS PACKAGE (0.1%) package 1 of 4 (25% each); package contents: Argon G-Champion Ship Design; Argon Diminisher P.E.T. Design; Argon Sentine"
@@ -3817,7 +3838,7 @@
      "route": "box",
      "event": "empyrian",
      "box": "EMPYRIAN_BOOTY_BOX",
-     "weight": 0.5
+     "weight": 0.429
     }
    ],
    "source": "OBSIDIAN BOX / Astral Discovery Event (2022)"
@@ -4116,7 +4137,7 @@
      "route": "box",
      "event": "empyrian",
      "box": "EMPYRIAN_BOOTY_BOX",
-     "weight": 0.5
+     "weight": 0.429
     }
    ],
    "source": "Empyrian March Event 2022"
@@ -4317,8 +4338,7 @@
      "route": "box",
      "event": "empyrian",
      "box": "EMPYRIAN_BOOTY_BOX",
-     "table": true,
-     "weight": 0.5
+     "weight": 0.429
     }
    ],
    "source": "Cyborg Lava | BOXES"
@@ -4331,8 +4351,7 @@
      "route": "box",
      "event": "empyrian",
      "box": "EMPYRIAN_BOOTY_BOX",
-     "table": true,
-     "weight": 0.5
+     "weight": 0.429
     }
    ],
    "source": "BOXES | EVENT Empyrian March: Empyrian Box - EPIC DESIGNS PACKAGE (0.1%) package 1 of 4 (25% each); package contents: Argon G-Champion Ship Design; Argon Diminisher P.E.T. Design; Argon Sentinel Drone"
@@ -4345,8 +4364,7 @@
      "route": "box",
      "event": "empyrian",
      "box": "EMPYRIAN_BOOTY_BOX",
-     "table": true,
-     "weight": 0.5
+     "weight": 0.429
     }
    ],
    "source": "BOXES | EVENT Empyrian March: Empyrian Box - EPIC DESIGNS PACKAGE (0.1%) package 4 of 4 (25% each); package contents: Carbonite Cyborg Plus Ship Design; Carbonite Diminisher P.E.T. Design; Carbonite E"

@@ -8,8 +8,9 @@
 With the panel's session_always_open setting sessions and spawn times are always open (always_open).
 Times in local time; the output is a timestamp (seconds).
 """
-import datetime, json, os
+import datetime, os
 
+import game_data as DATA
 import event_calendar as CAL
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -18,7 +19,7 @@ DAY = datetime.timedelta(days=1)
 
 def _data(name):
     try:
-        return json.load(open(os.path.join(HERE, 'data', name), encoding='utf8'))
+        return DATA.shared(name)
     except (OSError, ValueError):
         return {}
 

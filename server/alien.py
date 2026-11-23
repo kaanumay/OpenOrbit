@@ -50,6 +50,9 @@ SINGULARITY_TARGET = 21            # VisualModifierCommand.VisualModifier (clien
 MIRRORED_CONTROLS = 27             # VisualModifier: the client reverses the player's movement (reversed controls)
 RED_GLOW = 30                      # VisualModifier: red glow (the Barracuda's kamikaze wait)
 CAPSULE_BASE = 152000000           # capsule entity ids
+# the capsule's look: the client builds "buffCapsule_<designId>" (AssetCreateHelper); lib_assets has 33 red, 34 blue, 35 green, the colours of
+# EmperorSibelonBuffRingCommandHandler (DAMAGE red, SHIELD blue, HEALTH green); 0/1/2 had no pattern and the capsule was not drawn (K3-01)
+CAPSULE_DESIGN = {'damage': 33, 'shield': 34, 'hp': 35}
 
 
 def mod(name, **f):
@@ -152,9 +155,9 @@ class Abilities:
                 n.ab[key] = now
                 self.summon(n, c['type'], c['count'], now)
         t = n.behavior.get('reverse_controls') if to_player else None
-        if t and 'reverse' not in n.ab and n.hp > 0 and (n.shield <= n.d['shield'] * t['shield_ratio'] if 'shield_ratio' in t
-                                                      else n.hp <= n.d['hp'] * t['hp_ratio']):
-            n.ab['reverse'] = now                                   # once
+        if t and now - n.ab.get('reverse', -1e18) >= t.get('cooldown_sec', 1e18) and n.hp > 0 and (
+                n.shield <= n.d['shield'] * t['shield_ratio'] if 'shield_ratio' in t else n.hp <= n.d['hp'] * t['hp_ratio']):
+            n.ab['reverse'] = now                                   # once, or again after cooldown_sec while still under (Whisper)
             self.reverse_controls(n, t['sec'])
         if 'emp_on_shield_down' in n.behavior and to_player:      # Obscured Mimesis: an EMP pulse every time the shield runs out
             if n.shield > 0:
@@ -436,18 +439,8 @@ class Abilities:
                     self.summon(n, e['type'], min(e['count'], room), now)
 
     def expire(self, n):
-        """One whose life ran out (fake Emperor): leaves silently."""
-        w = self.w
-        n.alive = False
-        w.npcs.pop(n.id, None)
-        msgs = []
-        if w.target == n.id:
-            w.target, w.attacking = None, False
-            msgs.append(('ShipDeselectionCommand', {}))
-        if n.id in w.visible:
-            w.visible.discard(n.id)
-            msgs.append(('ShipRemoveCommand', {'userId': n.id}))
-        w.send(msgs)
+        """One whose life ran out (fake Emperor): leaves silently (world.remove_npc: the P.E.T. lets go of it too)."""
+        self.w.send(self.w.remove_npc(n))
 
     def summon_repair(self, n, now):
         """Repair per second while their summons live (Battleray: 600, 30,000 when enraged)."""
@@ -474,7 +467,7 @@ class Abilities:
             # 0|n|EMAL|<seconds>; the duration is an adaptation)
             from legacy_protocol import legacy
             w.send([legacy('0|n|EMAL|%d' % EMP_NOISE_SEC)])
-            w.log('   %s gizlenmeyi bozdu' % n.d['name'])
+            w.log('   %s broke the cloak' % n.d['name'])
 
     def rocket(self, n, now):
         """The alien's rocket or rocket launcher salvo: with its own cooldown, within firing range."""
@@ -739,7 +732,7 @@ class Abilities:
             w.target = None
             msgs.append(('ShipDeselectionCommand', {}))
         w.send(msgs)
-        w.log('   %s EMP darbesi savurdu' % n.d['name'])
+        w.log('   %s fired an EMP pulse' % n.d['name'])
 
     def match_speed(self, n, now):
         """The player's speed {ek, can_orani}: speed is matched to the player's (+ek). With can_orani, only when HP drops to that ratio (Hooligan:
@@ -859,7 +852,8 @@ class Abilities:
         if d <= k.get('harvest_distance', 150):
             if 'collecting' not in c:
                 c['collecting'] = now + k['collect_ms'] / 1000.0
-                self.w.send([('StartCapsuleCollectCommand', {'collectorId': n.id, 'assetId': aid, 'timer': k['collect_ms']})])
+                self.w.send([('StartCapsuleCollectCommand', {'collectorId': n.id, 'assetId': aid,      # timer: seconds (client CollectorBeamEffect)
+                                                             'timer': int(math.ceil(k['collect_ms'] / 1000.0))})])
             elif now >= c['collecting']:
                 self.collect_capsule(n, aid, k)
             return
@@ -877,7 +871,7 @@ class Abilities:
         kind = random.choice(CAPSULES)
         self.capsules[aid] = dict(x=x, y=y, type=kind, owner=n.id)
         w.send([asset_create(aid, BUFF_CAPSULE, x, y, name='%s-Buff' % {'hp': 'HP', 'shield': 'SHD', 'damage': 'DMG'}[kind],
-                             design=CAPSULES.index(kind))])
+                             design=CAPSULE_DESIGN[kind])])
         w.log('   capsule appeared: %s (%d,%d)' % (kind, x, y))
 
     def drop_capsule(self, aid, why):
@@ -911,10 +905,15 @@ class Abilities:
             w.send([w.selection(n)])
 
     def capsule_tick(self, now):
-        """If a player passes near the capsule it vanishes; capsules whose owner died are lifted."""
+        """If a player passes near the capsule it vanishes; capsules whose owner died are lifted. The DMG capsule's weakness of an Emperor that
+        left without being killed (gate/wave teardown, expiry, removal; on_kill lifts it only on a kill) is lifted too."""
+        w = self.w
+        for s in {e['source'] for e in w.hero_effects.d.get('weakness', ()) if str(e['source']).startswith('kapsul_')}:
+            o = w.npcs.get(int(s[len('kapsul_'):]))
+            if not o or not o.alive:
+                w.hero_effects.remove('weakness', source=s)
         if not self.capsules:
             return
-        w = self.w
         hx, hy = w.hero_pos(now)
         for aid, c in list(self.capsules.items()):
             owner = w.npcs.get(c['owner'])
@@ -925,7 +924,7 @@ class Abilities:
 
     def capsule_msgs(self):
         """When the map reloads the capsules are announced again."""
-        return [asset_create(aid, BUFF_CAPSULE, c['x'], c['y'], design=CAPSULES.index(c['type'])) for aid, c in self.capsules.items()]
+        return [asset_create(aid, BUFF_CAPSULE, c['x'], c['y'], design=CAPSULE_DESIGN[c['type']]) for aid, c in self.capsules.items()]
 
     # ------------------------------------------------------------ death
     def on_kill(self, n, x, y):

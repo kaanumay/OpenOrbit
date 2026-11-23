@@ -17,8 +17,9 @@ Note: in this client version the particle weapon (cannon, breaker, bullet) syste
 equipment stays in storage. Singularity Drive / Gravity Lens are missing too: Voyagers' SD/CGL rewards are in storage.
 In the profile: pve {voyagers|trinity: {gun, entries {X-1: n}, bonus, open (Voyagers), os {level, end, target} (Trinity), best …}}.
 """
-import datetime, json, math, os, random, time
+import datetime, math, os, random, time
 
+import game_data as DATA
 import settings as SET
 import mode_passes as GC
 import map_links as H
@@ -26,7 +27,7 @@ import galaxy_gates as GALAXY
 import pve_common as PS
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-D = json.load(open(os.path.join(HERE, 'data', 'pve_modes.json'), encoding='utf8'))
+D = DATA.shared('pve_modes.json')
 PORTAL_BASE = 153900000
 
 
@@ -155,7 +156,6 @@ class Arena:
 
     def grant(self, loot, n):
         if loot.startswith('currency_') and self.world:
-            kw = {'currency_uridium': 'uridium', 'currency_credits': 'credits', 'currency_experience': 'ep', 'currency_honour': 'honor'}
             return self.world.grant_loot(loot, n, 'mod')
         return self.m.reward(loot, n) if self.m else []
 
@@ -268,7 +268,6 @@ def fmt(secs):
 
 
 # ====================================================================== Trinity Trials
-RARITY_NAMES = ['Common', 'Uncommon', 'Rare', 'Epic', 'Masterpiece', 'Legendary', 'Ultimate']
 
 
 class Trinity(Arena):

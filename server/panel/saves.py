@@ -26,6 +26,7 @@ from lang import t as _  # noqa: E402
 
 COMPANIES = {1: 'MMO', 2: 'EIC', 3: 'VRU'}
 BEFORE_COUNT = 5
+ZIP_MEMBER_MAX = 256 * 1024 * 1024          # import: a larger file in the zip is not read (a zip bomb would fill the memory)
 KINDS = ('auto', 'manual', 'before')
 KIND_NAMES = {'auto': 'Automatic', 'manual': 'Manual', 'before': 'Before restore'}
 TIE_ORDER = {'manual': 0, 'before': 1, 'auto': 2}
@@ -44,8 +45,8 @@ class SaveError(Exception):
 
 
 def slugify(name):
-    s = re.sub(r'[^a-z0-9]+', '_', name.translate(_TR).lower()).strip('_')
-    return (s or 'record')[:32]
+    s = re.sub(r'[^a-z0-9]+', '_', name.translate(_TR).lower()).strip('_')[:32]
+    return s + '_save' if re.fullmatch(r'con|prn|aux|nul|com\d|lpt\d', s) else s or 'record'     # Windows device names: no such folder
 
 
 def ship_name(type_id):
@@ -62,12 +63,16 @@ def _write_json(path, d, indent=1):
     tmp = path + '.tmp'
     with open(tmp, 'w', encoding='utf8', newline='\n') as fh:
         json.dump(d, fh, ensure_ascii=False, indent=indent)
+        fh.flush()
+        os.fsync(fh.fileno())                 # on disk before the rename: a power cut must not leave an empty save file
     os.replace(tmp, path)
 
 
 def _copy_atomic(src, dst):
     tmp = dst + '.tmp'
     shutil.copy2(src, tmp)
+    with open(tmp, 'rb+') as fh:              # restore, editor commit: on disk before the rename (see _write_json)
+        os.fsync(fh.fileno())
     for k in range(6):                         # the game server's os.replace and virus scanners can lock it momentarily
         try:
             os.replace(tmp, dst)
@@ -121,10 +126,10 @@ def _map_name(mid):
         return str(mid)
 
 
-def level_bounds(level):
-    """The EP threshold of the level and the next one (progress bar; None for next at the last level)."""
+def level_bounds(level, table=None):
+    """The EP threshold of the level and the next one (progress bar; None for next at the last level). table: the save's world's thresholds."""
     level_for(0)
-    need = dict((lv, ep) for lv, ep in _LEVELS)
+    need = dict((lv, ep) for lv, ep in table or _LEVELS)
     return need.get(level, 0), need.get(level + 1)
 
 
@@ -272,11 +277,14 @@ class Saves:
             try:
                 s = profile_summary(_read_json(p))
                 s['corrupt'] = False
-            except (OSError, ValueError):
+            except (OSError, ValueError, AttributeError, TypeError):       # TypeError, AttributeError: JSON but not a profile object
                 s = {'pilot': '?', 'corrupt': True}
             self._cache[p] = c = (st.st_mtime_ns, s)
         m = self.meta(slot)
         out = dict(c[1])
+        lv = self._world_levels(slot)
+        if lv and not out.get('corrupt'):                 # the progress bar with the thresholds the game uses for this save
+            out['level_base'], out['next_level'] = level_bounds(out['level'], lv)
         out.update(id=slot, name=m.get('name') or slot, not_=m.get('not', ''), save_created=m.get('created'),
                    last_played=m.get('last_played'), last_save=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(st.st_mtime)),
                    size=st.st_size, backup_count=len(self.backup_files(slot)), active=(slot == self.active()),
@@ -295,11 +303,11 @@ class Saves:
         return out
 
     # ------------------------------------------------------------ new, name, copy, delete
-    def run_tool(self, *args, tool='profile_tool.py'):
+    def run_tool(self, *args, tool='profile_tool.py', env=None):
         """Run profile_tool.py (or save_editor.py) in a separate process -> the output's JSON."""
         kw = {'creationflags': 0x08000000} if os.name == 'nt' else {}         # CREATE_NO_WINDOW
         r = subprocess.run([self.python, '-I', os.path.join(PANEL_DIR, tool)] + list(args), capture_output=True,
-                           text=True, encoding='utf8', timeout=120, **kw)
+                           text=True, encoding='utf8', timeout=120, env=env, **kw)
         try:
             out = json.loads(r.stdout.strip().splitlines()[-1])
         except (ValueError, IndexError):
@@ -410,7 +418,7 @@ class Saves:
                 meta = {}
             try:
                 pr = profile_summary(_read_json(os.path.join(d, 'profile.json')))
-            except (OSError, ValueError):
+            except (OSError, ValueError, AttributeError, TypeError):
                 pr = {'pilot': '?'}
             t = time.strptime(m.group(2) + m.group(3), '%Y%m%d%H%M%S')
             out.append({'file': name, 'name': meta.get('name') or m.group(1), 'pilot': pr.get('pilot'), 'level': pr.get('level'),
@@ -472,6 +480,9 @@ class Saves:
                     if not prof:
                         raise SaveError(_('The zip has no profil.json.'))
                     base = prof[0].replace('\\', '/').rsplit('/', 1)[0] + '/' if '/' in prof[0].replace('\\', '/') else ''
+                    names = [n for n in names if z.getinfo(n).file_size <= ZIP_MEMBER_MAX]
+                    if prof[0] not in names:
+                        raise SaveError(_('The file could not be read (not valid JSON).'))
                     d = validate_profile(SM.migrate_obj(json.loads(z.read(prof[0]).decode('utf8'))))
                     meta = {}
                     for mn in ('slot.json', 'kayit.json'):
@@ -513,68 +524,6 @@ class Saves:
                                                           'not': _('Imported: %s', os.path.basename(path))})
             return sid
 
-    # ------------------------------------------------------------ editing
-    def edit(self, slot, values):
-        """Pilot name, credits, uridium, honor, EP (level from EP), repair the ship, move to the home base, reset key bindings to default;
-        give items/ships (give: [[lootId, amount]]), reset state (reset: sections; profile_tool.py). A 'before' backup is taken first."""
-        self.guard(slot, 'edit it')
-        with self.lock:
-            p = self.profile(slot)
-            d = validate_profile(_read_json(p))
-            pl, g = d['pilot'], d['ship']
-            changed = []
-            if 'pilot' in values:
-                name = str(values['pilot']).strip()
-                if not re.fullmatch(r'(?!-)[\w\-\.\[\]\(\) ]{3,20}', name, re.UNICODE):
-                    raise SaveError(_('The pilot name must be 3-20 characters.'))
-                if name != pl.get('userName'):
-                    pl['userName'] = name
-                    changed.append(_('pilot name'))
-            for key, field, lo, hi, label in (('credits', 'credits', 0, 10 ** 12, 'credits'), ('uridium', 'uridium', 0, 10 ** 12, 'uridium'),
-                                              ('honor', 'honourPoints', -10 ** 12, 10 ** 12, 'honor'), ('ep', 'ep', 0, 2 ** 62, 'EP')):
-                if key in values and values[key] not in (None, ''):
-                    v = min(hi, max(lo, int(values[key])))
-                    if v != pl.get(field):
-                        pl[field] = v
-                        changed.append(_(label))
-                        if key == 'ep':
-                            pl['level'] = level_for(v)
-            if values.get('keybinds'):
-                # the game's Settings > Reset does not reach the server (the client cannot send ResetSettingsRequest without closing the connection;
-                # CANLI_TEST N12): the keys return to the seed's (the default layout in the save), and go to the client at the next login
-                d['key_bindings'] = default_key_bindings()
-                changed.append(_('key bindings reset'))
-            if values.get('repair'):
-                g['hitPoints'], g['shield'] = g.get('hitMax', g.get('hitPoints', 1)), g.get('shieldMax', g.get('shield', 0))
-                changed.append(_('ship repaired'))
-            give = [[str(l), int(n or 1)] for l, n in (values.get('give') or []) if str(l).strip()]
-            resets = [r for r in (values.get('reset') or []) if r]
-            if not changed and not values.get('home_base') and not give and not resets:
-                return []
-            safety = self.backup(slot, 'before', _('Before editing'))
-            try:
-                if changed:
-                    _write_json(p, d)
-                if values.get('home_base'):
-                    self.run_tool('home_base', p)
-                    changed.append(_('moved to the home base'))
-                if give:
-                    r = self.run_tool('give', p, json.dumps(give))
-                    changed.append(_('given: %s', ', '.join('%s x%d' % (l, n) for l, n in r['given'])))
-                if resets:
-                    r = self.run_tool('reset', p, ','.join(resets))
-                    changed.append(_('reset: %s', ', '.join(r['reset_items'])))
-            except Exception as e:                        # no half-finished edit remains: the save returns to its state before the edit
-                _copy_atomic(os.path.join(self.backup_dir(slot), safety), p)
-                raise SaveError(_('The edit could not be applied; the save is unchanged: %s', e))
-            return changed
-
-    def loot_list(self):
-        """The save editor's item list (profile_tool.py entries; in memory after the first request)."""
-        if getattr(self, '_loots', None) is None:
-            self._loots = self.run_tool('entries')['items']
-        return self._loots
-
     # ------------------------------------------------------------ character editor (draft)
     def draft(self, slot):
         return os.path.join(self.dir(slot), 'edit_base.json')
@@ -595,21 +544,44 @@ class Saves:
             _copy_atomic(self.profile(slot), self.draft(slot))
             self.set_meta(slot, edit_base=os.stat(self.profile(slot)).st_mtime_ns)
 
+    def _world_env(self, slot):
+        """The editor runs in the save's default world (OO_WORLD): the level comes from that world's thresholds, as in the game."""
+        w = self.meta(slot).get('world')
+        p = os.path.join(PTH.SAVE, 'worlds', '%s.json' % w) if isinstance(w, str) and re.fullmatch(r'[a-z0-9_]{1,40}', w) else None
+        return dict(os.environ, OO_WORLD=p) if p and os.path.isfile(p) else None
+
+    def _world_levels(self, slot):
+        """The level thresholds of the save's default world if it changes them (World Editor > Economy), otherwise None."""
+        p = (self._world_env(slot) or {}).get('OO_WORLD')
+        try:
+            mt = os.stat(p).st_mtime_ns
+        except (OSError, TypeError):                    # no world (standard) or it was just deleted
+            return None
+        c = self._cache.get(('levels', p))
+        if not c or c[0] != mt:
+            try:
+                lv = ((_read_json(p).get('patches') or {}).get('levels.json') or {}).get('/levels')
+            except (OSError, ValueError, AttributeError):
+                lv = None
+            c = self._cache[('levels', p)] = (mt, lv if isinstance(lv, list) else None)
+        return c[1]
+
     def editor_open(self, slot):
         """The editor's view: the draft if there is one (with its difference from the main save), otherwise the profile. If the save is in the game the
         profile is shown read-only (the server overwrites it every 10 seconds)."""
         if not self.exists(slot):
             raise SaveError(_('Save not found.'))
+        env = self._world_env(slot)
         if self.in_use(slot):
-            return dict(self.run_tool('read', self.profile(slot), tool='save_editor.py'), read_only=True, discarded=False)
+            return dict(self.run_tool('read', self.profile(slot), tool='save_editor.py', env=env), read_only=True, discarded=False)
         with self.lock:
             stale = os.path.isfile(self.draft(slot)) and not self._draft_valid(slot)
             if stale:
                 self.editor_discard(slot)
             if self._draft_valid(slot):
-                v = self.run_tool('read', self.draft(slot), self.profile(slot), tool='save_editor.py')
+                v = self.run_tool('read', self.draft(slot), self.profile(slot), tool='save_editor.py', env=env)
             else:
-                v = self.run_tool('read', self.profile(slot), tool='save_editor.py')
+                v = self.run_tool('read', self.profile(slot), tool='save_editor.py', env=env)
         return dict(v, read_only=False, discarded=stale)
 
     def editor_apply(self, slot, ops):
@@ -622,9 +594,9 @@ class Saves:
         with self.lock:
             if os.path.isfile(self.draft(slot)) and not self._draft_valid(slot):
                 self.editor_discard(slot)
-                return dict(self.run_tool('read', self.profile(slot), tool='save_editor.py'), read_only=False, discarded=True)
+                return dict(self.run_tool('read', self.profile(slot), tool='save_editor.py', env=self._world_env(slot)), read_only=False, discarded=True)
             self._ensure_draft(slot)
-            v = self.run_tool('apply', self.draft(slot), json.dumps(ops), self.profile(slot), tool='save_editor.py')
+            v = self.run_tool('apply', self.draft(slot), json.dumps(ops), self.profile(slot), tool='save_editor.py', env=self._world_env(slot))
             return dict(v, read_only=False, discarded=False)
 
     def editor_commit(self, slot):
@@ -684,7 +656,7 @@ class Saves:
             if not c or c[0] != st.st_mtime_ns:
                 try:
                     s = profile_summary(_read_json(p))
-                except (OSError, ValueError):
+                except (OSError, ValueError, AttributeError, TypeError):
                     s = {'pilot': '?', 'corrupt': True}
                 self._cache[p] = c = (st.st_mtime_ns, s)
             kind, stamp = f.split('_', 1)

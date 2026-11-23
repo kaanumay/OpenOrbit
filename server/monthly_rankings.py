@@ -26,6 +26,8 @@ def month(now=None):
 def _entry(d, key):
     """The month's record in d (a profile's or a bot's): a new month keeps the old one as 'prev' (the payout reads it)."""
     e = d.get('month')
+    if e and e.get('key', '') > key:            # a clock set back: the newest month goes on (going back overwrote it with an empty one)
+        return e
     if not e or e.get('key') != key:
         d['prev'] = e if e else d.get('prev')
         e = d['month'] = {'key': key, 'best': 0, 'runs': []}
@@ -47,29 +49,34 @@ def record(p, mode, value, now=None):
 def record_bot(bot, mode, reached, now=None):
     from bot import modes as MD
     e = _entry(MD.state(bot, mode), month(now))
+    old = e['best']
     if mode == 'astral':
         e['runs'] = sorted(e['runs'] + [int(reached) * BOT_ASTRAL_POINTS], reverse=True)[:3]
         e['best'] = sum(e['runs'])
     else:
         e['best'] = max(e['best'], int(reached))
+    if e['best'] != old:
+        e['at'] = int((now or time.time()) * 1000)          # ms: the Rank tab's last update of the bot's row (astral.rank_cmd)
 
 
-def _value(d, key):
+def _value(d, key, field='best'):
     for e in (d.get('month'), d.get('prev')):
         if e and e.get('key') == key:
-            return int(e.get('best', 0))
+            return int(e.get(field, 0))
     return 0
 
 
 def rows(p, mode, key=None):
-    """The month's ranking: [(rank, name, value, is_player)] of the player and the bot players with a result, best first."""
+    """The month's ranking: [(rank, name, value, is_player, at)] of the player and the bot players with a result, best first; at: a bot
+    row's last change (ms, 0 if unknown or the player's: astral.py keeps the player's own)."""
     import bot.manager as MGR
     key = key or month()
-    out = [(p.d['pilot'].get('userName', ''), _value(p.d.get('monthly', {}).get(mode, {}), key), True)]
+    out = [(p.d['pilot'].get('userName', ''), _value(p.d.get('monthly', {}).get(mode, {}), key), True, 0)]
     y = MGR.ACTIVE
     if y is not None:
         with y.lock:
-            out += [(b.name, _value((b.k.get('modes') or {}).get(mode, {}), key), False) for b in y.bots]
+            out += [(b.name, _value((b.k.get('modes') or {}).get(mode, {}), key), False,
+                     _value((b.k.get('modes') or {}).get(mode, {}), key, 'at')) for b in y.bots]
     out = sorted((r for r in out if r[1] > 0), key=lambda r: (-r[1], not r[2], str(r[0]).lower()))
     return [(i + 1,) + r for i, r in enumerate(out)]
 
@@ -77,7 +84,7 @@ def rows(p, mode, key=None):
 def table(p, mode, key=None, count=10):
     """For a Rank tab: (the top rows, the player's row or (0, name, 0, True))."""
     r = rows(p, mode, key)
-    me = next((x for x in r if x[3]), (0, p.d['pilot'].get('userName', ''), 0, True))
+    me = next((x for x in r if x[3]), (0, p.d['pilot'].get('userName', ''), 0, True, 0))
     return r[:count], me
 
 
@@ -111,7 +118,7 @@ class MonthlyRankings:
             if not d:
                 continue
             e = d.get('month') if (d.get('month') or {}).get('key') != cur else d.get('prev')
-            if not e or e.get('paid') or e.get('key') == cur or not e.get('best'):
+            if not e or e.get('paid') or e.get('key') >= cur or not e.get('best'):      # >=: a clock set back does not pay a running month
                 continue
             key = e['key']
             r = rows(self.p, mode, key)

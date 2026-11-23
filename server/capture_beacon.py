@@ -8,10 +8,12 @@ carrying; killing the carrier stops the theft; one's own map's beacons cannot be
 deliveries wins the prize; a tournament every hour (the client's breakingNewsContent_springfight_ctb).
 Client facts: CTBSetHomeZonesCommand draws ctbHomeZone_<id> (map object and minimap icon); CTBBeaconCapturedCommand puts the beacon on the
 carrier's ship, CTBBeaconReleasedCommand takes it off; CTBBeaconPositionCommand {beaconId, mapId} (0: at home) and CTBScoreUpdateCommand fill
-the window (ctb); the old text channel 0|n|ctb is dead. A beacon lying on the map has no model in this client (AssetCreate 21-26 build
-nothing).
-Adaptation (data/extra_events.json "_adaptation"): taking and delivering by flying into the zone (the beacon at rest has no model to
-click); a beacon of a killed carrier goes home at once (it could not be seen lying there); the carrier is slowed; enemy bot pilots raid
+the window (ctb); the old text channel 0|n|ctb is dead. The beacon at rest is AddBeaconCommand {hash, x, y, beaconId}: the client's
+beacon_<beaconId> collectable (AddBeaconCommandHandler -> UnitFactory.CreateCollectables; Unit.IsBeacon), a click flies the ship to it
+and sends CollectBoxRequest (MoveHelper.MoveHeroToCoordinates, like a box); RemoveCollectableCommand takes it off the map (AssetCreate
+21-26 build nothing).
+Adaptation (data/extra_events.json "_adaptation"): delivering by flying into the zone; a beacon of a killed carrier goes home at once
+(it is not left lying where the carrier died); the carrier is slowed; enemy bot pilots raid
 the player's X-2 now and then (the player can stop them), the other deliveries of the hour are simulated; the zone positions and radius,
 the raid interval, the hour winner's prize (the next hour's +5% EP and Honor).
 """
@@ -26,6 +28,7 @@ D = DATA.load('extra_events.json').get('capture_the_beacon', {})
 COMPANIES = (1, 2, 3)
 NAMES = {1: 'MMO', 2: 'EIC', 3: 'VRU'}
 X2 = {1: 2, 2: 6, 3: 10}
+HASH = 'CTB-%d'                 # the beacon's collectable hash: outside world.rand_hash's alphabet, so never a box's or an ore's
 
 
 def active(now=None):
@@ -47,7 +50,8 @@ def zone(bid):
 
 
 def slot(now=None):
-    return time.strftime('%Y-%m-%d %H', time.localtime(now or time.time()))
+    """The hour (epoch hours like prize_until: the local '%H' repeated on the DST fall-back day, one tournament ran 2 hours)."""
+    return str(int((now or time.time()) // 3600))
 
 
 def state(p, now=None):
@@ -85,6 +89,8 @@ class CaptureBeacon:
         self.raider = None            # {'bot', 'beacon', 'carrying', 'until'}
         self.where = {}               # beacon -> map it is on (0: home)
         self.next_raid = 0.0
+        self.shown = set()            # the beacons at rest the client of self.world has (AddBeaconCommand)
+        self.wish = None              # (beacon, until): clicked while the ship was still on its way
 
     def company(self):
         return int(self.p.d['pilot'].get('factionId') or 1)
@@ -103,6 +109,7 @@ class CaptureBeacon:
     # ------------------------------------------------------------ world
     def attach(self, world):
         self.world = world
+        self.shown, self.wish = set(), None           # a new map: the client has none of them
         if not active():
             self.carrying = None
             return []
@@ -123,14 +130,56 @@ class CaptureBeacon:
         if self.raider is not None and self.raider.get('world') is not world:
             self.end_raid(None)
         world.death_hooks.append(self.hero_killed)
-        return msgs + [self.score_cmd()]
+        return msgs + [self.score_cmd()] + self.beacon_msgs(world)
+
+    def beacon_msgs(self, w):
+        """The beacons at rest on this X-2 in its client: the ones at home are added, a taken one is removed (collected) and added again
+        when it comes back (delivered, its carrier killed, the raid over); none outside the event."""
+        if w is None or w is not self.world:
+            return []
+        owner = next((c for c, x in X2.items() if x == int(w.map_id)), None)
+        want = {beacon(owner, t) for t in COMPANIES if t != owner and not self.where.get(beacon(owner, t))} \
+            if owner and active() and w.mode_brain is self else set()
+        msgs = [('AddBeaconCommand', dict(hash=HASH % b, x=zone(b)[0], y=zone(b)[1], beaconId=b)) for b in sorted(want - self.shown)]
+        msgs += [('RemoveCollectableCommand', {'collected': bool(self.where.get(b)), 'hash': HASH % b}) for b in sorted(self.shown - want)]
+        self.shown = want
+        return msgs
+
+    def resend_msgs(self, w):
+        """world.resend: the client cleared the map (respawn, reload)."""
+        if w is not self.world:
+            return []
+        self.shown = set()
+        return self.beacon_msgs(w)
+
+    def near(self, w, b, now=None):
+        import world as WD
+        hx, hy = w.hero_pos(now)
+        zx, zy = zone(b)
+        return math.hypot(hx - zx, hy - zy) <= WD.COMBAT['harvest_distance']
+
+    def collect(self, w, h):
+        """CollectBoxRequest on a beacon (world.collect): the pilot (level 13) takes the beacon of their colour on an enemy X-2 when the ship
+        is at it; if the ship is still on its way, on arrival (like a box: world.COLLECT_WAIT_SEC)."""
+        import world as WD
+        b = next((x for x in self.shown if HASH % x == h), None)
+        if b is None or self.carrying is not None or w.hero_dead or w.jumping or parts(b)[1] != self.company() \
+                or int(self.p.d['pilot'].get('level', 1)) < D['min_level']:
+            return []
+        if not self.near(w, b):
+            self.wish = (b, time.time() + WD.COLLECT_WAIT_SEC)
+            return []
+        self.wish = None
+        return self.take(w, b) + self.beacon_msgs(w)
 
     def on_kill(self, w, npc, x, y):
         return []
 
     def tick(self, now):
-        if not active(now):
-            return []
+        if not active(now):                          # the event ended while playing: the carried beacon (and its slowing) and a raid end
+            w = self.world
+            msgs = self.drop(w, w.hid) if self.carrying is not None and w is not None else []
+            return msgs + (self.end_raid(w) if self.raider is not None else []) + (self.beacon_msgs(w) if self.shown else [])
         st = state(self.p, now)
         msgs = []
         if now >= st.get('sim_next', 0):             # the other pilots' deliveries of the hour (bot companies)
@@ -145,12 +194,10 @@ class CaptureBeacon:
         m = int(w.map_id)
         me = self.company()
         if self.carrying is None:
-            home = next((c for c, x in X2.items() if x == m), None)
-            if home and home != me and int(self.p.d['pilot'].get('level', 1)) >= D['min_level']:
-                b = beacon(home, me)
-                zx, zy = zone(b)
-                if not self.where.get(b) and math.hypot(hx - zx, hy - zy) <= D['zone_radius']:
-                    msgs += self.take(w, b)
+            if self.wish and (now > self.wish[1] or self.wish[0] not in self.shown):
+                self.wish = None
+            elif self.wish and self.near(w, self.wish[0], now):           # clicked on the way: taken on arrival
+                msgs += self.collect(w, HASH % self.wish[0])
         else:
             if m == X2[me]:
                 home, _ = parts(self.carrying)
@@ -158,7 +205,7 @@ class CaptureBeacon:
                 if math.hypot(hx - zx, hy - zy) <= D['zone_radius']:
                     msgs += self.deliver(w)
         msgs += self.raid_tick(w, now)
-        return msgs
+        return msgs + self.beacon_msgs(w)         # a raider took one / brought one back, a beacon went home
 
     # ------------------------------------------------------------ the player as carrier
     def take(self, w, b):
@@ -168,7 +215,7 @@ class CaptureBeacon:
             w.abilities.reveal()
             w.items.reveal()                          # the cloak is switched off (wiki)
         except Exception:
-            pass
+            w.step_error('ctb cloak')                 # logged (the pickup goes on)
         w.invuln_until = 0.0
         w.hero_effect('slow', 24 * 3600, D['carrier_slow'], source='ctb')
         self.log('   CTB: beacon %d taken' % b)
@@ -222,6 +269,7 @@ class CaptureBeacon:
         bot = bots[0]
         TDM.draft_bots([bot], int(w.map_id), now, 1800)
         self.raider = dict(bot=bot, beacon=b, carrying=False, until=now + D['raid_max_sec'], world=w)
+        TDM.hold(self, lambda: w, lambda: self.end_raid(None))          # logout / disconnect on the X-2: the raider is released
         self.log('   CTB: %s (%s) raids for beacon %d' % (bot.name, NAMES[enemy], b))
         return []
 
@@ -231,6 +279,7 @@ class CaptureBeacon:
         msgs = []
         if r is None:
             return msgs
+        TDM.unhold(self)
         if r['carrying']:
             self.where[r['beacon']] = 0
             msgs += [('CTBBeaconReleasedCommand', dict(userId=r['bot'].uid, beaconId=r['beacon'])),

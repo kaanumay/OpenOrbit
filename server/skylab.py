@@ -223,19 +223,15 @@ class Skylab:
         return [('_receipt', key, '', [], [code])]
 
     def deliver(self, load):
-        """There was a transport: the part that fits the cargo goes to the ship ('_ores', render adds it outside the lock), the rest back to the Skylab storage.
+        """There was a transport: all of it goes to the ship ('_ores', render adds it outside the lock), even if the cargo filled up meanwhile
+        (official Skylab FAQ, as for ore rewards in shop._reward: "transferred to your ship regardless", "temporarily greater cargo capacity").
+        What did not fit used to go back to the storage capped at its capacity: with the storage refilled meanwhile it was lost.
         Can be called while holding the profile lock (only a dict changes)."""
-        free, got, back = self.p.cargo_free(), {}, {}
-        for ore, n in sorted(load.items(), key=lambda kv: ORE_ORDER.index(kv[0])):
-            take = min(int(n), free)
-            if take > 0:
-                got[CARGO[ore]] = got.get(CARGO[ore], 0) + take
-                free -= take
-            if n - take > 0:
-                back[ore] = n - take
-        for ore, n in back.items():
-            self.st['storage'][ore] = min(self.capacity(ore), self.st['storage'].get(ore, 0) + n)
-        self.log('   Skylab: transport arrived %s%s' % (got, ' (what did not fit returned to storage %s)' % back if back else ''))
+        got = {}
+        for ore, n in load.items():
+            if int(n) > 0:
+                got[CARGO[ore]] = got.get(CARGO[ore], 0) + int(n)
+        self.log('   Skylab: transport arrived %s' % got)
         return ([('_ores', got)] if got else []) + [('_receipt', 'TRANSPORT_MODULE', 'startTransport', [], [53])]
 
     # ------------------------------------------------------------ mesajlar
@@ -410,6 +406,8 @@ class Skylab:
         return [], [45]
 
     def instant_finish(self, key, now):
+        if key not in MODULES:                         # module() would write the client's name into the save
+            return [30], []
         m = self.module(key)
         if not m.get('upgrade'):
             return [30 if self.level(key) >= MODULES.get(key, {}).get('maximum', 0) else 42], []
@@ -424,6 +422,8 @@ class Skylab:
         return [], [45, 46]
 
     def abort(self, key):
+        if key not in MODULES:
+            return [], []
         m = self.module(key)
         if not m.get('upgrade'):
             return [], []
@@ -436,9 +436,9 @@ class Skylab:
         return [], [43]
 
     def toggle(self, key, on):
-        m = self.module(key)
         if key not in MODULES or key in ALWAYS_ON:
             return [], []
+        m = self.module(key)
         if on:
             if m['level'] <= 0:
                 return [36], []

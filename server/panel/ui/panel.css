@@ -132,8 +132,8 @@ a { color: var(--accent); }
   margin-top: auto; padding: 12px 12px 10px; display: grid; gap: 7px; font-size: 12.5px; position: relative;
   border: 1px solid var(--line); border-radius: var(--radius); background: rgba(5, 10, 20, .6);
 }
-.side-status::before {       /* telemetry heading */
-  content: "TELEMETRY"; position: absolute; top: -7px; left: 10px; padding: 0 6px; background: #070d1a;
+.side-status::before {       /* status heading (the text in the panel's language: applyStatic sets data-label) */
+  content: attr(data-label); text-transform: uppercase; position: absolute; top: -7px; left: 10px; padding: 0 6px; background: #070d1a;
   font: 600 9.5px/14px var(--display); letter-spacing: .22em; color: var(--dim);
 }
 .side-status .row { display: flex; align-items: center; justify-content: space-between; color: var(--muted); }
@@ -202,8 +202,6 @@ body[data-page=panel] .topbar { --hdr: url(images/hdr_panel.webp); }
 .grid { display: grid; gap: 16px; }
 .g2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .g3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-.gauto { grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); }
-.gauto.saves { grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); }   /* so the save card's two-column info fits */
 .stack { display: grid; gap: 16px; }
 .stack > *, .grid > * { min-width: 0; }      /* long paths (client folder) should not overflow the card */
 .row { display: flex; align-items: center; gap: 10px; }
@@ -668,7 +666,6 @@ button.chip:hover { border-color: var(--accent); color: #fff; box-shadow: 0 0 10
 .menu button:disabled { opacity: .45; cursor: not-allowed; }
 .menu button.danger { color: #ff8b96; } .menu button.danger svg { color: #ff8b96; }
 .menu hr { border: 0; border-top: 1px solid var(--line); margin: 4px 2px; }
-.kbd { font: 11px var(--mono); padding: 1px 6px; border-radius: 3px; border: 1px solid var(--line-2); background: rgba(4, 9, 18, .8); color: var(--muted); }
 
 /* ---------------------------------------------------------------- setup wizard (first run) */
 .wizard { position: fixed; inset: 0; z-index: 40; display: grid; place-items: center; padding: 24px; overflow: auto; animation: fade .2s ease-out;

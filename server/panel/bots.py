@@ -506,7 +506,8 @@ def remove(pid):
     p = _route(pid)
     if not os.path.isfile(p):
         raise BotError(_('Bot pack not found.'))
-    NL.add([{'type': 'delete', 'name': x['name']} for x in read(pid)['roster']])
+    roster = (_read_file(p) or {}).get('roster')                 # a damaged pack can be deleted too
+    NL.add([{'type': 'delete', 'name': x['name']} for x in roster if isinstance(x, dict) and x.get('name')] if isinstance(roster, list) else [])
     target = os.path.join(folder(), '_trash')
     os.makedirs(target, exist_ok=True)
     timestamp = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
@@ -542,7 +543,7 @@ def world_pack(world):
     """The world's package (id) or None."""
     for pid in list_ids():
         d = _read_file(_route(pid))
-        if d and d.get('world') == world:
+        if d and d.get('world') == world and isinstance(d.get('roster'), list):     # a damaged pack is not given to the server
             return pid
     return None
 
@@ -575,8 +576,9 @@ def entries():
     for pid in list_ids():
         try:
             out.append(summary(pid))
-        except BotError:
-            pass
+        except (BotError, KeyError, IndexError, TypeError, ValueError, AttributeError):    # a pack file damaged by hand: shown, can be deleted
+            if os.path.isfile(_route(pid)):
+                out.append({'id': pid, 'name': pid, 'corrupt': True, 'update': None})
     out.sort(key=lambda x: x['update'] or '', reverse=True)
     return out
 

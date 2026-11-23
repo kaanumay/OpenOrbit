@@ -84,6 +84,13 @@ class LlmSetup:
             and os.path.isfile(os.path.join(self.folder(), MODEL['name']))
         return d if ok else None
 
+    def _write(self, d):
+        """install.json via a temporary file (a file cut off halfway would count as not installed: the server downloaded again)."""
+        p = os.path.join(self.folder(), 'install.json')
+        with open(p + '.tmp', 'w', encoding='utf8') as fh:
+            json.dump(d, fh, indent=1, ensure_ascii=False)
+        os.replace(p + '.tmp', p)
+
     def state(self):
         with self.lock:
             d = json.loads(json.dumps(self.d))
@@ -184,7 +191,9 @@ class LlmSetup:
         try:
             os.makedirs(k, exist_ok=True)
             empty = shutil.disk_usage(k).free
-            need = MODEL['size'] * 1.1 + 300 * 2 ** 20
+            model = os.path.join(k, MODEL['name'])
+            have = MODEL['size'] if os.path.isfile(model) else os.path.getsize(model + '.part') if os.path.isfile(model + '.part') else 0
+            need = max(0, MODEL['size'] - have) * 1.1 + 300 * 2 ** 20
             if empty < need:
                 raise DownloadError(_('Not enough disk space: %.1f GB needed, %.1f GB free.', need / 2 ** 30, empty / 2 ** 30))
             s = SERVERS[pk]
@@ -198,7 +207,6 @@ class LlmSetup:
                 self._count(s['size'])
             with self.lock:
                 self.d['part'] = MODEL['name']
-            model = os.path.join(k, MODEL['name'])
             if not os.path.isfile(model):
                 self.log('language model downloading: %s' % MODEL['url'])
                 self._download(MODEL['url'], model, MODEL['size'], MODEL['sha256'])
@@ -228,9 +236,8 @@ class LlmSetup:
             if sys.platform != 'win32':
                 os.chmod(server, 0o755)
             os.remove(archive)
-            with open(os.path.join(k, 'install.json'), 'w', encoding='utf8') as fh:
-                json.dump({'version': VERSION, 'server': server, 'model': MODEL['sha256'], 'test_ok': False,
-                           'time': time.strftime('%Y-%m-%d %H:%M:%S')}, fh, indent=1)
+            self._write({'version': VERSION, 'server': server, 'model': MODEL['sha256'], 'test_ok': False,
+                         'time': time.strftime('%Y-%m-%d %H:%M:%S')})
             with self.lock:
                 self.d.update(state='built', claimed=self.d['total'], time_left_sec=0)
             self.log('language model installed: %s' % server)
@@ -294,8 +301,7 @@ class LlmSetup:
             r = LS.test(self.log)
             k = self.save() or {}
             k.update(test_ok=bool(r['ok']), test=dict(r, time=time.strftime('%Y-%m-%d %H:%M:%S')))
-            with open(os.path.join(self.folder(), 'install.json'), 'w', encoding='utf8') as fh:
-                json.dump(k, fh, indent=1, ensure_ascii=False)
+            self._write(k)
             with self.lock:
                 self.t = dict(r, state='ok' if r['ok'] else 'error', error=None if r['ok'] else _('The model did not give the expected reply.'))
             self.log('language model test: %s' % r)

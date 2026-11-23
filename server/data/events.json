@@ -7204,7 +7204,7 @@
      "2024-07-24"
     ]
    ],
-   "_source": "dukkanlar_o7.json: 2023 07-20..27, 2024 07-17..24; dukkanlar_o7",
+   "_source": "dukkanlar_o7.json: 2023 07-20..27, 2024 07-17..24; stores_o7",
    "_calendar": "board-en.darkorbit.com announcements 2023-2026 (belgeler/arastirma/tarama_2026-10-22/web_takvim.md)",
    "news": [
     "MileageMarket"
@@ -7269,7 +7269,7 @@
      "2026-10-13"
     ]
    ],
-   "_source": "dukkanlar_o7.json: 2023-05-18..25, 2024-12-19..01-01; dukkanlar_o7",
+   "_source": "dukkanlar_o7.json: 2023-05-18..25, 2024-12-19..01-01; stores_o7",
    "_calendar": "board-en.darkorbit.com announcements 2023-2026 (belgeler/arastirma/tarama_2026-10-22/web_takvim.md)",
    "news": [
     "VIP-Merchant-Exchange"
@@ -7290,7 +7290,7 @@
      "thanksgiving_day-1"
     ]
    ],
-   "_source": "dukkanlar_o7.json (board 2025); dukkanlar_o7",
+   "_source": "dukkanlar_o7.json (board 2025); stores_o7",
    "_calendar": "board-en.darkorbit.com announcements 2023-2026 (belgeler/arastirma/tarama_2026-10-22/web_takvim.md)",
    "decor": {
     "type": 12
@@ -7310,7 +7310,7 @@
      "2026-11-19"
     ]
    ],
-   "_source": "dukkanlar_o7.json: 2025 Temmuz sonu ~3-4 hafta; dukkanlar_o7",
+   "_source": "dukkanlar_o7.json: 2025 late July, ~3-4 weeks; stores_o7",
    "_calendar": "board-en.darkorbit.com announcements 2023-2026 (belgeler/arastirma/tarama_2026-10-22/web_takvim.md)",
    "news": [
     "returnofhero{Y}"
@@ -9127,7 +9127,8 @@
     "BattlePassKeyExchange"
    ],
    "achievement": [],
-   "_source": "wiki events/spacecup (Battle Pass in the 2022 run; period adaptation: 1-14 December, not overlapping another Battle Pass; no Spaceball / PvP, goals have PvE equivalents). Official Turkish forum: Referee-Bot X-2..X-8 and 4-1..4-5 (135026; only CBO-100 and CBR), reward package FOOTBALL_BOX (127757, 2022), Roaming Football Pirates on 4-4; the Football Lordakia appearance is not in the client, Adventure Boxes are tied to Spaceball (absent in single-player), quests (506401-506410) are title-only without conditions: not added",
+   "counts_as": "spaceball",
+   "_source": "wiki events/spacecup (Battle Pass in the 2022 run; period adaptation: 1-14 December, not overlapping another Battle Pass; goals have PvE equivalents; Space Football = the Spaceball while Space Cup runs: counts_as spaceball, extra_events.json spaceball.mayhem). Official Turkish forum: Referee-Bot X-2..X-8 and 4-1..4-5 (135026; only CBO-100 and CBR), reward package FOOTBALL_BOX (127757, 2022), Roaming Football Pirates on 4-4; the Football Lordakia appearance is not in the client, Adventure Boxes (Serüven Kutuları = the wiki's Mayhem Boxes) drop on Spaceball goals: extra_events.json spaceball.mayhem, quests (506401-506410) are title-only without conditions: not added",
    "map_extra": [
     {
      "maps": [
@@ -9422,7 +9423,7 @@
       ],
       "interval_sec": 600
      },
-     "_source": "Official Turkish forum 127757: during a Space Football match, on 4-4 every 10 minutes 11 Roaming Football Pirates (1 Battleray, 2 Saboteurs, 2 Barracudas, 2 Annihilators, 4 Interceptors); the next group when the whole group is destroyed. Space Football (Spaceball) is absent in single-player: the group runs for the whole event"
+     "_source": "Official Turkish forum 127757: during a Space Football match, on 4-4 every 10 minutes 11 Roaming Football Pirates (1 Battleray, 2 Saboteurs, 2 Barracudas, 2 Annihilators, 4 Interceptors); the next group when the whole group is destroyed. the Space Football match (the Spaceball during Space Cup, spaceball.py) runs for the whole event, so does the group"
     }
    ]
   },
@@ -9948,7 +9949,8 @@
        ]
       },
       "258": {
-       "type": "UBERSABOTEUR_BOX",
+       "type": "UBERINTERCEPTOR_BOX",
+       "_note": "the client's id is ' box_UBERSABOTEUR_BOX' (leading space in lib_collectables, CollectPattern does not trim): drawn as its sibling on the same asset line",
        "probability": 1.0,
        "lifetime_sec": 300,
        "guaranteed": [

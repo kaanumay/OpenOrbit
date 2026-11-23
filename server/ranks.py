@@ -23,7 +23,7 @@ Local adaptation: rank by the point thresholds; the players on the server in the
 and friend server: all connected players, every client sees the same list), the server's clans in the clan lists (clan.py;
 points are the sum of the members' rank points).
 """
-import bisect, json, math, os, threading, time
+import bisect, math, os, threading, time
 import game_data as DATA
 import settings as SET
 
@@ -268,9 +268,10 @@ def daily_rank(p, now=None, force=False):
     rank = rank_of(p, b['rankPoints'], now)
     icon = rank_icon(p, rank)
     prev, prev_rank = st.get('ay'), st.get('rank') or 1
-    monthly = bool(prev and prev != day[:7] and active_month(st.get('history', {}), prev))
+    # only a month that is over pays (a clock set back to an earlier month paid the last month again, and again when it came back)
+    monthly = bool(prev and prev < day[:7] and active_month(st.get('history', {}), prev))
     with p.lock:
-        st.update(day=day, points=b['rankPoints'], rank=rank, ay=day[:7])
+        st.update(day=day, points=b['rankPoints'], rank=rank, ay=max(prev or '', day[:7]))
         hist = st.setdefault('history', {})
         hist[day] = dict(points=b['rankPoints'], ep=int(p.d['pilot'].get('ep', 0)), honor=int(p.d['pilot'].get('honourPoints', 0)))
         for old in sorted(hist)[:-40]:

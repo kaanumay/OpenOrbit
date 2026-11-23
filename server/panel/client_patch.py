@@ -46,6 +46,7 @@ ARGS = ['--doorstop-enabled', 'true']
 WARMUP = ['-batchmode', '-nographics']           # windowless start to generate the interops (warm_up)
 STARTED = 'BepInEx/ErrorLog.log'                # BepInEx writes it at startup (the first stage of the warm-up ends)
 INTEROP_FILES = 101                              # files of the interop folder (be.788, 1.1.115: 99 assemblies and 2 .db)
+WARMING = []                                     # the warm-up client while warm_up runs (stop_warm_up)
 
 
 def route(folder, rel):
@@ -114,6 +115,14 @@ def _registry(folder):
         return {}
 
 
+def _write_registry(folder, d):
+    """INSTALL_MARKER via a temporary file: a marker cut off halfway would count as not installed (a 33 MB reinstall)."""
+    p = route(folder, INSTALL_MARKER)
+    with open(p + '.tmp', 'w', encoding='utf8') as fh:
+        json.dump(d, fh, indent=1)
+    os.replace(p + '.tmp', p)
+
+
 def generated(folder):
     """Has BepInEx generated the interop assemblies?"""
     return os.path.isfile(route(folder, INTEROP))
@@ -163,6 +172,7 @@ def warm_up(folder, cmd, env, logs, notify=None, duration=300):
     start, seen = time.time(), {}
     shutil.rmtree(route(folder, 'BepInEx/interop'), ignore_errors=True)    # the old client's interops: let them be regenerated
     p = PR.open_client(folder, cmd + WARMUP, env, logs)
+    WARMING.append(p)
     last = start + duration
     while time.time() < last and p.poll() is None and not generated(folder):
         if notify:
@@ -175,11 +185,11 @@ def warm_up(folder, cmd, env, logs, notify=None, duration=300):
         p.wait(timeout=30)
     except subprocess.TimeoutExpired:
         PR.kill(p.pid)
-    if generated(folder):                            # ready(): if the client code changes it warms up again
+    WARMING.remove(p)
+    if generated(folder):                          # ready(): if the client code changes it warms up again
         d = _registry(folder)
         d['warmup'] = fingerprint(folder)
-        with open(route(folder, INSTALL_MARKER), 'w', encoding='utf8') as fh:
-            json.dump(d, fh, indent=1)
+        _write_registry(folder, d)
     last = time.time() + 15
     while os.name != 'nt' and time.time() < last:   # Wine starts every Windows process in its own session: closing the group does not reach the client
         remaining = warmup_processes()
@@ -189,6 +199,15 @@ def warm_up(folder, cmd, env, logs, notify=None, duration=300):
             PR.kill(pid)
         time.sleep(0.5)
     return generated(folder)
+
+
+def stop_warm_up():
+    """The panel is closing: close a running warm-up client (it has no window and nothing else tracks it; left open, the next PLAY would
+    find "another DarkOrbit client")."""
+    for p in list(WARMING):
+        PR.close_client(p)
+    for pid in warmup_processes() if WARMING and os.name != 'nt' else ():     # Wine: the client is in its own session (see warm_up)
+        PR.kill(pid)
 
 
 def warmup_processes():
@@ -311,9 +330,8 @@ class Patcher:
             with open(p, 'wb') as fh:
                 fh.write(unity)
             plugin(folder)
-            with open(route(folder, INSTALL_MARKER), 'w', encoding='utf8') as fh:
-                json.dump({'bepinex': BEPINEX['sha256'], 'unity': UNITY['sha256'], 'name': BEPINEX['name'],
-                           'time': time.strftime('%Y-%m-%d %H:%M:%S')}, fh, indent=1)
+            _write_registry(folder, {'bepinex': BEPINEX['sha256'], 'unity': UNITY['sha256'], 'name': BEPINEX['name'],
+                                     'time': time.strftime('%Y-%m-%d %H:%M:%S')})
             with self.lock:
                 self.d.update(state='built', claimed=self.d['total'])
             self.log('BepInEx installed: %s (%s)' % (BEPINEX['name'], folder))

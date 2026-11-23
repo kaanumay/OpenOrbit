@@ -97,6 +97,10 @@ def _lang_expr(promises, extra=False):
 # harmful expressions of the other languages (self-harm, death wish, heavy insults: bot/languages/<code>.json harmful); bots also speak
 # those languages (MULTILINGUAL), the English filter does not see them
 _HARMFUL_LANG = _lang_expr([w for d in SPC.LANGUAGES.values() for w in d.get('harmful', ())])
+# harmful expressions that fold into ordinary chat without their accents (Turkish "ölsene" die! / "olsene" be ...!): matched only as
+# written, so the death wish is caught and "arkadaşım olsene" is not
+_EXACT = sorted({w.lower() for d in SPC.LANGUAGES.values() for w in d.get('harmful_exact', ())}, key=len, reverse=True)
+_HARMFUL_EXACT = re.compile(r'(?<!\w)(%s)(?!\w)' % '|'.join(map(re.escape, _EXACT))) if _EXACT else None
 # message types in the other languages (bot/languages/<code>.json reaction): congratulation, farewell, return, check-in; game words make the question a game question
 _REACTION_LANG = {t: _lang_expr([w for d in SPC.LANGUAGES.values() for w in d.get('reaction', {}).get(t, ())], extra=t == 'game')
               for t in ('congrats', 'farewell', 'welcome_back', 'roll_call', 'game')}
@@ -136,7 +140,8 @@ def is_english(text, lang):
 
 
 def harmful(text):
-    return bool(_HARMFUL.search(str(text or '')) or (_HARMFUL_LANG and _HARMFUL_LANG.search(_normalize(text))))
+    return bool(_HARMFUL.search(str(text or '')) or (_HARMFUL_LANG and _HARMFUL_LANG.search(_normalize(text)))
+                or (_HARMFUL_EXACT and _HARMFUL_EXACT.search(str(text or '').lower())))
 
 
 def lang_note(b):
@@ -575,6 +580,7 @@ class Brain:
                 self.log('   bots: language model could not be started (%s), will retry in %d s' % (e, wait))
                 time.sleep(wait)
         if not self.running:
+            self.server.stop()                             # stop() came while llama-server was starting: it must not stay behind
             return
         self.ready = True
         for i in range(self.slot):
@@ -595,7 +601,8 @@ class Brain:
         if isinstance(self.server, LS.Server):
             return False                                   # the built-in model is free: the limit applies only to a remote provider
         now = time.time()
-        self.request_times = [t for t in self.request_times if now - t < 3600]
+        while self.request_times and now - self.request_times[0] >= 3600:
+            self.request_times.pop(0)                      # in place: a worker's append (ask) is not lost to a rebuilt list
         limit = self.y.setting('llm_hourly', 200) or 0
         return bool(limit) and len(self.request_times) >= limit
 
@@ -619,6 +626,9 @@ class Brain:
         if self.at_limit():
             self.stats['cap'] = self.stats.get('cap', 0) + 1
             return False
+        if time.time() < getattr(self.server, 'wait', 0):
+            return False                                   # after a 429 (llm_provider.Remote.wait): the caller uses its template now
+        #                                                    (a queued job would fail, and one without a backup, a mail, was lost)
         with self.condition:
             if len(self.queue) >= self.slot * 3 and priority >= EVENT:
                 self.stats['dropped'] += 1
@@ -649,7 +659,13 @@ class Brain:
                 job['fn'](job)
             except Exception:
                 self.stats['error'] += 1
-                self.log('   bots: language model job failed:\n' + traceback.format_exc(limit=3))
+                proc = getattr(self.server, 'proc', None)
+                if isinstance(self.server, LS.Server) and (proc is None or proc.poll() is not None):
+                    if self.ready and self.running:        # llama-server died: templates from now on (they were off while ready)
+                        self.ready = False
+                        self.log('   bots: llama-server stopped (log: logs/llm_server.log), continuing like Normal mode')
+                else:
+                    self.log('   bots: language model job failed:\n' + traceback.format_exc(limit=3))
                 backup = job.get('backup')
                 if backup:
                     with self.y.lock:
@@ -711,7 +727,9 @@ class Brain:
         """A model reply to mail sent to the bot (society.reply_mail) -> whether it entered the queue (if not, a template)."""
         if not y.setting('llm_chat', True):
             return False
-        return self.add(MAIL, {'t': y.now, 'fn': self._mail, 'bot': b, 'mailer': r, 'decision': k})
+        from . import society
+        return self.add(MAIL, {'t': y.now, 'fn': self._mail, 'bot': b, 'mailer': r, 'decision': k,
+                               'backup': lambda: society.template_reply(y, b, r, k)})
 
     def special(self, y, b, name, purpose):
         """The bot's spontaneous whisper to the player (chat_engine.start_private) -> whether it entered the queue."""
@@ -761,12 +779,12 @@ class Brain:
         # The decision on a request (group, help) is made by the personality-based decision engine, which carries out the action; the model only says the decision in the bot's voice.
         # The small model said "olur" and forgot the invite (live 2026-10-29): this way word and action always agree.
         intent, game_map = SPC.intent(msg)
-        bid = IX.offer_reply(b, name, msg, y.now)       # "gruplaşalım mı?" -> "sure": a group request
-        if bid:
-            intent = bid
-        kind = 'request' if bid else message_kind(msg)
         decision = ''
         with y.lock:
+            bid = IX.offer_reply(b, name, msg, y.now)   # "gruplaşalım mı?" -> "sure": a group request (it deletes the offer: under the lock)
+            if bid:
+                intent = bid
+            kind = 'request' if bid else message_kind(msg)
             if intent in IX.INTENTS and intent != 'assist':
                 dec = IX.decision(y, b, intent, name, who, game_map, msg, y.now)
                 if dec is not None:
@@ -872,7 +890,8 @@ class Brain:
         r = self.ask(k, schema, max_count=320, temperature=0.65 if kind.startswith('question') or addressed else 0.85)
         with y.lock:
             order = 0
-            for x in (r.get('replies') or [])[:3]:
+            # (a malformed item must not fail the job half-spoken: the backup would speak again)
+            for x in [x for x in r.get('replies') or [] if isinstance(x, dict)][:3]:
                 b = y.name_index.get(str(x.get('bot', '')).lower())
                 text = x.get('text')
                 if kind == 'question_game' and not WHERE_QUESTION.search(msg):
@@ -904,10 +923,10 @@ class Brain:
             b.name, persona(b, y), event_text(o), who or '-')
         r = self.ask(k, schema, max_count=80)
         channel = r.get('channel')
-        text = self._text(b, r.get('text'))
-        if channel == 'none' or not text or (channel == 'whisper' and not who):
-            return
-        with y.lock:
+        with y.lock:                                       # _text reads the chat history and the queued lines of the manager's thread
+            text = self._text(b, r.get('text'))
+            if channel == 'none' or not text or (channel == 'whisper' and not who):
+                return
             y.speak(b, channel, text, recipient=who if channel == 'whisper' else None, now=y.now)
 
     def _mail(self, job):
@@ -1006,7 +1025,7 @@ class Brain:
         r = self.ask(k, schema, max_count=320, temperature=0.95)
         with y.lock:
             t = y.now
-            for x in r.get('lines') or []:
+            for x in [x for x in r.get('lines') or [] if isinstance(x, dict)]:
                 b = y.name_index.get(str(x.get('bot', '')).lower())
                 text = self._text(b, x.get('text')) if b is not None else ''
                 if b is None or not b.online or not text or (channel == 'company' and foreign_map(b, text)):
@@ -1042,7 +1061,7 @@ class Brain:
              'empty.\n\n%s') % '\n'.join(lines)
         r = self.ask(k, schema, max_count=240, temperature=0.7)
         with y.lock:
-            for x in r.get('decisions') or []:
+            for x in [x for x in r.get('decisions') or [] if isinstance(x, dict)]:
                 b = y.name_index.get(str(x.get('bot', '')).lower())
                 if b is None or not b.online:
                     continue
@@ -1175,7 +1194,7 @@ class Brain:
             summary = ' '.join(str(r.get('summary') or '').split())
             if not r.get('save') or not summary:
                 return
-            t = r.get('followup') or {}
+            t = r.get('followup') if isinstance(r.get('followup'), dict) else {}
             try:
                 emotion, importance = float(r.get('emotion') or 0), int(r.get('importance') or 1)
                 tk = MEM.set_followup(t.get('purpose'), y.now, int(t.get('minutes') or 10), t.get('tool'), t.get('map'))

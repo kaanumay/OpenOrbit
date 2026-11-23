@@ -76,7 +76,15 @@ class EventEnd:
     def tick(self, now):
         msgs = self.delayed(now)
         for ev, rows in CONVERT.items():
-            if CAL.is_active(ev, now):
+            start = (CAL.period(ev, now) or (None,))[0] if CAL.is_active(ev, now) else None
+            if start is not None and ev in self.st and self.st[ev] != start:
+                if CAL.period(ev, self.st[ev]) is None:      # seen first while forced open with no period: the calendar run that
+                    with self.p.lock:                        # began is the same run (it converted the currency mid-event)
+                        self.st[ev] = start
+                        self.p.dirty = True
+                    continue
+                # a new run while the last one's end was never seen (offline in the gap): that one's leftovers convert first
+            elif CAL.is_active(ev, now):
                 if ev not in self.st:
                     with self.p.lock:
                         self.st[ev] = (CAL.period(ev, now) or (now,))[0]

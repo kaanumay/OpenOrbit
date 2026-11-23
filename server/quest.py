@@ -31,7 +31,7 @@ Special quests (event quests, "event": calendar keys): listed only while the eve
 In the profile: quests.active {quest: {condition: value}}, quests.done [quest], quests.period {daily/weekly/repeating quest: the period it was completed in},
 quests.score {challenge: best time (score in a score quest)}.
 """
-import copy, datetime, json, math, os, random, time
+import copy, datetime, math, os, random, time
 import game_data as GD
 import ranks as RT
 import booster as BOOSTER
@@ -187,16 +187,19 @@ def event_open(q, now=None):
     return not q.get('event') or any(CAL.is_active(k, now) for k in q['event'])
 
 
-def repeat_key(qid, now=None):
+def repeat_key(qid, now=None, runs=None):
     """The period of a repeating special quest: "daily" is the day's date; "event" is the start of the event's current period ("force" for an event
-    opened by force from the panel or one with no period)."""
+    opened by force from the panel or one with no period; with runs {event: since} (Quests.force_runs) "force:<since>": that forced run's own,
+    one forced run's finish used to stay for every later forced run)."""
     q = QUESTS[qid]
     if q.get('repeat') == 'daily':
         return datetime.date.fromtimestamp(time.time() if now is None else now).isoformat()
     for k in q.get('event', []):
         if k in CAL.EVENTS and CAL.is_active(k, now):
             p = CAL.period(k, now)
-            return str(int(p[0])) if p else 'force'
+            if p:
+                return str(int(p[0]))
+            return 'force:%d' % runs.setdefault(k, int(time.time() if now is None else now)) if runs is not None else 'force'
     return 'force'
 
 
@@ -222,6 +225,13 @@ class Quests:
 
     def faction(self):
         return self.p.d['pilot'].get('factionId', 2)
+
+    def rkey(self, qid):
+        """repeat_key with this save's forced runs: {event: since} while forced open without a period (dropped once it closes)."""
+        runs = self.st.setdefault('force_runs', {})
+        for k in [k for k in runs if not CAL.is_active(k)]:
+            del runs[k]
+        return repeat_key(qid, runs=runs)
 
     def resolve(self, matches):
         return [str(m) for x in matches for m in (maps_for(x[1:], self.faction()) if str(x).startswith('@') else [x])]
@@ -250,7 +260,7 @@ class Quests:
         q = QUESTS.get(qid)
         if qid in self.st['done']:
             return True
-        key = period_key(qid) if q and q.get('pool') else repeat_key(qid) if q and q.get('repeat') else None
+        key = period_key(qid) if q and q.get('pool') else self.rkey(qid) if q and q.get('repeat') else None
         return key is not None and self.st.get('period', {}).get(str(qid)) == key
 
     def exclusive_running(self, qid):
@@ -381,7 +391,7 @@ class Quests:
             vals[PERIOD] = period_key(qid)
             vals[ACCEPT] = time.time()
         elif q.get('repeat'):
-            vals[PERIOD] = repeat_key(qid)
+            vals[PERIOD] = self.rkey(qid)
         with self.p.lock:
             self.st['active'][str(qid)] = vals
             self.p.dirty = True
@@ -491,8 +501,8 @@ class Quests:
                         v = self.st['active'][qs][str(c['id'])] = self.st['active'][qs].get(str(c['id']), 0) + int(kw.get('count', 0))
                         self.p.dirty = True
                     hit = v >= f['cap']
-                    if not hit and time.time() - GT.LAST_SENT.get(c['id'], 0) >= GT.THROTTLE_SEC:
-                        GT.LAST_SENT[c['id']] = time.time()
+                    if not hit and time.time() - GT.LAST_SENT.get((id(self.p), c['id']), 0) >= GT.THROTTLE_SEC:
+                        GT.LAST_SENT[(id(self.p), c['id'])] = time.time()
                         msgs.append(self.cond_update(c['id'], v, True, False))
                 else:
                     hit = ((f['type'] == 'death' and kind == 'death')
@@ -551,7 +561,7 @@ class Quests:
             if q.get('pool'):
                 self.st.setdefault('period', {})[str(qid)] = vals.get(PERIOD) or period_key(qid)
             elif q.get('repeat'):                    # special quest: finished for this day / this event
-                self.st.setdefault('period', {})[str(qid)] = vals.get(PERIOD) or repeat_key(qid)
+                self.st.setdefault('period', {})[str(qid)] = vals.get(PERIOD) or self.rkey(qid)
             elif q.get('challenge'):
                 best = self.st.setdefault('score', {})
                 if q.get('points'):                    # score quest ("as many as possible"): the score is the number of kills, the best is the most

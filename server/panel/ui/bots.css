@@ -72,8 +72,6 @@ body[data-page=bots] .topbar { --hdr: url(images/hdr_bots.webp); }
 .bt-agent svg { flex: none; width: 12px; height: 12px; margin-top: 2px; }
 .bt-llm-step > svg { width: 20px; height: 20px; flex: none; color: var(--accent); }
 .bt-llm-step > div { flex: 1; min-width: 0; }
-.bt-llm-test { white-space: pre-wrap; font-family: var(--mono, monospace); font-size: 12px; padding: 10px; border-radius: var(--radius-sm);
-  background: rgba(4, 9, 18, .8); border: 1px solid var(--line-2); max-height: 180px; overflow: auto; }
 
 @media (max-width: 900px) {
   .bt-modes { grid-template-columns: 1fr; }

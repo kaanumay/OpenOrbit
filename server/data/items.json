@@ -9632,7 +9632,7 @@
    },
    {
     "lootId": "package_event-deal-bf26-set-asimov",
-    "uridium": 0,
+    "uridium": 80000,
     "template": "package_event-deal-stellar2022-1",
     "calendar": "black_friday_2026",
     "once": true,
@@ -9640,7 +9640,7 @@
    },
    {
     "lootId": "package_event-deal-bf26-set-arios",
-    "uridium": 0,
+    "uridium": 120000,
     "template": "package_event-deal-stellar2022-1",
     "calendar": "black_friday_2026",
     "once": true,
@@ -9648,7 +9648,7 @@
    },
    {
     "lootId": "package_event-deal-bf26-set-pros",
-    "uridium": 0,
+    "uridium": 120000,
     "template": "package_event-deal-stellar2022-1",
     "calendar": "black_friday_2026",
     "once": true,
@@ -9656,7 +9656,7 @@
    },
    {
     "lootId": "package_event-deal-bfnov2026-set-all",
-    "uridium": 0,
+    "uridium": 280000,
     "template": "package_event-deal-stellar2022-1",
     "calendar": "black_friday_2026",
     "once": true,
@@ -9664,7 +9664,7 @@
    },
    {
     "lootId": "package_event-deal-cmnov2026-levelup-s",
-    "uridium": 0,
+    "uridium": 20000,
     "template": "package_event-deal-stellar2022-1",
     "calendar": "cyber_monday_2026",
     "once": false,
@@ -9672,7 +9672,7 @@
    },
    {
     "lootId": "package_event-deal-cmnov2026-levelup-m",
-    "uridium": 0,
+    "uridium": 45000,
     "template": "package_event-deal-stellar2022-1",
     "calendar": "cyber_monday_2026",
     "once": false,
@@ -9680,7 +9680,7 @@
    },
    {
     "lootId": "package_event-deal-cmnov2026-levelup-l",
-    "uridium": 0,
+    "uridium": 105000,
     "template": "package_event-deal-stellar2022-1",
     "calendar": "cyber_monday_2026",
     "once": false,
@@ -11832,6 +11832,18 @@
     "uridium": 100000,
     "template": "ship_pusat_design_pusat-expo2016",
     "_tool": "cosmetic"
+   },
+   {
+    "lootId": "ship_citadel-plus_design_citadel-plus-empyrian",
+    "uridium": 50000,
+    "template": "ship_pusat_design_pusat-expo2016",
+    "_tool": "cosmetic"
+   },
+   {
+    "lootId": "ship_hyperion_design_hyperion-empyrian",
+    "uridium": 50000,
+    "template": "ship_pusat_design_pusat-expo2016",
+    "_tool": "cosmetic"
    }
   ],
   "generator": [
@@ -12531,6 +12543,14 @@
     "hp": 0.2,
     "lifetime_sec": 15,
     "_source": "Curcubitor's Trick mine (the client's curcubitorMine model): official server recording 2026-10-27, 1.4 s after its death a typeId 20 appears where it died, removed after 15 s; effect like DDM-01 (wiki: 20% of HP)"
+   },
+   "ammunition_mine_ice-01": {
+    "tip": 21,
+    "damage_type": "direct",
+    "hp": 0.95,
+    "arm_sec": 2,
+    "_source": "Iceterion's IceMine (Frozen Labyrinth): client item ammunition_mine_ice-01 (Ammunition.cs MINE_ICE), look lib_assets mine_21 \"ICE MINE\" (AddMineCommand typeId 21); darkorbitwiki aliens/iceterion: \"dropping exploding mines\", Max Damage \"95% Your Hitpoints\" (direct hull damage like DD-M01 / Curcubitor's mine); official Turkish forum 158403 (2020 balance): no damage to P.E.T.s, not near portals, Anti-Mine Transmitter stops them",
+    "_adaptation": "arming 2 s, the delay of the other alien mine on the wiki (aliens/curcubitor: the mine \"after 2 seconds\"; the 2020 balance made IceMine's explosion delay longer without a number); lifetime, trigger and blast radius as the other mines (combat_items.mine)"
    },
    "ammunition_mine_sabm-01": {
     "tip": 3,
@@ -13805,7 +13825,7 @@
     "damage": 40000,
     "trigger": 150,
     "lifetime_sec": 30,
-    "_note": "client tf_tech_BT_descr: 10 s fire trail; drops a charge every interval_sec seconds (at most 5: wiki \"at most 200,000\"; interval is an adaptation); 40,000 when an alien approaches (adaptation)",
+    "_note": "client tf_tech_BT_descr: 10 s fire trail; drops a charge every interval_sec seconds (at most 5: wiki \"at most 200,000\"; interval is an adaptation); 40,000 when an alien approaches (adaptation); every charge is drawn as AssetType BURNING_TRAIL 61 (client AssetCreateHelper: burning_trail_entity_<designId>; lib_assets: 1 the user's red, 2 the watchers' orange) and removed when it expires or explodes (one asset per charge: adaptation, no recording)",
     "interval_sec": 2
    },
    "tech_npc-nuke": {
@@ -14272,14 +14292,66 @@
  "_sell_ship": "Ships without a sell value in the client: official forum 160373 (Tartarus 'sell value 500,000 Credits')",
  "favorite_ship_limit": 10,
  "player_kill": {
-  "honor_points": 100,
-  "ep_points": 1000,
+  "destroy_rewards": {
+   "1": [
+    100,
+    0
+   ],
+   "2": [
+    200,
+    2
+   ],
+   "4": [
+    400,
+    4
+   ],
+   "6": [
+    800,
+    8
+   ],
+   "8": [
+    1600,
+    16
+   ],
+   "10": [
+    7500,
+    75
+   ],
+   "12": [
+    6400,
+    64
+   ],
+   "13": [
+    6400,
+    64
+   ],
+   "14": [
+    25600,
+    256
+   ],
+   "16": [
+    12800,
+    128
+   ],
+   "20": [
+    51200,
+    512
+   ],
+   "25": [
+    25000,
+    250
+   ],
+   "40": [
+    120000,
+    1200
+   ]
+  },
+  "_destroy_rewards": "[EP, honor] for destroying a player's ship, by its class (ranks.json ship_points, a class not listed: the next lower one). Source: the wikis' ship template destroy rewards (belgeler/wiki/tam/gemiler/_wiki_varliklari.json): Phoenix 100/0, Yamato 200/2, Leonov 400/4, Liberator 1,600/16, Spearhead 7,500/75, Piranha and Nostromo 6,400/64, Bigboy 25,600/256, Vengeance and its V- designs 12,800/128, Goliath and its designs 51,200/512, Aegis 25,000/250, Citadel 120,000/1,200; Defcom (class 6) has no page: 800/8 from the doubling series Phoenix-Yamato-Leonov-Liberator (adaptation). Before: an adaptation of 1,000 EP / 100 honor x the class points (Goliath 20,000/2,000)",
   "push_threshold": 5,
   "push_step": 0.15,
   "friend_honor": -100,
   "friend_credits": -1000,
-  "_source": "Official Turkish forum 127379 (Pushing): killing the same player more than 5 times a day gives 15% less honor/EP each time, and once it reaches 0 the kill does not count; 127509 and 127321: killing a ship (and P.E.T.) of your own company gives no gain, a compounding negative honor (-100, -200, -400 …) and -1,000 credits",
-  "_adaptation": "the base reward is not in the source: honor 100 x, EP 1,000 x the victim's rank ship points (ranks.json ship_points)"
+  "_source": "Official Turkish forum 127379 (Pushing): killing the same player more than 5 times a day gives 15% less honor/EP each time, and once it reaches 0 the kill does not count; 127509 and 127321: killing a ship (and P.E.T.) of your own company gives no gain, a compounding negative honor (-100, -200, -400 …) and -1,000 credits"
  },
  "_package_levels": "level of P.E.T. gears/protocols given by a package (client text: \"a level 3 G-KK1 P.E.T Gear\"); otherwise 1",
  "package_levels": {

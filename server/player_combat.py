@@ -62,6 +62,16 @@ def attack_error(w, other, now):
     return []
 
 
+def destroy_reward(ship):
+    """[EP, honor] for destroying a player's ship of this type: the wikis' destroy rewards by ship class (items.json player_kill
+    destroy_rewards; the bots' PvP pays by the same, bot/abstract_sim.kill_reward)."""
+    import ranks as RT
+    import world as D
+    t = D.ITEMS['player_kill']['destroy_rewards']
+    pts = RT.R.get('ship_points', {}).get(ship, {}).get('points', 1)
+    return t[str(max((int(c) for c in t if int(c) <= pts), default=min(int(c) for c in t)))]
+
+
 def on_kill(killer, victim):
     """A player destroyed a player (dunya.hero_death source_player): if it is their own company (and their clan is not at war) a penalty; otherwise honor/XP
     decreasing by the daily counter, rank counter, quest event and drone points (official forum 127379, 127509, 127526)."""
@@ -96,8 +106,10 @@ def on_kill(killer, victim):
     f = max(0.0, 1 - C['push_step'] * max(0, cnt - C['push_threshold']))
     if f <= 0:
         return [legacy('0|A|STM|msg_pusher_no_pushing')] + [D.stm('pusher_info_no_reward', '%NAME%', name)]
-    pts = RT.R.get('ship_points', {}).get(ship, {}).get('points', 1)
-    ep, honor = int(C['ep_points'] * pts * f), int(C['honor_points'] * pts * f)
+    import spaceball as SB
+    k = f * SB.pvp_factor(killer.map_id)        # Space Football: PvP kills on 4-4 doubled (wiki events/spacecup)
+    ep0, honor0 = destroy_reward(ship)
+    ep, honor = int(ep0 * k), int(honor0 * k)
     tot = kp.gain(ep=ep, honor=honor, reason='bonus_abschussPlayer')
     msgs += killer.reward_msgs(tot, ep=ep, honor=honor)
     if f < 1:
@@ -156,17 +168,23 @@ def rocket(w, other, now):
         return True
     rocket = w.p.d['selected']['rocket']
     if D.CIT.special(rocket) or rocket not in D.ITEMS['rockets']:
+        # no client text says this (S3/K2-05: flashres has no such key): plain text in the client's language like shop.REASONS
+        # (world.lang: the session's shop.lang, bound in game.start_world; a world without a session is English)
+        import shop as SH
+        lang = getattr(w, 'lang', None)
+        tr = (lang() if callable(lang) else None) == 'tr'
         w.send([('MessageCommand', dict(displayTarget=2, displayStyle=1,
             messageModule=D.mod('WildcardMessageModule', message=D.mod('MessageKeyListWildcardModule',
-                wildCardReplacements=[], baseKey='Special rockets against players are not supported.',
+                wildCardReplacements=[], baseKey=SH.REASONS['special_rocket_pvp'][1 if tr else 0],
                 baseKeyType=D.mod('ReplacementTypeModule', typeValue=0), textStyle=0))))])
         return True
     if now < w.rocket_ready - D.ROCKET_ALLOWANCE:
         return True
     hx, hy = w.hero_pos(now)
     tx, ty = other.hero_pos(now)
-    if math.hypot(tx - hx, ty - hy) > D.COMBAT['rocket_range']:
-        w.send([D.range_exceeded(other.hid, D.COMBAT['rocket_range'], 0)])
+    rng = D.CIT.rocket_range(rocket)
+    if math.hypot(tx - hx, ty - hy) > rng:
+        w.send([D.range_exceeded(other.hid, rng, D.RANGE_ROCKET)])
         return True
     if w.p.use_ammo(rocket, 1) is None:
         sub, msgs = w.ammo_out('rocket', rocket, 1)

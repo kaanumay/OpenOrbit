@@ -27,7 +27,7 @@ Hangar: HangarShipsCommand.petView (rootId filled = a P.E.T. exists), HangarShip
 In the shop G-HP1 (pet_upgrade-g-hp1): +10,000 HP up to the P.E.T.'s level.
 Values in data/items.json "pet" (wiki, recording and adaptations; the source note is there).
 """
-import json, math, os, random, time
+import math, os, random, time
 import game_data as DATA
 import ranks as RT
 import settings as SET
@@ -36,7 +36,7 @@ import map_links as H
 import upgrades as UPG
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-ITEMS = json.load(open(os.path.join(HERE, 'data', 'items.json'), encoding='utf8'))
+ITEMS = DATA.shared('items.json')
 COMBAT = DATA.load('npc.json')['combat']
 PET = ITEMS['pet']
 GEARS = PET['gears']
@@ -74,6 +74,7 @@ COOLDOWN_BUFF.update({KAMIKAZE: 5, COMBO_REPAIR: 6, FRIENDLY_SACRIFICE: 7, HP_LI
 MEGA_MINE_TYPE = 19                      # AddMineCommand.typeId -> lib_assets mine_19 "megaMine" (live 2026-11-05: drawn; AssetCreateCommand
                                          # PET_MEGA_MINE 70 only made an invisible building, like the recorded Curcubitor mine type 20)
 SACRIFICE_EFFECT = 6                     # PlayVisualEffectCommand.VisualEffectType.PET_FRIENDLY_SACRIFICE_EXPLOSION
+HEAL_BEAM = 101                          # AbilityEffectActivationCommand.selectedAbilityId: the client's HealBeamEffect (C-SR2 beam)
 MINE_UID = [158600000]
 BEACON_ASSET = {HP_BEACON: 71, COMBAT_BEACON: 72}   # AssetTypeModule PET_HP_BEACON / PET_COMBAT_BEACON -> "pet_beacon" (green / red tower; live 2026-11-05)                  # ids of Mega Mine objects on the map (CBS assets 157000000, P.E.T.s 160000000)
 START_MAPS = ('1-1', '2-1', '3-1')       # G-KK1 is not selectable (client msg_pet_kamikaze-gear_not_on_start_maps)
@@ -766,6 +767,8 @@ class Pet:
 
     def gear_request(self, f):
         t = (f.get('gearTypeToActivate') or {}).get('typeValue')
+        if not self.owned:
+            return
         lock = self.w.lock if self.w else _NoLock()
         with lock:
             self.launch_into(t, f.get('optParam') or 0)
@@ -1222,6 +1225,9 @@ class Pet:
         if was:
             self.stop_heat(time.time())          # it does not cool during the transition (the delay lasts until it relaunches)
             self.release_end = 0.0
+        if self.mine and self.w is not None and self.w.shared is not None:     # the other players on the old map stop seeing it
+            self.w.shared.mirror(self.w, [('RemoveMineCommand', {'hash': 'pmm%d' % self.mine['uid']})])
+        self.mine = None                         # the Mega Mine ends with the old map (it used to go off at its spot on the new one)
         self.w, self.active, self.task, self.shooting = world, False, None, None
         self.charge_end = 0.0
         self.relaunch = self.relaunch or was
@@ -1361,14 +1367,17 @@ class Pet:
                 with self.p.lock:
                     d['fuel'] -= cost
                     self.p.dirty = True
+                # repair beam from the P.E.T. to the ship, once per window: HealBeamCommand's client handler is empty (RVA 0x287BE0); ability
+                # 101 draws a 4 s HealBeamEffect3D from activatorId to targetIds[0] (AbilityEffectActivationAssemblyHelper). Adaptation: what
+                # the real server sends here is unknown
+                msgs.append(('AbilityEffectActivationCommand', dict(selectedAbilityId=HEAL_BEAM, activatorId=self.pid, isPersistent=False,
+                                                                    targetIds=[w.hid])))
             if hurt and now < self.csr_end:
                 hp0 = ship['hitPoints']
                 self.p.set_hull(hp=hp0 + cg.get('hp_sec', 0))
                 msgs.append(('HitpointInfoCommand', dict(hitpoints=int(ship['hitPoints']), hitpointsMax=ship.get('hitMax', 0),
                                                          nanoHull=ship.get('nanoHull', 0), nanoHullMax=ship.get('maxNanoHull', 0))))
                 msgs += w.heal_msgs(hp0)                                  # the "+HP" number (Ö1)
-                px, py = self.pos(now)                                    # repair beam (client Heal_Beam: source P.E.T., target ship)
-                msgs.append(('HealBeamCommand', dict(sourceId=str(self.pid), sourcePositionX=int(px), sourcePositionY=int(py), targetId=w.hid)))
         if g in (ENEMY_LOCATOR, RESOURCE_LOCATOR):
             # No target (none chosen, none on the map or none in range): the client expects (-1, -1) and dims the arrow
             # (LocatorGearEffect3D.UpdateGearInfo: alpha 0.2, no rotation). Sending nothing left the arrow at its default

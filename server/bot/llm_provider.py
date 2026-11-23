@@ -40,6 +40,7 @@ PROVIDERS = {
 }
 _THINK = re.compile(r'<think>.*?</think>\s*', re.S)
 _LOCK = threading.Lock()
+_USAGE_LOCK = threading.Lock()
 
 
 class ProviderError(RuntimeError):
@@ -289,10 +290,11 @@ class Remote:
 
     def _count(self, input_, cache, output):
         k = self.usage
-        k['request'] += 1
-        k['input'] += int(input_ or 0)
-        k['cache'] += int(cache or 0)
-        k['output'] += int(output or 0)
+        with _USAGE_LOCK:                                  # several llm-N worker threads count at once (+= is not atomic)
+            k['request'] += 1
+            k['input'] += int(input_ or 0)
+            k['cache'] += int(cache or 0)
+            k['output'] += int(output or 0)
 
     @staticmethod
     def _prompt_schema(system, schema):

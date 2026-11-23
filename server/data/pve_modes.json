@@ -12435,9 +12435,9 @@
    },
    "cargo": {},
    "behavior": {
-    "reverse_at_hp_threshold": {
-     "ratio": 0.1,
-     "duration_sec": 5,
+    "reverse_controls": {
+     "hp_ratio": 0.1,
+     "sec": 5,
      "cooldown_sec": 30
     }
    }
@@ -12483,9 +12483,9 @@
    },
    "cargo": {},
    "behavior": {
-    "reverse_at_hp_threshold": {
-     "ratio": 0.1,
-     "duration_sec": 5,
+    "reverse_controls": {
+     "hp_ratio": 0.1,
+     "sec": 5,
      "cooldown_sec": 30
     }
    }
@@ -12531,9 +12531,9 @@
    },
    "cargo": {},
    "behavior": {
-    "reverse_at_hp_threshold": {
-     "ratio": 0.1,
-     "duration_sec": 5,
+    "reverse_controls": {
+     "hp_ratio": 0.1,
+     "sec": 5,
      "cooldown_sec": 30
     }
    }
@@ -12579,9 +12579,9 @@
    },
    "cargo": {},
    "behavior": {
-    "reverse_at_hp_threshold": {
-     "ratio": 0.1,
-     "duration_sec": 5,
+    "reverse_controls": {
+     "hp_ratio": 0.1,
+     "sec": 5,
      "cooldown_sec": 30
     }
    }
@@ -12627,9 +12627,9 @@
    },
    "cargo": {},
    "behavior": {
-    "reverse_at_hp_threshold": {
-     "ratio": 0.1,
-     "duration_sec": 5,
+    "reverse_controls": {
+     "hp_ratio": 0.1,
+     "sec": 5,
      "cooldown_sec": 30
     }
    },

@@ -12,8 +12,9 @@ as a fraction of the per-gate total (wiki ~2,700); once all of a gate's aliens a
 inputs (box, pack, quest, GM) go through the shop's reward path: the cap is applied there (gain).
 In the profile: chromin {period: timestamp when the event started, cap_warning: bool}.
 """
-import json, os, random, time
+import os, random, time
 
+import game_data as DATA
 import settings as SET
 import galaxy_gates as GALAXY
 import ranks as RT
@@ -22,7 +23,7 @@ from legacy_protocol import legacy
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 _PATH = os.path.join(HERE, 'data', 'extra_events.json')
-D = (json.load(open(_PATH, encoding='utf8')) if os.path.exists(_PATH) else {}).get('chromin', {})
+D = (DATA.shared('extra_events.json') if os.path.exists(_PATH) else {}).get('chromin', {})
 LOOT = 'resource_collectable_chromin'
 EVENT = 'chromin'
 CAP = D.get('maximum', 160000)

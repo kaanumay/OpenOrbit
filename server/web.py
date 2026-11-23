@@ -53,14 +53,39 @@ def default_profile():
 
 
 def profile(path=None):
-    """If the game server's profile exists, the user id, ship, map and 2D choice come from it."""
+    """If the game server's profile exists, the user id, ship, map, 2D choice and company come from it."""
     p = path or PROFILE_PATH or default_profile()
     try:
         d = json.load(open(p, encoding='utf8'))
         use2d = bool(((d.get('settings') or {}).get('displaySettingsModule') or {}).get('displayUse2d'))
-        return d['pilot']['userId'], d['ship']['typeId'], d['position']['mapId'], use2d
+        return d['pilot']['userId'], d['ship']['typeId'], d['position']['mapId'], use2d, d['pilot'].get('factionId', 1)
     except (OSError, KeyError, ValueError):
-        return 1, 'ship_goliath', 1, False
+        return 1, 'ship_goliath', 1, False, 1
+
+
+FACTIONS = {1: 'mmo', 2: 'eic', 3: 'vru'}     # hangars.data.faction: the launcher background (LaunchShow.UpdateJob; the recording: "eic")
+_MODELS = {}
+
+
+def ship_model(loot):
+    """The launcher's ship model id (client_items.json 'model'; the recording: Goliath 10, Sentinel Carbonite 424)."""
+    if not _MODELS:
+        try:
+            with open(os.path.join(HERE, 'data', 'client_items.json'), encoding='utf8') as fh:
+                _MODELS.update({k: v['model'] for k, v in json.load(fh)['items'].items() if isinstance(v, dict) and 'model' in v})
+        except (OSError, ValueError, KeyError):
+            _MODELS[''] = 10
+    return _MODELS.get(loot, 10)
+
+
+def ship_name(loot):
+    """The launcher's ship name as in the recording ('G-Bastion', 'Sentinel Carbonite'): a design is its ship's name + the design's words
+    (adaptation: the client's item names are not on the server)."""
+    base, _, design = loot.replace('ship_', '', 1).partition('_design_')
+    title = lambda s, sep='-': sep.join(w.capitalize() for w in s.split('-'))
+    if design.startswith(base + '-'):
+        return title(base) + ' ' + title(design[len(base) + 1:], ' ')
+    return title(design or base)
 
 
 def web_settings_path(path=None):
@@ -153,10 +178,10 @@ def login_node(o=None):
     # the field types of DarkOrbit.LoginNodeData were verified with il2types.py (long/bool/Uri/ServerInfo/Hangars)
     now = int(time.time())
     sid, path, uid = o or (SESSION, None, int(UID) if UID else None)
-    user_id, ship, map_id, use2d = profile(path)
+    user_id, ship, map_id, use2d, faction = profile(path)
     user_id = uid or user_id
     lang = stored_lang(path) or 'en'
-    hangar = {'modelId': 10, 'slotNumber': 1, 'mapId': map_id, 'hangarId': 1, 'shipName': ship.replace('ship_', '').title(), 'tooltipIcon': '',
+    hangar = {'modelId': ship_model(ship), 'slotNumber': 1, 'mapId': map_id, 'hangarId': 1, 'shipName': ship_name(ship), 'tooltipIcon': '',
               'shipDestroyed': False, 'shipId': ship, 'hangarActive': True}
     return {
         'gameclientHash': 'local', 'chatHost': CHAT_HOST, 'profileXmlHash': '1', 'loadingscreenHash': '1',
@@ -175,7 +200,7 @@ def login_node(o=None):
         # the same encoding as local force2D). It always went as 1: choosing 2D in the settings and re-entering opened 3D (live test H73,
         # user report). The choice is written to the profile on the game server with DisplaySettingsRequest.displayUse2d
         'sharedImages': BASE + 'do_img/', 'display2d': 2 if use2d else 1, 'resourceachievementsXmlHash': '1', 'loadingClaim': '',
-        'resources3dXmlHash': '1', 'hangars': {'data': {'faction': '1', 'hangars': [hangar]}}, 'autoStartEnabled': 1,
+        'resources3dXmlHash': '1', 'hangars': {'data': {'faction': FACTIONS.get(faction, 'mmo'), 'hangars': [hangar]}}, 'autoStartEnabled': 1,
         'boardLink': BASE + 'info/forum', 'crossdomainHash': '1', 'userProfileImage': '',
     }
 
@@ -209,15 +234,16 @@ def info_page(kind):
             'font-family:Verdana;padding:24px"><h2>%s</h2><p>%s</p></body></html>' % (title, title, text))
 
 
-_browser = {}                          # extra session -> the moment the browser came to internalWebGL (its login.php has not come yet)
+_browser = {}                          # session (extra or main) -> the moment its browser came to internalWebGL (its login.php has not come yet)
 BROWSER_SEC = 10
 
 
 def request_session(h, entry=False):
     """The session of login.php and setLang.php: the PHPSESSID cookie. The client reads the cookie from the embedded browser's storage; because the clients share the same
     browser folder (Vuplex chromium-cache), on an extra client the read occasionally comes back empty, even if the browser's own request carried
-    the cookie: the extra client was entering as the main player (live test 2026-10-30). If the cookie is empty, the extra session that came to internalWebGL within the last BROWSER_SEC and
-    has not logged in yet (login: login.php, the matching record drops)."""
+    the cookie: the extra client was entering as the main player (live test 2026-10-30). If the cookie is empty, the session (main or extra) whose browser came to
+    internalWebGL last within BROWSER_SEC and has not logged in yet (login: login.php, the matching record drops); the main one counts too, otherwise
+    an empty-cookie main client took a newer extra client's session."""
     sid, now = cookie(h, 'PHPSESSID'), time.time()
     with lock:
         if not sid:
@@ -356,6 +382,9 @@ def cdn_file(base):
     if not rel or '..' in rel.split('/'):
         return None
     p = os.path.join(CDN_DIR, *rel.split('/'))
+    root = os.path.normcase(os.path.realpath(CDN_DIR))     # Windows: a drive part ('/C:../C:../save/...', '/D:/x') leaves the folder in join
+    if not os.path.normcase(os.path.realpath(p)).startswith(root + os.sep):
+        return None
     if not os.path.isfile(p) and not cdn_fetch(rel, p):
         return None
     return CDN_TYPES.get(os.path.splitext(p)[1].lower(), 'application/octet-stream'), open(p, 'rb').read()
@@ -390,7 +419,7 @@ class H(BaseHTTPRequestHandler):
 
     def _all(self):
         n = int(self.headers.get('Content-Length') or 0)
-        body = self.body = self.rfile.read(n) if n else b''
+        body = self.body = self.rfile.read(n) if n > 0 else b''      # a negative length read until the connection closed
         path = self.path.split('#')[0]
         base = path.split('?')[0]
         port = self.server.server_address[1]
@@ -404,12 +433,12 @@ class H(BaseHTTPRequestHandler):
             ctype, out = 'text/html; charset=utf-8', info_page(base[len('/info/'):])
         elif 'indexInternal.es' in path:
             o = session(cookie(self, 'dosid'))
-            if o and o[0] != SESSION:
+            if o:                    # the main player's browser too: an empty-cookie login.php takes the latest browser, not an older extra one
                 with lock:
                     _browser[o[0]] = time.time()
             ctype, out = 'text/plain', o[0] if o else 'gecersiz'
-        elif cdn_file(base):
-            ctype, out = cdn_file(base)
+        elif (cdn := cdn_file(base)):                 # once: the file used to be read twice per request
+            ctype, out = cdn
         else:                    # the client's known endpoints are above; an unknown request gets 404 instead of an empty 200 (visible in http.log)
             ctype, out, status = 'text/plain', '', 404
             log('unknown.log', '%s :%d %s body=%r' % (self.command, port, self.path, body[:500]))
@@ -441,6 +470,7 @@ class H(BaseHTTPRequestHandler):
 
 class Server(ThreadingHTTPServer):
     filtered = False                         # a low port opened on 0.0.0.0 on macOS: only this computer (compat.listen_address)
+    request_queue_size = 128                 # the client asks for images in bursts; Windows refuses what overflows socketserver's backlog of 5
 
     def verify_request(self, request, client_address):
         return not self.filtered or CP.is_local(client_address[0])

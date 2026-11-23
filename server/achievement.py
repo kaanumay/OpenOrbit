@@ -24,6 +24,7 @@ TITLE_KEYS = {v: k for k, v in TITLES.items()}
 EVENT_TITLE_BASE = 2000          # titles not in the table (event ones): 2000 + crc32 % 30000 (the id is a short in the client)
 CURRENCY = {'CREDITS': 'credits', 'URIDIUM': 'uridium', 'EXPERIENCE': 'ep', 'HONOUR': 'honor'}
 NEXT = 7                         # record: nextAchievements is 7 entries
+HELD_MAX = 20                     # completion notices held while the map loads (Achievements.held): the newest ones
 # event achievements (EVENT_* groups, season pass, those with an event attribute) progress only while that event is open; the server has
 # no events, the data stays in place. When an event is added, add its group (or event name) here.
 ACTIVE_EVENTS = set()
@@ -208,11 +209,20 @@ def measure(c, kind, kw):
         return ('set', 1) if kw.get('use2d') is False else None
     if s == 'EggTriggerCount':
         return ('add', 1) if kw.get('type') in param(c, 'eggTriggerType') else None
-    if s == 'PublicWorldBossCondition':                     # recoverhp / takedamage (in the title's name); only this year's achievement
+    if s == 'PublicWorldBossCondition':                     # recoverhp / takedamage (in the title's name); only the running edition's
         want = 'wb_heal' if 'recoverhp' in c.get('title', '') else 'wb_damage'
-        year = c.get('incident', '').endswith('_%d' % time.localtime().tm_year)
+        year = c.get('incident', '').endswith('_%d' % wb_edition())
         return ('add', int(kw.get('count', 0))) if kind == want and year and kw.get('count', 0) > 0 else None
     return None
+
+
+def wb_edition(now=None):
+    """The World Boss edition whose achievements count: this year's, or the newest the client has before it (it has 2025 and 2026; from
+    2027 none progressed). Adaptation, like season.achievement_group."""
+    y = time.localtime(now).tm_year
+    ys = [int(c['incident'][-4:]) for a in ACH.values() for c in a['levels']
+          if c.get('class_name') == 'PublicWorldBossCondition' and c.get('incident', '')[-4:].isdigit()]
+    return max([x for x in ys if x <= y], default=y)
 
 
 def state(p):
@@ -238,6 +248,10 @@ class Achievements:
         for k in state(profile)['titles']:
             title_id(k)
         self.send = None             # session: messages sent on their own (completion notice, current list)
+        # the client drops 0|A|ACG while its map or hero is not loaded (SetAttributeAssemblyHelper.AssembleAchievmentGainUpdate:
+        # MapInfo.IsMapLoaded / IsHeroLoaded, set by ShipInitializationCommand): notices of that time wait in held until flush()
+        self.ready = lambda: True    # the session binds it (False from LoginRequest until the map is loaded)
+        self.held = []
 
     # ------------------------------------------------------------ state
     def level(self, aid):
@@ -353,8 +367,16 @@ class Achievements:
         if msgs and self.send:
             # only the completion row (record: the list only on AchievementListRequest). When the list was sent on its own and the pilot page had never been
             # opened the client crashed (live test 2026-10-17: UIPilotSheetSystem.UpdateTotalPoints, NullReference)
-            self.send(msgs)
+            if self.ready():
+                self.send(self.flush() + msgs)          # also any held ones whose flush never came
+            else:
+                self.held = (self.held + msgs)[-HELD_MAX:]
         return done
+
+    def flush(self):
+        """The map is loaded: the completion notices held back meanwhile -> messages."""
+        msgs, self.held = self.held, []
+        return msgs
 
     def sync(self):
         """Computed from the profile (store=false): player and P.E.T. level, equipped items (including drone designs)."""

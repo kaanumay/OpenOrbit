@@ -11,8 +11,8 @@ from .. import personality as PS
 EXCHANGE_RATE = 100                 # how many credits 1 uridium is worth (fiyatlar.json kur)
 MAX_TRIP_ITEMS = 15           # at most this many items in one shopping trip
 try:
-    import json, os
-    EXCHANGE_RATE = json.load(open(os.path.join(K.HERE, 'data', 'prices.json'), encoding='utf8')).get('exchange_rate', EXCHANGE_RATE)
+    import game_data as DATA
+    EXCHANGE_RATE = DATA.shared('prices.json').get('exchange_rate', EXCHANGE_RATE)
 except (OSError, ValueError):
     pass
 

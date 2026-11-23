@@ -27,18 +27,23 @@ When the panel's "GM console" setting (gm_console, developer) is on, dailyRank 6
 import json, math, os, random, time
 
 import settings as SET
-from legacy_protocol import legacy
 
 REQUESTS = ('CCInitRequest', 'CCommandRequest')
 ADMIN_RANK = 6000
 GM_NPC = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data', 'gm_npc.json'), encoding='utf8'))['npc']
 DERIVED = ('gg_', 'event_', 'pm_', 'apo_', 'experiment_')      # gate, event, mode copies: the original type first for the same npc_id
 STAND_IN = '79'                                          # values of an NPC that has no counterpart on the server (Kristallon)
+BOOK_MAX = 100                                           # most single items per "book" (the console's own box amount range: init_cmd)
 
 
 def enabled(profile=None):
-    """On a friend server only the server's own player (off for a guest even if the server's setting is on)."""
-    return bool(SET.get('gm_console')) and getattr(profile, 'guest', None) is None
+    """Only the server's own player: off for a friend server's guest and for the extra players of a multi-client setup even if the server's
+    setting is on (the same rule as admin_mode.is_open; the extra local players used to get the console and dailyRank 6000)."""
+    if not SET.get('gm_console') or getattr(profile, 'guest', None) is not None:
+        return False
+    import admin_mode as AM
+    host = AM._host()
+    return profile is None or host is None or profile is host
 
 
 def mod(_cls, **f):
@@ -167,6 +172,8 @@ class Console:
         dest = num(d.get('map'))
         if dest not in H.NAMES and not H.client_map_name(dest):
             return self.say('no map %s' % d.get('map'), 'harita %s yok' % d.get('map'))
+        if dest not in H.NAMES:            # a gate/mode/event map the client knows: without its run the world and the save would sit there
+            return self.say('map %s is only entered through its gate or mode' % dest, 'harita %s yalnız kendi kapısından ya da kipinden girilir' % dest)
         x, y = num(d.get('x')), num(d.get('y'))
         if not x and not y:
             pos = None
@@ -256,6 +263,9 @@ class Console:
         loot, n = d.get('item'), max(1, num(d.get('amount'), 1))
         if not loot:
             return self.say('no such item', 'eşya yok')
+        import shop as SH
+        if SH.slot_of(loot) or SH.loose_item(loot) or loot in SH.DRONES:
+            n = min(n, BOOK_MAX)                    # one inventory record and two messages per unit (ammo, ore, money stay uncapped)
         msgs = m.reward(loot, n)
         lv = num(d.get('level'))
         if lv > 1:

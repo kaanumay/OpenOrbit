@@ -6,7 +6,7 @@ find(folded_text) -> entity keys named in a message ("lf4", "x4", "havok", "alfa
 one into a move (act, slots) for dialog.move. Source phrases ("epsilon kapısından çıkıyor") are acts of the language (src_*), rendered
 into the {src} / {src2} fields of the answer act.
 """
-import os, random, re
+import re
 
 import map_links as H
 from .. import catalog as K

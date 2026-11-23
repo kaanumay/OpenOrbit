@@ -14,10 +14,11 @@ Client (1.1.114, research: the client's code):
 import json, math, os, time
 
 from legacy_protocol import legacy, stm
+import game_data as DATA
 import settings as SET
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-T = json.load(open(os.path.join(HERE, 'data', 'items.json'), encoding='utf8'))['technology']
+T = DATA.shared('items.json')['technology']
 ITEMS = T['items']
 READY, ACTIVE, COOLING = 0, 1, 2
 ATTACK_ROCKET, ATTACK_ECI = 0, 5            # the client's AttackType
@@ -102,6 +103,11 @@ def echoes_map(map_id):
     return int(map_id or 0) in set(EC.D['maps']) | {EC.D['hall']}
 
 
+# Burning Trail's charge on the map: AssetType BURNING_TRAIL (61), the client draws burning_trail_entity_<designId> (AssetCreateHelper;
+# lib_assets: 1 for the player using the skill, red; 2 for the other players watching, orange). Asset ids: + hero id % 10,000 x 10 + charge % 10
+TRAIL_ASSET, TRAIL_BASE = 61, 158700000
+
+
 class Technology:
     def __init__(self, world):
         self.w, self.p = world, world.p
@@ -110,7 +116,8 @@ class Technology:
         self.next_tick = 0.0
         self.charges = []          # Burning Trail charges: {x, y, end}
         self.trail_n = 0           # elapsed seconds of Burning Trail (a charge every interval_sec)
-        self.nuke = None           # NPC Nuke: {next, remaining}
+        self.trail_id = 0          # charges laid (their asset ids)
+        self.nuke = None          # NPC Nuke: {next, remaining}
         self.started = False
         now = time.time()
         for item, s in state(self.p).items():
@@ -235,12 +242,14 @@ class Technology:
         if item == 'tech_speed-burst':
             w.hero_effect('speed_up', c['duration_sec'], c['speed'], source=item)
         if item == 'tech_burning-trail':
+            for ch in self.charges:
+                self.trail_asset(ch, False)
             self.charges, self.trail_n = [], 0
         return self.visual(item, True)
 
     # ------------------------------------------------------------ loop
     def tick(self, now):
-        w, p = self.w, self.p
+        p = self.p
         if not self.started:
             self.started = True                    # visuals that persist across a map change again
             self.send(sum((self.visual(i, True) for i in self.ending), []))
@@ -280,8 +289,21 @@ class Technology:
         if item == 'tech_burning-trail':
             if self.trail_n % c['interval_sec'] == 0:
                 x, y = w.hero_pos(now)
-                self.charges.append(dict(x=x, y=y, end_time=now + c['lifetime_sec']))
+                self.trail_id += 1
+                ch = dict(x=x, y=y, end_time=now + c['lifetime_sec'], aid=TRAIL_BASE + w.hid % 10000 * 10 + self.trail_id % 10)
+                self.charges.append(ch)
+                self.trail_asset(ch, True)
             self.trail_n += 1
+
+    def trail_asset(self, ch, on):
+        """The charge's fire on the map: design 1 to this player, 2 to the other players of a shared map; removed when it expires or explodes."""
+        import alien as AL
+        w = self.w
+        msg = lambda d: AL.asset_create(ch['aid'], TRAIL_ASSET, ch['x'], ch['y'], design=d) if on else AL.asset_remove(ch['aid'], TRAIL_ASSET)
+        self.send([msg(1)])
+        for o in (w.shared.members if w.shared else []):
+            if o is not w and o.running:
+                o.deliver([msg(2)])
 
     def trail_tick(self, now):
         if not self.charges:
@@ -290,12 +312,14 @@ class Technology:
         for ch in list(self.charges):
             if now >= ch['end_time']:
                 self.charges.remove(ch)
+                self.trail_asset(ch, False)
                 continue
             n = next((n for n in w.npcs.values() if n.alive
                       and math.hypot(n.mover.pos(now)[0] - ch['x'], n.mover.pos(now)[1] - ch['y']) <= c['trigger']), None)
             if n:
                 self.charges.remove(ch)
                 self.send([legacy('0|n|BT|%d' % n.id)])
+                self.trail_asset(ch, False)
                 w.hit_npc(n.id, c['damage'], ATTACK_ROCKET)
 
     def nuke_tick(self, now):
@@ -349,4 +373,6 @@ class Technology:
                 s['end_time'] = now
                 s['ready'] = s.get('ready', now) - max(0.0, left)
             self.finish(item, now, frac)
+        for ch in self.charges:
+            self.trail_asset(ch, False)
         self.charges = []

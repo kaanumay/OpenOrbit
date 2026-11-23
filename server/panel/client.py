@@ -38,7 +38,7 @@ def supported():
 
 
 def vkey(v):
-    return tuple(int(x) for x in (v or '0.0.0').split('.'))
+    return tuple(int(x) for x in re.findall(r'\d+', v or '')) or (0, 0, 0)     # a protocol folder named without digits must not raise
 LOGIN_URL = 'http://127.0.0.1:8090/#darkorbit://'
 RESOLUTIONS = [(1280, 720), (1366, 768), (1440, 900), (1600, 900), (1680, 1050), (1920, 1080), (2560, 1440), (3840, 2160)]
 
@@ -118,12 +118,14 @@ def check(folder):
 
 def candidates():
     """Possible client folders: project root, Program Files, LocalAppData, desktop, Downloads (newest version first)."""
-    pats = [os.path.join(ROOT, 'DarkOrbit*'), os.path.join(ROOT, '*', 'DarkOrbit*')]
+    root = glob.escape(ROOT)                 # a '[' in a folder name is not a glob pattern
+    pats = [os.path.join(root, 'DarkOrbit*'), os.path.join(root, '*', 'DarkOrbit*')]
     for env in ('PROGRAMFILES', 'PROGRAMFILES(X86)', 'LOCALAPPDATA', 'APPDATA'):
         base = os.environ.get(env)
         if base:
+            base = glob.escape(base)
             pats += [os.path.join(base, 'DarkOrbit*'), os.path.join(base, 'Bigpoint', '*'), os.path.join(base, 'DarkOrbit*', '*')]
-    home = os.path.expanduser('~')
+    home = glob.escape(os.path.expanduser('~'))
     for sub in ('Desktop', 'Downloads', 'Masaüstü', 'İndirilenler', 'Documents'):
         pats += [os.path.join(home, sub, 'DarkOrbit*'), os.path.join(home, sub, 'DarkOrbit*', 'DarkOrbit*')]
     seen, out = set(), []
@@ -166,7 +168,7 @@ def args(cfg, log_file, session=None, window=False):
     extra = (cfg.get('extra_args') or '').strip()
     if extra:
         import shlex
-        a += shlex.split(extra, posix=False)
+        a += [x[1:-1] if len(x) > 1 and x[0] == x[-1] and x[0] in '"\'' else x for x in shlex.split(extra, posix=False)]   # quotes stay in non-posix mode
     a += ['-logFile', log_file]
     return a
 

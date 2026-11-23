@@ -268,12 +268,30 @@ def encounter(a, b, y, now=None):
     return ('won', winner, loser)
 
 
+def kill_reward(winner, victim_uid, ship, now):
+    """(EP, honor) of a PvP kill by the player's own rule (player_combat.on_kill): the wikis' destroy reward of the victim's ship
+    (player_combat.destroy_reward: Phoenix 100/0 ... Goliath 51,200/512), 15% less for each kill of the same victim past 5 a day
+    (pushing), none at 0. The abstract bot-bot kill, the concrete one and a bot killing the player all pay by it."""
+    import ranks as RT
+    import player_combat as PC
+    C = K.ITEMS['player_kill']
+    g = winner.k.setdefault('pvp_daily', {})
+    day = RT.today(now)
+    if g.get('day') != day:
+        g.clear()
+        g['day'] = day
+    v = g.setdefault('victim', {})
+    v[str(victim_uid)] = n = v.get(str(victim_uid), 0) + 1
+    f = max(0.0, 1 - C['push_step'] * max(0, n - C['push_threshold']))
+    ep, honor = PC.destroy_reward(ship)
+    return int(ep * f), int(honor * f)
+
+
 def pvp_reward(winner, loser, y, now):
-    """Honor and EP of a kill (items.json player_kill: honor 100 x, EP 1,000 x the victim's ship score; roughly with level)."""
-    kill_rewards = K.ITEMS['player_kill']
-    multiplier = max(1, loser.level // 2)
+    """Honor and EP of a bot's kill of another bot (kill_reward)."""
+    ep, honor = kill_reward(winner, loser.uid, loser.k['gear']['ship'], now)
     speed = y.speed(winner) if y is not None else 1.0
-    winner.reward(None, speed, ep=kill_rewards['ep_points'] * multiplier, honor=kill_rewards['honor_points'] * multiplier)
+    winner.reward(None, speed, ep=ep, honor=honor)
     winner.ist('player')
     from . import society as TB
     winner.ist('player_points', TB.ship_rank_points(loser.k['gear']['ship']))

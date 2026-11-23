@@ -19,6 +19,7 @@ to clients that know both ends (not sent while an out-of-sight bot is killing an
 import math, random, time
 
 import world as WD
+import combat_items as CI
 import map_links as H
 import map_layout as ML
 from legacy_protocol import legacy
@@ -140,16 +141,24 @@ def tick(w, now):
     y = MGR.ACTIVE
     if y is None or now < getattr(w, '_bot_t', 0):
         return
-    w._bot_t = now + 1.0
     try:
         m = int(w.map_id)
     except ValueError:
+        w._bot_t = now + 1.0
         return
     if is_gate_world(w):
         return gate_tick(w, now, y)
-    with y.lock:
+    # the bots' tick holds this lock for up to a second with a big pack (S9 benchmark, 1500 bots: p99 0.4-0.8 s): the world loop does not
+    # wait for it every second (the 2026-11-06 freezes), it tries again at its next step
+    if not y.lock.acquire(timeout=0.02):
+        return
+    w._bot_t = now + 1.0
+    try:
+        y.run_deferred()                                 # a queued death or jump first: the bot must not come back where it left
         wanted = {b.uid: b for b in y.on_map.get(m, ()) if b.online and b.dead_until <= now
                    and now - b.__dict__.get('in_gate', 0) > 5}           # a bot at the gate with the player is not visible on another map
+    finally:
+        y.lock.release()
     var = {uid: n for uid, n in w.npcs.items() if n.bot is not None}
     msgs = []
     for uid, n in var.items():
@@ -204,16 +213,25 @@ def gate_tick(w, now, y):
     import group as GR
     wanted = {}
     roster = getattr(w, 'mode_bots', None)              # a mode's own bots (team_deathmatch.py): its roster, at its spawn
-    if roster is not None:
-        with y.lock:
+    if not y.lock.acquire(timeout=0.02):                # as in tick: the world loop does not wait behind a long bot tick
+        return
+    w._bot_t = now + 1.0
+    try:
+        y.run_deferred()
+        if roster is not None:
             wanted = roster(now)
-    elif y.permission('gate_filler') and not w.hero_dead:
-        g = GR.group_of(w.hid)
-        with y.lock:
+        elif y.permission('gate_filler') and not w.hero_dead:
+            g = GR.group_of(w.hid)
             for b in y.bots:
+                t = b.target
                 if (g is not None and b.uid in g.members and b.online and b.dead_until <= now
-                        and (b.target is None or b.target.name not in ('gate', 'mod', 'duel', 'pvp_match'))):
+                        and (t is None or t.name not in ('gate', 'mod', 'duel', 'pvp_match'))):
                     wanted[b.uid] = b
+                    if t is None or t.name != 'group':       # under the lock (it was outside: a race with the bot's own decision)
+                        from . import brain as BR
+                        BR.force(b, 'group', pay=2.0, duration=3600, now=now)
+    finally:
+        y.lock.release()
     msgs = []
     for uid, n in [(u, n) for u, n in w.npcs.items() if n.bot is not None]:
         if uid not in wanted:
@@ -235,9 +253,6 @@ def gate_tick(w, now, y):
             if hook:
                 hook(n, now)
             continue
-        if b.target is None or b.target.name != 'group':
-            from . import brain as BR
-            BR.force(b, 'group', pay=2.0, duration=3600, now=now)
         if b.body is not None and (not b.body.alive or w.npcs.get(b.body.id) is not b.body):
             b.body = None
         if uid in w.npcs or b.body is not None:
@@ -277,7 +292,8 @@ def spawn_point(w, b, now=None):
         return x, y, since
     flown = max(0.0, now - since - TAKEOFF_SEC) * b.value()['speed'] * 0.8      # routes curve, it lingers at boxes
     a, r = random.uniform(0, 2 * math.pi), random.uniform(*scatter)
-    g = next((g for g in H.gates(w.map_id, b.company) if g['target'] == b.en_route[0]), None) if b.en_route else None
+    route = b.en_route                                   # read once (the bots thread may clear it)
+    g = next((g for g in H.gates(w.map_id, b.company) if g['target'] == route[0]), None) if route else None
     if g is not None:                                    # on its way to the next portal (it jumps when its abstract time comes)
         f = min(0.85, flown / max(1.0, math.hypot(g['x'] - ox, g['y'] - oy)))
         ox, oy = ox + (g['x'] - ox) * f, oy + (g['y'] - oy) * f
@@ -310,16 +326,18 @@ def resume(n, now):
 
 def remove(w, n):
     """The ship leaves the map (exit, jump, after death): position to the save, the bot to the abstract simulation."""
-    n.alive = False
+    was_alive, n.alive = n.alive, False
     b = n.bot
     x, y = n.mover.pos(time.time())
-    b.k['x'], b.k['y'] = int(x), int(y)
-    b.carry = dict(t=time.time(), hp=n.hp, shield=n.shield,
-                   state={k: v for k, v in n.__dict__.items() if k in CARRY or k.startswith('cd_')})     # resume; cleared on death
+    if was_alive:                  # a ship released from outside (team_deathmatch.draft_bots moved the bot to a match) leaves its new state alone
+        b.k['x'], b.k['y'] = int(x), int(y)
+        b.carry = dict(t=time.time(), hp=n.hp, shield=n.shield,
+                       state={k: v for k, v in n.__dict__.items() if k in CARRY or k.startswith('cd_')})     # resume; cleared on death
     if b.body is n:
         b.body = None
     b.last_abstract = time.time()
-    g = next((g for g in H.gates(w.map_id, b.company) if g['target'] == b.en_route[0]), None) if b.en_route else None
+    route = b.en_route                                   # read once (the bots thread may clear it)
+    g = next((g for g in H.gates(w.map_id, b.company) if g['target'] == route[0]), None) if route else None
     if g is not None:              # left mid-route (the player left the map): the abstract jump waits for the rest of the flight to the portal
         b.en_route_time = time.time() + math.hypot(g['x'] - x, g['y'] - y) / max(1.0, b.value()['speed'])
     return w.remove_npc(n) + ([('AttackAbortLaserCommand', {'uid': n.id})] if n.fire else [])
@@ -462,7 +480,6 @@ def attack_error(w, n, now=None):
 def was_hit(w, n, attacker=None):
     """hit_npc: is the hit valid; if so the bot remembers the attacker (the hero or their P.E.T.)."""
     now = time.time()
-    from . import active_items as AC
     # not hit during Insta-Shield; while cloaked only one who has selected it hits (wiki: "Cloaked ships can still be attacked (if
     # targeted)"; player report 2026-10-31: a cloaked bot could not be attacked)
     if attack_error(w, n, now) or now < n.__dict__.get('immune_until', 0) or (n.__dict__.get('hidden') and w.target != n.id):
@@ -475,6 +492,21 @@ def was_hit(w, n, attacker=None):
 
 
 # ------------------------------------------------------------------------------------------------------------ death
+def bots_do(y, b, fn):
+    """The world thread's bookkeeping on a bot under the bot lock (death, quest progress, portal jump): at once if the lock is free within
+    20 ms, otherwise queued for the manager's next tick or the next ship.tick, whichever comes first (in order). A kill used to stall the
+    world loop behind a bot tick holding the lock for up to a second with a big pack."""
+    if y.lock.acquire(timeout=0.02):
+        try:
+            y.run_deferred()
+            fn()
+        finally:
+            y.lock.release()
+    else:
+        b._deferred = True
+        y.deferred.append((b, fn))
+
+
 def was_killed(w, n):
     """The player (or their P.E.T., mine, ability) destroyed the bot -> messages (in place of kill)."""
     import player_combat as OS
@@ -501,13 +533,13 @@ def was_killed(w, n):
     name = w.p.d['pilot'].get('userName', '')
     if handled:
         return msgs
-    if b.target is not None and b.target.name == 'duel':
+    t = b.target                                            # read once (the bots thread may set it meanwhile)
+    if t is not None and t.name == 'duel':
         b.plan['finished'] = True                           # lost the duel
         b.k['intent'] = None
     y_ = MGR.ACTIVE
     if y_ is not None:
-        with y_.lock:
-            S.death(b, y_, reason='player', killer=name, now=time.time())
+        bots_do(y_, b, lambda now=time.time(): S.death(b, y_, reason='player', killer=name, now=now))
     w.log('   bot %s destroyed (%s)' % (b.name, H.name(w.map_id)))
     return msgs
 
@@ -516,16 +548,18 @@ def player_died(w, n):
     """The bot destroyed the player: honor and memory (the player's death screen is in the world)."""
     b = n.bot
     name = w.p.d['pilot'].get('userName', '')
-    kill_rewards = K.ITEMS['player_kill']
     y = MGR.ACTIVE
     speed = y.speed(b) if y is not None else 1.0
-    b.reward(None, speed, ep=kill_rewards['ep_points'], honor=kill_rewards['honor_points'])
+    ship = w.p.ship()['lootId']
+    ep, honor = S.kill_reward(b, w.p.user_id, ship, time.time())       # the player's own kill rule (it paid a flat 1x before)
+    b.reward(None, speed, ep=ep, honor=honor)
     b.ist('player')
-    b.ist('player_points', T.ship_rank_points(w.p.ship()['lootId']))
+    b.ist('player_points', T.ship_rank_points(ship))
     b.memory.event(name, 'i_killed')
     b.mood.it(morale=0.12, confidence=0.1, anger=-0.3)
     b.event('i_killed_player', name=name)
-    if b.target is not None and b.target.name == 'duel':
+    t = b.target                                            # read once (the bots thread may set it meanwhile)
+    if t is not None and t.name == 'duel':
         b.plan['finished'] = True                           # won the duel
         b.k['intent'] = None
     n.target = None
@@ -567,10 +601,12 @@ def bot_die(w, t, killer_bot=None, npc=None):
     y = MGR.ACTIVE
     if y is None:
         return
-    with y.lock:
+
+    def died(now=time.time()):
         if killer_bot is not None:
-            S.pvp_reward(killer_bot, b, y, time.time())
-        S.death(b, y, reason='player' if killer_bot else 'npc', killer=killer_bot.name if killer_bot else None, now=time.time())
+            S.pvp_reward(killer_bot, b, y, now)
+        S.death(b, y, reason='player' if killer_bot else 'npc', killer=killer_bot.name if killer_bot else None, now=now)
+    bots_do(y, b, died)
 
 
 def kill_npc(w, m, n, now):
@@ -596,7 +632,7 @@ def kill_npc(w, m, n, now):
     try:
         msgs += w.alien.on_kill(m, x, y)
     except Exception:
-        pass
+        w.step_error('bot kill on_kill')                 # the alien's death mechanics failed: in the log (it was silent), the kill goes on
     w.send(msgs)
     # group (group.py): if the bot is in a group with the hero, the reward is shared with the hero on the map and the bots in the group, and counts for the hero's quest
     pay = [w] if w.is_group_member(n.id) and w.running and not w.hero_dead and not w.jumping else []
@@ -746,7 +782,6 @@ def salvo(w, n, target, m, o, now):
     dmg = int(r.get('pvp_damage' if pvp else 'damage', r['damage']))
     for i in range(capacity):
         def at(i=i):
-            t = time.time()
             if not n.alive:
                 return
             _broadcast(w, [legacy('0|v|%d|%d|H|%d|0|0' % (n.id, target, r.get('uid', 9)))], n.id, target)
@@ -837,7 +872,7 @@ def rocket(w, n, target, m, o, now):
     rocket = WP.pick_rocket(b)
     pos = _position(w, target, now)
     nx, ny = n.mover.pos(now)
-    if not rocket or pos is None or math.hypot(pos[0] - nx, pos[1] - ny) > WD.COMBAT['rocket_range'] or not WP.spend(b, rocket, 1):
+    if not rocket or pos is None or math.hypot(pos[0] - nx, pos[1] - ny) > CI.rocket_range(rocket) or not WP.spend(b, rocket, 1):
         return
     n.rocket_ready = now + WP.rocket_cooldown(b)
     r = K.ITEMS['rockets'][rocket]
@@ -883,8 +918,7 @@ def npc_reward(b, m, pay=1):
     b.ist('npc')
     b.ist('npc_points', T.npc_rank_points(m.tip))
     if y_ is not None:
-        with y_.lock:
-            y_.npc_killed(b, m.tip, 1)
+        bots_do(y_, b, lambda tip=m.tip: y_.npc_killed(b, tip, 1))
 
 
 def group_bots(w):
@@ -1083,10 +1117,11 @@ def think(w, n, now):
         return go_logout(w, n, now)                     # session over: flies to the station or portal and leaves there
     if getattr(n, 'shelter', None) is not None and sheltering(w, n, now, d):
         return                                           # fled: no box, goal or fight until it has recovered in its shelter
+    goal = b.target                                      # read once: the bots thread may set it to None in between (AttributeError)
     if (n.target is None and not any(now - t < 6 for t in n.attacker.values()) and not b.en_route
-            and (b.target is None or b.target.name != 'gate') and collect_box(w, n, now)):
+            and (goal is None or goal.name != 'gate') and collect_box(w, n, now)):
         return                                           # picks up a box on its route (on every job; when not fighting)
-    if b.target is not None and b.target.concrete(b, n, w, now):
+    if goal is not None and goal.concrete(b, n, w, now):
         return
     ratio = (n.hp + n.shield) / max(1, d['hp'] + d['shield'])
     attackers = [u for u, t in n.attacker.items() if now - t < 6]
@@ -1129,7 +1164,7 @@ def think(w, n, now):
             n.target = None
         else:
             return approach(w, n, pos, now)
-    h = b.target.name if b.target is not None else 'grinding'
+    h = goal.name if goal is not None else 'grinding'
     if h == 'resting':
         return rest(w, n, now)
     return go_hunt(w, n, now)
@@ -1164,10 +1199,11 @@ def approach(w, n, pos, now):
     nx, ny = n.mover.pos(now)
     dist = math.hypot(pos[0] - nx, pos[1] - ny)
     pl = PL.profile(n.bot)
-    wanted = (280 + 300 * (1 - n.bot.o('aggression'))) * pl['range']         # its own preferred distance (playstyle.py)
+    # its own preferred distance (playstyle.py), inside the laser range: a long-range pilot held 600-930 units off and never fired
+    wanted = min((280 + 300 * (1 - n.bot.o('aggression'))) * pl['range'], LASER_RANGE - 60)
     pvp = n.target in w.npcs and w.npcs[n.target].bot is not None or n.target not in w.npcs
     sk = PL.skill(n.bot, 'pvp' if pvp else 'combat')
-    if dist > wanted + 120 or dist < 120:
+    if dist > min(wanted + 120, LASER_RANGE) or dist < 120:
         a = math.atan2(ny - pos[1], nx - pos[0]) + random.uniform(-0.5, 0.5)
         _go_to(w, n, pos[0] + math.cos(a) * wanted, pos[1] + math.sin(a) * wanted, now)
     elif n.mover.t1 <= now and random.random() < (0.12 + 0.6 * pl['orbit']) * (0.55 + 0.9 * sk):     # skilled pilots keep moving
@@ -1207,8 +1243,9 @@ def pvp_target(w, n, now):
         return None
     own = max(0.5, b.value()['power'])
     ev = H.company(w.map_id) == b.company                  # its own company's map: defends its map against an invader
-    hunt = b.target is not None and b.target.name in ('pvp', 'assist', 'duel')
-    rival = str(b.plan.get('name', '')).lower() if b.target is not None and b.target.name == 'duel' else ''
+    t = b.target                                           # read once (the bots thread may set it meanwhile)
+    hunt = t is not None and t.name in ('pvp', 'assist', 'duel')
+    rival = str(b.plan.get('name', '')).lower() if t is not None and t.name == 'duel' else ''
     en, ep = None, 0.0
     for uid, power, name, rel in candidates:
         ratio = power / own
@@ -1252,7 +1289,8 @@ def call_defense(w, n, uid, now):
     for m in w.npcs.values():
         if m is n or m.bot is None or not m.alive or m.bot.company != n.bot.company or m.target is not None:
             continue
-        if m.bot.target is not None and m.bot.target.name in ('gate', 'mod', 'duel', 'group', 'pvp_match'):
+        goal = m.bot.target                                # read once (the bots thread may set it meanwhile)
+        if goal is not None and goal.name in ('gate', 'mod', 'duel', 'group', 'pvp_match'):
             continue
         if now - m.last_damage < COMBAT_SEC or m.bot.en_route or not can_attack_player(w, m, o, now):
             continue
@@ -1330,7 +1368,8 @@ def flee(w, n, now):
     if not jumps:
         _go_to(w, n, g['x'] + random.uniform(-200, 200), g['y'] + random.uniform(-200, 200), now)    # simple: no zone protects it here
         return True
-    if not b.en_route or b.en_route[0] != g['target']:
+    route = b.en_route                                    # read once (the bots thread may clear it)
+    if not route or route[0] != g['target']:
         b.en_route = [g['target']]
     portala(w, n, now, urgent=True)
     return True
@@ -1372,21 +1411,24 @@ def drop_mine(w, n, x, y, now):
 def portala(w, n, now, urgent=False):
     """Fly to the portal of the route's next map; on arrival, JUMP_SEC later leave the map (the manager moves the bot to the new map)."""
     b = n.bot
-    if not b.en_route:
+    route = b.en_route                                   # read once: the bots thread may replace or clear it (this runs outside its lock)
+    if not route:
         return
-    if len(b.en_route) > 2 and not urgent:                     # jump CPU: the long route to base in a single jump
+    if len(route) > 2 and not urgent:                     # jump CPU: the long route to base in a single jump
         from . import extras as EX
-        cpu = EX.jump(b, b.en_route[-1])
+        cpu = EX.jump(b, route[-1])
         y = MGR.ACTIVE
         if cpu and y is not None and EX.use(b, cpu):
-            target = b.en_route[-1]
+            target = route[-1]
             w.send(remove(w, n))
-            with y.lock:
-                S.jump_to(b, target, y, time.time())
+
+            def jump(now=time.time()):
+                S.jump_to(b, target, y, now)
                 b.en_route = None
                 b.ist('jump_cpu')
+            bots_do(y, b, jump)
             return
-    g = next((g for g in H.gates(w.map_id, b.company) if g['target'] == b.en_route[0]), None)
+    g = next((g for g in H.gates(w.map_id, b.company) if g['target'] == route[0]), None)
     if g is None:
         b.en_route = None
         return
@@ -1414,12 +1456,20 @@ def portala(w, n, now, urgent=False):
     if now < n.portal_time:
         return
     y = MGR.ACTIVE
-    target = b.en_route.pop(0)
+    if y is None:
+        route.pop(0)
+        w.send(remove(w, n))
+        return
+    target = route[0]
     w.send(remove(w, n))
-    if y is not None:
-        with y.lock:
-            S.jump_to(b, target, y, time.time())
-            b.en_route_time = time.time() + S.jump_duration(b)
+
+    def jump(now=time.time()):
+        if b.en_route is not route or not route or route[0] != target:
+            return                                      # a new decision of the bot's own changed the route meanwhile: no jump
+        route.pop(0)
+        S.jump_to(b, target, y, now)
+        b.en_route_time = now + S.jump_duration(b)
+    bots_do(y, b, jump)
 
 
 def can_kill(b, m):
@@ -1812,8 +1862,6 @@ def park_spot(w, n, now):
 def rest(w, n, now):
     """Rest: parks somewhere around its own station and stays there ("afk", chat, shopping); relocates now and then at long intervals.
     The parking spot is chosen once (before, picking a new random point every second drew a zigzag around the station)."""
-    b = n.bot
-    s = w.station
     nx, ny = n.mover.pos(now)
     park = getattr(n, 'park', None)
     if park is None or now > getattr(n, 'park_end', 0):

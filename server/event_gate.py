@@ -46,6 +46,7 @@ LAB_ENTRY = PORTAL_BASE + 99            # the Frozen Labyrinth portal on X-1
 # countdown), 2 open ("Time left to defeat Plutus", countdown), 3 running ("Time spent in the Gauntlet", count up), 4 event
 # over ("Rankings will be tallied in"). It was first assumed to be easy/normal: while a run was going it said "you finished today" (live test H48)
 PLUTUS_DONE, PLUTUS_OPEN, PLUTUS_RUNNING = 1, 2, 3
+RESET_LOCK_SEC = 300                    # a daily gate cannot be entered in the last 5 minutes before the daily reset (forum 143902)
 
 
 def poi(pid, x, y, r, ptype=4, design=6):
@@ -107,6 +108,13 @@ def today(now=None):
     return datetime.date.fromtimestamp(time.time() if now is None else now).isoformat()
 
 
+def reset_in(now=None):
+    """Seconds until the daily reset (the next local midnight: a DST day has 23 or 25 hours, 86,400 - elapsed was an hour off)."""
+    now = time.time() if now is None else now
+    t = time.localtime(now)
+    return time.mktime((t.tm_year, t.tm_mon, t.tm_mday + 1, 0, 0, 0, 0, 0, -1)) - now
+
+
 def fmt_time(secs):
     m, s = divmod(int(secs), 60)
     return '%d:%02d:%02d' % (m // 60, m % 60, s) if m >= 60 else '%d:%02d' % (m, s)
@@ -136,7 +144,7 @@ class EventGates:
         """-> (can it be entered, reason)."""
         now = time.time() if now is None else now
         g, G = GATES[key], self.gate(key)
-        if G.get('ready'):
+        if self.running(key, now):
             return True, 'running'
         if g.get('event') and not CAL.is_active(g['event'], now):
             return False, 'no event'
@@ -161,13 +169,32 @@ class EventGates:
                 return False, 'entered today'
         if rule.get('yearly') and G.get('last_year') == today(now)[:4]:
             return False, 'entered this year'
-        if rule.get('daily') and 0 < 86400 - (now - time.mktime(time.localtime(now)[:3] + (0, 0, 0, 0, 0, -1))) < 300:
-            return False, '5 min left until the daily reset'                # forum 143902
+        if rule.get('daily') and reset_in(now) <= RESET_LOCK_SEC:
+            return False, '5 min left until the daily reset'                # forum 143902 ("when 5 minutes are left": 5:00 included)
         if rule.get('period') and not CAL.forced(g.get('event')) and not CAL._span_at(rule['period'], datetime.datetime.fromtimestamp(now)):
             return False, 'outside the gate period'                            # The Breach: 11 December - 1 January (forum 134831)
         if rule.get('cooldown_sec') and now < G.get('last_end', 0) + rule['cooldown_sec']:
             return False, 'cooldown %d s' % (G['last_end'] + rule['cooldown_sec'] - now)
         return True, ''
+
+    def running(self, key, now=None):
+        """Whether the gate has a run of the event's current edition. A run left unfinished when its event ended (or from an earlier
+        edition) is closed: its portal stayed open after the event and the next edition resumed it. A daily gate's run of an earlier day
+        too (forum 143902: "the gate resets with the daily server reset, a half-finished gate's progress is lost")."""
+        G, ev = self.gate(key), GATES[key].get('event')
+        if not G.get('ready'):
+            return False
+        cur = (CAL.period(ev, now) or (None,))[0] if ev else None
+        if (not ev or CAL.is_active(ev, now) and G.get('period', cur) == cur) and not self.reset_passed(key, now):
+            return True
+        self.end(key, G.get('last_end', 0))                 # last_end kept: no cooldown from a run that was never finished
+        self.log('   %s: the unfinished run of an ended event (or an earlier day) is closed' % GATES[key]['name'])
+        return False
+
+    def reset_passed(self, key, now=None):
+        """A daily gate's run was set up before today's reset (last_day is the day of the entry)."""
+        G = self.gate(key)
+        return bool(GATES[key].get('rule', {}).get('daily') and G.get('ready') and G.get('last_day') not in (None, today(now)))
 
     def here(self, want, map_id):
         if want == 'X-1':
@@ -208,7 +235,7 @@ class EventGates:
         """Entered through the portal: if not set up, the gate is set up (lives, wave order, time)."""
         now = time.time() if now is None else now
         g, G = GATES[key], self.gate(key)
-        if G.get('ready'):
+        if self.running(key, now):
             return
         waves = g['waves']
         groups = {}
@@ -234,7 +261,7 @@ class EventGates:
                 order += rest + [i for i in part if waves[i].get('fixed')]
         with self.p.lock:
             G.update(ready=True, wave=0, hp=SET.count('gate_lives', g['hp']), order=order, start=now, last_day=today(now),
-                     last_year=today(now)[:4])                   # panel: gate lives
+                     last_year=today(now)[:4], period=(CAL.period(g['event'], now) or (None,))[0] if g.get('event') else None)   # panel: gate lives
             self.p.dirty = True
         self.log('   %s set up (%d waves, %d lives)' % (g['name'], len(order), G['hp']))
 
@@ -274,6 +301,7 @@ class EventGates:
             G.update(ready=False, wave=0, hp=GATES[key]['hp'], last_end=now)
             G.pop('order', None)
             G.pop('cpu_increase', None)
+            G.pop('cleared', None)
             self.p.dirty = True
 
     def finish(self, key, reward_msgs=None):
@@ -350,9 +378,8 @@ class EventGates:
         ev = GATES[key].get('event')
         if ev in SCORE_EVENTS:
             self.p.ach('event_score', event=SCORE_EVENTS[ev], value=rec['points'])
-        G = self.gate(key)
-        entries = [dict(_='PlutusScoreEntryModule', score=time_score(s), timeInSeconds=int(s)) for s in G.get('durations', [])]
-        return [('PlutusPointsUpdateCommand', dict(scoreEntriesList=entries, score=rec['points']))]
+        group = [k for k, x in GATES.items() if x.get('rule', {}).get('group', k) == GATES[key].get('rule', {}).get('group', key)]
+        return [('PlutusPointsUpdateCommand', dict(scoreEntriesList=self.records(group), score=rec['points']))]
 
     # ------------------------------------------------------------ Gauntlet of Plutus indicator
     def plutus_cmds(self, key, now=None):
@@ -366,15 +393,19 @@ class EventGates:
         if G.get('ready') and G.get('start'):
             mode, t = PLUTUS_RUNNING, now - G['start']                     # elapsed time
         elif done_today:
-            tomorrow = datetime.datetime.combine(datetime.date.fromtimestamp(now) + datetime.timedelta(days=1), datetime.time())
-            mode, t = PLUTUS_DONE, tomorrow.timestamp() - now            # left until tomorrow
+            mode, t = PLUTUS_DONE, reset_in(now)                           # left until the daily reset
         else:
             mode, t = PLUTUS_OPEN, CAL.time_left(g['event'], now)      # the event's remaining time
-        status = dict(_='PlutusStatusCommand', lifes=int(G.get('hp', g['hp'])), mode=mode, timeLeft=int(max(0, t)))
-        entries = [dict(_='PlutusScoreEntryModule', score=time_score(s), timeInSeconds=int(s)) for s in G.get('durations', [])]
-        return [('PlutusInfoCommand', dict(playerPoints=int(self.score(key, now)['points']), scoreEntriesList=entries, status=status,
-                                           playerRanges=RK.ranges(RK.PLUTUS),          # the reward tab's ranges (stage 1)
+        # timeLeft in ms (PlutusUIData.UpdateStatus: (int)timeLeft / 1000); the client's int cast: at most 2^31-1 (a 30-day forced event overflowed)
+        status = dict(_='PlutusStatusCommand', lifes=int(G.get('hp', g['hp'])), mode=mode, timeLeft=min(2 ** 31 - 1, int(max(0, t) * 1000)))
+        return [('PlutusInfoCommand', dict(playerPoints=int(self.score(key, now)['points']), scoreEntriesList=self.records(group),
+                                           status=status, playerRanges=RK.ranges(RK.PLUTUS),          # the reward tab's ranges (stage 1)
                                            filename=''))]
+
+    def records(self, group):
+        """The best 5 times of the group's gates (only Normal records them: an Easy run showed an empty record tab)."""
+        durations = sorted(s for k in group for s in self.gate(k).get('durations', []))[:5]
+        return [dict(_='PlutusScoreEntryModule', score=time_score(s), timeInSeconds=int(s)) for s in durations]
 
 
 class Run(GALAXY.Run):
@@ -420,8 +451,24 @@ class Run(GALAXY.Run):
 
     # ------------------------------------------------------------ Space Uncertainty (the radioactive field of a boss whose shield is gone)
     def tick(self, now):
+        if self.phase not in ('void', 'done') and self.k.reset_passed(self.key, now):
+            self.reset_out(now)
+            return
         super().tick(now)
         self.radio_tick(now)
+
+    def reset_out(self, now):
+        """The daily reset passed inside the gate (forum 143902): back to the company's X-8 (Gauntlet of Plutus Normal is entered there;
+        Easy from X-1), the gate's progress is lost, the progress points stay (they are in the event score)."""
+        k, G = self.k, self.k.gate(self.key)
+        k.end(self.key, G.get('last_end', 0))
+        self.phase = 'void'
+        x8 = H.X8_HOME.get(k.p.d['pilot'].get('factionId')) if self.g.get('entry') == 'X-8' else None
+        out = dict(k.exit_portal(self.key, self.map), **({'target': x8} if x8 else {}))
+        self.w.add_gate(out)
+        self.w.send([GALAXY.screen('%s: the daily reset closed the gate.' % self.g['name'], big=True)] + k.plutus_cmds(self.key, now))
+        self.w.auto_jump(out, 3)
+        self.w.log('   %s: daily reset inside the gate, back to %s' % (self.g['name'], H.name(out['target'])))
 
     def radio_tick(self, now):
         """When the permanent boss's (the npc type's 'radioactive'; Plutus) shield runs out, a radioactive field: after the warning, for sure_sn every

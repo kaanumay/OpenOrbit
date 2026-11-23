@@ -77,7 +77,7 @@ def mods(p, now=None):
         for k in MOD_KEYS.get(a, ()):
             out[k] = out.get(k, 0) + v / 100.0
     for l in active(p, now):                       # effects without a type in the display: hit (DMG-H01), npc (NPC-B01), pet_ep
-        for k, v in B['kinds'][l].items():
+        for k, v in B['kinds'].get(l, {}).items():          # an alias written as is (panel save editor) is not a kind: no KeyError on every mods()
             if k not in ATTRS:
                 out[k] = out.get(k, 0) + v / 100.0
     return out

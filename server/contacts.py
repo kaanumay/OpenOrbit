@@ -157,9 +157,14 @@ def handle(k, name, f):
         return []
     if name == 'ContactListBlockInvitationsModule':
         with p.lock:
-            _registry(p)['invite_block'] = bool(f.get('blockAllInvitations'))
+            _registry(p)['invite_block'] = on = bool(f.get('blockAllInvitations'))
             p.dirty = True
-        return [('ContactListBlockInvitationsModule', {'blockAllInvitations': save(p)['invite_block']})]
+        # the success window (ContactListBlockInvitationsTipsCommandHandler: title/text BaseStackCommand, BaseKey 169 and 170/171; client
+        # code only, no recording)
+        from shop import stack_msg
+        tips = ('ContactListBlockInvitationsTipsCommand', {'title': stack_msg('messaging_confirmLayer_blockAllInvites_title'), 'text': stack_msg(
+            'messaging_successLayer_blockAllInvites_text' if on else 'messaging_successLayer_unblockAllInvites_text')})
+        return [('ContactListBlockInvitationsModule', {'blockAllInvitations': save(p)['invite_block']}), tips]
     if name == 'ContactListRequest':
         # the mail window's contacts tab: pending requests (type 1: Accept/Decline) and friends (type 0: remove, write mail;
         # tried on the client 2026-10-24)
@@ -199,7 +204,8 @@ def handle(k, name, f):
     elif kind == ACCEPT and _var(r['incoming'], target_name):
         _remove(p, 'incoming', target_name)
         _add(p, 'friend', target_name)
-        out.append(stm('log_msg_contact_added', NAME=target_name))
+        out += [stm('log_msg_contact_added', NAME=target_name),
+                ('ContactFriendAcceptTipsCommand', {})]      # "request accepted" window while the mail window is open (AcceptTipsEventHandler)
         if b is not None:
             _remove(b.profile, 'outgoing', k.name)
             _remove(b.profile, 'declined', k.name)

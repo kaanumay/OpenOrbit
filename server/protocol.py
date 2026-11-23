@@ -281,6 +281,8 @@ def _enc_prim(out, t, x, v, name=None):
         out += struct.pack('>d', float(v))
     elif t == 'string':
         d = (v or '').encode('utf8')
+        if len(d) > 32767:          # the client reads the length as Int16: a longer string goes negative and breaks the read
+            raise EncodeError('string %s is %d bytes; the client reads at most 32767' % (name or t, len(d)))
         out += struct.pack('>H', len(d)) + d
     elif t == 'module':
         if v is None:
@@ -447,7 +449,9 @@ class Framer:
         out = []
         while True:
             hdr = 3
-            if self.client_side and self.first and len(self.buf) >= 6 and self.buf[0] == 0 and self.buf[4:6] == b'\x02\x9a':
+            if self.client_side and self.first and len(self.buf) < 6:
+                break     # the first packet split by TCP: its 4-byte length cannot be told apart yet (it was read as a 3-byte one)
+            if self.client_side and self.first and self.buf[0] == 0 and self.buf[4:6] == b'\x02\x9a':
                 hdr = 4   # VersionRequest (666) comes with a 4-byte length
             if len(self.buf) < hdr:
                 break

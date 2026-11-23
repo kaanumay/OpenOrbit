@@ -307,7 +307,7 @@ class SectorControl:
         q = self.queue
         if q is None or q['draft'] is None:
             return []
-        if not accepted:
+        if not accepted or self.world is not None and self.world.hero_dead:      # dead: the jump would bring a 0 HP ship to the match
             return self.leave_queue() + [self.overview()]
         return self.start()
 
@@ -450,6 +450,7 @@ class Match:
         TDM.draft_bots(bots, self.map, now, 3600)
         for b in bots:
             self.stats[b.uid] = {'name': b.name, 'company': b.company, 'bot': b, 'kills': 0, 'deaths': 0, 'respawn': 0}
+        TDM.hold(self, lambda: self.w, lambda: self.close('orphaned'))
 
     # ------------------------------------------------------------ roster
     def team(self, company):
@@ -507,7 +508,7 @@ class Match:
 
     def player_mods(self):
         """The underdog damage bonus of the player's company (lasers and rockets)."""
-        if self.over or self.w is None or self.w.gate is not self:
+        if self.over or self.w is None or self.w.gate is not self or self.w.stopped:     # stopped: logged out mid-match (the profile stays)
             return {}
         b = underdog(self.held(), self.own)
         return {'laser': b, 'rocket': b} if b else {}
@@ -835,16 +836,20 @@ class Match:
                             '%KILL_DEATH_RATIO%', '%.2f' % (k / float(d)) if d else str(k)))
             w.log('   SC: won (%d kills, +%d%% EP %d Honor %d)' % (k, pct, ep_b, honor_b))
         w.send(msgs)
+        TDM.unhold(self)
         TDM.release_bots(w, [(s['bot'], dict(kills=s['kills'], deaths=s['deaths'])) for s in self.stats.values()], self.map, 'sc_done')
         w.mode_bots = None
         self.p.pvp_mods = None
-        w.later(D['end_sec'], lambda: self.m.match is self and w.running and self.m.home())
+        # dead (out of the match, or killed at the end): the death screen's X-1 repair takes them home (a jump would bring a 0 HP ship)
+        w.later(D['end_sec'], lambda: self.m.match is self and w.running and not w.hero_dead and self.m.home())
 
     def close(self, why):
         if not self.over:
             self.over = True
+            TDM.unhold(self)
+            TDM.release_bots(self.w, [(s['bot'], dict(kills=s['kills'], deaths=s['deaths'])) for s in self.stats.values()],
+                             self.map, 'sc_done')          # also before the map (w None): the drafted bots must not stay frozen
             if self.w is not None:
-                TDM.release_bots(self.w, [(s['bot'], dict(kills=s['kills'], deaths=s['deaths'])) for s in self.stats.values()],
-                                 self.map, 'sc_done')
                 self.w.mode_bots = None
-        self.p.pvp_mods = None
+        if getattr(self.p, 'pvp_mods', None) == self.player_mods:      # an orphan closed later must not clear a newer match's bonus
+            self.p.pvp_mods = None

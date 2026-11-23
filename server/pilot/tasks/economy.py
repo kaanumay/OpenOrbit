@@ -7,6 +7,7 @@ from .. import brain as B
 
 SUPPLY_SEC = 5.0
 SUPPLY_FAIL_SEC = 60.0
+SUPPLY_REFUSALS = 3           # refused this many times in a row (budget and money there): the low-ammo stop no longer waits for it
 SELL_FAIL_SEC = 120.0
 
 
@@ -68,8 +69,11 @@ def supply(pilot, now):
         cost = affordable(pilot, loot, r['amount'])
         if cost is None or not act.buy(loot, r['amount']):
             pilot.supply_fail[loot] = now + SUPPLY_FAIL_SEC
+            if cost is not None:                    # the shop refused it anyway: counted (pending)
+                pilot.supply_refused[loot] = pilot.supply_refused.get(loot, 0) + 1
             pilot.note('Could not buy {0} (budget or money).', loot)
             continue
+        pilot.supply_refused.pop(loot, None)
         cur, n = cost
         pilot.stats.add('spent_' + cur, n)
         pilot.note('Bought {0} {1} for {2} credits.' if cur == 'credits' else 'Bought {0} {1} for {2} uridium.', r['amount'], loot, n)
@@ -89,6 +93,8 @@ def affordable(pilot, loot, amount):
 
 
 def pending(pilot, loot):
-    """A resupply rule will buy this ammo (stopping on low ammo waits for it)."""
+    """A resupply rule will buy this ammo (stopping on low ammo waits for it): not once the shop has refused it SUPPLY_REFUSALS times in a
+    row although budget and money allowed it."""
     r = next((r for r in pilot.cfg['supply']['rules'] if r['loot'] == loot), None)
-    return r is not None and affordable(pilot, loot, r['amount']) is not None
+    return (r is not None and pilot.supply_refused.get(loot, 0) < SUPPLY_REFUSALS
+            and affordable(pilot, loot, r['amount']) is not None)

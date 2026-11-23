@@ -11,7 +11,7 @@
   AIM CPU          10 Xenomit per shot: miss rate 25% / 50% lower
 All of them depend on the bot's permissions (technology, extra, mine) and its stock; cooldowns are the player's values.
 """
-import math, random, time
+import math, random
 
 from legacy_protocol import legacy
 from . import catalog as K
@@ -263,11 +263,12 @@ def slow_down(w, n, o, ratio, now):
         return False
     x, y = n.mover.pos(now)
     hx, hy = o.hero_pos(now)
-    if math.hypot(hx - x, hy - y) > BG.LASER_RANGE or o.hero_effects.d.keys() & {'slow', 'frozen'}:
+    if o.hero_effects.d.keys() & {'slow', 'frozen'}:
         return False
+    import combat_items as CI
     for loot in ((RIC,) if ratio < 0.35 else ()) + ((DCR,) if ratio < 0.6 or b.o('aggression') > 0.5 else ()):
         r = K.ITEMS['rockets'][loot]
-        if WP.stock(b).get(loot, 0) > 0 and ready(n, loot, now):
+        if WP.stock(b).get(loot, 0) > 0 and ready(n, loot, now) and math.hypot(hx - x, hy - y) <= CI.rocket_range(loot):
             (kind, (val, sec)), = r['effect'].items()
             WP.spend(b, loot, 1)
             wait(n, loot, now, r['cooldown_sec'])

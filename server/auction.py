@@ -28,7 +28,7 @@ is closed (Social.tick -> settle + auto):
 On a multiplayer server the lots are the same for everyone: the other players' bids compete too (highest bid; on a tie, whoever bid first), and the
 winner of the period is decided once, in the session that computes it first (RESULT): before, every player could win the same lot with their own bid.
 """
-import json, os, random, threading, time
+import os, random, threading, time
 import game_data as DATA
 
 import settings as SET

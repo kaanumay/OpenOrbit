@@ -58,7 +58,7 @@ OWN, NEUTRAL, HOSTILE = 1, 2, 3        # StarmapStationInfo.StationStatus
 DESTRUCTION_BATTLESTATION = 1
 E = dict(UNSPECIFIED=0, NO_CLAN=1, STATION_ALREADY_BUILDING=2, ITEM_HITPOINTS_ZERO=3, ITEM_ALREADY_EQUIPPED_IN_ANOTHER_ASTEROID=4,
          CONCURRENT_EQUIP=5, REPLACE_RIGHT_MISSING=6, ITEM_NOT_OWNED=7, OUT_OF_RANGE=8, EQUIP_OF_SAME_PLAYER_RUNNING=9,
-         SATELLITE_ONLY=10, HUB_ONLY=11, ITEM_NOT_IN_STATION=12, MAX_NUMBER_OF_MODULE_TYPE_EXCEEDED=13, DEFLECTOR_ALREADY_ON=14,
+         SATELLITE_ONLY=10, HUB_ONLY=11, ITEM_NOT_IN_STATION=12, MAX_NUMBER_OF_MODULE_TYPE_EXCEEDED=13, DEFLECTOR_NO_RIGHTS=14,
          DEFLECTOR_ALREADY_OFF=15, REPAIR_NO_MODULE=16, REPAIR_NO_MONEY=17, REPAIR_ALREADY_RUNNING=18, ITEM_UPGRADE_RUNNING=19)
 TRADE_BATTLE_STATION = 4
 SHARED_ITEM = ITEM_BASE + 1000000         # ids of the modules in the shared slot (players' order from ITEM_BASE: so they do not collide)
@@ -1081,6 +1081,8 @@ class Cbs:
 
     def unequip(self, aid, iid):
         a = self.ast(aid)
+        if a['state'] == 'building':                   # like equip: a module taken out during the build left a built station without it
+            return self.error('STATION_ALREADY_BUILDING')      # (no Hull: indestructible) and its owner kept the module
         hit = next((s for s, y in a['slots'].items() if int(y['iid']) == iid), None)
         if hit is None:
             return self.error('ITEM_NOT_IN_STATION')
@@ -1220,7 +1222,7 @@ class Cbs:
         if a['state'] != 'built':
             return self.error('UNSPECIFIED')
         if not self.hp('battle_station_deflector'):
-            return self.error('UNSPECIFIED')
+            return self.error('DEFLECTOR_NO_RIGHTS')      # the client's "You don't have the rights to deactivate the Deflector."
         now = time.time()
         # Settle the active countdown before resetting its clock for the requested downtime.
         pending = self.deflector_tick(aid, a, now)

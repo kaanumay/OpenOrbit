@@ -31,7 +31,14 @@ MATCH_MAKING, RUNNING = 0, 1                      # TeamDeathMatchOverviewModule
 WIN, LOSE, NO_LIFES_LEFT, DRAW = 0, 1, 2, 3       # TeamDeathMatchResultScreenCommand.ResultState
 ERR_LEVEL, ERR_NO_MATCH, ERR_ENDED = 0, 2, 3      # ErrorType (1 QUEUE_FULL opens an empty window in the client: never sent)
 PAIRS = {1: (1, 2), 2: (2, 3), 3: (1, 3)}          # match id -> companies (wiki: MMO-EIC, EIC-VRU, MMO-VRU)
+# wiki "Winner stays on map": only if the winners choose to stay; the 1.1.119 protocol has no request for that choice (TDM requests:
+# OverviewInit, Detail, Join, LeaveQueue, DraftConfirmation, Exit), so every finished match is followed by a new one of the same pair
+# (the wiki's "did not choose to stay" branch; adaptation)
 NEAR = 600                                        # the asset's action range (the client's MapAssetActionAvailable, like the CBS)
+# a match / raid whose world stopped (or never came) this long ago with no new one: its bots are released. Only a fallback (the session's
+# end closes them: extra_events.close); long enough for a slow map load, since in friend mode another session's tick sweeps a loading one
+ORPHAN_SEC = 300
+LIVE = {}                                         # id(owner) -> [world getter, release, orphaned since]: holders of drafted bots (sweep)
 
 
 def mod(_name, **f):
@@ -162,12 +169,19 @@ def pick_bots(company, b, level, now, taken):
     if y is None or not y.permission('pvp'):
         return []
     band, rest = [], []
-    with y.lock:
-        for x in y.bots:
-            busy = x.target is not None and x.target.name in ('gate', 'mod', 'duel', 'pvp_match') and not x.plan.get('finished')
+    # read only: under the bot lock if it is free within 20 ms, otherwise as the world thread reads bots elsewhere (each field once):
+    # the world loop waited here behind a bot tick of up to a second (audit 2026-11-22)
+    held = y.lock.acquire(timeout=0.02)
+    try:
+        for x in list(y.bots):
+            t = x.target
+            busy = t is not None and t.name in ('gate', 'mod', 'duel', 'pvp_match') and not x.plan.get('finished')
             if x.company != company or x.dead_until > now or busy or x.uid in taken:
                 continue
             (band if b['min_level'] <= x.level <= b['max_level'] else rest).append(x)
+    finally:
+        if held:
+            y.lock.release()
     random.shuffle(band)
     band.sort(key=lambda x: not x.online)            # those online first; offline ones log in for the event
     lv = level
@@ -180,22 +194,25 @@ def draft_bots(bots, map_id, now, hold_sec):
     its spawns) with the pvp_match goal (the brain keeps it until the match ends), their session lasts at least hold_sec."""
     import bot.manager as MGR
     from bot import abstract_sim as S
+    from bot import ship as BS
     from bot.brain import GOALS
     y = MGR.ACTIVE
-    with y.lock:
-        for b in bots:
-            if not b.online:
-                y.entry(b, now, silent=True)
-            if b.body is not None and b.body.alive:
-                b.body.alive = False                   # its ship on another map goes (that world removes it)
-            b.body = None
-            S.jump_to(b, map_id, y, now)
-            b.k['x'] = b.k['y'] = 0
-            b.en_route = None
-            b.target, b.goal_start, b.plan = GOALS['pvp_match'], now, {'min': 3600 * 3, 'match': map_id}
-            b.k['target'] = 'pvp_match'
-            b.session_end = max(b.session_end, now + hold_sec)
-            b.__dict__.pop('carry', None)
+
+    def draft(b):
+        if not b.online:
+            y.entry(b, now, silent=True)
+        if b.body is not None and b.body.alive:
+            b.body.alive = False                   # its ship on another map goes (that world removes it)
+        b.body = None
+        S.jump_to(b, map_id, y, now)
+        b.k['x'] = b.k['y'] = 0
+        b.en_route = None
+        b.target, b.goal_start, b.plan = GOALS['pvp_match'], now, {'min': 3600 * 3, 'match': map_id}
+        b.k['target'] = 'pvp_match'
+        b.session_end = max(b.session_end, now + hold_sec)
+        b.__dict__.pop('carry', None)
+    for b in bots:                                   # at once if the bot lock is free, else queued (the bot is not ticked meanwhile and
+        BS.bots_do(y, b, lambda b=b: draft(b))       # the map's ship sync runs the queue first): the world loop does not wait
 
 
 def release_bots(w, bots, map_id, event):
@@ -211,18 +228,43 @@ def release_bots(w, bots, map_id, event):
         for n in [n for n in w.npcs.values() if n.bot is not None and n.id in uids]:
             msgs += BS.remove(w, n)
     if y is not None:
-        with y.lock:
-            for b, f in bots:
-                b.plan['finished'] = True
-                b.target = None
-                b.k['target'] = None
-                b.__dict__.pop('carry', None)
-                if int(b.k['map']) == int(map_id):
-                    S.jump_to(b, K.ev(b.company), y, time.time())
-                b.next_decision = time.time()
-                b.event(event, **f)
+
+        def release(b, f, now=time.time()):
+            b.plan['finished'] = True
+            b.target = None
+            b.k['target'] = None
+            b.__dict__.pop('carry', None)
+            if int(b.k['map']) == int(map_id):
+                S.jump_to(b, K.ev(b.company), y, now)
+            b.next_decision = now
+            b.event(event, **f)
+        for b, f in bots:                            # at once if the bot lock is free, else queued (as draft_bots)
+            BS.bots_do(y, b, lambda b=b, f=f: release(b, f))
     if w is not None and msgs:
         w.send(msgs)
+
+
+def hold(owner, world, release):
+    """owner (a TDM / SC match, a CTB raid) holds drafted bots: world() its world (None before the map), release() frees them."""
+    LIVE[id(owner)] = [world, release, None]
+
+
+def unhold(owner):
+    LIVE.pop(id(owner), None)
+
+
+def sweep(now):
+    """Holders whose session is gone (logout or disconnect in a match, during its map load or on the result screen): the world stopped
+    (or never came) and no new world took the match over within ORPHAN_SEC -> release; otherwise the drafted bots keep the pvp_match goal
+    forever (frozen on the mode map, never drafted again). From every session's tick."""
+    for key, e in list(LIVE.items()):
+        w = e[0]()
+        if w is not None and not w.stopped:
+            e[2] = None
+        elif e[2] is None:
+            e[2] = now
+        elif now - e[2] >= ORPHAN_SEC and LIVE.pop(key, None) is e:
+            e[1]()
 
 
 # ------------------------------------------------------------------------------------------------ the session's system
@@ -407,7 +449,7 @@ class TeamDeathmatch:
         q = self.queue
         if q is None or q['draft'] is None:
             return []
-        if not accepted:
+        if not accepted or self.world is not None and self.world.hero_dead:      # dead: the jump would bring a 0 HP ship to the match
             self.leave_queue()
             return [self.overview()]
         return self.start()
@@ -480,6 +522,7 @@ class TeamDeathmatch:
 
     def tick(self, now):
         msgs = []
+        sweep(now)
         st = state(self.p, now)
         if active(now):
             sim(st, now, self.own_match())
@@ -491,7 +534,8 @@ class TeamDeathmatch:
         else:
             if self.queue is not None:
                 self.leave_queue()
-            msgs += self.settle(st, now)
+            if self.match is None or self.match.over:      # a match still running counts first (finish / close add its points)
+                msgs += self.settle(st, now)
         w = self.world
         if w is not None and not w.hero_dead:
             msgs += self.near_step(w, now)
@@ -564,6 +608,7 @@ class Match:
         self.player = {'name': name, 'company': own, 'bot': None, 'kills': 0, 'deaths': 0, 'lives': D['lives'], 'given': 0, 'taken': 0,
                        'peak': 0, 'streak': 0, 'best': 0, 'respawn': 0}
         self.enroll(own_bots + opp_bots, now)
+        hold(self, lambda: self.w, lambda: self.close('orphaned'))
 
     # ------------------------------------------------------------ roster
     def enroll(self, bots, now):
@@ -850,7 +895,8 @@ class Match:
             self.w.send([self.status_cmd(now), self.result_cmd(state_, rewards)])
         self.release()
         w = self.w
-        w.later(D['result_sec'], lambda: self.m.match is self and w.running and self.m.home())
+        # dead (no lives left, removed, or killed at the end): the death screen's X-1 repair takes them home (a jump would bring a 0 HP ship)
+        w.later(D['result_sec'], lambda: self.m.match is self and w.running and not w.hero_dead and self.m.home())
 
     def result_cmd(self, result, rewards):
         def row(s):
@@ -870,6 +916,7 @@ class Match:
 
     def release(self):
         """The drafted bots leave the TDM map: their ships go, they return to their X-1 and decide again."""
+        unhold(self)
         release_bots(self.w, [(s['bot'], dict(kills=s['kills'], deaths=s['deaths'])) for s in self.stats.values()], self.map, 'tdm_done')
         self.stats_released = True
         if self.w is not None:

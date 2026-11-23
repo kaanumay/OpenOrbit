@@ -20156,7 +20156,7 @@
     "aggressive": false,
     "immune_until": true,
     "mine": {
-     "type": "ammunition_mine_slm-01",
+     "type": "ammunition_mine_ice-01",
      "interval_sec": 30,
      "max_count": 2,
      "range": 1500,
@@ -20165,7 +20165,7 @@
       600
      ]
     },
-    "_adaptation": "IceMine is not a separate item in the client: the appearance of the slowing mine (SLM-01); interval, count and range are adaptation"
+    "_adaptation": "IceMine is the client's ammunition_mine_ice-01 (mine_21 ICE MINE; damage and arming in items.json combat_items.mines); interval, count and range are adaptation; not near portals: not within a portal's safe zone (map_links.GATE_PEACE_RADIUS; forum 158403 gives no distance)"
    }
   },
   "key_cost": 1,

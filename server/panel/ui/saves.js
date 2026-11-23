@@ -1,4 +1,4 @@
-/* OpenOrbit panel — Saves and the character editor (saves.py, save_editor.py; /api/kayitlar..., /api/editor...). Uses panel.js's
+/* OpenOrbit panel — Saves and the character editor (saves.py, save_editor.py; /api/saves..., /api/editor...). Uses panel.js's
    helpers and the game's images (ogYukle, sprite, esyaSprite, esyaAdi: the BepInEx dump).
    Library: the active save's scene (ship, company portrait, level progress, wallet), cards of the other saves, deleted ones.
    Editor: works on the save's draft (duzenleme.json). Every action is applied to the draft with the game's rules (hangar, reward path) and the view is
@@ -547,7 +547,7 @@ async function seCatalog(o = {}) {
 function sePilot(v) {
   const p = v.pilot, ro = v.read_only;
   const op = x => seApply(Object.assign({ operation: 'pilot' }, x));
-  const name = h('input', { class: 'input', value: p.name, maxlength: 20, disabled: ro, onchange: e => e.target.value.trim() !== p.name && op({ name: e.target.value }) });
+  const name = h('input', { class: 'input', value: p.name, maxlength: 20, disabled: ro, onchange: e => e.target.value.trim() !== p.name && op({ name: e.target.value }).then(ok => { if (!ok) e.target.value = p.name; }) });   // rejected name: back to the save's
   const companies = h('div', { class: 'radio-cards' }, FIRMS.map(([id, k, n, c, m]) => h('div', { class: 'radio-card' + (id === p.company ? ' on' : ''), style: { '--c': c },
     onclick: async () => { if (ro || id === p.company) return;
       if (await confirmBox(T('Change company?'), T('{0} becomes a {1} pilot; the ship moves to the {2} home station.', p.name, k, m), { ok: T('Switch') })) op({ company: id }); } },
@@ -570,7 +570,7 @@ function sePilot(v) {
         h('label', { class: 'row small', style: { marginTop: '12px' } }, h('span', { class: 'switch' }, prem, h('span')), T('Premium membership'))),
       seCard(T('Level and honor'), 'star', lv,
         h('div', { class: 'grid g2', style: { marginTop: '12px' } },
-          field(T('Experience (EP)'), numberBox(p.ep, x => op({ ep: x }), { max: 2 ** 53, cls: 'wide' })),
+          field(T('Experience (EP)'), numberBox(p.ep, x => op({ ep: x }), { max: 2 ** 62, cls: 'wide' })),
           field(T('Honor'), numberBox(p.honor, x => op({ honor: x }), { min: -1e12, max: 1e12, cls: 'wide' }))),
         h('div', { class: 'small dim', style: { marginTop: '8px' } }, p.next_level ? T('Next level at {0} EP.', fmtN(p.next_level)) : T('Highest level')))),
     seCard(T('Company'), 'globe', h('p', { class: 'desc' }, T("When the company changes, the ship moves to the new company's home station.")), companies),

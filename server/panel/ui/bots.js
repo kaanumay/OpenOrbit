@@ -16,7 +16,7 @@ Object.assign(ICONS, {
   list: '<line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><circle cx="3.5" cy="6" r="1"/><circle cx="3.5" cy="12" r="1"/><circle cx="3.5" cy="18" r="1"/>',
 });
 
-const BT = { entries: null, pid: null, d: null, tab: 'general', timer: null, pending: {} };
+const BT = { entries: null, pid: null, d: null, tab: 'general', timer: null, pending: {}, pendingId: null };
 const BT_MODES = {
   simple: { name: N('Simple'), ic: 'bot', summary: N('Bots that wander the maps like NPCs without changing maps. They kill aliens; enemy bots attack or flee depending on strength when they see you.') },
   normal: { name: N('Normal'), ic: 'users', summary: N('Like a real player: starts at the base, does quests, grinds, buys ships and lasers, does PvP, founds a clan, makes friends, chats. Each bot has its own personality and decisions.') },
@@ -30,7 +30,7 @@ const BT_PERMS = {
   shop: [N('Shop'), N('They buy ships, lasers, generators and drones with credits and uridium.')],
   quest: [N('Quests'), N('They complete the quest chain.')],
   pvp: [N('PvP'), N('Bots fight each other.')],
-  attack_player: [N("Don't attack you"), N('Bots of the enemy company may attack when they see you.')],
+  attack_player: [N('Attack you'), N('Bots of the enemy company may attack when they see you.')],
   chat: [N('Chat'), N('They write in global, company, clan and group chat, and reply to whispers.')],
   clan: [N('Joining clans'), N('They apply to clans that match their personalities (yours too).')],
   clan_found: [N('Founding clans'), N('Bots with a leader spirit and plenty of money found clans and evaluate applications.')],
@@ -69,6 +69,7 @@ const btWorldName = id => (BT.entries?.worlds || []).find(w => w.id === id)?.nam
 
 // ------------------------------------------------------------------ entry point
 async function renderBots() {
+  await btFlush();
   const r = await act(() => api('/api/bots')); if (!r || S.page !== 'bots') return;
   BT.entries = r;
   if (BT.pid && !r.entries.some(p => p.id === BT.pid)) BT.pid = null;
@@ -86,7 +87,11 @@ function btCompanyBar(f) {
 // ================================================================== LIBRARY
 function btLibrary() {
   const r = BT.entries;
-  const card = p => h('div', { class: 'bt-card', onclick: e => { if (!e.target.closest('button')) btOpen(p.id); } },
+  const broken = p => h('div', { class: 'bt-card' },        // a pack file damaged by hand (bots.entries): it can only be deleted
+    h('div', { class: 'bt-card-top' }, h('div', null, h('b', null, p.name), h('div', null, badge(T('CORRUPT'), 'err')))),
+    h('div', { class: 'bt-card-body' }, h('div', { class: 'small muted' }, T("This pack file is damaged and can't be opened; you can delete it."))),
+    h('div', { class: 'bt-card-bottom' }, btn(T('Delete'), () => btDeletePack(p), 'sm ghost', 'trash')));
+  const card = p => p.corrupt ? broken(p) : h('div', { class: 'bt-card', onclick: e => { if (!e.target.closest('button')) btOpen(p.id); } },
     h('div', { class: 'bt-card-top k-' + p.mode }, btArt('bot_mode_' + p.mode, 'drone_editor', 'bt-card-art'),
       h('div', null, h('b', null, p.name), h('div', { class: 'small muted' }, T(BT_MODES[p.mode].name) + ' · ' + T('{0} bots', p.count)))),
     h('div', { class: 'bt-card-body' },
@@ -114,10 +119,12 @@ function btPackMenu(anchor, p) {
       const name = await promptBox(T('Rename'), T('Pack name'), p.name); if (name == null) return;
       if (await act(() => api('/api/bot/update', { id: p.id, name }), T('Saved.'))) renderBots(); } },
     '-',
-    { label: T('Delete'), ic: 'trash', danger: true, fn: async () => {
-      if (!await confirmBox(T('Delete "{0}"?', p.name), T("The pack and the bots' progress are deleted (kept in the save/botlar/_silinenler folder)."), { ok: T('Delete'), danger: true })) return;
-      const x = await act(() => api('/api/bot/delete', { id: p.id }), T('Bot pack deleted.')); if (x) { BT.entries = x; if (BT.pid === p.id) BT.pid = null; renderBots(); } } },
+    { label: T('Delete'), ic: 'trash', danger: true, fn: () => btDeletePack(p) },
   ]);
+}
+async function btDeletePack(p) {
+  if (!await confirmBox(T('Delete "{0}"?', p.name), T("The pack and the bots' progress are deleted (kept in the save/bots/_trash folder)."), { ok: T('Delete'), danger: true })) return;
+  const x = await act(() => api('/api/bot/delete', { id: p.id }), T('Bot pack deleted.')); if (x) { BT.entries = x; if (BT.pid === p.id) BT.pid = null; renderBots(); }
 }
 
 function btAssignMenu(anchor, p) {
@@ -282,6 +289,7 @@ const BT_TABS = [
 ];
 
 async function btEditor() {
+  await btFlush();
   const [d] = await Promise.all([act(() => api('/api/bot?id=' + encodeURIComponent(BT.pid))), loadGameImages()]);   // the game's images: ship, rank
   if (!d || S.page !== 'bots') return;
   BT.d = d;
@@ -311,22 +319,29 @@ function btSaveStatus(state) {
   el.className = 'we-save-status ' + state;
   btFill(el, ...(state === 'saving' ? [h('span', { class: 'spin' }), T('Saving…')] : state === 'saved' ? [icon('check'), T('Saved')] : []));
 }
-// a change: waits 450 ms and goes in a single request (settings are merged)
+// a change: waits 450 ms and goes in a single request (settings are merged); it belongs to the pack it was made on (BT.pendingId), even
+// if another pack, tab or page is opened meanwhile (btFlush sends it first)
+async function btFlush(redraw) {
+  clearTimeout(BT.timer);
+  if (!BT.pendingId) return;
+  const body = Object.assign({ id: BT.pendingId }, BT.pending); BT.pending = {}; BT.pendingId = null;
+  const x = await act(() => api('/api/bot/update', body));
+  if (!x) return btSaveStatus('');
+  if (x.id !== BT.pid || !BT.d) return;
+  const mode = BT.d.mode;
+  BT.d = x; btSaveStatus('saved');
+  if (redraw && (body.mode && body.mode !== mode || body.name)) btEditor();
+}
 function btPatch(fields) {
+  if (BT.pendingId && BT.pendingId !== BT.pid) btFlush();
   for (const [k, v] of Object.entries(fields)) {
     if (k === 'settings') BT.pending.settings = Object.assign(BT.pending.settings || {}, v);
     else BT.pending[k] = v;
   }
+  BT.pendingId = BT.pid;
   btSaveStatus('saving');
   clearTimeout(BT.timer);
-  BT.timer = setTimeout(async () => {
-    const body = Object.assign({ id: BT.pid }, BT.pending); BT.pending = {};
-    const x = await act(() => api('/api/bot/update', body));
-    if (!x) return btSaveStatus('');
-    const mode = BT.d.mode;
-    BT.d = x; btSaveStatus('saved');
-    if (body.mode && body.mode !== mode || body.name) btEditor();
-  }, 450);
+  BT.timer = setTimeout(() => btFlush(true), 450);
 }
 const btSetting = (k, v) => btPatch({ settings: { [k]: v } });
 
@@ -475,7 +490,8 @@ function btRosterTable(roster) {
   const directionBtn = btn('', () => { s.reverse = !s.reverse; render(); }, 'ghost icon');
   const tool = h('div', { class: 'bt-filter' },
     h('label', { class: 'bt-search' }, icon('search'), h('input', { class: 'input', type: 'search', placeholder: T('Search by name'), value: s.search,
-      oninput: e => { s.search = e.target.value; render(); } })),
+      // a 3000-bot roster rebuilds ~25 elements per row: once the typing pauses, not on every key
+      oninput: e => { s.search = e.target.value; clearTimeout(BT.searchTimer); BT.searchTimer = setTimeout(render, 180); } })),
     firmaSec,
     choice(s.archetype, [['', T('All personalities')]].concat(Object.entries(BT_ARCHETYPE).map(([k, name]) => [k, T(name)])), v => { s.archetype = v; }),
     h('div', { class: 'bt-sort' }, h('span', { class: 'small muted' }, T('Sort')), sortSelect, directionBtn),
@@ -538,7 +554,7 @@ function btChat(d) {
 const BT_DIPLOMACY = { 1: N('alliance'), 2: N('non-aggression'), 3: N('war') };
 function btClanLogo(k) {
   if (!k.logo) return h('div', { class: 'bt-clan-logo vacant' }, String(k.tag || '?').slice(0, 4));
-  const im = h('img', { class: 'bt-clan-logo', src: 'images/clan_logo/' + k.logo + '.webp', sub: '' });
+  const im = h('img', { class: 'bt-clan-logo', src: 'images/clan_logo/' + k.logo + '.webp', alt: '' });
   im.onerror = () => im.replaceWith(btClanLogo({ tag: k.tag }));
   return im;
 }
@@ -615,7 +631,6 @@ const BT_STATS = { npc: N('Aliens killed'), player: N('Players killed'), death: 
 const BT_STATS_FEATURED = ['npc', 'player', 'death', 'quest', 'gate_done', 'duration_sec'];          // the big boxes of the Statistics section
 const BT_WARNING = { chat: N('chat'), pvp: N('PvP'), box: N('cargo box') };
 const seDurationBt = sec => sec ? (sec >= 3600 ? Math.floor(sec / 3600) + ':' : '') + String(Math.floor(sec / 60) % 60).padStart(sec >= 3600 ? 2 : 1, '0') + ':' + String(Math.round(sec) % 60).padStart(2, '0') : '—';
-const btShort = l => String(l || '').split('_').pop().toUpperCase();
 const btCapitalize = m => m ? m.charAt(0).toLocaleUpperCase(LOC()) + m.slice(1) : m;
 const BT_EVENT = { killed_me: N('shot me down'), i_killed: N('I shot him down'), helped_me: N('helped me'), i_helped: N('I helped'),
   chat: N('chat'), insult: N('insult'), praise: N('praise'), group: N('group'), clan: N('clan'), friend: N('friendship'), declined: N('turned me down'),
@@ -678,7 +693,7 @@ async function btBotDetail(no, tab = 'profile') {
     const n = Object.keys(value).length;
     save.disabled = lock || !n; cancel.disabled = !n;
     btFill(state, lock ? [icon('lock'), T('Read-only')] : n ? [h('span', { class: 'se-pulse' }), T('{0} unsaved changes', n)] : [icon('check'), T('Same as the save')]);
-    state.className = 'bt-detail-status' + (n && !lock ? ' var' : '');
+    state.className = 'bt-detail-status' + (n && !lock ? ' exists' : '');
   };
   const change = (a, val) => { value[a] = val; handle(); };
   const get_value = (a, backup) => value[a] !== undefined ? value[a] : backup;
@@ -828,7 +843,7 @@ async function btBotDetail(no, tab = 'profile') {
     const addSelect = (options, on) => h('select', { class: 'input bt-add', disabled: lock, onchange: ev => { if (ev.target.value) on(ev.target.value); } },
       [h('option', { value: '' }, T('Add…'))].concat(options.map(x => h('option', { value: x.loot }, x.name))));
     const category = ([k, name_, slot_info]) => {
-      const owner = Object.assign({}, e[k], (value.gear || {})[k]);
+      const fresh = () => Object.assign({}, e[k], (value.gear || {})[k]), owner = fresh();     // fresh(): two edits without a redraw both stay
       const write = new_ => { value.gear = Object.assign({}, value.gear, { [k]: new_ }); handle(); };
       const var_ = Object.entries(owner).filter(([, n]) => n > 0);
       const equipped = x => Object.values(Object.assign({}, e[x], (value.gear || {})[x])).reduce((a, n) => a + n, 0);
@@ -836,9 +851,9 @@ async function btBotDetail(no, tab = 'profile') {
       const total = slot_info === 'gen' ? equipped('shield') + equipped('speed') : k === 'extras' ? var_.length : equipped(k);
       return h('div', { class: 'bt-cat' },
         h('div', { class: 'bt-cat-head' }, h('b', null, T(name_)), h('span', { class: 'se-count' }, slot_info && slot[slot_info] != null ? T('{0} / {1} slots', total, slot[slot_info]) : fmtN(total)),
-          h('span', { class: 'spacer' }), addSelect(multiplier[k].filter(x => !owner[x.loot]), l => { write(Object.assign({}, owner, { [l]: (multiplier[k].find(x => x.loot === l) || {}).right || 1 })); render(); })),
-        var_.length ? h('div', { class: 'bt-items' }, var_.map(([l, n]) => item(l, n, x => write(Object.assign({}, owner, { [l]: x })),
-          () => { const y = Object.assign({}, owner); delete y[l]; write(y); render(); }, k === 'extras' ? 100000 : k === 'drone' ? 10 : 100))) : empty(T('Nothing equipped.')));
+          h('span', { class: 'spacer' }), addSelect(multiplier[k].filter(x => !owner[x.loot]), l => { write(Object.assign(fresh(), { [l]: (multiplier[k].find(x => x.loot === l) || {}).right || 1 })); render(); })),
+        var_.length ? h('div', { class: 'bt-items' }, var_.map(([l, n]) => item(l, n, x => write(Object.assign(fresh(), { [l]: x })),
+          () => { const y = fresh(); delete y[l]; write(y); render(); }, k === 'extras' ? 100000 : k === 'drone' ? 10 : 100))) : empty(T('Nothing equipped.')));
     };
     const stock = Object.assign({}, v.stock, value.stock);
     const cargo = Object.values(v.cargo).reduce((a, n) => a + n, 0), capacity = v.cargo_capacity || 1;
@@ -897,8 +912,8 @@ async function btBotDetail(no, tab = 'profile') {
     });
     const ledger = get_value('ledger', v.ledger);
     const notebookRow = (m, i) => h('div', { class: 'bt-ledger' }, h('span', { class: 'bt-ledger-no' }, i + 1),
-      h('input', { class: 'input', value: m, disabled: lock, oninput: e => { const d = ledger.slice(); d[i] = e.target.value; change('ledger', d); } }),
-      remove(() => { change('ledger', ledger.filter((_, j) => j !== i)); render(); }));
+      h('input', { class: 'input', value: m, disabled: lock, oninput: e => { const d = get_value('ledger', v.ledger).slice(); d[i] = e.target.value; change('ledger', d); } }),
+      remove(() => { change('ledger', get_value('ledger', v.ledger).filter((_, j) => j !== i)); render(); }));
     return [
       card(T('Relationships'), 'users', h('p', { class: 'desc' }, T('How it sees people: it helps friends and attacks enemies.')), relation.length ? relation : empty()),
       card(T('Impressions of people'), 'note', impression.length ? h('div', { class: 'bt-notes' }, impression) : empty()),
@@ -906,7 +921,7 @@ async function btBotDetail(no, tab = 'profile') {
       h('div', { class: 'grid g2' },
         card(T('Goal list'), 'target', ...(ledger.length ? ledger.map(notebookRow) : [empty()]),
           h('div', { class: 'row', style: { justifyContent: 'flex-end', marginTop: '8px' } },
-            btn(T('Add goal'), () => { change('ledger', ledger.concat([''])); render(); }, 'ghost sm', 'plus', { disabled: lock }))),
+            btn(T('Add goal'), () => { change('ledger', get_value('ledger', v.ledger).concat([''])); render(); }, 'ghost sm', 'plus', { disabled: lock }))),
         card(T('Reminders and savings'), 'bell',
           v.reminder.length && !value.clear_reminder
             ? [h('ul', { class: 'bt-mind' }, v.reminder.map(x => h('li', null, x.text, h('span', { class: 'dim' }, ' (' + T('in {0}', fmtDur(x.time_left_sec)) + ')')))),

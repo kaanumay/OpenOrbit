@@ -390,8 +390,8 @@ def _leave(u, reason, exit):
             MEMBER.pop(x, None)
         leaving += g.members
         del GROUPS[g.id]
-    elif g.leader == u:
-        g.leader = g.members[0]
+    elif g.leader == u:                           # a player before a bot (bots use neither invite mode nor kicking; see _accepted)
+        g.leader = next((x for x in g.members if not _bot(x)), g.members[0])
         for x in g.members:
             _add(exit, x, ('LeaderChangeCommand', {'leaderId': g.leader}))
     _leave_chat(g.id, leaving)

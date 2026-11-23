@@ -6,7 +6,7 @@ punctuation, abbreviation, emoji, error, uppercase).
 """
 import random, re
 
-from .language_data import LANGUAGES, CODES
+from .language_data import LANGUAGES
 
 # situation -> {lang: lines}, lang -> abbreviations: bot/languages/<code>.json (language_data)
 TEMPLATES = {}

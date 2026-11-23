@@ -11,7 +11,7 @@ If there is no green key and automatic purchase is on in the settings (autoBuyGr
 Maps: X-2..X-8 (1-2 ... 3-8), X-1..X-8 (Perseus, Laurel), 4-X, 5-X (5-1..5-3), 5-4 (silver), BL (BL-1..3). Gold boxes every other
 week on Friday (wiki).
 """
-import json, os, random, re, time
+import os, random, re
 import game_data as DATA
 
 import event_appearances as EG

@@ -110,8 +110,8 @@ def protons():
         except OSError:
             pass
         for lib in libs:
-            dirs += [(d, steam) for d in glob.glob(os.path.join(lib, 'steamapps', 'common', 'Proton*'))]
-        dirs += [(d, steam) for d in glob.glob(os.path.join(steam, 'compatibilitytools.d', '*'))]
+            dirs += [(d, steam) for d in glob.glob(os.path.join(glob.escape(lib), 'steamapps', 'common', 'Proton*'))]
+        dirs += [(d, steam) for d in glob.glob(os.path.join(glob.escape(steam), 'compatibilitytools.d', '*'))]
     dirs += [(d, None) for d in glob.glob('/usr/share/steam/compatibilitytools.d/*')]
     seen, out = set(), []
     for d, steam in dirs:

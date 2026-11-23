@@ -17,16 +17,16 @@ Client (window pvp_summer, UIPvpSummerSystem):
   perKillRanges stays empty: no reward per reputation-per-kill band is published.
 In the profile: galactic_strife {period, rep, paid (highest milestone paid), day, unique [names], victims {name: n}, losses [t]}.
 """
-import json, math, os, time
+import math, os, time
 
+import game_data as DATA
 import event_calendar as CAL
 import map_links as H
 import rankings as RK
-from legacy_protocol import legacy
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 _PATH = os.path.join(HERE, 'data', 'extra_events.json')
-D = (json.load(open(_PATH, encoding='utf8')) if os.path.exists(_PATH) else {}).get('galactic_strife', {})
+D = (DATA.shared('extra_events.json') if os.path.exists(_PATH) else {}).get('galactic_strife', {})
 EVENT = D.get('event', 'galactic_strife')
 MAPS = tuple(D.get('maps', ()))
 RANK_REP, RANK_PER_KILL = 3, 4                # RankRewardRequest.RankType PVP_SUMMER_EVENT_REPUTATION / _PER_KILL
@@ -105,12 +105,11 @@ def fever_times(now=None):
     f = D.get('fever', {})
     iv = []
     t0 = time.localtime(now)
-    midnight = time.mktime((t0.tm_year, t0.tm_mon, t0.tm_mday, 0, 0, 0, 0, 0, -1))
+    at = lambda d, h: time.mktime((t0.tm_year, t0.tm_mon, t0.tm_mday + d, h, 0, 0, 0, 0, -1))      # local clock time (DST days are 23/25 h)
     for d in range(0, 8):
-        base = midnight + d * 86400
-        wd = time.localtime(base + 3600).tm_wday
+        wd = time.localtime(at(d, 12)).tm_wday
         for a, b in f.get('weekend' if wd >= 5 else 'weekday', []):
-            iv.append((base + a * 3600, base + b * 3600))
+            iv.append((at(d, a), at(d, b)))
     cur = next((e for s, e in iv if s <= now < e), None)
     nxt = next((s for s, e in iv if s > now), None)
     return (int(cur - now) if cur else 0), (int(nxt - now) if nxt else 0)
@@ -208,7 +207,6 @@ class GalacticStrife:
     # ------------------------------------------------------------ client
     def info_cmd(self, now=None):
         now = time.time() if now is None else now
-        st = state(self.p, now)
         to_end, to_next = fever_times(now)
         return ('PVPSummerEventInfoCommand', dict(
             perKillRanges=[], timeToEndFever=to_end, timeToNextFever=to_next, reputationUpdateCommand=self.self_cmd(now)[1],
@@ -463,7 +461,7 @@ class GalacticStrife:
         self.next_label = now + LABEL_SEC
         if not self.here():
             if self.labels:                       # left the maps or the event ended: the labels go (a negative value hides them)
-                msgs = [('PVPSummerEventReputationUpdateCommand', dict(uid=uid, reputation=-1)) for uid in self.labels]
+                msgs += [('PVPSummerEventReputationUpdateCommand', dict(uid=uid, reputation=-1)) for uid in self.labels]
                 self.labels = {}
             return msgs
         if self.sent_rep != rep(self.p):

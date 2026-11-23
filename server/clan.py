@@ -56,6 +56,7 @@ REQUESTS = {'LoginInitClanRequest', 'ClanFilterSearchRequest', 'ClanSearchNameTa
 LOCK = threading.RLock()
 CLANS = {}                  # clan id -> main record
 DELETED = {}                  # deleted clan's id -> its key (so a connecting member's old copy does not come back)
+DELETED_MAX = 2000            # the newest kept (save): a member offline through 2,000 later deletions is not a real case
 FILE = None                  # file of the main records in multiplayer (configure)
 BOT_NAME_N = 0                  # last position of the bot name register (name_log.py) applied to these records
 
@@ -102,6 +103,7 @@ def name(p):
 def configure(path):
     """Multiplayer server (game.main): main records from file; written as they change."""
     global FILE, BOT_NAME_N
+    flush()                                          # a change waiting for the previous file goes there first
     FILE = path
     try:
         with open(path, encoding='utf8') as fh:
@@ -118,18 +120,55 @@ def configure(path):
     NL.apply_clans(sys.modules[__name__])        # bot names changed or deleted in the panel (while the game was closed)
 
 
+SAVE_SEC = 2.0          # clans.json at most this often: every change rewrote the whole file (1500 bots: ~28 ms per tick of the bot lock)
+_WRITE = threading.Lock()
+_PENDING = [False, None]        # [a change waits to be written, the writer thread]
+
+
 def save():
+    """A change to the main records: written within SAVE_SEC by the writer thread (flush: now; stop_gracefully and the bot pack's close
+    flush, a crash loses at most SAVE_SEC of clan changes)."""
     if not FILE:
         return
     with LOCK:
-        text = json.dumps({'clans': {str(i): k for i, k in CLANS.items()}, 'deleted': {str(i): a for i, a in DELETED.items()},
-                           'bot_name_log': BOT_NAME_N}, ensure_ascii=False)
-        tmp = FILE + '.tmp'
+        for i in list(DELETED)[:-DELETED_MAX]:          # the oldest go (it grew with every deletion; newest first to stay)
+            DELETED.pop(i, None)
+        _PENDING[0] = True
+        if _PENDING[1] is None or not _PENDING[1].is_alive():
+            _PENDING[1] = threading.Thread(target=_writer, name='clans', daemon=True)
+            _PENDING[1].start()
+
+
+def _writer():
+    while True:
+        time.sleep(SAVE_SEC)
+        flush()
+
+
+def flush(timeout=None):
+    """Writes the main records now if a change is waiting (atomic replace: the panel reads clans.json from its own process)."""
+    if not FILE or not _PENDING[0]:
+        return
+    with _WRITE:
+        if not LOCK.acquire(timeout=-1 if timeout is None else timeout):
+            print('clans.json could not be written: the clan lock stayed busy')
+            return
+        try:
+            if not _PENDING[0]:
+                return
+            _PENDING[0] = False
+            path = FILE
+            text = json.dumps({'clans': {str(i): k for i, k in CLANS.items()}, 'deleted': {str(i): a for i, a in DELETED.items()},
+                               'bot_name_log': BOT_NAME_N}, ensure_ascii=False)
+        finally:
+            LOCK.release()
+        tmp = path + '.tmp'
         try:
             with open(tmp, 'w', encoding='utf8') as fh:
                 fh.write(text)
-            os.replace(tmp, FILE)
+            os.replace(tmp, path)
         except OSError as e:
+            _PENDING[0] = True                            # tried again at the next round
             print('clans.json could not be written: %r' % e)
 
 
@@ -174,7 +213,10 @@ def _copy(k, p):
     pl = p.d['pilot']
     with p.lock:
         old = (pl.get('clanId', 0), pl.get('clanTag', ''))
-        p.d['clan'] = copy.deepcopy(k) if k else None
+        # a bot profile is never written to disk (bot/society.BotProfile): it reads the main record itself; a deep copy per member per
+        # change was the largest share of the bot lock with 1500 bots (audit 2026-11-22). Its readers only read (Clan.k id/key, rooms,
+        # tax's same-value update); name_log.apply_profile leaves a shared record to apply_clans.
+        p.d['clan'] = (k if getattr(p, 'shared_clan', False) else copy.deepcopy(k)) if k else None
         pl.update(clanId=k['id'] if k else 0, clanTag=k['tag'] if k else '')
         p.dirty = True
         return old != (pl['clanId'], pl['clanTag'])
@@ -372,8 +414,9 @@ def live(p):
             'ship': sum((c.get('player') or {}).values()), 'alien': sum((c.get('npc') or {}).values())}
 
 
-def players(p=None):
-    """Known players on the server (name -> numbers): connected ones live, the clans' offline members with their last known state."""
+def players(p=None, names=None):
+    """Known players on the server (name -> numbers): connected ones live, the clans' offline members with their last known state.
+    names: only these (a clan's members, one applicant): the whole server's live numbers for 1500 bots per call otherwise."""
     prof = profiles()
     if p is not None:
         prof.setdefault(name(p), p)
@@ -381,9 +424,11 @@ def players(p=None):
     with LOCK:
         for k in CLANS.values():
             for a, u in k['members'].items():
-                if a not in prof:
+                if a not in prof and (names is None or a in names):
                     out[a] = dict(u)
     for a, x in prof.items():
+        if names is not None and a not in names:
+            continue
         out[a] = live(x)
         with LOCK:
             k = clan_of(x)
@@ -589,7 +634,7 @@ class Clan:
         k = k or self.k
         if not k:
             return []
-        players(self.p)                                   # the connected members' numbers
+        players(self.p, names=k['members'])               # the connected members' numbers
         with LOCK:
             order = sorted(k['members'].items(), key=lambda uid_member: (uid_member[0] != k['leader'], uid_member[1].get('joined', ''), uid_member[0]))
             return [self.member_cmd(u) for _, u in order]
@@ -627,7 +672,7 @@ class Clan:
                    logList=[mod('ClanTaxLogCommand', **x) for x in self.k['treasury_log'][:50]])
 
     def apply_cmd(self, b):
-        u = players().get(b['name']) or {}
+        u = players(names=(b['name'],)).get(b['name']) or {}
         return mod('ClanApplyInfoCommand', userName=b['first_name'], EP=int(u.get('ep', 0)), applyDesc=b['text'], level=int(u.get('level', 1)),
                    clanApplyId=b['id'], insertDate=b['date'], company=int(u.get('company', 0)))
 
@@ -724,11 +769,6 @@ class Clan:
             if o is None or o.clan.k is not k:
                 continue
             s.send([('LoginInitClanCommand', {'clanAllInfoCommand': o.clan.all_info()})] + list((extra or {}).get(a, ())), 'clan')
-
-    def push_clan(self, cid):
-        k = CLANS.get(cid)
-        if k:
-            self.push(k, skip_self=False)
 
     def kick_out(self, a):
         """The client of a connected player who dropped from the clan (removed, clan deleted): clanless window, ship tag, chat room."""
@@ -845,7 +885,7 @@ class Clan:
             return reply(False, 'clan_errmsg_desc_to_long')
         if not self.valid_tag(tag):
             return reply(False, 'clan_errmsg_clantag_not_allowed')
-        if is_banned(cname) or is_banned(tag):                  # Game Rules 7 (official forum 131990)
+        if is_banned(cname) or is_banned(tag) or not cname.isprintable():      # Game Rules 7 (official forum 131990); control characters
             return reply(False, 'clan_name_not_allowed')
         busy = self.taken(cname, tag)
         if busy:
@@ -1035,7 +1075,7 @@ class Clan:
         if len(cname) > 50:
             return reply(False, 'clan_errmsg_to_long')
         renamed = (tag, cname) != (k['tag'], k['name'])
-        if renamed and (is_banned(cname) or is_banned(tag)):
+        if renamed and (is_banned(cname) or is_banned(tag) or not cname.isprintable()):     # control characters too
             return reply(False, 'clan_name_not_allowed')
         if renamed and SET.get('clan_cooldown') and time.time() < k.get('name_changed_at', 0) + COOLDOWN_SEC:
             return reply(False, 'err_clannameChange2Days')
@@ -1076,7 +1116,7 @@ class Clan:
                 k['applications'].append(b)
                 return reply(False, err('err_clan_full'))
             if accept:
-                u = players().get(b['name']) or {'name': b['first_name']}
+                u = players(names=(b['name'],)).get(b['name']) or {'name': b['first_name']}
                 k['members'][b['name']] = dict(u, rank=0, joined=stamp())
                 for c in CLANS.values():
                     c['applications'] = [x for x in c['applications'] if x['name'] != b['name']]
@@ -1344,12 +1384,27 @@ class Clan:
                 self.diplo_sync(r['to'])
             return [('ClanDeleteOpenDiploCommand', {'diploId': did, 'success': ok,
                                                     'errorMsg': err('diplo_request_delete' if ok else 'err_diplo_default')})]
-        with LOCK:      # ClanDeleteDiploRequest: alliance/non-aggression ends; a war too, by either side (the client's "End war", diplo_stop_war)
+        # ClanDeleteDiploRequest: alliance/non-aggression ends. A war (the client's "End war" on the war row; its new-diplomacy form only
+        # offers 1-3, so this is its only way to end one): official forum FAQ 127471 "click end and wait for your diplomacy offer to be
+        # accepted": an End war request (type 0) to the other clan; if that clan already asked for it the war ends now (both agreed)
+        asked = None
+        with LOCK:
             d = next((x for x in k['diplomacy'] if x['id'] == did), None)
+            theirs = d and next((r for r in k['diplomacy_requests'] if r['type'] == 0 and r['from_clan'] == d['clan'] and r['to'] == k['id']), None)
             if d is None or not self.right('diplo_end', k):
                 e = 'err_clan_noRights' if d is not None else 'err_diplo_default'
+            elif d['type'] == 3 and not theirs:
+                if any(r['from_clan'] == k['id'] and r['to'] == d['clan'] for r in k['diplomacy_requests']):
+                    e = 'err_diplo_applyIsRunning'
+                else:
+                    e, asked = 'clan_newDiploOffer', {'id': _no(), 'from_clan': k['id'], 'to': d['clan'], 'type': 0, 'date': stamp(), 'text': ''}
+                    k['diplomacy_requests'].append(asked)
+                    if CLANS.get(d['clan']):
+                        CLANS[d['clan']]['diplomacy_requests'].append(dict(asked))
             else:
                 e = None
+                if theirs:
+                    self._diplo_drop(theirs)
                 o = CLANS.get(d['clan'])
                 for c in (k, o):
                     if c:
@@ -1358,6 +1413,12 @@ class Clan:
                     if o:
                         self.add_news('peace', '', o, other=k['name'])        # "The X clan ended the war with your clan."
                     self.add_news('peace2', '', k, other=(o or {}).get('name', ''))   # "Your clan ended the war with the X clan."
+        if asked:                     # the war row stays (success false); the outgoing request shows with the whole list
+            self.changed(k, push=False)
+            self.diplo_sync(d['clan'])
+            self.log('   diplomacy: [%s] asks [%s] to end the war' % (k['tag'], (CLANS.get(d['clan']) or {}).get('tag', '?')))
+            return [('ClanDeleteDiploCommand', {'diploId': did, 'baseStackCommand': err(e), 'success': False}),
+                    ('LoginInitClanCommand', {'clanAllInfoCommand': self.all_info()})]
         if e:
             return [('ClanDeleteDiploCommand', {'diploId': did, 'baseStackCommand': err(e), 'success': False})]
         self.changed(k)
@@ -1435,6 +1496,7 @@ class Clan:
                 r = {'id': did, 'from_clan': k['id'], 'to': tid, 'type': 3, 'date': stamp(), 'text': desc}
             else:
                 r = {'id': did, 'from_clan': k['id'], 'to': tid, 'type': form, 'date': stamp(), 'text': desc}
+                # it waits until answered or withdrawn (ClanDeleteOpenDiploRequest): no source gives requests a lifetime (adaptation)
                 k['diplomacy_requests'].append(r)
                 t['diplomacy_requests'].append(dict(r))
             cmd = self.diplo_req_cmd(r, k)

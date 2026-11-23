@@ -16,14 +16,15 @@ Unity client reward (EventUnityClientRewardQuestCommand {nowQuests, afterQuests,
   the reward of finished quests from earlier days can be claimed later too.
 In the profile: mini_client {period, day, n}, monthly_deluxe {start, claimed}, unity_reward {start, value, done, claimed}.
 """
-import datetime, json, os, time
+import datetime, os, time
 
+import game_data as DATA
 import quest_tracker as GT
 import event_calendar as CAL
 import reward_renewal as RR
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-D = json.load(open(os.path.join(HERE, 'data', 'tickets.json'), encoding='utf8'))
+D = DATA.shared('tickets.json')
 MINI, DELUXE, UNITY = D['mini_client'], D['monthly_deluxe'], D['unity_reward']
 MINI_EVENT = D.get('mini_client_event', {})       # event -> its own day list (MINI if none)
 UNITY_Q = {q['id']: q for day in UNITY for q in day}

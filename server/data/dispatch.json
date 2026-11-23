@@ -717,10 +717,6 @@
    }
   }
  },
- "dispatch_gunleri": [
-  0,
-  4
- ],
  "dispatch_day_multiplier": 1.5,
  "gate": {
   "ggeu": "resource_collectable_ggeu",

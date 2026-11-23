@@ -9,7 +9,7 @@ Cost (the client's texts): free at the station ("desc_shipwarp_costs_spacestatio
 (resource_jumpvoucher, same as AJP-01's) or uridium if there is no voucher. No warping in combat ("msg_swnotallowed_fight"), on Galaxy Gate and event
 maps, in the Cubikon Graveyard and LoW ("msg_swnotallowed_map"); if attacked during the countdown the warp is canceled
 ("msg_swblocked", ShipWarpCanceledCommand).
-Adaptations (since no source gives them): the uridium price (1,000 U like AJP-01's jump without a voucher), countdown 5 s.
+Price and countdown from the official Turkish forum FAQ 127436: 1 jump voucher or 200 Uridium (a small Premium discount), 10 s countdown.
 """
 import settings as SET
 import map_links as H

@@ -44,6 +44,7 @@ TRAIL_STEP = 40               # a new point only after this many units of flight
 MARKS = 60                    # where aliens were destroyed / the ship died, on this map
 QUEST_FLEE_HP, QUEST_RESUME_HP = 50, 95         # an active quest fails on death: the ship flees at half its HP
 AWAY_RESUME = 25              # with no safe zone on the map, back to work this many % above the flee threshold
+NO_REPAIR_SEC = 60            # low HP without a repair robot: the HP not rising for this long stops the bot (no endless wait)
 
 
 class Pilot:
@@ -52,6 +53,7 @@ class Pilot:
         self.p = session.profile
         self.cfg_path = C.path_for(self.p.path)
         self.status_file = C.status_path(PTH.LOGS, self.p.path)
+        C.clean_tmp(self.status_file)                   # left by a game that crashed while writing it (the settings: C.load)
         self.cfg, self.cfg_mtime = C.load(self.cfg_path), self._mtime()
         self.world = None
         self.act = None
@@ -80,7 +82,10 @@ class Pilot:
         self.homing = ''                # a stop reason: flying home before stopping
         self.support_at, self.config_at, self.pet_at = 0.0, 0.0, 0.0
         self.sell_block, self.supply_at, self.supply_fail = 0.0, 0.0, {}
+        self.supply_refused = {}        # ammo -> purchases the shop refused in a row (tasks/economy.pending)
         self.danger_until = 0.0         # enemy pilots seen: hidden until then
+        self.hide_since = None          # hidden from enemy pilots since then (tasks/players.HIDE_MAX_SEC)
+        self.heal_track = None          # (HP, since when) at low HP without a repair robot (no_repair)
         self.no_shelter = None          # the map already noted as having no safe zone to hide in
         self.ended = set()              # the modes that ended in this run (a 'then' back to one of them stops the bot: no ping-pong)
         self.quests_finished = set()    # the quests completed in this run (the 'quest' event)
@@ -98,6 +103,7 @@ class Pilot:
         self.quest_goal = self.quest_maps = self.quest_aliens = None      # Quests mode: the quest's goal, maps, aliens (tasks/quests.py)
         self.quest_rules = None                                           # and the active quests' restrictions
         self.quest_skip = {}                                              # (quest, condition) -> until when it is set aside
+        self.quest_track = None                                           # ((quest, condition, left to do, map), since when): no progress
         self.act_at, self.asset_out = 0.0, False                          # a one-off action's last try; out of a station object's reach
         self.quest_at = self.quest_block = 0.0
 
@@ -348,14 +354,14 @@ class Pilot:
     def safety(self, s, cfg, now):
         act = self.act
         if self.mode not in ('flee', 'repair'):
-            self.mode = 'flee'
+            self.mode, self.heal_track = 'flee', None
             self.note('Low HP ({0} %): going to a safe zone.', int(B.hp_pct(s)))
         self.drop_target()
         self.normal_ammo()
         if s['in_peace']:
             self.mode = 'repair'
             if not act.repair(now) and not act.can_heal(now):
-                self.reason = 'no_repair_robot'
+                self.no_repair(s, now)
             return
         p = B.safe_point(s)
         if p is None:                               # no safe zone on this map: away from the aliens, repair once nothing attacks
@@ -363,12 +369,23 @@ class Pilot:
             if p is None:
                 self.mode = 'repair'
                 if not act.repair(now) and not act.can_heal(now):
-                    self.reason = 'no_repair_robot'
+                    self.no_repair(s, now)
                 return
             if self.no_shelter != s['map']:
                 self.no_shelter = s['map']
                 self.note('No safe zone on this map: flying away from the aliens.')
         act.move_to(p[0], p[1], now)
+
+    def no_repair(self, s, now):
+        """Low HP and no repair robot (the server's HP does not come back by itself): while an ability rule or the P.E.T. still heals the
+        ship it waits, once the HP has not risen for NO_REPAIR_SEC the bot stops where it is (go_home would fly at low HP)."""
+        self.reason = 'no_repair_robot'
+        t = self.heal_track
+        if t is None or s['hp'] > t[0]:
+            self.heal_track = (s['hp'], now)
+        elif now - t[1] >= NO_REPAIR_SEC:
+            self.heal_track = None
+            self.stop('no_repair', home=False)
 
     def track_target(self, s, it, d, now):
         """The target lost no HP / shield for stuck_sec while in range (out of range or in a safe zone the clock waits): it is left alone
@@ -458,15 +475,17 @@ class Pilot:
             self.shot = fire['id']
             act.attack(fire['id'])
             if not LURE.run(self, s, cfg, it, now):     # deep in an immobile alien's zone: drawn out of it first
-                p = B.kite_point(s, cfg, it, B.threats(s, cfg, it['id']))    # the ship flies to the main target
+                thr = B.threats(s, cfg, it['id'])
+                band = B.rocket_band(s, cfg, it, thr, act.rocket_reach(now)) if cfg['rockets'] else cfg     # in for a short-range rocket
+                p = B.kite_point(s, band, it, thr)  # the ship flies to the main target
                 if p:
                     act.move_to(p[0], p[1], now)
             if leech is None and not self.sab_low:  # SAB-50 phase: no RSB-75 / RCB-140 until the shield is back up
                 self.slow_ammo(B.dist(hx, hy, fire['x'], fire['y']) <= s['R'], now)
             if cfg['rockets']:
                 act.fire_rocket(it['id'], d, now)
-            if cfg['launcher'] and d <= s['R']:
-                act.fire_launcher(it['id'], now)
+            if cfg['launcher']:
+                act.fire_launcher(it['id'], d, now)
             self.view['target'] = dict(id=it['id'], tip=it['tip'], name=it['name'], hp=it['hp'], hp_max=it['hp_max'], shield=it.get('shield', 0),
                                        shield_max=it.get('shield_max', 0), dist=int(d), range=int(s['R']))
             return

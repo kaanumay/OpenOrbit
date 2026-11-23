@@ -23,8 +23,9 @@ calendar period ends earlier. Only one pass at a time: while a pass runs it does
 restart in the same period.
 In the profile: battle_pass {period, start, purchased, value, done, to_collect, collected, exchange, filters}.
 """
-import json, os, time
+import os, time
 
+import game_data as DATA
 import settings as SET
 import inventory as INV
 import event_appearances as EG
@@ -32,7 +33,7 @@ import quest_tracker as GT
 import event_calendar as CAL
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-B = json.load(open(os.path.join(HERE, 'data', 'tickets.json'), encoding='utf8'))['battle_pass']
+B = DATA.shared('tickets.json')['battle_pass']
 PASSES = {k: dict(p, quests={int(q): d for q, d in p['quests'].items()}, rewards={int(q): r for q, r in p['rewards'].items()})
           for k, p in B['passes'].items()}
 EXCHANGE = {r['exchangeReward']: r for r in B['key_exchange']}
@@ -130,6 +131,9 @@ class BattlePass:
             CAL.PASS_RUNS[ev] = (st['start'], self.end())
             return st['period']
         CAL.PASS_RUNS.pop(ev, None)
+        if st.get('to_collect') and ev in PASSES:        # the pass ended with rewards not collected: they are given (they were lost;
+            self.payout()                                 # the Season Pass gives them by itself too; adaptation, no source)
+            self.log('   Battle Pass over: the uncollected quest rewards were given')
         extra = event_key(now)
         if not extra or extra == st.get('period'):
             return None
@@ -229,6 +233,13 @@ class BattlePass:
         st = self.st
         if not self.ensure() or not st['to_collect']:
             return [('BattlePassInfoCommand', self.info_cmd()[1])] if self.p.d.get('battle_pass') else []
+        msgs, keys = self.payout()
+        self.log('   Battle Pass rewards collected%s' % (' (+%d keys)' % keys if keys else ''))
+        return msgs + [self.info_cmd(), self.key_update()]
+
+    def payout(self):
+        """The finished quests' rewards waiting to be collected (and with the pass bought their keys and ticket rewards) -> (messages, keys)."""
+        st = self.st
         msgs, keys = [], 0
         for q in list(st['to_collect']):
             for loot, n in self.bp['rewards'].get(q, {}).get('reward', []):
@@ -242,8 +253,7 @@ class BattlePass:
             self.p.dirty = True
         if keys:
             self.p.add_resource(KEY, keys)
-        self.log('   Battle Pass rewards collected%s' % (' (+%d keys)' % keys if keys else ''))
-        return msgs + [self.info_cmd(), self.key_update()]
+        return msgs, keys
 
     def grant_pass(self, n=1):
         """Battle Pass from the shop: for this period; the keys of the collected quests are given."""

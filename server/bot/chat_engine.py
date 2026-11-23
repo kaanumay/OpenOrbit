@@ -20,7 +20,6 @@ from . import talk as TALK
 EVENT_SEC = 5.0
 RECRUIT_CLAN_SEC = 7200.0                   # between recruitment ads of the same clan (two hours)
 RECRUIT_ANY_SEC = 1500.0                  # between ads of any clan
-COMPLAINT_SEC = 1800.0                     # between lag/uridium complaints (in the whole chat)
 REPEAT_SEC = 2700.0                      # the same line is not written a second time within this period
 BOT_GAP_SEC = 600.0                      # minimum gap between two spontaneous remarks of the same bot
 RUDE_FACTOR = (0.0, 1.0, 1.6, 2.2)      # multiplier of the probability of answering an insult, by rude_chat level
@@ -72,7 +71,6 @@ class ChatEngine:
         self._lines = []            # times of the bot lines in the last minute (chat_min)
         self._last_text = []           # [(time, simplified text)]: recent spontaneous lines (repeat prevention)
         self._last_recruit = {}            # clan key (None: all) -> time of the last recruitment ad
-        self._last_complaint = 0.0
 
     def speak(self, b, channel, text, recipient=None, now=None, immediate=False, priority=False):
         """A bot will write: it goes out after a human typing time (whisper: recipient). priority: a reply to the player; not subject to the channel limit.
@@ -515,79 +513,6 @@ class ChatEngine:
     def wrote(self, b, text, now):
         self._last_text.append((now, re.sub(r'\W+', '', text.lower())))
         b._last_word = now
-
-    def status_line(self, b, now):
-        """A line about something the bot actually did or just did (gate finished, shopping, death, quest, full cargo, grinding)
-        -> (state, fields) or None. Level and new ship are already written in event_chat; the same event is not told twice."""
-        told = b.__dict__.setdefault('_told', set())
-        candidates = []
-        for o in b.events[-12:]:
-            if now - o['t'] > 900 or (o['type'], o['t']) in told:
-                continue
-            t = o['type']
-            if t == 'gate_done':
-                candidates.append(('status_gate', dict(gate=o['gate']), o))
-            elif t == 'purchase' and not str(o.get('item', '')).startswith('ship_'):
-                item = re.sub(r'^(drone|equipment|resource)_', '', str(o.get('item', ''))).replace('_', ' ')
-                candidates.append(('status_purchase', dict(item=item), o))
-            elif t == 'death' and o.get('reason') == 'npc':
-                candidates.append(('status_death', dict(map=o.get('map', H.name(b.game_map))), o))
-            elif t == 'quest_done' and o.get('name'):
-                candidates.append(('status_quest', dict(name=o['name']), o))
-            elif t == 'fled':
-                candidates.append(('status_fled', dict(map=o.get('map', H.name(b.game_map))), o))
-        try:
-            if b.cargo_fill() > 0.85:
-                candidates.append(('status_cargo', dict(percent=int(b.cargo_fill() * 100)), None))
-        except Exception:
-            pass
-        if b.target is not None and b.target.name == 'grinding':
-            candidates.append(('status_grind', dict(map=H.name(b.game_map)), None))
-        npc = b.k['stats'].get('npc', 0)
-        if npc >= 50:
-            candidates.append(('status_stats', dict(npc=npc, death=b.k['stats'].get('death', 0)), None))
-        if not candidates:
-            return None
-        d, f, o = b.r.choice(candidates)
-        if o is not None:
-            told.add((o['type'], o['t']))
-            if len(told) > 60:
-                told.clear()
-        f.setdefault('map', H.name(b.game_map))
-        f.setdefault('level', b.level)
-        return d, f
-
-    def start_dialog(self, b, is_open, channel, now):
-        """b writes a question/remark; another online bot (same language, same company in a company channel) replies with a human delay, sometimes
-        b answers back too (at most 3 lines). A reply may not come; the time each line goes out is added on top of the previous one."""
-        chat = SPC.dialogue(b)
-        if not chat:
-            return False
-        take = lambda x, kind: SPC.dialogue_line(x, kind, map=H.name(x.game_map), level=x.level)
-        m = take(b, chat[0])
-        if not m or re.sub(r'\W+', '', m.lower()) in (x[1] for x in self._last_text):
-            return False
-        t = self.speak(b, channel, m, now=now)
-        if t is None:
-            return False
-        self.wrote(b, m, now)
-        candidates = [c for c in is_open if c is not b and SPC.lang(c) == SPC.lang(b) and (channel == 'global' or c.company == b.company)]
-        if not candidates:
-            return True
-        c = max(candidates, key=lambda x: x.o('sociability') * x.r.random())
-        if b.r.random() > 0.3 + 0.55 * c.o('sociability'):
-            return True                                  # nobody replied
-        for i, kind in enumerate(chat[1:]):
-            who = c if i % 2 == 0 else b
-            m = next((x for x in (take(who, kind) for _ in range(3)) if x and re.sub(r'\W+', '', x.lower()) not in
-                      (y[1] for y in self._last_text)), None)
-            if not m:
-                break
-            t = self.speak(who, channel, m, now=t + who.r.uniform(5, 22))
-            if t is None:
-                break
-            self._last_text.append((now, re.sub(r'\W+', '', m.lower())))
-        return True
 
     def spontaneous(self, now):
         """Now and then a bot writes spontaneously: a line about what it did, short talk, looking for a group, trade, general remark, rarely a clan recruitment

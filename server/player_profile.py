@@ -74,7 +74,8 @@ def stack_cap(loot):
     """The client's item stack limit (client_items.json stack; close to 2^63 counts as 'unlimited') or None."""
     global _STACK
     if _STACK is None:
-        K = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data', 'client_items.json'), encoding='utf8'))
+        import game_data as DATA
+        K = DATA.shared('client_items.json')
         _STACK = {k: int(v['stack']) for k, v in K['items'].items() if isinstance(v, dict) and 0 < (v.get('stack') or 0) < 10 ** 12}
     return _STACK.get(loot)
 import skill_tree as SKILL
@@ -1118,8 +1119,9 @@ class Profile:
             self.cpu_init_sent = dict(fields, advancedJumpCPUEquipped=CIT.has_ajp(self))
             return dict(self.cpu_init_sent)
         if name == 'LegacyModule' and fields.get('message', '').startswith('0|n|INV|'):
-            parts = fields['message'].split('|')                # hidden on login if cloaked with the cloaking CPU
-            return dict(fields, message='0|n|INV|%s|%d' % (parts[3], 1 if self.d.get('cpu_hidden') else 0))
+            parts = fields['message'].split('|')                # hidden on login if cloaked: the cloaking CPU, or Ultimate Cloaking still running
+            hidden = self.d.get('cpu_hidden') or SA.effect(self, 'cloak')         # (a re-login within its 30 s drew the ship visible)
+            return dict(fields, message='0|n|INV|%s|%d' % (parts[3], 1 if hidden else 0))
         if name == 'InvitationBlockModule':                     # group invite block (the profile's choice instead of false in the recording)
             return dict(fields, active=bool(self.d.get('invite_block')))
         if name == 'LegacyModule' and fields.get('message', '').startswith('0|S|CFG|'):
@@ -1152,7 +1154,8 @@ class Profile:
                     lines = (x.get('toolTipItemBar') or {}).get('commandList')
                     if x['menuItemId'].startswith('buy_') and lines is not None and                             not any(l.get('baseKey') == QUICK_BUY_TIP['baseKey'] for l in lines):
                         lines.append(json.loads(json.dumps(QUICK_BUY_TIP)))
-                    self.menu_status_cache.setdefault(x['menuItemId'], json.loads(json.dumps(x)))
+                    if x['menuItemId'] not in self.menu_status_cache:      # (setdefault built the copy on every map load)
+                        self.menu_status_cache[x['menuItemId']] = json.loads(json.dumps(x))
                     cur = self.menu_status(x['menuItemId'])
                     if cur:
                         x.update(cur)

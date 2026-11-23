@@ -12,7 +12,8 @@ of another map (costs one Labyrinth Key; wiki), and in the middle is the return 
   - Synk: one in the whole labyrinth; spawns in a random map and region, does not attack, flees; when killed a reward box, counts as a Synk hunt
     (FrozenLabyrinthSynkInfoCommand: map, region, time left to respawn; FrozenLabyrinthInfoCommand: hunts, keys, times).
 In the profile: labyrinth {anahtar, synk: {map, region, spawn}, hunts, last_hunt}.
-Iceterion (cannot be killed, drops mines) is missing: its values are unknown.
+  - Iceterion (forum 158403): cannot be killed or targeted, drops IceMines (ammunition_mine_ice-01, the client's mine_21 ICE MINE; wiki: 95%
+    of the hitpoints; items.json combat_items.mines) near the player, not near portals; its other values are adaptation (event_gates.json).
 """
 import math, random, time
 
@@ -224,7 +225,10 @@ class Labyrinth:
         if sum(1 for k in self.w.items.mines.values() if k['owner'] == ice.id) >= cfg['max_count']:
             return
         a, r = random.uniform(0, 2 * math.pi), random.uniform(*cfg['radius'])
-        self.w.items.alien_mine(cfg['type'], hx + math.cos(a) * r, hy + math.sin(a) * r, ice.id, now)
+        x, y = hx + math.cos(a) * r, hy + math.sin(a) * r
+        if any(math.hypot(g['x'] - x, g['y'] - y) <= H.GATE_PEACE_RADIUS for g in self.w.gates):
+            return                                   # forum 158403: IceMines do not appear near portals (not in their safe zone)
+        self.w.items.alien_mine(cfg['type'], x, y, ice.id, now)
 
     def open_hours(self, now):
         """Labyrinth gates are open at certain hours (forum 158403; weekday / weekend slots); always if the panel's 'session_always_open' setting is on or

@@ -23,11 +23,11 @@ def allows(pilot, what):
     m, c = current(pilot), pilot.cfg
     if m == 'hunt':
         return what in ('hunt', 'boxes', 'roam') or (what == 'harvest' and c['ore']['harvest']) or (what == 'sell' and c['ore']['sell'])
-    if m == 'quest':                                        # only a goal of aliens hunts; an ore goal harvests and sells, cargo boxes sell
-        g = pilot.quest_goal
+    if m == 'quest':                                        # only a goal of aliens hunts; an ore goal harvests and, with the Ore card's sale
+        g = pilot.quest_goal                                # ticked (ore.sell), sells the full cargo, cargo boxes too (a sale quest: its own)
         return (what in ('boxes', 'roam') or (what == 'hunt' and QUESTS.hunts(pilot))
                 or (what == 'harvest' and bool(g) and g['kind'] == 'ore')
-                or (what == 'sell' and bool(g) and (g['kind'] == 'ore' or g['box'] == 'cargo')))
+                or (what == 'sell' and bool(g) and (g['kind'] == 'ore' or g['box'] == 'cargo') and c['ore']['sell']))
     if m == 'mining':
         return what in ('harvest', 'sell', 'roam')
     return False                                            # gate mode off the gate map: only its trip

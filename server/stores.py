@@ -41,7 +41,6 @@ VIP_PKG = {r['lootId'] for r in VIP['packages']}
 RL_PKG = {r['lootId'] for r in RL['packages']}
 PB_PKG = {r['lootId'] for r in PB['packages']}
 SP_PKG = {r['lootId'] for r in SP['packages']}
-RH_Q = {q['id']: q for q in CT['quests']}
 RH_X = {r['exchangeReward']: r for r in CT['exchange']}
 DAY = 86400
 

@@ -22,15 +22,16 @@ the icon stays until the next build: if opened with no quest, the window is clos
 quest, NullReferenceException; it also happens when a quest ends, harmless, a client defect.)
 In the profile: urgent_quest {quest (definition), state, shown, end_time (when shown), value, rewards, counter (kills since the last quest), last}.
 """
-import json, os, random, time
+import os, random, time
 
+import game_data as DATA
 import map_links as H
 import event_calendar as CAL
 from legacy_protocol import legacy
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 _PATH = os.path.join(HERE, 'data', 'extra_events.json')
-D = (json.load(open(_PATH, encoding='utf8')) if os.path.exists(_PATH) else {}).get('urgent_quests', {})
+D = (DATA.shared('extra_events.json') if os.path.exists(_PATH) else {}).get('urgent_quests', {})
 EVENT = 'urgent_quests'
 NOT_ACCEPTABLE, NOT_STARTED, RUNNING, COMPLETED, DISABLED = 0, 1, 2, 3, 4
 QUEST_ID = 796000

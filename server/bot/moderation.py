@@ -12,12 +12,14 @@ import time
 
 from . import speech as SPC
 
-RULES = ('caps', 'flood', 'insult', 'ads')
 TAG = 'CM'                    # the label shown for the moderator in chat and above their ship (clans cannot take it: clan.is_reserved)
 CHAT_ROLE = 'mod'              # in their own color via the client patch (panel/plugin/Yamalar.cs ModeratorRengi); the admin role would hide the label
 WARNING_SEC = 1800                  # a second violation within this time after a warning mutes
 _LINK = re.compile(r'(https?://|www\.|discord\.gg|\b[\w-]+\.(com|net|org|gg|io|ru|tr|de)\b)', re.I)
 CHANNELS = ('global', 'company')
+# words of the insult intent (speech._INSULT, languages intent.insult) that are ordinary chat, not an insult a moderator punishes:
+# "any bots here?", "ez farm", "cop", "server malo / ruim" (bad), "c'est nul" (lame); they used to warn and then mute the player
+_NOT_INSULT = re.compile(r'(?<!\w)(bots?|ez|cop|malo|ruim|nul)(?!\w)', re.I)
 NOTICE = {'tr': 'Susturuldun: {0} dk kaldı.', 'en': 'You are muted: {0} min left.', 'de': 'Du bist stummgeschaltet: noch {0} Min.',
             'es': 'Estás silenciado: quedan {0} min.', 'fr': 'Tu es muet : encore {0} min.', 'pl': 'Jesteś wyciszony: zostało {0} min.',
             'pt': 'Você está silenciado: faltam {0} min.', 'ru': 'Вы заглушены: осталось {0} мин.'}
@@ -57,7 +59,7 @@ def violation(y, name, msg, now):
         return 'ads'
     if y.setting('rule_insult', True):
         from . import llm as LLM
-        if LLM.harmful(msg) or SPC.intent(msg)[0] == 'insult':
+        if LLM.harmful(msg) or SPC.intent(_NOT_INSULT.sub(' ', str(msg)))[0] == 'insult':
             return 'insult'
     if y.setting('rule_flood', True) and (sum(1 for t, m in k['last'] if m == k['last'][-1][1]) >= 3
                                        or sum(1 for t, m in k['last'] if now - t < 10) >= 5):

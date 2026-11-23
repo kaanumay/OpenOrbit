@@ -11,11 +11,13 @@ battle_pass.py, season.py and data/tickets.json).
   Season Pass points from daily and weekly quests (with hours played); when the level's point cost is filled, the free track's reward
 State: bot.k['pass'] = {'period', 'done', 'purchased', 'sure', 'exchange': {reward: count}}, bot.k['season'] = {'period', 'points', 'level'}.
 """
-import json, os, random, time
+import random, time
+
+import game_data as DATA
 
 from . import catalog as K
 
-B = json.load(open(os.path.join(K.HERE, 'data', 'tickets.json'), encoding='utf8'))
+B = DATA.shared('tickets.json')                # read only (game_data.shared)
 SEASON = B['season']
 BT = B['battle_pass']
 PASS_PRICE = 200000

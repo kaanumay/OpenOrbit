@@ -23,12 +23,13 @@ The breakers' and lenses' defense is against player weapons (with bot players, S
 """
 import json, math, os, random, time
 
+import game_data as DATA
 import settings as SET
 import inventory as INV
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 D = json.load(open(os.path.join(HERE, 'data', 'particle.json'), encoding='utf8'))
-ITEMS = json.load(open(os.path.join(HERE, 'data', 'client_items.json'), encoding='utf8'))['items']
+ITEMS = DATA.shared('client_items.json')['items']
 CANNONS, SHIELDS, DRIVES, LENSES = D['cannons'], D['breakers'], D['drives'], D['lenses']
 SLUGS, GSP = D['slugs'], D['gsp']
 C, DR = D['cannon_common'], D['drive_common']
@@ -629,13 +630,14 @@ class Shot:
                     continue
                 if now >= z['end_time']:
                     self.zones.remove(z)
+                    # The client can cancel an effect by unit ID after that unit was removed. Before the explosion: a kill in it can stop
+                    # the world (the last alien of a gate), and a stopped world sends nothing more
+                    self.w.send([self.zone_end(z)])
                     if z.get('aftershock_dmg'):                                  # Aftershock: the remaining 25% explodes at the end
                         for m in self.others(z['x'], z['y'], z['aftershock_area'], set(), now):
                             if self.w.hero_dead or self.zones is not zones:
                                 break
                             self.w.hit_npc(m.id, int(z['aftershock_dmg']), DRIVE_ATTACK)
-                    # The client can cancel an effect by unit ID after that unit was removed.
-                    self.w.send([self.zone_end(z)])
                 else:
                     self.zone_tick(z, now)
         for uid, k in list(self.corrosive.items()):

@@ -17,8 +17,9 @@ The Underling's and Underboss's box gives a row from the contents next to the le
 When the event ends, as many entitlements as converted capsules each draw a reward from the 'end_draw' pool.
 In the profile: hitac_lottery {letters: [collected index numbers], history: [{date, count, rewards}], spent: draw entitlements}.
 """
-import json, os, random, time
+import os, random, time
 
+import game_data as DATA
 import settings as SET
 import loot as LOOT
 import event_calendar as CAL
@@ -26,7 +27,7 @@ from galaxy_gates import screen
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 _PATH = os.path.join(HERE, 'data', 'extra_events.json')
-D = (json.load(open(_PATH, encoding='utf8')) if os.path.exists(_PATH) else {}).get('hitac_lottery', {})
+D = (DATA.shared('extra_events.json') if os.path.exists(_PATH) else {}).get('hitac_lottery', {})
 EVENT = 'hitac'
 WORD = D.get('word', 'HITAC')
 LETTER = 'resource_wordpuzzle-letter'      # the letter in the box (the shop's reward path: a random missing letter)
@@ -122,10 +123,11 @@ class HitacLottery:
         if npc.tip in MINIONS:
             b = D.get('minion_box', {'type': 'HITAC_MINION', 'contents': [['ammunition_laser_mcb-50', 300]], 'letter': 0.5})
             rows = [[l, a] for l, a in b['contents']] + ([[LETTER, 1]] if random.random() < SET.chance('drop', b.get('letter', 0.5), 'event') else [])
-            self.drop(w, b['type'], x, y, rows, b.get('lifetime_sec', 300))
+            self.drop(w, b.get('type_easy', b['type']) if npc.tip == MINION else b['type'], x, y, rows, b.get('lifetime_sec', 300))   # 2.5 = "Easy"
         elif npc.tip in MOTHERSHIPS:
             b = D.get('mothership_box', {'type': 'HITAC', 'capsule_at': 1})
-            self.drop(w, b['type'], x, y, [[CAPSULE, b['capsule_at']]] + b.get('guaranteed', []), chance=b.get('chance'))      # + 50 ACM-1, 1,000 PLT-3030, lucky technology
+            self.drop(w, b.get('type_easy', b['type']) if npc.tip == MOTHERSHIP else b['type'], x, y,
+                      [[CAPSULE, b['capsule_at']]] + b.get('guaranteed', []), chance=b.get('chance'))      # + 50 ACM-1, 1,000 PLT-3030, lucky technology
         else:
             for prefix, (kind, chance, *pool) in (D.get('letter_extra') or {}).items():
                 if not npc.tip.startswith(prefix):

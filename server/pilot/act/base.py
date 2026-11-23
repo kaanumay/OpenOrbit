@@ -41,6 +41,8 @@ class Base:
         self.zones = ()                               # zones to keep out of: immobile aliens' firing zones (brain.static_zones), mines
         self.tried = {}                               # Combat: item -> when it last refused
         self.last_jump_try = 0.0                      # Travel: the last jump asked
+        self.refused = None                           # Travel: (portal, since when) the jumps there are refused
+        self.no_key_until = 0.0                       # Travel: the Assembly could not build a Silver Booty Key: no key portal until then
         self.portal_goal = self.route_goal = None     # Travel: the portal / route of the last order (Travel.heading, the panel's map)
 
     # ------------------------------------------------------------ reading
@@ -184,14 +186,6 @@ class Base:
 
     def hero_pos(self, now):
         return self.w.hero_pos(now)
-
-    def target_hp(self, uid):
-        """The alien's HP + shield (whether the bot is hurting it), None if gone."""
-        n = self.w.npcs.get(uid)
-        return n.hp + getattr(n, 'shield', 0) if n is not None and n.alive else None
-
-    def box_there(self, h):
-        return h in self.w.boxes
 
     def target_alive(self, uid):
         n = self.w.npcs.get(uid)

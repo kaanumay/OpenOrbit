@@ -689,7 +689,6 @@
   "prime_time": 600
  },
  "deflector_end_off_min": 120,
- "on_build_off_min": 30,
  "install_sec": 50,
  "swap_sec": 240,
  "range": 600,

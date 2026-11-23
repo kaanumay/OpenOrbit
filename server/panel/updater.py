@@ -334,37 +334,79 @@ class Updater:
             os.makedirs(os.path.dirname(dst), exist_ok=True)
             shutil.copy2(src, dst)
 
-        changed = removed = 0
-        # version stamp last: so an install cut short does not think it is "up to date" (so it is retried)
-        for rel, info in sorted(files.items(), key=lambda x: (x[0] == VERSION_FILE.replace(os.sep, '/'), x[0])):
-            new = z.read(info)                            # CRC zipfile'da denetlenir
-            dest = os.path.join(self.root, *rel.split('/'))
-            if os.path.isfile(dest):
-                with open(dest, 'rb') as fh:
-                    if fh.read() == new:
-                        continue
+        # 1) every new file is written next to its target first (a full disk, a locked or unreadable file fails here, nothing is replaced
+        # yet); 2) then only renames, and if one fails every step done is undone from the backup: a half-installed mix of old and new
+        # modules could stop the panel itself from starting, and the panel is what installs updates. Version stamp last (retried if cut).
+        staged = []                                       # (rel, temporary file, target)
+        try:
+            for rel, info in sorted(files.items(), key=lambda x: (x[0] == VERSION_FILE.replace(os.sep, '/'), x[0])):
+                new = z.read(info)                        # CRC zipfile'da denetlenir
+                dest = os.path.join(self.root, *rel.split('/'))
+                if os.path.isfile(dest):
+                    with open(dest, 'rb') as fh:
+                        if fh.read() == new:
+                            continue
+                os.makedirs(os.path.dirname(dest), exist_ok=True)
+                staged.append((rel, dest + '.guncelleme', dest))
+                with open(dest + '.guncelleme', 'wb') as fh:
+                    fh.write(new)
+        except Exception:
+            self._undo(staged, [], [], backup)
+            raise
+        gone = [rel for rel in sorted((old or set()) - set(files))
+                if not protected(rel) and os.path.isfile(os.path.join(self.root, *rel.split('/')))]
+        done, removed_ = [], []                           # (rel, existed before) replaced; rel removed
+        try:
+            for rel, tmp, dest in staged:
+                existed = os.path.isfile(dest)
+                if existed:
+                    keep(rel)
+                os.replace(tmp, dest)
+                done.append((rel, existed))
+            for rel in gone:
+                p = os.path.join(self.root, *rel.split('/'))
                 keep(rel)
-            os.makedirs(os.path.dirname(dest), exist_ok=True)
-            tmp = dest + '.guncelleme'
-            with open(tmp, 'wb') as fh:
-                fh.write(new)
-            os.replace(tmp, dest)
-            changed += 1
-        for rel in sorted((old or set()) - set(files)):
-            p = os.path.join(self.root, *rel.split('/'))
-            if protected(rel) or not os.path.isfile(p):
-                continue
-            keep(rel)
-            os.remove(p)                                  # the old state in the backup
-            removed += 1
-            d = os.path.dirname(p)
-            while d != self.root and os.path.isdir(d) and not os.listdir(d):
-                os.rmdir(d)
-                d = os.path.dirname(d)
+                os.remove(p)                              # the old state in the backup
+                removed_.append(rel)
+                d = os.path.dirname(p)
+                while d != self.root and os.path.isdir(d) and not os.listdir(d):
+                    os.rmdir(d)
+                    d = os.path.dirname(d)
+        except Exception:
+            self._undo(staged, done, removed_, backup)
+            raise
+        changed, removed = len(done), len(removed_)
         self._set(changed=changed, removed=removed, backup=backup if os.path.isdir(backup) else None)
         self._save({'version': last['version'], 'date': last.get('date'), 'message': last.get('message'), 'version_txt': self._version_text(),
                     'files': sorted(files), 'previous': before['version'], 'setup': time.strftime('%Y-%m-%d %H:%M:%S')})
         self._prune()
+
+    def _undo(self, staged, done, removed, backup):
+        """A failed zip install: the old state back from the backup (replaced and removed files), files that were new are deleted,
+        the temporary files too."""
+        for rel, existed in done:
+            dest = os.path.join(self.root, *rel.split('/'))
+            try:
+                if existed:
+                    shutil.copy2(os.path.join(backup, *rel.split('/')), dest)
+                else:
+                    os.remove(dest)
+            except OSError as e:
+                self.log('update: could not restore %s: %r' % (rel, e))
+        for rel in removed:
+            try:
+                p = os.path.join(self.root, *rel.split('/'))
+                os.makedirs(os.path.dirname(p), exist_ok=True)
+                shutil.copy2(os.path.join(backup, *rel.split('/')), p)
+            except OSError as e:
+                self.log('update: could not restore %s: %r' % (rel, e))
+        for _rel, tmp, _dest in staged:
+            try:
+                os.remove(tmp)
+            except OSError:
+                pass
+        if done or removed:
+            self.log('update failed halfway: the previous version was restored from %s' % backup)
 
     def _prune(self):
         try:

@@ -5,6 +5,7 @@ storage or 25 Darksilver Coins to build one in the Assembly (recipe_blueprint-bo
 destinations (a mode of their own / a random wormhole)."""
 import functools
 import heapq
+import time
 
 import map_links as H
 import settings as SET
@@ -17,6 +18,8 @@ ROUTE_MAPS = frozenset(K.MAPS) | {91, 92, 93, 94, 306, 307, 308, LOW}
 KEY_FEE, KEY_ITEM, KEY_RECIPE, KEY_COIN, KEY_COINS = ('silver_key', 'resource_booty-key-silver', 'recipe_blueprint-booty-key-silver',
                                                       'resource_collectable_darksilver-coin', 25)
 KEY_HOPS = 6                  # a key portal counts as this many jumps (the key is spent): taken when it is the only way
+REFUSED_SEC = 120.0           # a portal still refusing the jump after this long (PvP on 4-X ...): 'no_route', the caller says so
+NO_KEY_SEC = 600.0            # the Assembly could not build a key: the key portals are left out of the routes this long
 
 
 @functools.lru_cache(maxsize=4096)
@@ -60,9 +63,9 @@ class Travel:
         return K.can_enter(int(map_id), self.company(), self.level())
 
     def keys(self):
-        """Silver Booty Keys at hand: in storage, plus the ones 25 Darksilver Coins each would build."""
+        """Silver Booty Keys at hand: in storage, plus the ones 25 Darksilver Coins each would build (not while the Assembly refuses)."""
         p = self.p
-        return p.resource(KEY_ITEM) + p.resource(KEY_COIN) // KEY_COINS
+        return p.resource(KEY_ITEM) + (p.resource(KEY_COIN) // KEY_COINS if time.time() >= self.no_key_until else 0)
 
     def route(self, dest):
         r = _route(self.map_id(), int(dest), self.company(), self.level(), self.keys() > 0, bool(SET.get('no_level_limit')))
@@ -81,10 +84,12 @@ class Travel:
         return min(out, key=lambda g: g.get('only_company') not in (None, c)) if out else None
 
     def key_ready(self, now):
-        """Before a Silver Booty Key portal: a key in storage, else one built from 25 Darksilver Coins (Assembly) -> whether there is one."""
+        """Before a Silver Booty Key portal: a key in storage, else one built from 25 Darksilver Coins (Assembly) -> 'done' (a key at
+        hand) | 'busy' (being built) | 'no' (the Assembly cannot build one)."""
         if self.p.resource(KEY_ITEM) > 0:
-            return True
-        return self.craft(KEY_RECIPE, 1, now) == 'done' and self.p.resource(KEY_ITEM) > 0
+            return 'done'
+        st = self.craft(KEY_RECIPE, 1, now)
+        return 'done' if self.p.resource(KEY_ITEM) > 0 else 'busy' if st == 'busy' else 'no'
 
     def craft(self, recipe, amount, now):
         """An Assembly recipe (Assembly.build, then collect once its time is up) -> 'done' | 'busy' | 'no' (not buildable)."""
@@ -105,7 +110,8 @@ class Travel:
         return 'done'
 
     def enter_portal(self, g, now):
-        """Fly to portal g and jump once there -> 'moving' | 'jumping' | 'blocked'."""
+        """Fly to portal g and jump once there -> 'moving' | 'jumping' | 'blocked' (refused, tried again) | 'refused' (still refused
+        after REFUSED_SEC: the caller gives the way up, see travel_to)."""
         w = self.w
         self.portal_goal = (g.get('gateId'), now)             # the panel's map marks the portal the ship is heading for
         if w.near_gate == g['gateId']:
@@ -113,7 +119,15 @@ class Travel:
                 return 'blocked'
             self.last_jump_try = now
             w.jump()
-            return 'jumping' if w.jumping else 'blocked'
+            if w.jumping:
+                self.refused = None
+                return 'jumping'
+            if self.refused is None or self.refused[0] != g['gateId']:
+                self.refused = (g['gateId'], now)
+            elif now - self.refused[1] >= REFUSED_SEC:
+                self.refused = None
+                return 'refused'
+            return 'blocked'
         self.move_to(g['x'], g['y'], now)
         return 'moving'
 
@@ -129,9 +143,15 @@ class Travel:
         g = self.portal_to(r[1])
         if g is None:
             return 'no_route'
-        if g.get('fee') == KEY_FEE and self.w.near_gate == g['gateId'] and not self.key_ready(now):
-            return 'blocked'                                   # the key is being built (or cannot be)
-        return self.enter_portal(g, now)
+        if g.get('fee') == KEY_FEE and self.w.near_gate == g['gateId']:
+            key = self.key_ready(now)
+            if key == 'no':                                    # coins but no key from the Assembly: the routes leave the key portal out
+                self.no_key_until = now + NO_KEY_SEC
+                return 'no_route' if self.route(dest) is None else 'blocked'
+            if key == 'busy':
+                return 'blocked'                               # the key is being built (seconds)
+        st = self.enter_portal(g, now)
+        return 'no_route' if st == 'refused' else st
 
     def heading(self, now, fresh=2.0):
         """Where the ship is going between maps, for the panel: {'portal': gateId, 'route': [map names]} (orders of the last seconds)."""

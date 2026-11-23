@@ -14,8 +14,9 @@ round (wave 51); amounts: pve_modes.json ebl._umbra_adaptation.
 In the profile: pve.ebl {gate, run {wave, points, option [3], weight {type: multiplier}, active {type: %}, uridium, start}, best, best_at,
 erebus}.
 """
-import json, math, os, random, time
+import os, random, time
 
+import game_data as DATA
 import settings as SET
 import galaxy_gates as GALAXY
 import rankings as RK
@@ -23,7 +24,7 @@ import monthly_rankings as MR
 import pve_common as PS
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-D = json.load(open(os.path.join(HERE, 'data', 'pve_modes.json'), encoding='utf8')).get('ebl')
+D = DATA.shared('pve_modes.json').get('ebl')
 PORTAL = 156900000           # + 0 X-BL gate, + 1 continue, + 2 exit
 # wave titles (client texts title_achievement_eternalblacklight-wave<N>; 'wave510-10' has no known condition and is not given)
 WAVE_TITLES = {str(w): 'title_achievement_eternalblacklight-wave%d' % w for w in (51, 102, 255, 510, 612)}

@@ -371,6 +371,8 @@ def distribute(y, b, k, kl, now):
     b.k['clan'] = None
     T.update(b)
     b.event('disbanded_clan', now, clan=k['name'])
+    from . import clan_stations as CBA
+    CBA.sweep(y, now, force=True)                         # a bot's Clan has no cbs session (clan.delete's clan_disbanded): its station falls here
     return True
 
 

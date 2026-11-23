@@ -52,7 +52,8 @@ def blocked(map_id, x, y, zones=()):
 
 def _grid(map_id, w, h, zones=()):
     key = (int(map_id), int(w), int(h), zones)
-    if key not in _GRIDS:
+    out = _GRIDS.get(key)                                 # shared by the sessions' world threads (friend mode): no check-then-read
+    if out is None:
         if len(_GRIDS) > 40:
             _GRIDS.clear()
         nx, ny = int(math.ceil(w / CELL)), int(math.ceil(h / CELL))
@@ -71,8 +72,8 @@ def _grid(map_id, w, h, zones=()):
                     qy = max(cy * CELL, min(zy, cy * CELL + CELL))
                     if math.hypot(qx - zx, qy - zy) < r:
                         g[cy][cx] = True
-        _GRIDS[key] = (g, nx, ny)
-    return _GRIDS[key]
+        out = _GRIDS[key] = (g, nx, ny)
+    return out
 
 
 def _free_near(g, nx, ny, c, seen=None):
@@ -142,7 +143,7 @@ def route(map_id, w, h, ax, ay, bx, by, zones=()):
     """The points to fly through from a to b: [b] when the line is clear, else the corners of the way around the walls (and zones),
     ending at b (or, when b is inside a wall or out of reach, at the free place nearest to it)."""
     zones = own(zones, bx, by)
-    pre = []
+    pre, start = [], (ax, ay)
     for _ in range(3):                                    # inside a zone: first straight out of it, away from its center
         z = next((z for z in zones if in_zone(ax, ay, (z,))), None)
         if z is None:
@@ -151,8 +152,10 @@ def route(map_id, w, h, ax, ay, bx, by, zones=()):
         a = math.atan2(ay - zy, ax - zx) if (ax, ay) != (zx, zy) else 0.0
         ax, ay = zx + math.cos(a) * (r + OUT), zy + math.sin(a) * (r + OUT)
         pre.append((ax, ay))
-    if pre:
+    if pre and not in_zone(ax, ay, zones):
         return pre + route(map_id, w, h, ax, ay, bx, by, zones)
+    if pre:                                               # out of A into B (overlapping zones, a minefield): no flight back and forth and
+        ax, ay = start                                    # no zone left out, the grid's nearest free cell is the way out (_cells)
     if clear(map_id, ax, ay, bx, by, zones):
         return [(bx, by)]
     cells, _ = _cells(map_id, w, h, ax, ay, bx, by, zones)
@@ -186,8 +189,8 @@ def length(map_id, w, h, ax, ay, bx, by, now=None, deadline=None, zones=()):
     if deadline is not None and time.perf_counter() > deadline:
         return straight * DETOUR
     if len(_LENGTHS) > 500:
-        for k in [k for k, v in _LENGTHS.items() if now - v[1] > LENGTH_SEC]:
-            del _LENGTHS[k]
+        for k in [k for k, v in list(_LENGTHS.items()) if now - v[1] > LENGTH_SEC]:
+            _LENGTHS.pop(k, None)
     d, here = 0.0, (ax, ay)
     for p in route(map_id, w, h, ax, ay, bx, by, zones):
         d += math.hypot(p[0] - here[0], p[1] - here[1])

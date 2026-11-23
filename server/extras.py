@@ -16,10 +16,12 @@ Active ones (from the shortcut bar; combat_items.py):
   auto_rocket      AROL-X: the selected rocket on a laser attack      auto_launcher  RL-LB1: the loaded launcher on a laser attack
 Uses (right): in the profile (extra_uses), one pool per lootId: every copy owned brings its own uses, from any source (extra_copies: copies counted).
 """
-import json, os
+import os
+
+import game_data as DATA
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-E = json.load(open(os.path.join(HERE, 'data', 'items.json'), encoding='utf8'))
+E = DATA.shared('items.json')
 X = E.get('extras', {})
 
 

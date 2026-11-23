@@ -66,14 +66,15 @@ class Economy:
     def sell_maps(self):
         return list(K.sell_maps(self.company()))
 
-    def sell_all(self):
-        """At the station: every cargo ore -> the credits earned."""
+    def sell_all(self, types=None):
+        """At the station: every cargo ore (types: only those) -> the credits earned."""
         w = self.w
         if not w.at_trade():
             return 0
         before = self.p.d['pilot'].get('credits', 0)
         for t, n in self.ore_counts().items():
-            w.sell_ore({'toSell': {'oreType': {'typeValue': t}, 'count': n}})
+            if types is None or t in types:
+                w.sell_ore({'toSell': {'oreType': {'typeValue': t}, 'count': n}})
         return self.p.d['pilot'].get('credits', 0) - before
 
     # ------------------------------------------------------------ shop

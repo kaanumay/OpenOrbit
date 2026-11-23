@@ -198,6 +198,27 @@ def kill(pid):
     subprocess.run(['taskkill', '/PID', str(int(pid)), '/T', '/F'], capture_output=True, timeout=15, creationflags=NO_WINDOW)
 
 
+def descendants(pid):
+    """Linux and macOS: pids of the process's children and their children (ps). The servers share the terminal's process group, so a
+    forced stop signals these one by one (the game server's llama-server) instead of the group (Ctrl+C in the terminal stays as it is)."""
+    try:
+        r = subprocess.run(['ps', '-A', '-o', 'pid=', '-o', 'ppid='], capture_output=True, text=True, timeout=10)
+    except (OSError, subprocess.SubprocessError):
+        return []
+    kids = {}
+    for line in r.stdout.splitlines():
+        p = line.split()
+        if len(p) == 2 and p[0].isdigit() and p[1].isdigit():
+            kids.setdefault(int(p[1]), []).append(int(p[0]))
+    out, todo = [], [pid]
+    while todo:
+        for c in kids.get(todo.pop(), ()):
+            if c not in out:
+                out.append(c)
+                todo.append(c)
+    return out
+
+
 def open_client(folder, cmd, env, logs):
     """Open the client -> Popen. On Linux and macOS (Wine/Proton) in its own process group (so close_client closes the whole group: on Proton
     the client is a grandchild of the launched process); the prefix folder is created if missing, Wine's output goes to logs/wine.log."""
@@ -334,9 +355,11 @@ class Process:
         fh.write('\n==== %s started: %s\n' % (time.strftime('%Y-%m-%d %H:%M:%S'), ' '.join(self.cmd[1:])))
         fh.flush()
         env = dict(os.environ, PYTHONIOENCODING='utf8', PYTHONUNBUFFERED='1', **(self.env or {}))
-        self.proc = subprocess.Popen(self.cmd, cwd=SERVER, stdout=fh, stderr=subprocess.STDOUT, stdin=subprocess.DEVNULL,
-                                     creationflags=NO_WINDOW, env=env)
-        fh.close()
+        try:
+            self.proc = subprocess.Popen(self.cmd, cwd=SERVER, stdout=fh, stderr=subprocess.STDOUT, stdin=subprocess.DEVNULL,
+                                         creationflags=NO_WINDOW, env=env)
+        finally:
+            fh.close()
         self.started_at = time.time()
         self.stopped = False
         return self
@@ -362,7 +385,16 @@ class Process:
                 return
             except subprocess.TimeoutExpired:
                 pass
-        self.proc.terminate()
+        if os.name == 'nt':
+            kill(self.proc.pid)                       # with its children: TerminateProcess left the game server's llama-server running
+        else:
+            kids = descendants(self.proc.pid)         # read first: once the server is gone its children belong to init
+            self.proc.terminate()
+            for pid in kids:
+                try:
+                    os.kill(pid, signal.SIGTERM)
+                except OSError:
+                    pass
         try:
             self.proc.wait(5)
         except subprocess.TimeoutExpired:
@@ -438,8 +470,8 @@ class Manager:
         with self.lock:
             if self.guest:
                 raise RuntimeError(_("You are on a friend's server: leave it first."))
-            if self.needs_restart(profile, friend, multi, world, bot):
-                self.stop_servers()                               # another save or mode: restart
+            if self.needs_restart(profile, friend, multi, world, bot) or (not self.running() and any(s.alive for s in self.servers.values())):
+                self.stop_servers()                               # another save or mode, or one left alone (the other crashed): restart
             started = []
             py = python_exe()
             for name in ('web', 'game'):
@@ -477,10 +509,14 @@ class Manager:
                 dead = [name for name in ('web', 'game') if not self.servers[name].alive]
                 if dead:
                     lines = tail(self.servers[dead[0]].console, 12)
+                    for n in started:                             # what this call opened does not stay open alone (a running Host stays)
+                        self.servers[n].stop()
                     raise RuntimeError(_('The %s server closed while starting:\n%s', _({'web': 'Web', 'game': 'Game'}[dead[0]]),
                                          '\n'.join(lines)))
                 time.sleep(0.15)
             else:
+                for n in started:
+                    self.servers[n].stop()
                 raise RuntimeError(_("The servers didn't start listening within 20 seconds (check the logs)."))
             if started:
                 self.log('servers started: %s (%s)%s' % (', '.join(started), profile, ' — friend server' if friend else
@@ -551,9 +587,10 @@ class Manager:
             close_client(self.client)
 
     # ------------------------------------------------------------ state
-    def status(self):
+    def status(self, table=False):
+        """table: listeners()'s result when the caller already has it (the panel's status poll reads it once)."""
         srv = {name: (s.status() if s else {'state': 'off'}) for name, s in ((a, self.servers.get(a)) for a in ('web', 'game'))}
-        table = listeners()
+        table = listeners() if table is False else table
         for name, st in srv.items():
             st['ports'] = {p: listening(p, table) for p in PORTS[name]}
         cl = {'state': 'on' if self.client_alive() else 'off'}

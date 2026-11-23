@@ -40,8 +40,9 @@ remain to know the real game's seasons.
 In the profile: season {period, start, played, points, gold, ext, claimed, day, daily, week, weekly, value, done, seasonal, renewal, pending [[captain, count]],
 saved {season: the paused season's own keys + used}, results {season: {level, gold}}}.
 """
-import datetime, json, os, random, threading, time
+import datetime, os, random, threading, time
 
+import game_data as DATA
 import settings as SET
 import event_appearances as EG
 import quest_tracker as GT
@@ -49,7 +50,7 @@ import nova as NV
 from legacy_protocol import legacy
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-S = json.load(open(os.path.join(HERE, 'data', 'tickets.json'), encoding='utf8'))['season']
+S = DATA.shared('tickets.json')['season']
 COST, UCOST = S['point_cost'], S['uridium_cost']
 MAX_LEVEL = len(COST) - 1
 MISSIONS = {int(k): v for k, v in S['quests'].items()}
@@ -359,9 +360,10 @@ class Season:
             st['day'] = None
         if any(q not in MISSIONS for q in st.get('weekly', [])):
             st['week'] = None
-        if st.get('day') != day_id(now):
+        # only forward: a clock set back and then forward again redrew the day's list and deleted its progress (ISO strings sort by date)
+        if not st.get('day') or day_id(now) > st['day']:
             self.reset_list('daily', DAILY, DAILY_N, 'day', day_id(now))
-        if st.get('week') != week_id(now):
+        if not st.get('week') or week_id(now) > st['week']:
             self.reset_list('weekly', WEEKLY, WEEKLY_N, 'week', week_id(now))
         return msgs
 
@@ -504,8 +506,8 @@ class Season:
                 st['gold'] = True
                 self.p.dirty = True
             pend = [q for q in self.missions() if MISSIONS[q]['gold'] and q in st['done']]
-            for q in pend:                                          # points of Gold quests finished before the Gold Pass
-                msgs += self.add_points(points_of(q))
+            for q in pend:                                          # points of Gold quests finished before the Gold Pass (bonus and multiplier as on completion)
+                msgs += self.add_points(self.quest_points(q))
             self.log('   Gold Pass active (%s)%s' % (st['period'], ', points of %d quests' % len(pend) if pend else ''))
             self.level_event()                                      # the level reached before the Gold Pass counts too
         if st.get('gold') and not st.get('ext') and self.p.resource(EXT_ITEM) > 0:
@@ -559,6 +561,11 @@ class Season:
                 msgs += self.quest_done(cat)
         return msgs
 
+    def quest_points(self, qid):
+        """A finished quest's points: N.O.V.A. Bonus Hunter / Bonus Slayer (nova.py) and the panel's multiplier."""
+        bonus = self.p.mods().get('season_points', 0)
+        return int(round(points_of(qid) * (1 + bonus) * SET.multiplier('season_points')))
+
     def complete(self, qid):
         st = self.st
         with self.p.lock:
@@ -569,8 +576,7 @@ class Season:
         msgs = [legacy('0|A|STM|%s' % DONE_TEXT[qt]), ('QuestCompletedCommand', {'id': qid, 'rating': 0})]
         locked = MISSIONS[qid]['gold'] and not st.get('gold')
         if not locked:
-            bonus = self.p.mods().get('season_points', 0)                     # N.O.V.A. Bonus Hunter / Bonus Slayer (nova.py)
-            msgs += self.add_points(int(round(points_of(qid) * (1 + bonus) * SET.multiplier('season_points'))))      # panel
+            msgs += self.add_points(self.quest_points(qid))
         if qt == DAILY and self.m:                                          # daily quest: Armory Token (Stage 9; armory.py)
             import armory as AU
             msgs += self.m.reward(AU.TOKEN, AU.D['daily_quest_token'])
@@ -649,7 +655,7 @@ class Season:
         if not n or pl.get('uridium', 0) < cost:
             self.log('   Season Pass level could not be bought: %d levels, %d U' % (n, cost))
             return [('SeasonPassLevelPurchaseCommand', {'success': False})]
-        tot = self.p.gain(uridium=-cost, reason='buy_SPECIAL', detail='season_pass_level')
+        self.p.gain(uridium=-cost, reason='buy_SPECIAL', detail='season_pass_level')
         with self.p.lock:
             self.st['points'] = max(self.st.get('points', 0), threshold(cur + n))
             self.p.dirty = True

@@ -24,21 +24,22 @@ MP-1, SG3N-A01, Flax) a quarter (today's ABRs are ~1/4 of class2's); CBS modules
 402,750, outer modules 268,500). Multiplier: legacy_upgrade_price. The client shows the cost from its own recipe: the panel writes legacy_table()
 to the client's BepInEx/openorbit/legacy_upgrade.json, and the plugin's LegacyUpgrade patch turns the recipes into uridium.
 """
-import datetime, json, os, time
+import os, time
 
+import game_data as DATA
 import inventory as INV
 import settings as SET
 import event_calendar as CAL
 import ranks as RT
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-D = json.load(open(os.path.join(HERE, 'data', 'client_items.json'), encoding='utf8'))
+D = DATA.shared('client_items.json')
 UP, DIS, ITEMS = D['upgrades'], D['disassembly'], D['items']
 INGREDIENTS = {loot for groups in (UP, DIS) for recipe in groups.values() for level in recipe['levels']
                for costs in (level.get('cost', {}), level.get('jump_to', {})) for loot in costs}
 UP_OF = {loot: k for k, c in UP.items() for loot in c['items']}
 DIS_OF = {loot: k for k, c in DIS.items() for loot in c['items']}
-HOUR = json.load(open(os.path.join(HERE, 'data', 'items.json'), encoding='utf8'))['upgrade_hour']
+HOUR = DATA.shared('items.json')['upgrade_hour']
 LASER, SHIELD, ROCKET = 'LASER_DAMAGE_UPGRADE', 'GENERATOR_SHIELD_UPGRADE', 'ROCKETLAUNCHER_DAMAGE_UPGRADE'
 DRONE_DAMAGE, DRONE_SHIELD = 'DRONE_DAMAGE_UPGRADE', 'DRONE_SHIELD_UPGRADE'
 # the level badge of a hangar item (HangarShipEquipmentInventoryItem.UpgradeLevel, "key,displayed level"): the client

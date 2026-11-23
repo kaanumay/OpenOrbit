@@ -42,11 +42,7 @@ class Person:
             return False
 
 
-def all_():
-    """id -> Kisi: the server's player, unfinished guest sessions and the extra players of multiple clients."""
-    g = GAME
-    if g is None:
-        return {}
+def _humans(g):
     host = g.PROFILE
     cur = g.CURRENT
     out = {host.user_id: Person(host, cur if cur is not None and cur.profile is host else None)}
@@ -54,19 +50,48 @@ def all_():
         if m.profile is not None:
             s = m.session
             out[m.profile.user_id] = Person(m.profile, s if s is not None and s.profile is m.profile else None)
+    return out
+
+
+def all_():
+    """id -> Kisi: the server's player, unfinished guest sessions and the extra players of multiple clients."""
+    g = GAME
+    if g is None:
+        return {}
+    out = _humans(g)
     if BOTS is not None:
         for uid, k in BOTS().items():
             out.setdefault(uid, k)
     return out
 
 
+_BOT_NAMES = [None, 0, {}]            # the BOTS() dict the name index was built from, its size, lowercase name -> Person
+
+
 def find(name=None, uid=None):
-    """The player by id or by name (case-insensitive), or None."""
-    people = all_()
+    """The player by id or by name (case-insensitive), or None. Humans first (as in all_), then the bots' own dict: building the whole
+    directory per lookup was O(pack) (1500 bots: every clan application, group invite, mail)."""
+    g = GAME
+    if g is None:
+        return None
+    humans = _humans(g)
     if uid is not None:
-        return people.get(uid)
+        k = humans.get(uid)
+        return k if k is not None or BOTS is None else BOTS().get(uid)
     name = str(name or '').strip().lower()
-    return next((k for k in people.values() if name and k.name.lower() == name), None) if name else None
+    if not name:
+        return None
+    k = next((k for k in humans.values() if k.name.lower() == name), None)
+    if k is not None or BOTS is None:
+        return k
+    d = BOTS()
+    if _BOT_NAMES[0] is not d or _BOT_NAMES[1] != len(d):       # society.people rebuilds the dict (2 s, a rename): a new index
+        idx = {}
+        for uid_, x in d.items():
+            if uid_ not in humans:
+                idx.setdefault(x.name.lower(), x)
+        _BOT_NAMES[:] = [d, len(d), idx]
+    return _BOT_NAMES[2].get(name)
 
 
 def ranking(p, value, max_count=10):

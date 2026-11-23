@@ -287,7 +287,15 @@ class Control:
                 if not line.strip():
                     continue
                 try:
-                    out = {'done': True, 'result': self.handle(json.loads(line))}
+                    r = json.loads(line)
+                except ValueError:
+                    r = None
+                if not isinstance(r, dict):          # e.g. an HTTP request line: a web page POSTing here must not get its body run
+                    f.write(b'{"done": false, "error": "not a JSON object"}\n')
+                    f.flush()
+                    break
+                try:
+                    out = {'done': True, 'result': self.handle(r)}
                 except Exception as e:
                     out = {'done': False, 'error': '%s: %s' % (type(e).__name__, e), 'iz': traceback.format_exc()[-1500:]}
                 f.write((json.dumps(out, ensure_ascii=False) + '\n').encode('utf8'))

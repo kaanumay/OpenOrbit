@@ -17,14 +17,15 @@ ties by total time (single-player: only the player). When a boss level (every 5t
 depends on the level reached, to open it the same color Echo Key (keyed box system, loot.py); inside Quantum Fluid Core.
 In the profile: pve.echoes {period, level, highest, sure, first [], roster [hangarId], none [hangarId], order {block: [level ...]}, run}.
 """
-import datetime, json, math, os, random, time
+import datetime, math, os, random, time
 
+import game_data as DATA
 import galaxy_gates as GALAXY
 import pve_common as PS
 import qfc as QF
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-D = json.load(open(os.path.join(HERE, 'data', 'pve_modes.json'), encoding='utf8'))['echoes']
+D = DATA.shared('pve_modes.json')['echoes']
 LEVELS = {l['level']: l for l in D['levels']}
 PORTAL = 155900000            # + 0 X-1, + 1 start, + 2 ship selection, + 3 exit, + 4 return to the hall
 UI_TICKET, UI_RESET, UI_LEAVE = 1, 2, 5
@@ -32,12 +33,14 @@ UI_TICKET, UI_RESET, UI_LEAVE = 1, 2, 5
 # only send a request, the server's command closes the window; it was not sent before, so both windows stayed open even in the level
 # (at 1280x720 the roster window's X is off screen; live test H74)
 UI_CLOSE_ROSTER, UI_CLOSE_START = 3, 4
+UI_SELECT_ERR = 6                 # the client's SELECT_ERR tip ("You must choose a ship ..."): ExpeditionSelectShipCommand has an empty handler
 # Command Hall layout (player report 2026-10-28, official client screenshot and mini map): the portals are in the middle of the hall,
 # on the same screen; left starts, the building in the middle (lower left) is ship selection, the ring on the right exit/reset. Arrival is where the player stands.
-# Ship selection is not a portal but a station hangar (AssetType 48; the yellow-arrowed arms are the same as in the screenshot, tried live):
-# the hangar is drawn, the design-less entrance in its place opens the window with J (the client sends JumpRequest even when there is no portal).
+# Ship selection is not a portal but the expedition building (AssetType 74 EXPEDITION_HOME: AssetCreateHelper draws
+# expedition_home_<factionId>, a click sends ExpeditionShipListRequest (AssetClickOpenWindow); 48 HANGAR_HOME opened the Hangar window):
+# the building is drawn, the design-less entrance in its place opens the window with J (the client sends JumpRequest even when there is no portal).
 HALL_START, HALL_SHIPS, HALL_EXIT, HALL_ARRIVAL = (9270, 6480), (9910, 6840), (10650, 6220), (10000, 6300)
-HANGAR_ASSET, HANGAR_ID = 48, PORTAL + 9
+HANGAR_ASSET, HANGAR_ID = 74, PORTAL + 9
 
 
 def mod(_cls, **f):
@@ -94,7 +97,7 @@ class Echoes:
         return out
 
     def hangar_cmd(self):
-        """The Command Hall's ship selection building: a station hangar (EIC look, the yellow one in the screenshot)."""
+        """The Command Hall's ship selection building: expedition_home_2 (EIC look, the yellow one in the screenshot)."""
         return ('AssetCreateCommand', dict(
             assetId=HANGAR_ID, type=mod('AssetTypeModule', typeValue=HANGAR_ASSET), userName='Hangar', factionId=2, clanTag='',
             posX=HALL_SHIPS[0], posY=HALL_SHIPS[1], designId=0, expansionStage=0, invisible=False, visibleOnWarnRadar=False,
@@ -133,14 +136,14 @@ class Echoes:
         """ExpeditionSelectShipRequest {hangarId [...]}: the roster (at most 5; does not change once confirmed)."""
         from shop import stack_msg
         ids = [int(x) for x in f.get('hangarId', [])]
-        ok = bool(ids) and len(ids) <= D['roster'] and not self.st['roster'] and all(self.sid_of(h) for h in ids)
+        ok = bool(ids) and len(set(ids)) == len(ids) <= D['roster'] and not self.st['roster'] and all(self.sid_of(h) for h in ids)
         if ok:
             with self.p.lock:
                 self.st['roster'] = ids
                 self.p.dirty = True
             self.log('   Echoes kadrosu: %s' % ids)
         return [('ExpeditionSelectShipCommand', dict(result=ok, stack=stack_msg('eqt_error_generic') if not ok else
-                                                     mod('BaseStackCommand', type=0, enumBaseKey=0, stringBasekey='', argsList=[])))] +             ([('ExpeditionShowUiCommand', dict(type=UI_CLOSE_ROSTER, param0='', param1=''))] if ok else [])
+                                                     mod('BaseStackCommand', type=0, enumBaseKey=0, stringBasekey='', argsList=[])))] +             [('ExpeditionShowUiCommand', dict(type=UI_CLOSE_ROSTER if ok else UI_SELECT_ERR, param0='', param1=''))]
 
     def roster_cmd(self):
         cur = next((int(s['hangarId']) for k, s in self.p.d['ships'].items() if k == self.p.d['active_ship']), 0)
@@ -274,9 +277,7 @@ class Echoes:
                                           victimHitpoints=int(a.hp), victimShield=int(a.shield), victimNanoHull=0, damage=dmg,
                                           skilled=False, strike=False, cannonType=0))])
         if a.hp <= 0:
-            a.alive = False
-            w.npcs.pop(a.id, None)
-            w.send([('ShipDestroyedCommand', dict(destroyedUserId=a.id, explosionTypeId=0)), ('ShipRemoveCommand', {'userId': a.id})])
+            w.send([('ShipDestroyedCommand', dict(destroyedUserId=a.id, explosionTypeId=0))] + w.remove_npc(a))   # view, target, P.E.T.
             self.fail('The protected ship was destroyed.')
         return True
 

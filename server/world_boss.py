@@ -300,7 +300,7 @@ class WorldBoss:
         if n > 0:                                   # the event ended: the remaining fragments go to honor (official: after 24 h; no ratio, 1:1)
             self.p.add_resource(frag, -n)
             msgs += self.m.money_msgs()
-            tot = self.p.gain(honor=n * D.get('fragment_honor', 1), reason='worldboss_fragments')
+            self.p.gain(honor=n * D.get('fragment_honor', 1), reason='worldboss_fragments')
             msgs += legacy_line('history_msg_event_infiltrator_fragment_honor_converted', AMOUNT=n)
             self.log('   World Boss ended: %d Infiltrator Fragments to honor' % n)
         with self.p.lock:
@@ -355,7 +355,6 @@ class WbRun:
         self.cx, self.cy = world.map_w // 2, world.map_h // 2
         self.laser = None
         self.heal_next = 0.0
-        self.closing_sent = False
 
     @property
     def npcs(self):

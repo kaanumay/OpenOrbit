@@ -21,14 +21,15 @@ values are whole-number percents, from the series' two-tier interval (big chance
 the weights of the attribute and ship counts, the X1/X2/XW01 intervals (wiki "Randomly").
 In the profile: unstable {itemId: {attribute: [[name, value]], ships, right, previous}}.
 """
-import json, os, random, re
+import json, os, random
 
+import game_data as DATA
 import inventory as INV
 import ranks as RT
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 M = json.load(open(os.path.join(HERE, 'data', 'ship_modules.json'), encoding='utf8'))['modules']
-ITEMS = json.load(open(os.path.join(HERE, 'data', 'client_items.json'), encoding='utf8'))['items']
+ITEMS = DATA.shared('client_items.json')['items']
 SHARD, CHIP = 'resource_collectable_unstable-shard', 'resource_collectable_optigrad-chip'
 ATTR_KEYS = {'damage': ('laser', 'rocket'), 'dmg_laser': ('laser',), 'dmg_rockets': ('rocket',), 'dmg_npc': ('npc',), 'dmg_pvp': ('pvp',),
              'hitpoints': ('hp',), 'shield': ('shield',), 'speed': ('speed',), 'evasion': ('evasion',), 'hitchance_laser': ('laser_hit_chance',),
@@ -50,10 +51,6 @@ def mod(name, **f):
     return f
 
 
-def is_module(loot):
-    return loot in M
-
-
 def unstable(loot):
     return 'unstable' in M.get(loot, {})
 
@@ -63,15 +60,11 @@ def slots(ship_loot):
     return int((ITEMS.get(ship_loot, {}).get('slots') or {}).get('ship_upgrades', UPGRADE_SLOTS))
 
 
-def ships_for(loot):
-    return M.get(loot, {}).get('ships', [])
-
-
 def all_ships():
     """Ships an unstable module can be rolled for: the server's ships (items.json ships)."""
     global _SHIPS
     if _SHIPS is None:
-        _SHIPS = sorted(json.load(open(os.path.join(HERE, 'data', 'items.json'), encoding='utf8'))['ships'])
+        _SHIPS = sorted(DATA.shared('items.json')['ships'])
     return _SHIPS
 
 

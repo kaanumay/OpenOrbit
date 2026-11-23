@@ -28,15 +28,15 @@ daily 3 + 2 VIP every day, weekly 5 + 3 VIP on Monday, throughout the 12-season 
 In the profile: return_pass {period, version, points, vip, claimed {0: [], 1: [], 2: []}, day, daily, week, weekly, seasonal, value, done,
 renewal}.
 """
-import datetime, json, os, random, time
+import datetime, os, random, time
 
+import game_data as DATA
 import quest_tracker as GT
 import season as SE
 import event_calendar as CAL
-from legacy_protocol import legacy
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-R = json.load(open(os.path.join(HERE, 'data', 'tickets.json'), encoding='utf8'))['return_pass']
+R = DATA.shared('tickets.json')['return_pass']
 EVENT, SPECIAL, VIP_ITEM = R['calendar'], R['special_id'], R['vip']
 COST, UCOST = R['point_cost'], R['uridium_cost']
 LEVELS = {r[0]: r[1:] for r in R['levels']}               # level -> [[free], [return], [vip]]

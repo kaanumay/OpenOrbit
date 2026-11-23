@@ -161,9 +161,6 @@ def give(path, items, pr=None):
             'drone': after[2] - before[2], 'notes': [x.strip() for x in notes if x.strip()][-20:]}
 
 
-RESETS = ('hints', 'ui', 'game_settings', 'active_quests', 'history')
-
-
 def reset(path, parts):
     d = json.load(open(path, encoding='utf8'))
     done = reset_d(d, parts)
@@ -223,7 +220,7 @@ if __name__ == '__main__':
         out = main(sys.argv[1:])
         print(json.dumps(dict(out, ok=True), ensure_ascii=False))
     except Exception as e:
-        # ValueError(template, *values): the panel builds the message in its own language (saves.run_tool, dil.py)
+        # ValueError(template, *values): the panel builds the message in its own language (saves.run_tool, lang.py)
         template = e.args[0] if isinstance(e, ValueError) and e.args and isinstance(e.args[0], str) else None
         msg = (template % e.args[1:] if len(e.args) > 1 else template) if template else str(e)
         print(json.dumps({'ok': False, 'error': '%s: %s' % (type(e).__name__, msg), 'template': template, 'arg': [str(a) for a in e.args[1:]]},

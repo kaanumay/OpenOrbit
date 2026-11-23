@@ -45,7 +45,7 @@ def generate(folder, out, log=print):
     """Two files from the new client -> out/. Subprocess: the symbol cache is per client (symbols.py)."""
     os.makedirs(out, exist_ok=True)
     env = dict(os.environ, OO_CLIENT=os.path.abspath(folder), PYTHONIOENCODING='utf-8')
-    py = [sys.executable, '-I', '-X', 'utf8']
+    py = [sys.executable, '-E', '-X', 'utf8']        # not -I: capstone may be a user-site package (-I drops user site-packages)
     for args in ([os.path.join(HERE, 'protocol.py'), os.path.join(out, 'protocol.json')],
                  [os.path.join(HERE, 'read_spec.py'), os.path.join(out, 'protocol.json'), os.path.join(out, 'protocol_read.json')]):
         t = time.time()
@@ -156,7 +156,7 @@ def apply(give, log=print):
 
 
 def run(folder, do_apply=False, log=print):
-    give = version_of(folder) or os.path.basename(os.path.normpath(folder))
+    give = re.sub(r'[^0-9A-Za-z._-]', '_', version_of(folder) or os.path.basename(os.path.normpath(folder)))   # the panel's activate takes only these
     out = os.path.join(VDIR, give)
     log('client %s -> %s' % (give, out))
     generate(folder, out, log)

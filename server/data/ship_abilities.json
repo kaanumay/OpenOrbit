@@ -1,5 +1,5 @@
 {
- "_source": "Duration, cooldown and effects belgeler/wiki/ships.md (darkorbitwiki). Menu items from the client's shortcut menu (MenuInitializationCommand in the recording, 'ship_abilities' category, 65 items). Visuals from the client's code: AbilityEffectActivationCommand.selectedAbilityId = the client's skill code (EventAssemblySkills: 1 Solace, 2 Diminisher, 3 Spectrum, 4 Sentinel, 5 Venom, 6 speed effect 'speed-buff-effect'), AbilityStartCommand: 102 Draw Fire, 106 Target Marker (MarkedByRecon), 110 EMP visual, 111 minimap (AddDoubleMinimapRevealEffect), 101 Aegis HP Repair and 104 Shield Repair (for these ids the client plays abilitySounds 90 aegisHPRepair and 91 aegisShieldRecharge; belgeler/istemci/gorseller.md). Repair Pod places a HEALING_POD (AssetType 33) object on the map ('entity'; live test 2026-10-17). Fortify and Protection ship appearance ('appearance': the client's VisualModifier, VisualModifierCommand; 8 FORTIFY armor, 9 PROTECT_OWNER red ring; live test 2026-10-17). The visual of Ultimate Cloak is not settled.",
+ "_source": "Duration, cooldown and effects belgeler/wiki/ships.md (darkorbitwiki). Menu items from the client's shortcut menu (MenuInitializationCommand in the recording, 'ship_abilities' category, 65 items). Visuals from the client's code: AbilityEffectActivationCommand.selectedAbilityId = the client's skill code (EventAssemblySkills: 1 Solace, 2 Diminisher, 3 Spectrum, 4 Sentinel, 5 Venom, 6 speed effect 'speed-buff-effect'), AbilityStartCommand: 102 Draw Fire, 110 EMP visual, 111 minimap (AddDoubleMinimapRevealEffect), 101 Aegis HP Repair and 104 Shield Repair (for these ids the client plays abilitySounds 90 aegisHPRepair and 91 aegisShieldRecharge; belgeler/istemci/gorseller.md). The client's AbilityStartCommandHandler ignores 105-109 (only the log line): 106 Target Marker (MarkedByRecon on the target) and 108 Citadel Protection (ProtectionEffect, GameDefine.ShipAbilityCitadelProtection; AbilityStopCommand 108 removes it) are drawn only by AbilityEffectActivationCommand, which ship_ability.py also sends for them. Repair Pod places a HEALING_POD (AssetType 33) object on the map ('entity'; live test 2026-10-17). Fortify ship appearance ('appearance': the client's VisualModifier, VisualModifierCommand; 8 FORTIFY armor; VisualModifierAssemblyHelper has no case for 9 PROTECT_OWNER, so Protection no longer uses it). Ultimate Cloaking: AbilityStartCommand 103 (sound 99) and 0|n|INV|uid|1, AbilityStopCommand 103 uncloaks; Citadel Travel: 107 (GameDefine.ShipAbilityCitadelTravelMode, SpeedBuffEffect). Retiarus Plus: Super Charge Shot CHSP_UP 147 (its discharge PlayVisualEffectCommand CHSP_OUT_BREAK/SHOT/HIT), Supercharge Plus SPCP_UP 148, with the Wyvern design 149/150 (ship_ability.py). No visual of their own in the client's VisualModifier enum (nearest kept, adaptation): the plain Supercharge (SPCP_UP 148), Speed Sap and Momentum (SPEED_BURST 95), Reallocate (EMERGENCY_RESERVES 100).",
  "_effects": "hp_percent: ratio of max hp, instantly; hp_repair / shield_repair: total over the duration (equal per second); mods: profile bonuses over the duration (speed, laser, damage_taken, laser_taken, shield_damage_taken; fixed_speed: the displayed speed is set to this value, 0 = does not move); target_shield_damage: damage multiplier to the target's shield over the duration (1.5 = the shield melts 1.5 times the share it absorbs, hull share unchanged; Weaken Shields), shield_loss: when the effect ends, this ratio of the player's OWN shield is lost (Weaken Shields); mirror: this ratio of the damage taken (raw damage before reduction) returns to the attacker, together with mods.damage_taken (Revenge); teleport_to_target: teleport to the target's position (Sleight; no range limit, the target slows down via target_slow); poison: one hit per second on the target's hull (first, increase, max_count, total); target_damage: damage bonus on the marked target; draw_fire: aliens in range attack; cloak: aliens cannot see (ends on attacking, collecting a box, jumping); vision: view distance multiplier; rocket_cooldown_ms: rocket cooldown. E5: target_shield_off: this ratio of the target's shield is switched off over the duration, restored when it ends (Shield Disarray); target_fire_interval: the target's laser cooldown [min, max] s (DDoL); cargo {source: kills | chain, maximum, range (laser range per charge when not active), mods (per spent charge), ramp (each charge adds this much more than the previous one), max_speed}: an ability that accumulates charges, cannot be pressed without charges, charges are spent when it becomes active (Momentum, Stockpile, Volt Discharge); reverse: negative attributes of equipped modules become positive, if there are no negatives these bonuses (Self Reversal); reload {per_second, maximum, split_radius}: a hit that fills up on the target, when full / when time ends / when the target leaves range (Charge Shot); shield_melt: the shield melts by this ratio of the max shield per second, close_at_zero: the ability ends at 0 (Scramble, Supercharge Plus); triangle_blast {damage, radius, distance}: three explosions in a triangle behind the target (Triple Barrage); next_gsp: once, on the next Singularity Drive shot (Quantum Amplifier); reflect_laser: the damage reduced by laser_taken returns to the attacker (Prismatic Reflecting); undying: when hp is left at 1, invulnerable for this many s and the ability ends (Volt Back-up); launcher_damage, top, cannon_cooldown: mods keys (launcher damage, Particle Cannon damage and cooldown).",
  "skills": {
   "ability_solace": {
@@ -167,7 +167,7 @@
     }
    },
    "visual": {
-    "effect": 6
+    "launch": 107
    },
    "achievement": "TRAVEL_MODE"
   },
@@ -179,7 +179,7 @@
    "achievement": "PROTECT",
    "_note": "takes over the group members' damage; no effect in single-player (with bot players)",
    "visual": {
-    "appearance": 9
+    "launch": 108
    }
   },
   "ability_citadel_fortify": {
@@ -204,7 +204,10 @@
    "effect": {
     "cloak": true
    },
-   "achievement": "ULTIMATE_CLOAKING"
+   "achievement": "ULTIMATE_CLOAKING",
+   "visual": {
+    "launch": 103
+   }
   },
   "ability_spearhead_jam-x": {
    "name": "JAM-X",
@@ -777,8 +780,7 @@
     "msg_charge_shot_plus_stopped"
    ],
    "visual": {
-    "appearance": 94,
-    "extra": "target"
+    "appearance": 147
    }
   },
   "ability_retiarus-plus_spcp": {

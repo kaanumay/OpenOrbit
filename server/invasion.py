@@ -9,14 +9,15 @@ The gates run in the event gate engine (event_gate.py; rule company, level range
 Single-player adaptation: like the engine's other gates, an exit portal opens between waves (to leave without dying).
 In the profile: invasion {period, points {1, 2, 3}, wave}.
 """
-import json, os, random, time
+import os, random
 
+import game_data as DATA
 import event_gate as EKP
 import event_calendar as CAL
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 _PATH = os.path.join(HERE, 'data', 'extra_events.json')
-D = (json.load(open(_PATH, encoding='utf8')) if os.path.exists(_PATH) else {}).get('invasion', {})
+D = (DATA.shared('extra_events.json') if os.path.exists(_PATH) else {}).get('invasion', {})
 EVENT = 'invasion'
 MAPS = {int(m): k for k, g in (D.get('gates') or {}).items() for m in g['maps']}
 

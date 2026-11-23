@@ -10,7 +10,9 @@ Flow (the recording has the list request and the "not enough resources" reply; t
                                    DispatchLootMessageCommand NO_RESOURCE {loots: the missing items} (the recorded reply); if there is no slot ERROR_NO_SLOT
   DispatchCollectRetrieverRequest  {slotId}: if time is up, random rewards -> DispatchLootMessageCommand COLLECTED
   DispatchInstantCompleteRequest   {slotId}: Prime Coupon (the retriever's instant-finish fee) -> collectable at once
-  DispatchBuySlotRequest           next slot (3rd 50,000 U, 4th-5th 100,000 U) -> SUCCESS_ADD_SLOT
+  DispatchBuySlotRequest           next slot (3rd 50,000 U, 4th-5th 100,000 U) -> SUCCESS_ADD_SLOT. The client shows these prices from its
+                                   own table (DispatchDefaultList.GetSlotCost, set on UIDispatch Awake); the official server never sends
+                                   DispatchSlotCostCommand (5 recordings), so neither do we
   DispatchGetRewardPackageRequest  {dispatchId}: possible rewards (DispatchRewardModule lootId/amount/probability)
   DispatchGetGateListRequest       gates: a gate that is built and at wave 1 can be sent (1 GGEU), in progress, collectable
   DispatchSendGateRequest / DispatchCollectGateRewardRequest: gate dispatch, the gate's completion rewards when done
@@ -86,10 +88,6 @@ class Dispatch:
     def slot_info(self):
         busy = len(self.st['sent'])
         return ('DispatchSlotInfoCommand', dict(currentMaxSlotCount=self.st['slot'], availableSlotCount=self.st['slot'] - busy))
-
-    def slot_costs(self):
-        return ('DispatchSlotCostCommand', {'slotCosts': [mod('DispatchSlotModule', slotId=int(s), costList=[loot(l, n) for l, n in c.items()])
-                                                          for s, c in sorted(D['slots']['prices'].items())]})
 
     def event(self, now=None):
         return ('DispatchActiveEventCommand', {'activeEvent': DISPATCH_DAY if dispatch_day(now) else GALAXY_GATE_DAY if gate_day(now) else EVENT_NONE})
@@ -197,6 +195,8 @@ class Dispatch:
         g = self.st['sent'].get(slot)
         if not g:
             return [('DispatchMessageCommand', {'messageType': ERROR_COLLECT})]
+        if time.time() >= g['end_time']:                 # already finished: nothing to pay for (the coupon used to be taken again)
+            return self.retriever_list(IN_PROGRESS)[:1]
         cost = R[str(g['id'])]['instant']
         miss = INV.missing(self.p, cost)
         if miss:

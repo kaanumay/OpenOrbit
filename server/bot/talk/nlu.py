@@ -4,7 +4,7 @@ question type and entities (maps, ships, lasers, aliens, companies, numbers, nam
 Cues come from talk/lang/<code>.json nlu (every language's cues are tried on every message; the language with the most hits is the
 message's language). Game entities are the same in every language and live here.
 """
-import re, unicodedata
+import re, threading, unicodedata
 
 from . import lexicon as LX
 
@@ -67,8 +67,21 @@ def _compile():
     return out
 
 
-CUES = _compile()
-ACTS = ('greet', 'bye', 'back', 'brb', 'thanks', 'congrats', 'yes', 'no', 'insult', 'botq', 'rollcall', 'complain', 'howareyou', 'sorry',
+CUES = None
+_CUES_LOCK = threading.Lock()
+
+
+def cues():
+    """cue -> [(lang, regex)], compiled on first use: 704 regexes took ~140 ms at every game start, with or without a bot pack."""
+    global CUES
+    if CUES is None:
+        with _CUES_LOCK:
+            if CUES is None:
+                CUES = _compile()
+    return CUES
+
+
+ACTS =('greet', 'bye', 'back', 'brb', 'thanks', 'congrats', 'yes', 'no', 'insult', 'botq', 'rollcall', 'complain', 'howareyou', 'sorry',
         'wow', 'sad', 'newbie', 'brag', 'agree', 'ask', 'blame', 'helpq', 'wish', 'likeq', 'presence')
 TOPICS = ('ship', 'laser', 'shield', 'drone', 'pet', 'map', 'alien', 'boss', 'quest', 'uri', 'credits', 'honor', 'level', 'clan', 'company',
           'gate', 'pvp', 'lag', 'event', 'age', 'origin', 'job', 'playtime', 'food', 'sleep', 'music', 'football', 'weather', 'doing',
@@ -149,7 +162,7 @@ def read(text, bot_names=()):
             for v in sorted({fold(str(n)), fold(NS.plain(n) or '')} | set(hit), key=len, reverse=True):
                 if len(v) >= 3:
                     f = re.sub(r'(?<![a-z0-9])%s(?![a-z0-9])' % re.escape(v), ' ', f)
-    for cue, rows in CUES.items():
+    for cue, rows in cues().items():
         for lang, rx in rows:
             if rx.search(f):
                 m.langs[lang] = m.langs.get(lang, 0) + (0.5 if cue == 'stop' else 1)

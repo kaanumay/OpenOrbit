@@ -104,26 +104,41 @@ def doing(b):
             'simple': 'grinding'}.get(t, 'grinding')
 
 
-# Turkish case endings after a number, by its last digit (bir, iki, üç, dört, beş, altı, yedi, sekiz, dokuz) and the tens (on, yirmi ...)
-_TR_HARD = {'3', '4', '5'}
-_TR_BACK = {'6', '9'}
-_TR_TENS_BACK = {'1', '3', '4', '5', '9'}              # on, otuz, kırk, elli, doksan
+# Turkish case endings after a number follow its last spoken word: the last non-zero digit's unit (bir, iki, üç, dört, beş, altı, yedi,
+# sekiz, dokuz) or ten (on, yirmi, otuz, kırk, elli, altmış, yetmiş, seksen, doksan), else yüz, bin, milyon/milyar; 0 is sıfır
+_TR_UNITS = dict(zip('123456789', ('bir', 'iki', 'üç', 'dört', 'beş', 'altı', 'yedi', 'sekiz', 'dokuz')))
+_TR_TENS = dict(zip('123456789', ('on', 'yirmi', 'otuz', 'kırk', 'elli', 'altmış', 'yetmiş', 'seksen', 'doksan')))
+
+
+def _tr_spoken(word):
+    """The last word as spoken: the number at the end of word ('2-3' -> üç, 2016 -> altı, 2020 -> yirmi), or the word itself."""
+    s = str(word)
+    digits = s[len(s.rstrip('0123456789')):]
+    if not digits:
+        return s.lower()
+    n = int(digits)
+    if n == 0:
+        return 'sıfır'
+    if n % 10:
+        return _TR_UNITS[str(n % 10)]
+    if n % 100:
+        return _TR_TENS[str(n // 10 % 10)]
+    return 'yüz' if n % 1000 else 'bin' if n % 10 ** 6 else 'milyon' if n % 10 ** 9 else 'milyar'
 
 
 def tr_suffix(word, case, sep=''):
-    """2-3 + locative -> 2-3'te, 2-6 + dative -> 2-6'ya, 2015 + ablative -> 2015'ten."""
-    d = str(word)[-1:]
-    if d == '0' and len(str(word)) >= 2:
-        back, hard = str(word)[-2] in _TR_TENS_BACK, False
-    else:
-        back, hard = d in _TR_BACK, d in _TR_HARD
-    v = 'a' if back else 'e'
+    """2-3 + locative -> 2-3'te, 2-6 + dative -> 2-6'ya, 2015 + ablative -> 2015'ten, 2040 + locative -> 2040'ta (vowel harmony on the
+    spoken word's last vowel, t/d after a hard consonant, a y between two vowels)."""
+    w = _tr_spoken(word)
+    vowels = [c for c in w if c in 'aıoueiöü']
+    v = 'a' if vowels and vowels[-1] in 'aıou' else 'e'
+    hard = w[-1:] in tuple('fstkçşhp')
     if case == 'loc':
         return '%s%s%s%s' % (word, sep, 't' if hard else 'd', v)
     if case == 'abl':
         return '%s%s%s%sn' % (word, sep, 't' if hard else 'd', v)
     if case == 'dat':
-        y = 'y' if d in ('2', '6', '7') else ''
+        y = 'y' if w[-1:] in tuple('aıoueiöü') else ''
         return '%s%s%s%s' % (word, sep if sep != ' ' else "'", y, v)
     return str(word)
 

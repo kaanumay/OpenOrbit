@@ -22,6 +22,8 @@ from . import catalog as K
 
 
 class BotProfile(PF.Profile):
+    shared_clan = True                    # never saved: its 'clan' is the main record itself, not a copy (clan._copy)
+
     def __init__(self, bot):
         self.bot = bot
         super().__init__({}, path=os.path.join(PTH.LOGS, 'bot_profili_yok.json'), d=_skeleton(bot))   # the path is never written
@@ -67,12 +69,19 @@ def update(bot):
     pl, g = p.d['pilot'], p.d['ship']
     last = getattr(bot, '_fmt_money', None)
     if last is not None:                  # the game spent or gave from the profile (founding a clan, application fee, clan payment): passes to the bot
-        k['credits'] = max(0, k['credits'] + int(pl.get('credits', 0)) - last[0])
-        k['uridium'] = max(0, k['uridium'] + int(pl.get('uridium', 0)) - last[1])
+        # written only when it moved: this also runs outside the bot lock (community.all_ from the group/contacts threads), and the
+        # unconditional read-and-store dropped an earn() of the bots thread that landed in between
+        dc, du = int(pl.get('credits', 0)) - last[0], int(pl.get('uridium', 0)) - last[1]
+        if dc:
+            k['credits'] = max(0, k['credits'] + dc)
+        if du:
+            k['uridium'] = max(0, k['uridium'] + du)
     k['rank'] = rank(bot)                      # the panel's roster shows it too
-    pl.update(userName=bot.name, factionId=bot.company, level=k['level'], ep=k['ep'], honourPoints=k['honor'], credits=k['credits'],
-              uridium=k['uridium'], dailyRank=k['rank'])
-    bot._fmt_money = (k['credits'], k['uridium'])
+    c, u = k['credits'], k['uridium']          # read once: the copy and the mark must agree (an earn in between was taken back next time)
+    pl.update(userName=bot.name, factionId=bot.company, level=k['level'], ep=k['ep'], honourPoints=k['honor'], credits=c, uridium=u,
+              dailyRank=k['rank'])
+    bot._fmt_money = (c, u)
+    bot._profile_t = time.time()
     ship = k['gear']['ship']
     p.d['ships']['1']['lootId'] = ship
     g.update(typeId=ship, speed=int(d['speed']), hitMax=int(d['hp']), shieldMax=int(d['shield']))
@@ -147,6 +156,9 @@ def incoming(bot, m):
 
 
 _PEOPLE = {'t': 0.0, 'd': {}, 'y': None}
+# the 2 s rebuild updated all 1500 profiles (value, rank) every time under the bot lock (audit 2026-11-22: 26 s of 300 s); an offline
+# bot's state only moves through its profile (clan payment, fee) and that reaches it at the next update, nothing is lost
+OFFLINE_PROFILE_SEC = 60.0
 
 
 def people(y):
@@ -157,7 +169,11 @@ def people(y):
         return _PEOPLE['d']
     out = {}
     for b in y.bots:
-        if b.saved:                                    # a pilot that has not registered yet is not on the server
+        if not b.saved:                                # a pilot that has not registered yet is not on the server
+            continue
+        if not b.online and b.profile is not None and now - b.__dict__.get('_profile_t', 0) < OFFLINE_PROFILE_SEC:
+            out[b.uid] = TP.Person(b.profile, None)    # offline it does not play: refreshed once a minute, not with every rebuild
+        else:
             out[b.uid] = person(b, TP)
     _PEOPLE.update(t=now, d=out, y=y)
     return out
@@ -192,12 +208,19 @@ def _refund(bot):
 
 
 # ------------------------------------------------------------------------------------------------------------ decisions
-def tick(y, now):
-    """From the manager's tick (every 5 s): the online bots' social decisions. Each bot with its own interval (delayed like a human)."""
+def tick(y, now, full=True):
+    """From the manager's tick (every second): the online bots' social decisions, each bot at its own interval (delayed like a human);
+    full (every 5 s): also the pending invitations and the station clean-up."""
+    if full:
+        try:
+            from . import clan_stations as CBA
+            CBA.sweep(y, now)                    # stations of clans that no longer exist, even when no bot clan takes its turn
+        except Exception as e:
+            y.log('   bots: station clean-up error: %r' % e)
     for b in y.bots:
         if not b.online or b.dead_until > now:
             continue
-        if b.pending:
+        if b.pending and full:
             try:
                 invites(y, b, now)
             except Exception as e:            # one invitation's error must not stop the other bots' social tick
@@ -416,10 +439,11 @@ def clan_actions(y, b, now):
     if k is None:
         b.k['clan'] = None
         leader_like = b.archetype == 'leader' or b.o('sociability') * b.o('ambition') > 0.5
-        bot_clans = sum(1 for c in KL.CLANS.values() if c['leader'] in y.name_index)
-        limit = max(1, sum(b.saved for b in y.bots) // int(y.setting('bots_per_clan', 12) or 12))
-        if (y.permission('clan_found') and leader_like and b.level >= 5 and bot_clans < limit
-                and b.k['credits'] >= KL.FOUNDING_COST * 1.3 and b.r.random() < 0.3):
+        # the counts only when the rest holds (same order of b.r draws): summing the whole pack for every clanless bot's round was
+        # O(pack^2) under the bot lock (1500 bots: 9.7 M generator steps in 20 min, ~5% of the lock time)
+        if (y.permission('clan_found') and leader_like and b.level >= 5 and b.k['credits'] >= KL.FOUNDING_COST * 1.3
+                and sum(1 for c in KL.CLANS.values() if c['leader'] in y.name_index)
+                < max(1, sum(x.saved for x in y.bots) // int(y.setting('bots_per_clan', 12) or 12)) and b.r.random() < 0.3):
             r = random.Random('%s|klan|%d' % (b.name, len(KL.CLANS)))
             kl = KL.Clan(p, log=y.log)
             for _ in range(6):
@@ -784,7 +808,6 @@ def mail_template(b, k):
 
 
 def reply_mail(y, b, r, now):
-    from . import agent_tools as TL
     from . import interaction as IX
     from . import speech as SPC
     import community as TP
@@ -798,9 +821,17 @@ def reply_mail(y, b, r, now):
     IX.apply(y, b, k)
     b.memory.event(name, 'chat', now)
     b.event('mail_received', now, name=name)
-    subject = 'Re: ' + str(r.get('subject', ''))[:46]
     if y.llm is not None and y.llm.ready and y.llm.mailer(y, b, r, k):
         return                                               # Advanced: the model writes the text (llm._mail)
+    template_reply(y, b, r, k)
+
+
+def template_reply(y, b, r, k):
+    """The mail's reply from the templates (also the model job's backup: a provider error or a stale job left the mail unanswered)."""
+    from . import agent_tools as TL
+    from . import speech as SPC
+    name = r['sender']
+    subject = 'Re: ' + str(r.get('subject', ''))[:46]
     body = mail_template(b, k) or SPC.template(b, 'mail_reply')
     if body and (k is not None or b.r.random() < 0.85):           # if it made a decision it does not stay silent
         TL.call(y, b, 'send_mail', {'name': name, 'subject': subject, 'text': body + ('' if len(body) >= 5 else ' :)')})
@@ -809,7 +840,6 @@ def reply_mail(y, b, r, now):
 def _outbid_unseen(b, lot, bid):
     """A real auction has bidders the bot never sees: the closer the bid is to the lot's value, the likelier it wins (a 30% bid wins
     about one time in five). Before, bots were the only bidders and won almost every lot they touched."""
-    import auction as MZ
     from . import loot as LT
     value = int((lot.get('price') or 0) * LT.EXCHANGE_RATE) or 1000000
     p = max(0.08, min(0.95, (bid / value - 0.15) / 0.75))

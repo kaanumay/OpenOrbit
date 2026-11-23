@@ -6,9 +6,10 @@ Unknown keys are preserved (old/new versions can share the same file); a value o
 import json, os, threading
 
 import lang as D
+from lang import t as _
 
 DEFAULTS = {
-    'lang': None,                    # a code from dil.DILLER; None: not chosen yet (the setup wizard opens with the language choice)
+    'lang': None,                    # a code from lang.LANGUAGES; None: not chosen yet (the setup wizard opens with the language choice)
     'setup_done': False,         # the first-run wizard is done (or skipped)
     'active_save': None,            # save/slots/<id>
     'client_folder': None,        # None: automatic (the newest DarkOrbit_Version* folder in the project root)
@@ -58,13 +59,13 @@ LIMITS = {'width': (640, 7680), 'height': (480, 4320), 'monitor': (0, 8), 'backu
 def clean(key, v):
     """Validate the value -> a valid value or ValueError."""
     if key not in DEFAULTS:
-        raise ValueError('unknown setting: %s' % key)
+        raise ValueError(_('Invalid value: %s', key))           # shown to the user (panel _api): in the panel's language
     d = DEFAULTS[key]
     if key == 'lang':
         return v if v in D.LANGUAGES else None
     if key in CHOICES:
         if v not in CHOICES[key]:
-            raise ValueError('%s: invalid choice' % key)
+            raise ValueError(_('Invalid value: %s', key))
         return v
     if isinstance(d, bool):
         return bool(v)
@@ -72,7 +73,7 @@ def clean(key, v):
         try:
             v = int(v)
         except (TypeError, ValueError):
-            raise ValueError('%s: not a number' % key)
+            raise ValueError(_('Invalid value: %s', key))
         lo, hi = LIMITS.get(key, (v, v))
         return min(hi, max(lo, v))
     if key in ('active_save', 'client_folder'):

@@ -4158,12 +4158,12 @@
      3.0
     ],
     [
-     "ship_hyperion_design_hyperion-empyrian",
+     "ship_mimesis_design_mimesis-empyrian",
      1,
      1.2999
     ],
     [
-     "ship_citadel-plus_design_citadel-plus-empyrian",
+     "ship_diminisher_design_diminisher-empyrian",
      1,
      1.2999
     ],
@@ -4176,19 +4176,19 @@
      "package",
      [
       [
-       "ship_g-champion_design_g-champion-argon",
+       "ship_goliath-plus_design_goliath-plus-argon",
        1
       ],
       [
-       "pet_designs_pet-diminisher-argon",
+       "pet_designs_pet-sentinel-argon",
        1
       ],
       [
-       "drone_designs_drone-sentinel-argon",
+       "drone_designs_drone-pusat-argon",
        1
       ],
       [
-       "drone_designs_drone-diminisher-argon",
+       "drone_designs_drone-berserker-argon",
        1
       ]
      ],
@@ -4198,11 +4198,11 @@
      "package",
      [
       [
-       "ship_sentinel_design_sentinel-lava",
+       "ship_venom_design_venom-inferno",
        1
       ],
       [
-       "pet_designs_pet-cyborg-lava",
+       "pet_designs_pet-hammerclaw-inferno",
        1
       ],
       [
@@ -4216,15 +4216,15 @@
      "package",
      [
       [
-       "ship_berserker_design_berserker-sandstorm",
+       "ship_hammerclaw_design_hammerclaw-carbonite",
        1
       ],
       [
-       "drone_designs_drone-cyborg-sandstorm",
+       "drone_designs_drone-goliath-x-carbonite",
        2
       ],
       [
-       "pet_designs_mirage-orange",
+       "pet_designs_pet-cyborg-carbonite",
        1
       ]
      ],
@@ -4234,26 +4234,26 @@
      "package",
      [
       [
-       "ship_cyborg_design_cyborg-carbonite",
+       "ship_spectrum_design_spectrum-lava",
        1
       ],
       [
-       "pet_designs_pet-diminisher-carbonite",
+       "pet_designs_pet-centurion-lava",
        1
       ],
       [
-       "drone_designs_drone-enigma-carbonite",
+       "drone_designs_drone-cyborg-lava",
        1
       ],
       [
-       "drone_designs_drone-cyborg-carbonite",
+       "drone_designs_drone-berserker-lava",
        1
       ]
      ],
      0.025
     ]
    ],
-   "_source": "wiki: stage and item probabilities, Epic design packages"
+   "_source": "board-en FAQ 130486 (Empyrian March November 2026), the whole table: main package Epic 0.1%, Legend 3.9%, Rare 12%, Common 24%, Additional Content 60%; Epic 25% per package: Argon Goliath Plus ship + Argon Sentinel P.E.T. + Argon Pusat drone + Argon Berserker drone; Inferno Venom ship + Inferno Hammerclaw P.E.T. + 2x Inferno drone; Carbonite Hammerclaw ship + 2x Carbonite Goliath-X drone + Carbonite Cyborg P.E.T.; Lava Spectrum ship + Lava Centurion P.E.T. + Lava Cyborg drone + Lava Berserker drone; Legend 33.33% each: Empyrian Mimesis, Empyrian Diminisher, Empyrian Goliath Plus; Rare 25% each: Inferno Orcus, Lava Mimesis, Argon Venom, Blaze Berserker; Common: Ocean Mimesis, Borealis Goliath-X, Borealis Mirage P.E.T., Ocean Pusat P.E.T., Ocean Goliath-X drone, Poison Spectrum drone 11.7% each, Inferno Cerberus drone 10.4%, Cerberus drone 19.4%; Additional: EMP-01 x20 8%, Extra Energy x30 10%, HSTRM-01 x2,000 15%, UBR-100 x800 4%, ABR x20 2%, Indoctrine Oil x5 1%, Kyhalon x10 2%, LF-4 x1 1%, Log Disk x10 8%, WIZ-X x700 18%, Salvage Core x10 5%, RSB-75 x800 5%, Tetrathrin x15 2%, Bifenon x20 2%, Permit Plus x1 2%, UCB-100 x3,000 10%, Permit x1 5%; boosters do not apply. Item weight = package % x item %"
   },
   "PROSPEROUS_BOOTY_BOX": {
    "name": "Prosperous Box",

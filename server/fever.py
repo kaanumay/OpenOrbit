@@ -12,14 +12,15 @@ matching: the displayed name is the start of the ship's lootId (Aegis -> ship_ae
 Date-ranged sets ('sets': start, bit, maps, events, days; the real game's Black Light weeks): while running they replace the
 default set (cfg); as in the calendar they repeat every 52 weeks (364 days).
 """
-import datetime, json, os, time
+import datetime, os, time
 
+import game_data as DATA
 import map_links as H
 from legacy_protocol import legacy
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 _PATH = os.path.join(HERE, 'data', 'extra_events.json')
-D = (json.load(open(_PATH, encoding='utf8')) if os.path.exists(_PATH) else {}).get('fever', {})
+D = (DATA.shared('extra_events.json') if os.path.exists(_PATH) else {}).get('fever', {})
 EVENT = 'fever'
 # the client's effect name -> profile.mods() key (damage to aliens: 'npc'; cooldown reduction 'cooldown')
 MODS = {'SHIELD': 'shield', 'SPEED': 'speed', 'EVASION': 'evasion', 'HITPOINTS': 'hp', 'DAMAGE_NPC': 'npc', 'DAMAGE': 'npc',
@@ -165,7 +166,8 @@ class Fever:
             msgs += [legacy('0|A|STM|ship_boost_announcement_%s' % ('active' if on else 'inactive')), self.info_cmd(now)]
             self.log('   Fever %s' % ('started' if on else 'finished'))
         if self.boosted_was is not None and b != self.boosted_was:
-            msgs += [('ShipBoostEventBoostInfoCommand', {'isShipBoosted': b})] + self.m.apply_stats()
+            # the window reads only Hero.ShipBoostEventInfoCommand (UIShipBoostSystem); the top-level BoostInfo handler is empty
+            msgs += ([] if self.was is not None and on != self.was else [self.info_cmd(now)]) + self.m.apply_stats()
         self.was, self.boosted_was = on, b
         return msgs
 

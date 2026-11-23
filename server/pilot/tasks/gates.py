@@ -105,8 +105,11 @@ def run(pilot, s, now, key, end):
     if g is None:                                   # still none: the gate cannot be entered from here
         end('gate_no_route')
         return 'gate_trip'
-    if act.enter_portal(g, now) == 'jumping':
+    st = act.enter_portal(g, now)
+    if st == 'jumping':
         pilot.note('Entering the {0}.', info['name'])
+    elif st == 'refused':                           # the portal kept refusing the jump (act/travel.REFUSED_SEC)
+        end('gate_no_route')
     return 'gate_trip'
 
 

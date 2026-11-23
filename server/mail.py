@@ -186,7 +186,10 @@ class Mail:
         for k in recipients:                                     # the recipient's blacklist or a block in the contact list (forum: blacklist)
             if k is None:
                 continue
-            if any(int(x.get('id', 0)) == self.p.user_id for x in (k.profile.d.get('mailer') or {}).get('blacklist', ())):
+            # by id or by name: a friend server's guest gets a new id on every join (the record's name is the id for one added offline)
+            if any(int(x.get('id', 0)) == self.p.user_id or (str(x.get('name', '')) not in ('', str(x.get('id')))
+                                                            and str(x['name']).lower() == own.lower())
+                   for x in (k.profile.d.get('mailer') or {}).get('blacklist', ())):
                 return reply(False, 'messaging_errorLayer_blacklisted')
             blocked = (k.profile.d.get('contacts') or {}).get('blocked') or []
             if any(own.lower() == str(x.get('name', x) if isinstance(x, dict) else x).lower() for x in blocked):
@@ -300,9 +303,10 @@ class Mail:
         if name == 'BlackListGetRequest':
             return [('BlackListGetCommand', {'blackList': ids(), 'blackNameList': names()})]
         ok = False
+        k = TP.find(uid=uid) if name == 'BlackListAddRequest' and uid else None     # the window lists blackNameList (UIMailSystem.CreateBlackItem)
         with self.p.lock:
             if name == 'BlackListAddRequest' and uid and uid != self.p.user_id and uid not in ids():
-                bl.append({'id': uid, 'name': str(uid)})
+                bl.append({'id': uid, 'name': k.name if k is not None else str(uid)})
                 ok = True
             elif name == 'BlackListDeleteRequest' and uid in ids():
                 bl[:] = [x for x in bl if x['id'] != uid]

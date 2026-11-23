@@ -15,13 +15,16 @@ def leader(bot):
     g = GR.group_of(bot.uid)
     if g is None:
         return None
-    people = TP.all_()
-    members = [people.get(u) for u in g.members if u != bot.uid]
+    # a bot member from the pack's cached directory; community.all_() builds the whole server's directory (O(pack)) and ran for every
+    # grouped bot at every decision and abstract step (1500 bots: the bot lock's mean hold per tick 150 -> 86 ms, audit 2026-11-22)
+    bots = TP.BOTS() if TP.BOTS is not None else {}
+    get = lambda u: bots[u] if u in bots else TP.find(uid=u)
+    members = [get(u) for u in g.members if u != bot.uid]
     members = [k for k in members if k is not None and k.session is not None]
     human = [k for k in members if k.uid < 1800000000 or k.uid >= 1900000000]
     if not human and g.leader == bot.uid:
         return None                                       # it leads a bot group: the others follow it, it plays on
-    return (human or [people.get(g.leader)] or [None])[0] if (human or members) else None
+    return (human or [get(g.leader)] or [None])[0] if (human or members) else None
 
 
 @target
@@ -78,7 +81,7 @@ class Group(Goal):
                 g.target = min(nearby)[1]
         hx, hy = w.hero_pos(now)
         nx, ny = g.mover.pos(now)
-        if g.target is None and math.hypot(hx - nx, hy - ny) > 700:
+        if g.target is None and math.hypot(hx - nx, hy - ny) > K.COMBAT['laser_range']:
             from .. import ship as G
             G._go_to(w, g, hx + bot.r.uniform(-300, 300), hy + bot.r.uniform(-300, 300), now)
             return True

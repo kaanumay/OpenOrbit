@@ -29,7 +29,6 @@ SELF_TOPICS = {'age': 'self_age', 'origin': 'self_origin', 'playtime': 'self_pla
                'football': 'self_football', 'weather': 'self_weather', 'pvp': 'self_pvp', 'howareyou': 'howareyou'}
 PERSONAL = ('age', 'origin', 'job', 'school', 'playtime', 'realname', 'music', 'food', 'sleep', 'tired', 'football', 'weather', 'doing',
             'howareyou')
-BUYABLE = ('ship', 'laser', 'drone', 'shield', 'pet')
 REACT = {'food': 'react_food', 'sleep': 'react_sleep', 'tired': 'react_sleep', 'school': 'react_work', 'job': 'react_work',
          'football': 'react_football', 'weather': 'react_weather', 'lag': 'react_lag', 'music': 'react_music', 'pvp': 'react_pvp',
          'company': 'react_company', 'alien': 'react_game', 'boss': 'react_game', 'map': 'react_game', 'quest': 'react_game',
@@ -140,7 +139,11 @@ def deliver(y, b, channel, msgs, now, delay, recipient=None, meta=None, priority
         if i:
             t += b.r.uniform(*P['split_gap']) + len(m) / pe.cps
         if meta is not None and i == len(msgs) - 1:
-            state(y).meta[(b.uid, m)] = dict(meta)
+            st = state(y).meta
+            st[(b.uid, m)] = dict(meta)
+            for k in list(st)[:len(st) - 500]:
+                del st[k]                                   # lines never sent (dropped at the channel limit, muted, bot offline) left theirs
+            #                                                 behind for the whole uptime; the oldest go
         x = y.speak(b, channel, m, recipient=recipient, now=t, immediate=True, priority=priority)
         if x is None:
             return last
@@ -262,7 +265,15 @@ def game_answer(y, b, m, asker, lang):
             good = pe.opinion_of('worth_' + s, (True, True, False)) if s not in ('phoenix', 'liberator') else False
             return ('ans_worth_yes' if good else 'ans_worth_no', dict(item=KN.nick(s, pe)))
         if m.after or (not m.ships and m.qtype == 'q_which' and asker.lower() in y.name_index):
-            base = m.ships[0] if m.ships else KN.ship_of(y.name_index[asker.lower()])
+            o = y.name_index.get(asker.lower())
+            if m.ships:
+                base = m.ships[0]
+            elif o is not None:
+                base = KN.ship_of(o)
+            else:                     # a human asking "what after this one?": the ship they fly (KeyError before: the chat tick's work lost)
+                import community as TP
+                k = TP.find(name=asker)
+                base = str(k.profile.ship().get('lootId', '')).replace('ship_', '') if k is not None else None
             s = _after(base, pe)
             if s:
                 return ('ans_ship', dict(item=KN.nick(s, pe)))

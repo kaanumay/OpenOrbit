@@ -11,17 +11,16 @@ spend them without caring which store they sit in.
                                           its equipped items return to the inventory, its designs go
   others                                  resource store (profile diger_esyalar: Assembly materials, keys, coupons ...)
 """
-import json, os
+import os
 
-import ranks as RT
+import game_data as DATA
 import technology as TECH
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-ORES = {loot: int(t) for t, loot in json.load(open(os.path.join(HERE, 'data', 'items.json'), encoding='utf8'))
-        ['ores']['kinds'].items()}
+ORES = {loot: int(t) for t, loot in DATA.shared('items.json')['ores']['kinds'].items()}
 CURRENCY = {'currency_credits': ('credits', 'credits'), 'currency_uridium': ('uridium', 'uridium')}
 ITEM_PREFIXES = ('equipment_', 'drone_', 'pet_')
-_CLIENT = json.load(open(os.path.join(HERE, 'data', 'client_items.json'), encoding='utf8'))['items']
+_CLIENT = DATA.shared('client_items.json')['items']
 
 
 def client_item_ok(loot):
@@ -45,10 +44,32 @@ def client_filter(msgs):
     return [(n, f) for n, f in msgs if n != 'InventoryItemUpdatedCommand' or client_item_ok((f.get('item') or {}).get('lootId', ''))]
 
 
+# every record kept per item id (forgotten with the item: sale, spending; the panel save editor's delete has the same list)
+ITEM_RECORDS = ('item_level', 'upgrade_level', 'upgrade_paid', 'unstable', 'particle', 'qfc', 'resonators')
+
+
+def forget(p, iid):
+    """The item's own records go with it (under the profile lock)."""
+    for k in ITEM_RECORDS:
+        p.d.get(k, {}).pop(str(iid), None)
+
+
+def on_loan(p):
+    """The Astral run (astral.loan) -> (ship ids, item ids) that are not the player's to spend or sell: the rented ship and items (the run's
+    end deletes them) and, while inside, the player's own parked ship (swap_out activates it again)."""
+    r = ((p.d.get('pve') or {}).get('astral') or {}).get('run') or {}
+    ships = {str(r['sid'])} if r.get('sid') else set()
+    if r.get('inside') and (r.get('backup') or {}).get('active') is not None:
+        ships.add(str(r['backup']['active']))
+    return ships, {int(i) for i in list(r.get('items') or []) + list(r.get('inventory') or [])}
+
+
 def free_items(p, loot):
-    """Unequipped item instances (itemId list)."""
-    eq, lv = p.equipped_ids(), p.d.get('upgrade_level', {})
-    ids = [int(i) for i, l in p.d['items'].items() if l == loot and int(i) not in eq]
+    """Unequipped item instances (itemId list); not one with an upgrade running or waiting to be collected (its payment would be lost),
+    nor a rented one (Astral)."""
+    import upgrades as UPG
+    eq, lv, rented = p.equipped_ids(), p.d.get('upgrade_level', {}), on_loan(p)[1]
+    ids = [int(i) for i, l in p.d['items'].items() if l == loot and int(i) not in eq and int(i) not in rented and not UPG.busy(p, i)]
     return sorted(ids, key=lambda i: (int(lv.get(str(i), 0)), i))      # forum 160116: the spent one is "the lowest level in stock"
 
 
@@ -71,8 +92,9 @@ def count(p, loot):
 
 
 def spare_ships(p, loot):
-    """Ships that can be spent: of this type, inactive (shipId list)."""
-    return [sid for sid, s in p.d['ships'].items() if s['lootId'] == loot and sid != str(p.d['active_ship'])]
+    """Ships that can be spent: of this type, inactive, not rented or parked by an Astral run (shipId list)."""
+    loan = on_loan(p)[0]
+    return [sid for sid, s in p.d['ships'].items() if s['lootId'] == loot and sid != str(p.d['active_ship']) and sid not in loan]
 
 
 def client_count(p, loot):
@@ -123,7 +145,7 @@ def spend(p, need, reason='buy_SPECIAL', detail=''):
             for iid in free_items(p, loot)[:n]:
                 with p.lock:
                     del p.d['items'][str(iid)]
-                    p.d.get('item_level', {}).pop(str(iid), None)
+                    forget(p, iid)
                     p.dirty = True
                 removed.append(iid)
         else:
@@ -158,8 +180,3 @@ def update_msgs(m, p, loots, removed=()):
         iid = m.item_id(loot)
         msgs += [m.inv_item(iid, loot, n), m.pack([m.hangar_item(iid, loot, n)])]
     return msgs
-
-
-def note_spend(p, need, reason):
-    """A line in the logbook for spending outside the account history (if needed)."""
-    RT.note(p, reason, ','.join('%s:%d' % kv for kv in need.items()))

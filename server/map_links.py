@@ -5,7 +5,7 @@ The in-game position is scaled to the standard map size (21000x13100) and snappe
 verified with the save: 2-1 (2000,11500) -> 2-2, 2-2 (18500,2000) -> 2-1, (2000,11500) -> 2-3, (18500,11500) -> 2-4.
 Portal id = 150000167 + key (matches 150000182/183/177/184 in the save one to one).
 """
-import math, os, random, re
+import math, os, re
 
 import map_layout as ML
 
@@ -355,7 +355,6 @@ def x8_home(faction, level, map_id):
 STATION_ASSETS = {46: 'ttip_company_hq', 48: 'ttip_hangar', 50: 'ttip_ore_trade', 52: 'ttip_ore_trade',   # HQ, hangar, refinery (52: invisible)
                   53: 'ttip_instant_repair', 54: 'ttip_instant_repair',     # repair station (main base / outpost; Ö1)
                   47: 'ttip_company_hq', 49: 'ttip_hangar', 51: 'ttip_ore_trade'}     # X-8 outpost (OUTPOST)
-REPAIR_ASSETS = (53, 54)         # InstantRepairRequest: instant repair with a repair coupon (world.instant_repair)
 ASSET_RANGE = 500
 QUEST_GIVER = 34                 # AssetCreateCommand.type: quest giver (save: Reginald Crowley, 2-1)
 QUEST_GIVER_DESIGN = {'1': 3, '8': 4, '5': 5, '4': 5}                  # X-1, X-8, X-5: MMO'nunki; EIC +3, VRU +6 (quest_giver)
@@ -381,6 +380,16 @@ def jumpgate_create(g, faction=None):
     return ('JumpgateCreateCommand', dict(gateId=g['gateId'], factionId=0, designId=g.get('designId', g.get('design', 1)), x=g['x'],
                                           y=g['y'], isVisibleOnMinimap=not (hidden or g.get('hidden')),   # the hidden wormhole on 4-5
                                           showBubble=not hidden, decoratorAssetTypes=g.get('decorations', [])))
+
+
+def gate_for(f, faction):
+    """A JumpgateCreateCommand of the map world (map_world bakes in PLAYER_FACTION, the host's company, and the result is cached per map)
+    for this player's company: on the friend server a guest of another company got the host's 5-X portal visibility."""
+    g = next((x for gs in GATES.values() for x in gs if x['gateId'] == f.get('gateId')), None)
+    if not (g and g.get('only_company')):
+        return f
+    hidden = faction not in (None, g['only_company'])
+    return dict(f, isVisibleOnMinimap=not (hidden or g.get('hidden')), showBubble=not hidden)
 
 
 # Gate hints (the client's flashres keys). On gates whose target is 0 (that open a window) "%MAP%" stayed empty, the client's name for the maze

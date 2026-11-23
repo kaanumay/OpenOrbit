@@ -1,6 +1,6 @@
 {
  "_description": "Windows of shops that run on uridium -> server/data/stores.json, items.json (extra_shop, payment_packages, payment_prices)",
- "_source": "belgeler/wiki/dukkanlar_o7.json; dukkanlar_o7",
+ "_source": "belgeler/wiki/dukkanlar_o7.json; stores_o7",
  "mileage": {
   "calendar": "mileage_market",
   "token": "resource_collectable_mileage-coin",
@@ -4547,7 +4547,7 @@
      ],
      [
       "currency_experience",
-      32768000
+      327680000
      ]
     ]
    },
@@ -4597,7 +4597,7 @@
      ],
      [
       "currency_experience",
-      32768000
+      327680000
      ]
     ]
    },
@@ -4655,11 +4655,11 @@
      ],
      [
       "currency_experience",
-      32768000
+      327680000
      ]
     ]
    }
   ],
-  "_adaptation": "once per account, level 5 and above (the client's button rule is 5-14; in single-player the only route to Solaris, no upper limit); price is an adaptation; Forerunner/Warden EP 327,680,000 -> 32,768,000 (single-player)"
+  "_adaptation": "once per account, level 5 and above (the client's button rule is 5-14; in single-player the only route to Solaris, no upper limit); price is an adaptation; Forerunner/Warden/Trailblazer EP 327,680,000 as in the client's package texts (items.json payment_packages)"
  }
 }

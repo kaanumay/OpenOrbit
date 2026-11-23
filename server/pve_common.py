@@ -36,11 +36,6 @@ def screen(text, big=False):
     return GALAXY.screen(text, big=big)
 
 
-def rank_module(name, p, value, when='', **extra):
-    """Single-player ranking row (the player themselves; 0 if rank is 1 or there is no value)."""
-    return dict(_=name, name=p.d['pilot'].get('userName', ''), rank=1 if value else 0, **extra)
-
-
 class Run:
     """The wave run on the mode map (a generalization of galaxy_gates.Run). phase: intro, fight, next (between sub-waves), break (pause),
     hold (the mode is holding), done, dead."""

@@ -16,8 +16,9 @@ boss fight (3 per 1%, at most 300) and time (450 - 0.25 x sec); the ranking is t
 player).
 In the profile: pve.astral {gate, run {ship, shipId, sid, rift, type, frenzied, points, atlas, inventory, items, inside, rented, backup}, runs [points]}.
 """
-import json, math, os, random, time
+import os, random, time
 
+import game_data as DATA
 import settings as SET
 import galaxy_gates as GALAXY
 import rankings as RK
@@ -25,9 +26,8 @@ import monthly_rankings as MR
 import pve_common as PS
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-D = json.load(open(os.path.join(HERE, 'data', 'pve_modes.json'), encoding='utf8'))['astral']
+D = DATA.shared('pve_modes.json')['astral']
 PORTAL = 154900000                 # the gate in X-1; + 10 + i reward gates; + 50 exit
-PICK = ('weapon', 'generator', 'module', 'booster')
 SALVAGE_CHANCE, KEY_CHANCE = 1.0, 0.5          # at the end of a rift: Salvage Core every time (official forum); the key is an adaptation
 
 
@@ -197,7 +197,7 @@ class Astral:
         r, p = self.run, self.p
         self.swap_out()
         with p.lock:
-            sh = p.d['ships'].pop(r['sid'], None)
+            p.d['ships'].pop(r['sid'], None)
             for iid in r['items'] + r['inventory']:
                 p.d['items'].pop(str(iid), None)
                 p.d.get('upgrade_level', {}).pop(str(iid), None)
@@ -205,8 +205,12 @@ class Astral:
             runs = self.st.setdefault('runs', [])
             runs.append(int(r['points']))
             self.st['runs'] = sorted(runs, reverse=True)[:20]
+        before = MR.table(p, 'astral')[1][2]
         MR.record(p, 'astral', int(r['points']))                     # the month's ranking (monthly_rankings.py)
+        changed = MR.table(p, 'astral')[1][2] != before                # outside the profile lock (rows takes the bot lock)
         with p.lock:
+            if changed:
+                self.st['ranked_at'] = int(time.time() * 1000)         # the Rank tab's last update of the player's row (rank_cmd)
             p.dirty = True
         row = next((x for x in D['reward'] if x['min_value'] <= reached <= x['max_count']), D['reward'][0])
         msgs, got = [], []
@@ -385,7 +389,6 @@ class Astral:
             return False
         sid = self.run['sid']
         cfg = self.p.config(None, sid)
-        cap = {'laser': 'laser', 'generators': 'generators', 'extra': 'extra', 'upgrades': None}
         row = ITEMS['ships'].get(self.run['ship'], {})
         limit = row.get(slot, 0) if slot != 'upgrades' else 3
         if len(cfg.get(slot, [])) >= limit:
@@ -497,7 +500,11 @@ class Astral:
 
     def rank_cmd(self):
         """Rank tab: the month's ranking (total of the best three runs)."""
-        row = lambda r: mod('RankModule', lastUpdateTime=int(time.time() * 1000), name=r[1], rank=r[0], points=int(r[2]))
+        # lastUpdateTime ms: the player's row the time of its last change, 0 for the placeholder (the client shows "-" only for 0,
+        # UIRogueLiteSystem.RefRanking); a bot's row the time of its last change (monthly_rankings.record_bot), the current time for an older
+        # record without one (the top list formats 0 as 01/01)
+        row = lambda r: mod('RankModule', lastUpdateTime=(int(self.st.get('ranked_at', 0)) if r[2] else 0) if r[3] else (r[4] or int(time.time() * 1000)),
+                            name=r[1], rank=r[0], points=int(r[2]))
         top, me = MR.table(self.p, 'astral')                  # the month's ranking with the bot pilots (monthly_rankings.py)
         info = mod('RogueLiteRankInfoCommand', topRankers=[row(r) for r in top], myRank=row(me))
         return ('RogueLiteRankEventInfoCommand', dict(playerRankRanges=RK.ranges(RK.ASTRAL), rankInfoCommand=info,

@@ -34,6 +34,7 @@ class ModeRun(Goal):
             return
         ul, top, duration, reward = MD.run(bot, m, bot.r)
         bot.plan.update(mod=m.uid, ul=ul, top=top, duration=duration, reward=reward, end_time=b.now + duration)
+        bot.k['mode_run'] = dict(bot.plan)                      # paid for: a restart mid-run settles it on load (settle), not lost
         bot._mode_candidate = None
         bot._mode_next_check = 0
         if m.game_map:
@@ -43,14 +44,7 @@ class ModeRun(Goal):
     def abstract(self, bot, dt, y):
         if bot.plan.get('finished') or y.now < bot.plan.get('end_time', 0):
             return
-        m = next((x for x in MD.modes() if x.uid == bot.plan.get('mod')), None)
-        if m is not None:
-            o = bot.plan.get('reward') or {}
-            bot.reward('npc', y.speed(bot), ep=o.get('ep', 0), credits=o.get('credits', 0), uridium=o.get('uridium', 0), honor=o.get('honor', 0))
-            m.finish(bot, bot.plan['ul'], bot.plan['top'], bot.plan['duration'], bot.r)
-            m.save(bot, bot.plan['ul'], bot.plan['top'])
-            bot.ist('mode_run')
-            bot.event('mode_done', mod=m.name, progress='%d/%d' % (bot.plan['ul'], bot.plan['top']))
+        settle(bot, bot.plan, y)
         if bot.game_map not in K.MAPS:
             S.jump_to(bot, K.ev(bot.company), y)
         bot.plan['finished'] = True
@@ -60,3 +54,18 @@ class ModeRun(Goal):
 
     def finished(self, bot, b):
         return bot.plan.get('finished', False)
+
+
+def settle(bot, plan, y):
+    """The run's reward (decided when it started: MD.run) and its record; from abstract at its end time, or from Manager.load for a run
+    a restart interrupted (the ticket, key or CPU was already paid)."""
+    bot.k.pop('mode_run', None)
+    m = next((x for x in MD.modes() if x.uid == plan.get('mod')), None)
+    if m is None:
+        return
+    o = plan.get('reward') or {}
+    bot.reward('npc', y.speed(bot), ep=o.get('ep', 0), credits=o.get('credits', 0), uridium=o.get('uridium', 0), honor=o.get('honor', 0))
+    m.finish(bot, plan['ul'], plan['top'], plan['duration'], bot.r)
+    m.save(bot, plan['ul'], plan['top'])
+    bot.ist('mode_run')
+    bot.event('mode_done', mod=m.name, progress='%d/%d' % (plan['ul'], plan['top']))

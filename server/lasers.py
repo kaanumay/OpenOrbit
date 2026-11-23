@@ -21,10 +21,12 @@ alien_extra, target_multiplier, extra_damage_5sec, range, hp_per_laser) also wor
 Event ammo multipliers (items.json "event_ammo"): while an event runs an ammo hits the aliens in the list harder than usual
 (Empyrian March, Prosperous Mutation, Protegit Pandemonium, Immortal Union: UCB-100 / CC-C; Hitac Assault: RSB-75); event_ammo.
 """
-import json, os, random, re
+import os, random, re
+
+import game_data as DATA
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-_E = json.load(open(os.path.join(HERE, 'data', 'items.json'), encoding='utf8'))
+_E = DATA.shared('items.json')
 LS = _E['lasers']
 EVENT_AMMO = {k: v for k, v in _E.get('event_ammo', {}).items() if not k.startswith('_')}
 OVERDRIVE_SEC = 5.0

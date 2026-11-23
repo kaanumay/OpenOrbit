@@ -38,6 +38,7 @@
   "mothership": "event_hitac_mothership",
   "minion_box": {
    "type": "HITAC_MINION",
+   "type_easy": "HITAC_MINION_EASY",
    "contents": [
     [
      "ammunition_laser_mcb-50",
@@ -203,6 +204,7 @@
   },
   "mothership_box": {
    "type": "HITAC",
+   "type_easy": "HITAC_EASY",
    "capsule_at": 1,
    "guaranteed": [
     [
@@ -469,7 +471,7 @@
    ]
   ],
   "_source": "hitac_chromin.json: HITAC 5 letters, always a missing letter; Minion box 50% letter and 300 MCB-50; Underling 0.5%, Underboss 18%; 1 capsule from the mothership box; converter 2024-2026 table (40 packages, total 100%). Letter probabilities: {\"Hitac-Minion cargo box (classic Hitac event 2012-2015)\": 50.0, \"HITAC MINION box (Hitac Assault, Hitac 2.0 / 2.5 motherships)\": null, \"Easy Hitac Minion box (low-level version)\": null, \"Hitac Underling (X-2..X-8)\": 0.5, \"Hitac Underboss (X-2..X-8)\": 18.0, \"HITAC MOTHERSHIP box (darkorbitwiki)\": null}",
-  "_adaptation": "Box types are the client's names (HITAC_MINION, HITAC_UNDERBOSS, HITAC). A box drops every time an Underling and an Underboss dies: a letter with the wiki chance, and next to it a row from the contents with equal weight (items from darkorbitwiki hitac-assault; quantities and chance not in the source: adaptation). The mothership box gives 50 ACM-1 and 1,000 PLT-3030 (wiki) next to the capsule; Backup Shield 2, Battle Repair Bot 2, Explosive Charging Blob and NPC Nuke 5% each (chance not in the source: adaptation). end_draw: wiki \"end-of-event lottery (used capsules)\", reward count 3 packages per sample; in single-player, as the draw's only participant, each capsule spent at the Capsule Converter is one entry, and each entry gives up to 3 unowned rewards from the pool (probability not in the source: equal). The capsule's uridium price is in the shop balance."
+  "_adaptation": "Box types are the client's names (HITAC_MINION, HITAC_UNDERBOSS, HITAC; type_easy for Hitac 2.5: client game.xml npcId 261 \"Hitac Mothership Easy\" = Hitac 2.5, 263 \"Hitac Minions Easy\" = Hitac-Minion 2.5, lib_collectables box_HITAC_EASY / box_HITAC_MINION_EASY on the same asset as HITAC; Hitac 2.0 keeps HITAC / HITAC_MINION). A box drops every time an Underling and an Underboss dies: a letter with the wiki chance, and next to it a row from the contents with equal weight (items from darkorbitwiki hitac-assault; quantities and chance not in the source: adaptation). The mothership box gives 50 ACM-1 and 1,000 PLT-3030 (wiki) next to the capsule; Backup Shield 2, Battle Repair Bot 2, Explosive Charging Blob and NPC Nuke 5% each (chance not in the source: adaptation). end_draw: wiki \"end-of-event lottery (used capsules)\", reward count 3 packages per sample; in single-player, as the draw's only participant, each capsule spent at the Capsule Converter is one entry, and each entry gives up to 3 unowned rewards from the pool (probability not in the source: equal). The capsule's uridium price is in the shop balance."
  },
  "title_hunt": {
   "event": "title_hunt",
@@ -25759,6 +25761,114 @@
   "box_life_sec": 120,
   "bot_range": 2500,
   "bot_chance": 0.25,
+  "mayhem": {
+   "event": "spacecup",
+   "model": "444",
+   "pvp_factor": 2,
+   "box": "MAYHEM_BOX",
+   "count": 10,
+   "life_sec": 120,
+   "radius": 250,
+   "contents": [
+    [
+     "currency_uridium",
+     15000,
+     3
+    ],
+    [
+     "currency_uridium",
+     1500,
+     15
+    ],
+    [
+     "equipment_weapon_laser_lf-4-pd",
+     1,
+     1
+    ],
+    [
+     "resource_extra-energy",
+     450,
+     5
+    ],
+    [
+     "resource_extra-energy",
+     30,
+     10
+    ],
+    [
+     "resource_collectable_indoctrineoil",
+     3,
+     10
+    ],
+    [
+     "resource_jumpvoucher",
+     10,
+     7
+    ],
+    [
+     "ammunition_laser_rsb-75",
+     30000,
+     2
+    ],
+    [
+     "ammunition_laser_rsb-75",
+     800,
+     12
+    ],
+    [
+     "ammunition_laser_ucb-100",
+     100000,
+     3
+    ],
+    [
+     "ammunition_laser_ucb-100",
+     1000,
+     24
+    ],
+    [
+     "ammunition_laser_spacecup_group-a",
+     40000,
+     1
+    ],
+    [
+     "ammunition_laser_spacecup_group-b",
+     40000,
+     1
+    ],
+    [
+     "ammunition_laser_spacecup_group-c",
+     40000,
+     1
+    ],
+    [
+     "ammunition_laser_spacecup_group-d",
+     40000,
+     1
+    ],
+    [
+     "ammunition_laser_spacecup_group-e",
+     40000,
+     1
+    ],
+    [
+     "ammunition_laser_spacecup_group-f",
+     40000,
+     1
+    ],
+    [
+     "ammunition_laser_spacecup_group-g",
+     40000,
+     1
+    ],
+    [
+     "ammunition_laser_spacecup_group-h",
+     40000,
+     1
+    ]
+   ],
+   "_source": "darkorbitwiki events/spacecup (2022-11-17): Space Football is the Spaceball during Space Cup with a football look; Extra PvP Bonus: every PvP kill on 4-4 during the match gives double rewards; Mayhem Boxes: 10 per goal in addition to the Spaceball cargo, visible to the scorer and the 9 players of the same company who pushed the ball the furthest, visible as soon as they drop, collected instantly; contents and chances (one item per box, total 100%; official Turkish forum 127757 \"Serüven Kutuları\", the same rules and table): 15,000 / 1,500 Uridium 3 / 15 (the wiki writes 1,000; the official forum 1,500), LF-4 Paritydrill 1, 450 / 30 Extra Energy 5 / 10, 3 Indoctrine Oil 10, 10 Jump Vouchers 7, 30,000 / 800 RSB-75 2 / 12, 100,000 / 1,000 UCB-100 3 / 24, 40,000 KK-A..KK-H (CC-A..CC-H, ammunition_laser_spacecup_group-a..h) 1 each; client: box_MAYHEM_BOX (spacecup_Mayem_box), ttip_mayhem_box; Roaming Football Pirates: events.json spacecup (4-4 group)",
+   "_adaptation": "not published: the match runs for the whole Space Cup (the wiki does not give its schedule); the box lifetime 120 s and the scatter radius 250 like the Spaceball cargo; in single-player the boxes drop for the player when the player's company scores and the player hit the ball in the last window_sec (10 s), bots get none; the football look is model 444 (the Spaceball's football model)"
+  },
   "_adaptation": "not published: the ball heads for the portal of the company with the most damage in the last 10 s, speed 1-3 (80 / 130 / 180) by its lead; the goal radius 450; one box per prize (120 s); the bots near the ball shoot it; the day's winner (most goals, no tie) gets the wiki's example bonus for 24 hours; the model by season"
  },
  "capture_the_beacon": {
@@ -25815,6 +25925,6 @@
    "ep": 0.05,
    "honor": 0.05
   },
-  "_adaptation": "not published: taking and delivering by flying into the zone (radius 450; the beacon at rest has no model to click in this client), the beacon of a killed carrier goes home at once (no model to lie on the map), the carrier 25% slower, the zone positions (two per X-2, away from the portals), an enemy bot raid on the player's X-2 every 4-8 minutes, the other deliveries of the hour simulated (one every 5-15 minutes), the hour winner's prize +5% EP and Honor for the next hour"
+  "_adaptation": "not published: delivering by flying into the zone (radius 450; the beacon at rest is the client's beacon_<id> collectable, AddBeaconCommand, taken by clicking it like a box within the box harvest distance), the beacon of a killed carrier goes home at once (it is not left lying where the carrier died), the carrier 25% slower, the zone positions (two per X-2, away from the portals), an enemy bot raid on the player's X-2 every 4-8 minutes, the other deliveries of the hour simulated (one every 5-15 minutes), the hour winner's prize +5% EP and Honor for the next hour"
  }
 }

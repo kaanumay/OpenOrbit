@@ -36,7 +36,7 @@ REFLECTED = {'MoveCommand': ('userId',), 'AttackLaserRunCommand': ('attackerId',
             'HellstormAttackCommand': ('attackerId', 'targetId')}
 # the player's mines and fireworks (combat_items.py; their tags M<id>_<seq>, F<id>_<seq>) and the spray are visible to everyone;
 # an alien's mine (U...) only hits the hero of the world that laid it, not mirrored
-PLAYER_HASH = ('M', 'F')
+PLAYER_HASH = ('M', 'F', 'pmm')     # pmm<id>: the P.E.T.'s Mega Mine (pet.drop_mine; it hits the other players too)
 SPRAY = 69                    # AssetCreateCommand type (combat_items.SPRAY_ASSET)
 # visuals sent with legacy text (legacy_protocol.py) -> the part order of the ship ids in them (the first number list: all the remaining parts
 # are ids): rocket 0|v|attacker|target|..., Smart Bomb / Insta-Shield / EMP 0|n|SMB|uid, ship ability 0|n|SD|A|effect|permanent|
@@ -45,7 +45,8 @@ SPRAY = 69                    # AssetCreateCommand type (combat_items.SPRAY_ASSE
 # target|... and invisibility 0|n|INV|uid|open
 LEGACY = {('0', 'v'): (2, 3), ('0', 'n', 'SMB'): (3,), ('0', 'n', 'ISH'): (3,), ('0', 'n', 'EMP'): (3,),
         ('0', 'n', 'SD'): (6, [7]), ('0', 'n', 'A', 'S'): (5,), ('0', 'n', 'ECI'): (4, [5]), ('0', 'n', 'fx'): (5,),
-        ('0', 'n', 'BT'): (3,), ('0', 'n', 'NNK'): (3,), ('0', 'A', 'SLA'): (4,), ('0', 'A', 'HL'): (3, 4), ('0', 'n', 'INV'): (3,)}
+        ('0', 'n', 'BT'): (3,), ('0', 'n', 'NNK'): (3,), ('0', 'A', 'SLA'): (4,), ('0', 'A', 'HL'): (3, 4), ('0', 'n', 'INV'): (3,),
+        ('0', 'n', 'PMME'): (3,)}         # Mega Mine blast ring on the unit hit (pet.mine_step)
 
 REG = threading.Lock()
 MAPS = {}                # map id -> Map (while a world uses it)
@@ -229,8 +230,3 @@ def uid_list(m):
         except (ValueError, IndexError):
             return None
     return None
-
-
-def is_shared(w):
-    """Whether the world is on a shared map and whether there is another player there (mirroring is skipped if unnecessary)."""
-    return w.shared is not None and len(w.shared.members) > 1

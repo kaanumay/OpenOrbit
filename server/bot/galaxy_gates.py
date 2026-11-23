@@ -9,11 +9,13 @@ data/gates.json).
             aliens' kill rewards; on failure the gate (with its parts) is lost. The Kronos part comes from the other gates.
 State bot.k['kapi'] = {'parca': {gate: count}, 'kurulu': [gate ...], 'carpan': n, 'kronos': count}.
 """
-import json, math, os, random
+import random
+
+import game_data as DATA
 
 from . import catalog as K
 
-D = json.load(open(os.path.join(K.HERE, 'data', 'gates.json'), encoding='utf8'))
+D = DATA.shared('gates.json')                  # read only (game_data.shared)
 GATES = D['gates']
 ABG = ('alpha', 'beta', 'gamma')
 ORDER = ('alpha', 'beta', 'gamma', 'lambda', 'hades', 'delta', 'epsilon', 'kappa', 'zeta', 'streuner')
