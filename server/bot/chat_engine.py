@@ -359,6 +359,26 @@ class ChatEngine:
             b._event_time = now
             for o in new_:
                 self.event_chat(b, o, now)
+        if now - self.__dict__.get('_calendar_t', -1e9) >= 60:
+            self._calendar_t = now
+            self.calendar_chat(now)
+
+    def calendar_chat(self, now):
+        """An event of the calendar started or ended since the last look (not on the first look: the server just started): the bots
+        say so, at most once per event in three hours (a sessioned event opens several windows a day). Only a real start or end: its
+        period began / ended in the last ten minutes, or it was switched on in the panel."""
+        import event_calendar as CAL
+        on = {k for k in CAL.active(now) if k in CAL.EVENTS}
+        old, prev, self._calendar_on, self._calendar_prev = self.__dict__.get('_calendar_on'), self.__dict__.get('_calendar_prev', now), on, now
+        if old is None or not self.permission('chat') or (self.llm is not None and self.llm.ready):
+            return
+        said = self.__dict__.setdefault('_calendar_said', {})
+        for k, started in sorted([(k, True) for k in on - old] + [(k, False) for k in old - on]):
+            p = CAL.period(k, now if started else prev)
+            real = (CAL.forced(k) or (p is not None and 0 <= now - p[0] < 600)) if started else (p is not None and 0 <= now - p[1] < 600)
+            if real and now - said.get(k, -1e9) >= 3 * 3600:
+                said[k] = now
+                TALK.calendar_line(self, k, started, now)
 
     def event_chat(self, b, o, now):
         if self.llm is not None and self.llm.event(self, b, o, now):
@@ -370,6 +390,8 @@ class ChatEngine:
                 TALK.witness(self, b, 'boss', now, who=o['who'])
             elif o.get('sub') == 'player_died' and o.get('name'):
                 TALK.witness(self, b, 'death', now, name=o['name'])
+            elif o.get('sub') == 'spawn' and o.get('name'):        # a boss / event alien appeared next to it (ship.witness)
+                TALK.witness(self, b, 'spawn', now, alien=re.sub(r'[^\w\s-]+', '', str(o['name'])).strip(' -').lower())
             return
         if kind == 'diplomacy' and (o.get('accept') or not o.get('incoming')) and o.get('form') in (0, 1, 3) and b.r.random() < 0.4 + 0.5 * talk:
             state = {0: 'peace', 1: 'alliance', 3: 'war_declared'}[o['form']]
@@ -402,6 +424,18 @@ class ChatEngine:
         elif kind == 'clan_founded' and self.can_recruit(o.get('name'), now):
             self.speak(b, 'global', SPC.template(b, 'clan_recruit', tag=o.get('tag'), clan=o.get('name'), level=max(3, b.level - 4)),
                        now=now + b.r.uniform(20, 120))
+        elif kind == 'death' and o.get('killer') and str(o['killer']).lower() in self.name_index and b.r.random() < 0.15 + 0.35 * talk:
+            TALK.event_line(self, b, 'pvp_loss', now, name=o['killer'], map=o.get('map'))      # another bot popped him: his company hears it
+        elif kind == 'death' and not o.get('killer') and b.r.random() < 0.12 * talk:
+            TALK.event_line(self, b, 'death_npc', now, map=o.get('map'))
+        elif kind == 'i_killed' and o.get('victim') and b.r.random() < 0.1 + 0.4 * talk * b.o('aggression'):
+            TALK.event_line(self, b, 'pvp_win', now, name=o['victim'])
+        elif kind == 'gate_done' and b.r.random() < 0.5 * talk:
+            TALK.event_line(self, b, 'gate_done', now)
+        elif kind == 'mode_done' and o.get('mod') and b.r.random() < 0.3 * talk:
+            TALK.event_line(self, b, 'mode_done', now, gate=re.sub(r'\s*\(.*?\)', '', str(o['mod'])).strip())
+        elif kind == 'quest_done' and b.r.random() < 0.05 * talk:
+            TALK.event_line(self, b, 'quest_done', now)
 
     def online_humans(self):
         """Online human players (community.Person; except the pack's bots)."""

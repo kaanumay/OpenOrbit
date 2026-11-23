@@ -155,9 +155,12 @@ def farm(bot, dt, y, target_kind=None):
         death(bot, y, reason='npc', now=y.now if y is not None else None)
 
 
-def x1_cut(bot):
-    """At high level in their own X-1 the reward shrinks (npc.json x1_odul; world.World.grant_loot)."""
-    if H.map_class(bot.game_map) != 'X-1' or H.company(bot.game_map) != bot.company:
+def x1_cut(bot, m=None):
+    """At high level in their own X-1 (m: that map instead of the current one) the reward shrinks (npc.json x1_reward;
+    world.World.x1_reward, the same x1_cargo setting)."""
+    m = bot.game_map if m is None else m
+    import settings as SET
+    if H.map_class(m) != 'X-1' or H.company(m) != bot.company or not SET.get('x1_cargo'):
         return 1.0
     return next((k for l, k in reversed(K.COMBAT['x1_reward']) if bot.level >= l), 1.0)
 

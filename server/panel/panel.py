@@ -21,7 +21,7 @@ on macOS, Automatic is the Wine + DXMT the panel installs itself (wine_engine.py
 downloads, or from the Client page; on Apple Silicon the panel also has Rosetta 2 installed). The window is in Chrome, Edge, Chromium or
 Brave; file dialogs are tkinter on Linux (zenity if absent), AppleScript on macOS (Tk works there only on the main thread); the shortcut
 is a .desktop on Linux, an app bundle (.app) on macOS. """
-import datetime, json, os, re, secrets, shlex, shutil, subprocess, sys, threading, time, traceback
+import base64, datetime, json, math, os, re, secrets, shlex, shutil, subprocess, sys, threading, time, traceback, zlib
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, urlparse
 from urllib.error import HTTPError
@@ -166,8 +166,8 @@ ENG = RUN.engine()                                                # macOS: the W
 ENG.log = log
 PATCHER = PATCH.Patcher(log)                                           # BepInEx, which loads the client's fixes (client_patch.py)
 TOKEN = secrets.token_hex(16)
-STATE = {'play': {'running': False, 'steps': [], 'error': None, 'finished': None, 'server_only': False},
-         'heartbeat': time.monotonic(), 'window_closed': False, 'window_watched': False, 'last_backup': 0.0, 'closing': False,
+STATE = {'play': {'running': False, 'steps': [], 'error': None, 'finished': None, 'server_only': False, 'images': False},
+         'images_stop': threading.Event(), 'heartbeat': time.monotonic(), 'window_closed': False, 'window_watched': False, 'last_backup': 0.0, 'closing': False,
          'next_check': time.time() + 8, 'updated': bool({'--updated', '--guncellendi'} & set(sys.argv)), 'srv': None, 'opening': time.time()}
 
 
@@ -805,7 +805,7 @@ def status():
     table = PR.listeners()                       # the port table once too (Linux scans /proc/*/fd, macOS runs lsof)
     return {'processes': MANAGER.status(table), 'active': active, 'save_count': len(slots),
             'settings_summary': settings_summary(vals), 'events': ev,
-            'warnings': warnings(folder, table), 'play': STATE['play'], 'client_folder': folder,
+            'warnings': warnings(folder, table), 'play': STATE['play'], 'client_folder': folder, 'readiness': readiness(folder),
             'friend': {'host': MANAGER.running() and MANAGER.friend, 'guest': FRD.m['state'], 'address': FRD.m['address']},
             'multi': multi_status(slots),
             'panel': {'version': VERSION, 'window_closed': STATE['window_closed'], 'lang': CFG.get('lang'), 'platform': sys.platform,
@@ -992,8 +992,84 @@ def start_launch(server_only=False, friend=False):
     with _launch_lock:                                  # two requests at once (ThreadingHTTPServer) must not both pass the check
         if o['running']:
             raise Error(_('Launch in progress.'))
-        o.update(running=True, steps=[], error=None, finished=None, server_only=bool(server_only))
+        o.update(running=True, steps=[], error=None, finished=None, server_only=bool(server_only), images=False)
     threading.Thread(target=launch, args=(server_only, friend), daemon=True).start()
+    return o
+
+
+def readiness(folder):
+    """The Play page's readiness line: client present, BepInEx (the plugin) installed, the game images dumped (character editor, in-game pages,
+    World Editor)."""
+    ok = IST.check(folder)['valid']
+    return {'client': ok, 'plugin': ok and PATCH.installed(folder), 'images': ok and PATCH.images_ready(folder)}
+
+
+def prepare_images():
+    """"Prepare the game images" (Play page): BepInEx if missing, its first-start preparation, then a windowless start in which the plugin dumps
+    the images (client_patch.dump_images); in the launch steps (STATE['play'] with images=True), without servers or a play session. Stopping or
+    failing leaves nothing half ready: every stage's marker file is written last (INSTALL_MARKER, INTEROP, dizin.json)."""
+    o, stop = STATE['play'], STATE['images_stop']
+
+    def check(ok, text):
+        if stop.is_set():
+            raise Error(_('Stopped: the game images were not prepared.'))
+        if not ok:
+            raise Error(text)
+    try:
+        _step(_('Checking'))
+        folder = client_folder()
+        c = IST.check(folder)
+        check(c['valid'], _('Invalid client folder: %s', ' '.join(c['issues'])))
+        if not PATCH.installed(folder):
+            _step(_('Installing BepInEx'))
+            check(True, None)
+            ok = PATCHER.wait(folder, lambda pct: o['steps'][-1].update(text=_('Installing BepInEx: %d%%', pct)))
+            check(ok, _('BepInEx could not be installed: %s', PATCHER.state(folder)['error'] or '?'))
+        cmd, env = IST.command(CFG, folder, os.path.join(PTH.LOGS, 'client.log'))
+        if not PATCH.ready(folder):
+            _step(_('Preparing BepInEx for the first launch (about half a minute)'))
+            check(PATCH.warm_up(folder, cmd, env, PTH.LOGS, lambda d: o['steps'][-1].update(progress=d), stop=stop), _("BepInEx couldn't be prepared"))
+        if not PATCH.images_ready(folder):
+            _step(_('Preparing the game images'))
+            check(PATCH.dump_images(folder, cmd, env, PTH.LOGS, lambda d: o['steps'][-1].update(progress=d), stop=stop),
+                  _('The client closed or took too long before the images were written. They are also made at your next PLAY.'))
+        _step(_('The game images are ready.'), 'done')
+        o['finished'] = time.time()
+    except (Error, RuntimeError, OSError) as e:
+        o['error'] = str(e)
+        _step(str(e), 'error')
+        log('image preparation: %s' % e)
+    except Exception as e:
+        o['error'] = _('Unexpected error: %r', e)
+        _step(o['error'], 'error')
+        log('image preparation: %s' % traceback.format_exc())
+    finally:
+        o['running'] = False
+
+
+def start_images():
+    """Start "Prepare the game images" (only on the user's click; refused while a client is running or a launch is in progress)."""
+    if not IST.check(client_folder())['valid']:
+        raise Error(_('Game client not found: choose its folder or download the game on the Client page.'))
+    if MANAGER.client_alive() or MULTI.live() or IST.running_clients():
+        raise Error(_('Close the game first: the images are made in a separate start of the client.'))
+    o = STATE['play']
+    with _launch_lock:
+        if o['running']:
+            raise Error(_('Launch in progress.'))
+        STATE['images_stop'].clear()
+        o.update(running=True, steps=[], error=None, finished=None, server_only=False, images=True)
+    threading.Thread(target=prepare_images, daemon=True).start()
+    return o
+
+
+def stop_images():
+    """Stop the image preparation: the BepInEx download, the warm-up or the image client (whichever runs); the state goes back to missing."""
+    o = STATE['play']
+    if o['running'] and o['images']:
+        STATE['images_stop'].set()
+        PATCHER.cancel()
+        PATCH.stop_warm_up()
     return o
 
 
@@ -1398,6 +1474,80 @@ def api_settings():
             'values': game_settings(), 'default': SET.DEFAULTS, 'ready': ready, 'templates': read_json(TEMPLATES, {}),
             'server_running': MANAGER.running(), 'record': slot, 'save_name': SAV.meta(slot).get('name', slot) if slot else None,
             'saves': [{'id': s, 'name': SAV.meta(s).get('name', s)} for s in SAV.slots() if s != slot]}
+
+
+# ---- sharing a settings template: a short text code (Discord) or a file holding the same code. The code is TEMPLATE_PREFIX (format
+# version) + base64url of zlib-compressed compact JSON {"n": name, "v": {key: value}}; event choices are never part of it. Import checks
+# every value against the settings schema (settings.BY_KEY): unknown keys are dropped, a value of the wrong type is refused, an out-of-range
+# number is clamped like settings.clean; nothing in the code is executed or used as a path.
+TEMPLATE_PREFIX = 'OOT1.'
+TEMPLATE_CODE_MAX = 8000          # characters of a code (a full template is ~1,500); a template file may be at most twice this many bytes
+TEMPLATE_JSON_MAX = 32768         # unpacked bytes (a compression bomb stops here)
+
+
+def template_code(name, values):
+    raw = json.dumps({'n': name, 'v': values}, separators=(',', ':'), ensure_ascii=False).encode('utf8')
+    return TEMPLATE_PREFIX + base64.urlsafe_b64encode(zlib.compress(raw, 9)).decode('ascii').rstrip('=')
+
+
+def template_name(s):
+    return re.sub(r'[\x00-\x1f\x7f]', '', str(s or '')).strip()[:40]
+
+
+def read_template_code(code):
+    """A pasted or imported code -> {'name', 'values', 'dropped' [key], 'clamped' [[key, given, used]], 'refused' [key]}; Error with the reason
+    if it is not a whole, valid code."""
+    code = ''.join(code.split()) if isinstance(code, str) else ''      # line breaks and spaces a chat copy adds
+    if not code:
+        raise Error(_('Paste a settings code first.'))
+    if len(code) > TEMPLATE_CODE_MAX:
+        raise Error(_('This code is too long to be a settings template.'))
+    m = re.fullmatch(r'OOT(\d{1,3})\.([A-Za-z0-9_-]+)', code)
+    if not m:
+        raise Error(_('This is not an OpenOrbit settings code (it starts with %s).', TEMPLATE_PREFIX))
+    if m.group(1) != TEMPLATE_PREFIX[3:-1]:
+        raise Error(_('This code was made by a newer panel (format %s): update the panel to import it.', m.group(1)))
+    try:
+        z = zlib.decompressobj()
+        raw = z.decompress(base64.urlsafe_b64decode(m.group(2) + '=' * (-len(m.group(2)) % 4)), TEMPLATE_JSON_MAX)
+        big, whole = bool(z.unconsumed_tail), z.eof
+        d = None if big or not whole else json.loads(raw.decode('utf8'))
+    except (ValueError, zlib.error):                # base64, truncated stream, UTF-8, JSON (all ValueError but zlib.error)
+        big, d = False, None
+    if big:
+        raise Error(_('This code is too long to be a settings template.'))
+    if not isinstance(d, dict) or not isinstance(d.get('v'), dict):
+        raise Error(_('The code is incomplete or damaged: copy it again in full.'))
+    values, dropped, clamped, refused = {}, [], [], []
+    for k, v in d['v'].items():
+        s = SET.BY_KEY.get(k)
+        if s is None:                               # unknown (another version's setting) or 'events'
+            dropped.append(k[:60])
+            continue
+        num = isinstance(v, (int, float)) and not isinstance(v, bool) and math.isfinite(v)
+        if not (isinstance(v, bool) if s['type'] == 'bool' else num and (s['type'] != 'level' or float(v).is_integer())):
+            refused.append(k)
+            continue
+        values[k] = SET.clean({k: v})[k]
+        if values[k] != v:
+            clamped.append([k, v, values[k]])
+    return {'name': template_name(d.get('n')) or _('Imported settings'), 'values': values, 'dropped': sorted(dropped), 'clamped': clamped,
+            'refused': refused}
+
+
+def template_source(b):
+    """The template to export: a user template by name, or the current settings (b['current'])  -> (name, values)."""
+    if b.get('current'):
+        return _('Shared settings'), {k: v for k, v in game_settings().items() if k in SET.BY_KEY and v != SET.DEFAULTS[k]}
+    p = read_json(TEMPLATES, {}).get(b.get('name'))
+    if not isinstance(p, dict):
+        raise Error(_('Template not found.'))
+    return p.get('name') or b.get('name'), {k: v for k, v in SET.clean(p.get('values') or {}).items() if k in SET.BY_KEY}
+
+
+def import_check(code):
+    r = read_template_code(code)
+    return dict(r, code=''.join(code.split()), count=len(r['values']), exists=r['name'] in read_json(TEMPLATES, {}))
 
 
 def launch_command():
@@ -1857,6 +2007,10 @@ def h_post(path, b):
     # ---- game and servers
     if path == '/api/play':
         return start_launch(b.get('server_only'))
+    if path == '/api/images/prepare':               # Play page: BepInEx + warm-up + the plugin's image dump without playing
+        return start_images()
+    if path == '/api/images/stop':
+        return stop_images()
     if path == '/api/friend/settings':
         world = b.get('world', CFG.get('friend_world')) or ''
         if world and not WLD.var(world):
@@ -1990,6 +2144,43 @@ def h_post(path, b):
             user.pop(b.get('name'), None)
             write_json(TEMPLATES, user)
         return api_settings()
+    if path == '/api/settings/export_code':           # a template (or the current settings) as a code to paste in chat
+        name, values = template_source(b)
+        return {'name': name, 'code': template_code(name, values), 'count': len(values)}
+    if path == '/api/settings/export_file':           # the same code in a text file
+        name, values = template_source(b)
+        dest = dialog('save', title=_('Save the settings template'), initialfile=(re.sub(r'[^\w-]+', '_', name).strip('_') or 'template') + '.txt',
+                      defaultextension='.txt', filetypes=[(_('Settings template'), '*.txt')])
+        if not dest:
+            return {'cancelled': True}
+        with open(dest, 'w', encoding='utf8', newline='\n') as fh:
+            fh.write(template_code(name, values) + '\n')
+        return {'route': dest}
+    if path == '/api/settings/import_check':          # what a pasted code would import (shown before importing)
+        return import_check(b.get('code'))
+    if path == '/api/settings/import_file':           # a template file chosen in the dialog -> the same check as a pasted code
+        src = dialog('ac', title=_('Import a settings template'), filetypes=[(_('Settings template'), '*.txt'), (_('All files'), '*.*')])
+        if not src:
+            return {'cancelled': True}
+        try:
+            with open(src, 'rb') as fh:
+                raw = fh.read(2 * TEMPLATE_CODE_MAX + 1)
+        except OSError as e:
+            raise Error(_('Could not read the file: %s', e))
+        if len(raw) > 2 * TEMPLATE_CODE_MAX:
+            raise Error(_('This file is too large to be a settings template.'))
+        return import_check(raw.decode('utf-8-sig', 'replace'))       # a BOM from Notepad does not count
+    if path == '/api/settings/import_template':       # save a checked code as a user template (a name in use only with overwrite)
+        r = read_template_code(b.get('code'))
+        name = template_name(b.get('name')) or r['name']
+        with _settings_lock:
+            user = read_json(TEMPLATES, {})
+            if name in user and not b.get('overwrite'):
+                raise Error(_('A template named "%s" already exists.', name))
+            user[name] = {'name': name, 'description': _('Imported settings'), 'values': r['values']}
+            write_json(TEMPLATES, user)
+        log('settings template imported: %s (%d values)' % (name, len(r['values'])))
+        return dict(api_settings(), imported=name)
     if path == '/api/events':
         return events_page(set_events(b))
     if path == '/api/seasons':

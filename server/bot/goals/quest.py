@@ -162,6 +162,25 @@ def deferred(bot):
     bot.plan['finished'] = True
 
 
+def pick_map(bot, maps, types, y):
+    """Which of the maps a condition accepts: for a kill, the requested aliens there, the pilots already hunting on it, the way there and
+    the death risk (as map_candidates weighs them); otherwise the nearest. It was always the nearest: every quester of a company stood on
+    its X-3 (behavior lab 2026-11-23: about half of the level 5-7 time on one map)."""
+    d = bot.value()
+
+    def appeal(m):
+        jumps = len(K.route(bot.game_map, m, bot.company, bot.level) or range(99)) - 1
+        if not types:
+            return -jumps
+        n = sum(c for v, c in K.map_npcs(m) if v['tip'] in types)
+        crowd = len(y.on_map.get(m, ())) - (m == bot.game_map) if y is not None else 0
+        risk = K.evaluate_map(m, d['dps'], d['ehp'], 0.5)['deaths_per_hour'] * (1.6 - bot.o('risk')) * 0.35
+        owner = K.H.company(m)
+        foreign = 1 - 0.35 * (1 - bot.o('risk')) if owner and owner != bot.company else 1.0      # enemy players there
+        return n * foreign * (1 - min(0.9, risk)) / (1 + 0.25 * max(0, crowd)) * 0.75 ** jumps, -jumps
+    return max(maps, key=appeal)
+
+
 @target
 class Quest(Goal):
     name = 'quest'
@@ -221,7 +240,7 @@ class Quest(Goal):
             deferred(bot)                                # kept dying there: the quest waits (it does something else for a while)
             return
         maps = safe or maps
-        target_map = min(maps, key=lambda m: len(K.route(bot.game_map, m, bot.company, bot.level) or range(99)))
+        target_map = pick_map(bot, maps, types, y)
         bot.plan['condition'] = c['id']
         bot.plan['map'] = target_map
         bot.plan['tip'] = next((v['tip'] for v, _ in K.map_npcs(target_map) if v['tip'] in types), None)

@@ -14,6 +14,7 @@ the decision intervals are irregular.
 """
 import time
 
+from . import abstract_sim as S
 from . import catalog as K
 from . import personality as PS
 from . import playstyle as PL
@@ -104,7 +105,7 @@ def map_candidates(bot, value, y=None):
         if not r['targets']:
             continue
         earnings = (r['ep_per_hour'] * (0.6 + o['ambition']) / 10.0 + r['credits_per_hour'] * (0.5 + o['frugality']) / 10.0
-                  + r['uridium_per_hour'] * 25.0 + r['honor_per_hour'] * 5.0)
+                  + r['uridium_per_hour'] * 25.0 + r['honor_per_hour'] * 5.0) * S.x1_cut(bot, m)    # own X-1 pays less from level 7
         risk = r['deaths_per_hour'] * (1.6 - o['risk']) * 0.35
         route = K.route(bot.game_map, m, company, lv)
         if route is None:

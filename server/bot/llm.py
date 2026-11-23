@@ -234,7 +234,7 @@ def event_text(o):
             'joined_group': 'grouped up with %s' % o.get('name'), 'fled': 'fled from map %s' % o.get('map'),
             'i_killed_boss': 'killed the boss alien %s' % o.get('name'),
             'witness': ('saw %s kill the boss %s right next to you' % (o.get('who'), o.get('name')) if o.get('sub') == 'boss'
-                      else 'saw %s get destroyed right next to you' % o.get('name'))}.get(t, '')
+                      else 'saw the rare alien %s appear right next to you' % o.get('name') if o.get('sub') == 'spawn' else 'saw %s get destroyed right next to you' % o.get('name'))}.get(t, '')
 
 
 def _clean_name(name):

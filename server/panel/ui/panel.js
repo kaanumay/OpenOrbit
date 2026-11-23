@@ -353,7 +353,7 @@ function renderPlayBody() {
   if (!root) return;
   if (!d) return;
   const sig = JSON.stringify([d.active, d.processes.servers.web.state, d.processes.servers.game.state, d.processes.client.state,
-    d.processes.client.last, d.play, d.warnings, d.settings_summary, d.events, multiSig(d.multi), S.multiBusy, Math.floor(Date.now() / 30000)]);
+    d.processes.client.last, d.play, d.warnings, d.settings_summary, d.events, multiSig(d.multi), S.multiBusy, d.readiness, Math.floor(Date.now() / 30000)]);
   if (S.sig.play === sig) return;
   S.sig.play = sig;
   const st = srvState(d), a = d.active, o = d.play;
@@ -384,7 +384,7 @@ function renderPlayBody() {
   if (o.running) {
     const prep = o.steps.length && o.steps[o.steps.length - 1].progress;      // BepInEx's first-start preparation (client_patch.warm_up)
     main = h('button', { class: 'play-btn busy' + (prep ? ' prep' : ''), disabled: true, style: prep ? { '--p': prep.percent + '%' } : null },
-      prep ? null : h('span', { class: 'spin', style: { borderTopColor: '#021120' } }), prep ? T('PREPARING') : T('STARTING'));
+      prep ? null : h('span', { class: 'spin', style: { borderTopColor: '#021120' } }), prep || o.images ? T('PREPARING') : T('STARTING'));
   } else if (running) {
     main = h('button', { class: 'play-btn running', disabled: true }, icon('check'), T('GAME RUNNING'));
     sub.push(btn(T('Close the game'), async () => {
@@ -406,7 +406,9 @@ function renderPlayBody() {
   let steps = null;
   const recent = o.finished && (Date.now() / 1000 - o.finished < 45);
   if (o.steps.length && (o.running || o.error || recent)) {
-    steps = h('div', { class: 'card' }, h('h2', null, icon('zap'), o.server_only ? T('Server launch') : T('Game launch')),
+    steps = h('div', { class: 'card' }, h('div', { class: 'row between wrap' },
+      h('h2', null, icon('zap'), o.images ? T('Preparing the game images') : o.server_only ? T('Server launch') : T('Game launch')),
+      o.images && o.running ? btn(T('Stop'), () => act(() => api('/api/images/stop', {})), 'ghost sm', 'stop') : null),
       stepList(o.steps));
   }
   const last = d.processes.client.last;
@@ -439,7 +441,7 @@ function renderPlayBody() {
         stText(v) + (v === 'on' && t != null ? ' · ' + fmtDur(t) : ''))))),
     h('div', { class: 'row' }, btn(T('Server and logs'), () => go('server'), 'sm', 'server')));
 
-  root.replaceChildren(...[...warns, hero, steps, early, multiCard(d), srv || S.live?.exists ? liveCard() : null,
+  root.replaceChildren(...[...warns, hero, steps, readyCard(d), early, multiCard(d), srv || S.live?.exists ? liveCard() : null,
     h('div', { class: 'grid g3' }, setCard, evCard, srvCard)].filter(Boolean));
 }
 
@@ -509,11 +511,33 @@ function multiCard(d) {
       : !c.setting ? null : h('div', { class: 'small muted' }, T('No other save to open.')));
 }
 
+// ---- readiness (panel.readiness): client, BepInEx plugin, the game images; only while something is missing. The images (the plugin's dump) feed the
+// character editor, the in-game pages and the World Editor; "Prepare the game images" makes them without playing (panel.prepare_images)
+function readyCard(d) {
+  const r = d.readiness;
+  if (!r || (r.client && r.plugin && r.images)) return null;
+  const game = srvState(d).client === 'on', busy = d.play.running;
+  const item = (ok, label) => h('span', { class: 'ready-item ' + (ok ? 'ok' : 'miss') }, icon(ok ? 'check' : 'x'), label);
+  return h('div', { class: 'card ready-card' }, h('div', { class: 'row between wrap' },
+    h('div', { class: 'row wrap', style: { gap: '14px' } }, item(r.client, T('Game client')), item(r.plugin, T('BepInEx plugin')), item(r.images, T('Game images'))),
+    btn(T('Prepare the game images'), () => prepareImages(), 'primary sm', 'zap', { disabled: !r.client || game || busy })),
+    h('div', { class: 'small muted' }, !r.client ? T('Choose or download the game on the Client page first.') : game ? T('Close the game first: the images are made in a separate start of the client.')
+      : T("The character editor, the in-game pages and the World Editor show the game's own icons. Preparing installs BepInEx if needed and starts the client once without a window; it closes by itself (about a minute).")));
+}
+// shared by the hints of the character editor, the shop page and the World Editor's item picker (stay: do not leave the page, the progress is on the Play page)
+async function prepareImages(stay) {
+  if (!await act(() => api('/api/images/prepare', {}), stay ? T('Preparing the game images: you can follow it on the Play page.') : null)) return;
+  if (S.page !== 'play' && !stay) go('play');
+  else S.sig.play = null;                         // the next status poll draws the steps
+}
+const imagesButton = (cls = 'sm') => btn(T('Prepare the game images'), () => prepareImages(), cls, 'zap');
+
 // ---- live status (the game server's live_status.json; live_status.py, /api/live)
 async function liveTick() {
   if (S.page !== 'play' || S.liveBusy) return;
   S.liveBusy = true;
   try { S.live = await api('/api/live'); } catch (e) { S.live = null; } finally { S.liveBusy = false; }
+  loopRecord(S.live);
   const c = $('#live-card'), want = srvState(S.state).game === 'on' || !!S.live?.exists;
   if (c && want) c.replaceWith(liveCard());
   else if (!!c !== want) { S.sig.play = null; renderPlayBody(); }     // let the card appear / disappear
@@ -523,21 +547,54 @@ function meter(label, v, max, cls) {
   return h('div', { class: 'meter ' + (cls || '') }, h('div', { class: 'row between small' }, h('span', { class: 'muted' }, label), h('b', null, fmtN(v) + ' / ' + fmtN(max))),
     h('div', { class: 'meter-bar' }, h('span', { style: { width: pct + '%' } })));
 }
+// the world loop's history (page memory only, the last LOOP_KEEP_SEC): one entry per new status file; the counters restart on a map change
+const LOOP_KEEP_SEC = 300;
+function loopRecord(r) {
+  const l = r?.exists && r.state.world?.loop, H = S.loopHist ||= [];
+  if (!l || (H.length && H[H.length - 1].t === r.state.time)) return;
+  H.push({ t: r.state.time, avg: l.avg_ms, slow: l.slow });
+  while (H[0].t < r.state.time - LOOP_KEEP_SEC) H.shift();
+}
+// slow: the average over the server's own slow-step threshold (world.Metrics.SLOW_MS), or the slow-step counter rose in each of the last three readings
+function loopSlow(l) {
+  const H = S.loopHist || [], n = H.length;
+  return l.avg_ms > (l.slow_ms || 50) || (n >= 4 && [1, 2, 3].every(i => H[n - i].slow > H[n - i - 1].slow));
+}
+function loopSpark(lim) {
+  const H = S.loopHist || [];
+  if (H.length < 2) return null;
+  const W = 160, Hh = 26, t0 = H[H.length - 1].t - LOOP_KEEP_SEC, top = Math.max(lim * 1.5, ...H.map(e => e.avg));
+  const X = t => ((t - t0) / LOOP_KEEP_SEC * W).toFixed(1), Y = v => (Hh - v / top * Hh).toFixed(1);
+  const el = (n, a) => { const e = document.createElementNS(SVGNS, n); for (const k in a) e.setAttribute(k, a[k]); return e; };
+  const svg = el('svg', { viewBox: `0 0 ${W} ${Hh}`, class: 'loop-spark', preserveAspectRatio: 'none', role: 'img', 'aria-label': T('Loop step, last 5 minutes') });
+  svg.append(el('title', {}), el('line', { x1: 0, x2: W, y1: Y(lim), y2: Y(lim), class: 'lim' }),
+    el('polyline', { points: H.map(e => X(e.t) + ',' + Y(e.avg)).join(' '), class: 'avg' }));
+  svg.firstChild.textContent = T('Loop step, last 5 minutes');
+  return svg;
+}
 function liveCard() {
   const r = S.live;
   const head = h('h2', null, icon('zap'), T('Live status'));
   if (!r || !r.exists) return h('div', { class: 'card', id: 'live-card' }, head, h('p', { class: 'desc' }, T("Waiting for the game server's status…")));
-  const d = r.state, w = d.world || {}, g = d.ship, p = d.pilot, k = d.position;
+  const d = r.state, w = d.world || {}, g = d.ship, p = d.pilot, k = d.position, bots = d.bots, slow = w.loop && loopSlow(w.loop);
   const flags = [d.connected ? badge(T('Client connected'), 'ok') : badge(T('Client not connected'), ''), r.age > 10 ? badge(T('Status {0} s old', Math.round(r.age)), 'warn') : null,
     w.dead ? badge(T('Ship destroyed'), 'err') : null, w.in_combat ? badge(T('In combat'), 'orange') : null, w.safe ? badge(T('In a safe zone'), 'info') : null];
   const facts = [[T('Map'), `${k.map} (${fmtN(k.x)}, ${fmtN(k.y)})`], [T('Ship'), (g.name || '').replace('ship_', '')], [T('Aliens'), w.alien != null ? fmtN(w.alien) : '—'],
     [T('Boxes / ore'), w.box != null ? fmtN(w.box) + ' / ' + fmtN(w.ore) : '—'], [T('Target'), w.target || '—'], [T('Play time'), fmtDur(d.play_sec)]];
   if (w.gate) facts.push([T('Gate'), `${w.gate.name || ''}${w.gate.wave ? ' · ' + w.gate.wave : ''}${w.gate.stage ? ' · ' + w.gate.stage : ''}`]);
-  if (w.loop) facts.push([T('Loop'), T('{0} ms avg. · max {1} ms', w.loop.avg_ms, w.loop.max_ms) + (w.loop.slow ? ' · ' + T('{0} slow ticks', fmtN(w.loop.slow)) : '')]);
-  return h('div', { class: 'card', id: 'live-card' }, h('div', { class: 'row between wrap' }, head, h('div', { class: 'row wrap', style: { gap: '6px' } }, flags)),
+  if (bots) facts.push([T('Bots online'), fmtN(bots.online) + ' / ' + fmtN(bots.total)]);
+  if (bots && w.bot_ships != null) facts.push([T('Bot ships on your map'), fmtN(w.bot_ships) + ' / ' + fmtN(bots.max_concrete)]);
+  if (w.loop) facts.push([T('Loop'), T('{0} ms avg. · max {1} ms', w.loop.avg_ms, w.loop.max_ms) + (w.loop.slow ? ' · ' + T('{0} slow ticks', fmtN(w.loop.slow)) : ''), slow ? 'warn' : '']);
+  const spark = w.loop && loopSpark(w.loop.slow_ms || 50);
+  const warn = slow ? h('div', { class: 'alert warning', style: { marginTop: '12px' } }, icon('alert'), h('div', null, bots
+    ? T('The game server is falling behind and the game may stutter: on the Bots page lower "Most online at the same time" or "Most shown as ships on your map".')
+    : T('The game server is falling behind and the game may stutter: close other heavy programs or lower "Alien count" in the settings.')),
+    bots ? btn(T('Bots'), () => go('bots'), 'sm') : btn(T('Settings'), () => go('settings'), 'sm')) : null;
+  return h('div', { class: 'card', id: 'live-card' }, h('div', { class: 'row between wrap' }, head, h('div', { class: 'row wrap', style: { gap: '6px' } }, flags)), warn,
     h('div', { class: 'grid g2', style: { marginTop: '12px' } },
       h('div', { class: 'stack', style: { gap: '10px' } }, meter(T('Hit points'), g.hp, g.max_hp, 'hp'), meter(T('Shield'), g.shield, g.shield_max, 'sh'), meter(T('Cargo'), g.cargo, g.cargo_max, 'cg')),
-      h('div', { class: 'kv one' }, facts.map(([a, b]) => h('div', null, h('span', { class: 'muted' }, a), h('b', { title: b }, b))))),
+      h('div', { class: 'kv one' }, facts.map(([a, b, cls]) => h('div', null, h('span', { class: 'muted' }, a), h('b', { title: b, class: cls || null }, b))),
+        spark ? h('div', { class: 'loop-row' + (slow ? ' warn' : '') }, h('span', { class: 'muted' }, T('Last 5 minutes')), spark) : null)),
     h('div', { class: 'live-sub' }, h('div', { class: 'stats', style: { marginTop: 0 } },
       [[T('Level'), p.level, 'lv'], [T('Credits'), p.credits, 'cr'], [T('Uridium'), p.uridium, 'ur'], [T('Honor'), p.honor, 'hn']].map(([a, v, c]) =>
         h('div', { class: 'stat' }, h('div', { class: 'k' }, a), h('div', { class: 'v ' + c }, fmtN(v))))),
@@ -606,16 +663,19 @@ const stepList = list => h('div', { class: 'steps' }, list.map(s => [h('div', { 
 
 // BepInEx's first-start preparation (client_patch.warm_up/progress): the game window is not visible yet, so the player does not think the game failed to open
 const PREP_STAGE = [N('Starting the client'), N('Generating bridge assemblies'), N('Writing files')];
+const IMAGE_STAGE = [N('Starting the client'), N('Writing the game images')];       // client_patch.image_progress
 function prepBox(p) {
+  const images = p.kind === 'images', alone = S.state?.play?.images;       // alone: "Prepare the game images", no game opens afterwards
   return h('div', { class: 'prep' },
-    h('div', { class: 'prep-head' }, icon('zap'), h('span', null, T('Preparing the fixes for the first launch')), h('b', null, '%' + p.percent)),
+    h('div', { class: 'prep-head' }, icon('zap'), h('span', null, images ? T('Preparing the game images') : T('Preparing the fixes for the first launch')), h('b', null, '%' + p.percent)),
     h('div', { class: 'meter' }, h('div', { class: 'meter-bar' }, h('span', { style: { width: p.percent + '%' } }))),
-    h('div', { class: 'prep-stages' }, PREP_STAGE.map((a, i) => {
+    h('div', { class: 'prep-stages' }, (images ? IMAGE_STAGE : PREP_STAGE).map((a, i) => {
       const st = i < p.stage ? 'done' : i === p.stage ? 'running' : 'waiting';
       return h('div', { class: 'prep-stage ' + st }, h('span', { class: 'ic' }, st === 'done' ? icon('check') : st === 'running'
         ? h('span', { class: 'spin' }) : h('span', { class: 'dot-sm' })), h('span', null, T(a)));
     })),
-    h('div', { class: 'small muted' }, T("This happens only once, on the first launch; the game window stays hidden meanwhile. When it's done the game opens by itself, you don't need to press anything."),
+    h('div', { class: 'small muted' }, alone ? T('The client runs without a window and closes by itself when this is done; no game opens. You can stop it at any time: nothing is left half-prepared.')
+      : T("This happens only once, on the first launch; the game window stays hidden meanwhile. When it's done the game opens by itself, you don't need to press anything."),
       ' ', h('span', { class: 'dim' }, T('Elapsed: {0}', fmtDur(p.elapsed_sec)))));
 }
 
@@ -907,6 +967,37 @@ function markChanged() {
   if (S.settingsFilter && document.querySelector('.set-tools')) S.settingsFilter(true);
 }
 
+// ---- sharing a settings template (panel.py template_code / read_template_code): a short code for chat or a file, imported after a preview
+async function shareTemplate(src) {
+  const r = await act(() => api('/api/settings/export_code', src)); if (!r) return;
+  const box = h('textarea', { class: 'input mono', readonly: true, rows: 4, onfocus: e => e.target.select() }, r.code);
+  modal({ title: T('Share "{0}"', r.name), sub: T('{0} settings · {1} characters', r.count, r.code.length),
+    body: [h('p', { class: 'desc' }, T('Paste this code in Discord or send the file: the other player imports it on their Settings page. Event choices are not included.')), box],
+    foot: [btn(T('Save as file'), async () => { const x = await act(() => api('/api/settings/export_file', src)); if (x && !x.cancelled) toast(T('Saved: {0}', x.route), 'ok'); }, 'ghost', 'download'),
+      btn(T('Copy code'), () => navigator.clipboard.writeText(r.code).then(() => toast(T('Code copied.'), 'ok'), () => box.select()), 'primary', 'copy')] });
+}
+function importTemplate() {
+  const inp = h('textarea', { class: 'input mono', rows: 4, placeholder: 'OOT1.…' });
+  const m = modal({ title: T('Import a settings template'), body: [h('p', { class: 'desc' }, T('Paste a settings code, or open a template file.')), inp],
+    foot: [btn(T('Open file…'), async () => { const r = await act(() => api('/api/settings/import_file', {})); if (r && !r.cancelled) { m.close(); importPreview(r); } }, 'ghost', 'folder'),
+      btn(T('Cancel'), () => m.close(), 'ghost'),
+      btn(T('Check'), async () => { const r = await act(() => api('/api/settings/import_check', { code: inp.value })); if (r) { m.close(); importPreview(r); } }, 'primary', 'check')] });
+}
+function importPreview(r) {
+  const name = h('input', { class: 'input', value: r.name, maxlength: 40 });
+  const label = k => (S.setting?.schema || []).find(s => s.key === k)?.name || k;
+  const list = (title, items) => items.length ? h('div', { class: 'small muted' }, title + ' ' + items.slice(0, 12).join(', ') + (items.length > 12 ? ' …' : '')) : null;
+  const m = modal({ title: T('Import "{0}"', r.name), body: [
+    h('p', null, T('{0} settings are saved as a template; apply it afterwards from the Presets card.', r.count)), field(T('Template name'), name),
+    list(T('Left out (unknown here, or not part of a template):'), r.dropped), list(T('Refused (invalid value):'), r.refused.map(label)),
+    list(T('Limited to the allowed range:'), r.clamped.map(([k, a, b]) => `${label(k)} ${a} → ${b}`))],
+    foot: [btn(T('Cancel'), () => m.close(), 'ghost'), btn(T('Import'), async () => {
+      const n = name.value.trim() || r.name, exists = Object.hasOwn(S.setting?.templates || {}, n);
+      if (exists && !await confirmBox(T('Replace the template?'), T('A template named "{0}" already exists: it will be replaced.', n), { ok: T('Replace'), danger: true })) return;
+      if (await act(() => api('/api/settings/import_template', { code: r.code, name: n, overwrite: exists }), T('Template "{0}" imported.', n))) { m.close(); renderSettings(); }
+    }, 'primary', 'download')] });
+}
+
 async function renderSettings() {
   const r = await act(() => api('/api/settings')); if (!r || S.page !== 'settings') return;
   S.setting = r;
@@ -916,10 +1007,11 @@ async function renderSettings() {
       act(() => api('/api/settings/presets', { name: key }), T('"{0}" applied.', p.name)).then(renderSettings);
   } }, h('b', null, p.name), h('span', null, p.description)));
   const user = Object.entries(r.templates || {}).map(([key, p]) => h('div', { class: 'preset', onclick: async e => {
-    if (e.target.closest('.x')) return;
+    if (e.target.closest('.x, .share')) return;
     if (await confirmBox(T('Apply "{0}"?', p.name), T("All game settings switch to this template's values."), { ok: T('Apply') }))
       act(() => api('/api/settings/presets', { name: key }), T('"{0}" applied.', p.name)).then(renderSettings);
   } }, h('b', null, '★ ', p.name), h('span', null, T('{0} changes', Object.keys(p.values).length)),
+    btn('', () => shareTemplate({ name: key }), 'ghost sm icon share', 'link', { title: T('Share') }),
     btn('', async () => { if (await confirmBox(T('Delete the template?'), T('The template "{0}" will be deleted.', p.name), { ok: T('Delete'), danger: true })) act(() => api('/api/settings/delete_template', { name: key })).then(renderSettings); }, 'ghost sm icon x', 'x', { title: T('Delete') })));
   const copySel = h('select', { class: 'input', style: { maxWidth: '240px' } }, (r.saves || []).map(k => h('option', { value: k.id }, k.name)));
   const saveCard = r.record ? h('div', { class: 'card' }, h('h2', null, icon('save'), T("This save's settings: {0}", r.save_name)),
@@ -933,8 +1025,10 @@ async function renderSettings() {
   const presetCard = h('div', { class: 'card' }, h('h2', null, icon('star'), T('Presets')),
     h('p', { class: 'desc' }, T('Apply a set of settings with one click, or keep your current settings as a template.')),
     h('div', { class: 'preset-bar' }, presets, user),
-    h('div', { class: 'row', style: { marginTop: '12px' } },
+    h('div', { class: 'row wrap', style: { marginTop: '12px' } },
       btn(T('Save the current settings as a template'), async () => { const v = await promptBox(T('Save as template'), T('Template name'), ''); if (v) act(() => api('/api/settings/save_template', { name: v }), T('Template saved.')).then(renderSettings); }, 'sm', 'save'),
+      btn(T('Share the current settings'), () => shareTemplate({ current: true }), 'ghost sm', 'link'),
+      btn(T('Import a template'), () => importTemplate(), 'ghost sm', 'download'),
       h('span', { class: 'spacer' }),
       btn(T('Reset all to defaults'), async () => { if (await confirmBox(T('Reset to defaults?'), T("All game settings go back to their defaults (your event choices don't change)."), { ok: T('Revert') })) act(() => api('/api/settings/reset', {}), T('Back to defaults.')).then(renderSettings); }, 'ghost sm', 'undo')));
   const info = h('div', { class: 'alert info' }, icon('info'), h('div', null,
@@ -2351,7 +2445,7 @@ async function renderShop() {
   $('#content').replaceChildren(h('div', { class: 'stack' },
     gameHeader(SHP.data, 'shop', search, btn(null, () => renderShop(), 'icon', 'refresh', { title: T('Refresh') })),
     h('div', { class: 'card' },
-      !SHP.data.visual ? h('p', { class: 'desc' }, T('The game images are prepared once the game has been started with BepInEx.')) : null,
+      !SHP.data.visual ? h('div', { class: 'row wrap images-hint' }, h('span', { class: 'desc' }, T('The game images are not prepared yet: items show without their icons.')), imagesButton()) : null,
       h('div', { class: 'seg', style: { flexWrap: 'wrap' } }, SHP.data.categories.map(c =>
         h('button', { class: c === SHP.multiplier ? 'on info' : '', onclick: () => { SHP.multiplier = c; renderShop(); } }, SHP_CATEGORY[c] ? T(SHP_CATEGORY[c]) : c)))),
     grid));

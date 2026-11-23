@@ -109,8 +109,9 @@ def outfit(gear, shield_share=0.6):
     Laser slots: ship + drones (Flax 1, Iris 2); generator slots are the ship's, shield_share of them go to the shield (by personality)."""
     g = ITEMS['ships'].get(gear['ship']) or ITEMS['ships']['ship_phoenix']
     drone_slots = sum(ITEMS['drones'].get(d, {}).get('slot', 1) * n for d, n in gear.get('drone', {}).items())
-    lasers = sorted((ITEMS['lasers'][l]['damage'] for l, n in gear.get('laser', {}).items() for _ in range(n) if l in ITEMS['lasers']),
-                reverse=True)[:g['laser'] + drone_slots]
+    fitted = sorted(((ITEMS['lasers'][l]['damage'], ITEMS['lasers'][l].get('alien_extra', 0)) for l, n in gear.get('laser', {}).items()
+                     for _ in range(n) if l in ITEMS['lasers']), reverse=True)[:g['laser'] + drone_slots]
+    lasers = [d for d, _ in fitted]
     shields = sorted(((ITEMS['shield_generators'][k]['shield'], ITEMS['shield_generators'][k]['absorb'])
                  for k, n in gear.get('shield', {}).items() for _ in range(n) if k in ITEMS['shield_generators']), reverse=True)
     speeds = sorted((ITEMS['speed_generators'][k]['speed'] for k, n in gear.get('speed', {}).items() for _ in range(n)
@@ -118,7 +119,8 @@ def outfit(gear, shield_share=0.6):
     slot = g['generators']
     nk = min(len(shields), max(int(round(slot * shield_share)), slot - len(speeds)))
     n_speed = min(len(speeds), slot - nk)
-    return {'ship': g, 'laser': lasers, 'shield': shields[:nk], 'speed': speeds[:n_speed], 'laser_slots': g['laser'] + drone_slots, 'gen_slot': slot}
+    return {'ship': g, 'laser': lasers, 'laser_extra': sum(e for _, e in fitted), 'shield': shields[:nk], 'speed': speeds[:n_speed],
+            'laser_slots': g['laser'] + drone_slots, 'gen_slot': slot}
 
 
 def drone_set(gear):
@@ -132,7 +134,8 @@ def values(gear, shield_share=0.6):
     """The bot's combat values: dps (damage per second, against an alien), HP, shield, absorption, ehp (effective HP), speed, power score."""
     y = outfit(gear, shield_share)
     multiplier = ITEMS['laser_ammo'].get(gear.get('ammunition'), {}).get('multiplier', 1)
-    damage = sum(y['laser']) * multiplier * 0.88 * COMBAT['laser_hit_chance']          # 0.88: the mean of the random roll (0.76-1.0)
+    # 0.88: the mean of the random roll (0.76-1.0); alien_extra (LF-3 +15 against aliens) is flat, after the ammo (lasers.flat_extra)
+    damage = (sum(y['laser']) * multiplier + y['laser_extra']) * 0.88 * COMBAT['laser_hit_chance']
     set_bonus = drone_set(gear)
     drone_slots = sum(ITEMS['drones'].get(d, {}).get('slot', 1) * n for d, n in gear.get('drone', {}).items())
     damage *= 1 + set_bonus.get('drone_laser', 0) * min(1.0, drone_slots / max(1, len(y['laser'])))        # Havoc: only to the drone lasers

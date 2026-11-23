@@ -15,7 +15,8 @@ Installation: in the setup wizard's game-folder step, when the client is downloa
 Unity's base libraries (BepInEx used to download them on first start; once placed beforehand the first start needs no internet either) are downloaded to memory and unpacked if their SHA-256
 matches; when done INSTALL_MARKER is written (a half installation does not count as installed). BepInEx generates the interop assemblies from the client's code (about half
 a minute): at the first PLAY, before the game, the panel has this done in a windowless start (warm_up), later starts are fast. If it cannot be installed the game
-starts without the fixes.
+starts without the fixes. The game images the panel shows (the plugin's dump, plugin/Images.cs) are written at any start with the plugin; the Play page's
+"Prepare the game images" has them made without playing (install, warm_up, dump_images).
 """
 import hashlib, http.client, io, json, math, os, shutil, subprocess, sys, threading, time, zipfile
 from urllib.request import Request, urlopen
@@ -47,6 +48,8 @@ WARMUP = ['-batchmode', '-nographics']           # windowless start to generate 
 STARTED = 'BepInEx/ErrorLog.log'                # BepInEx writes it at startup (the first stage of the warm-up ends)
 INTEROP_FILES = 101                              # files of the interop folder (be.788, 1.1.115: 99 assemblies and 2 .db)
 WARMING = []                                     # the warm-up client while warm_up runs (stop_warm_up)
+IMAGES = 'BepInEx/openorbit/images'             # the plugin's image dump (plugin/Images.cs); its dizin.json is written last
+IMAGE_RUN = ['-batchmode']                       # windowless start for the dump: with the graphics device (Graphics.Blit), unlike WARMUP
 
 
 def route(folder, rel):
@@ -164,32 +167,68 @@ def progress(folder, start, seen):
     return {'stage': stage, 'percent': seen['percent'], 'elapsed_sec': int(now - start)}
 
 
-def warm_up(folder, cmd, env, logs, notify=None, duration=300):
+def warm_up(folder, cmd, env, logs, notify=None, duration=300, stop=None):
     """Have the interop assemblies generated before the game in a separate, windowless start -> is it ready. If generation happens in the game's own start
     the 32-bit client's address space runs out: on Proton the game closed on the first scene with "System out of memory" (2026-10-28).
     cmd, env: client.command (with the BepInEx arguments); when generation finishes (or duration runs out) this start is closed. notify: progress()'s
-    result every half second (the panel's PLAY step)."""
-    start, seen = time.time(), {}
+    result every half second (the panel's PLAY step). stop: an Event that closes it early (the image preparation's Stop)."""
     shutil.rmtree(route(folder, 'BepInEx/interop'), ignore_errors=True)    # the old client's interops: let them be regenerated
-    p = PR.open_client(folder, cmd + WARMUP, env, logs)
+    _hidden(folder, cmd + WARMUP, env, logs, lambda: generated(folder), progress, notify, duration, stop)
+    if generated(folder):                          # ready(): if the client code changes it warms up again
+        d = _registry(folder)
+        d['warmup'] = fingerprint(folder)
+        _write_registry(folder, d)
+    return generated(folder)
+
+
+def images_ready(folder):
+    """Has the plugin dumped the game images (the index is written last: a dump cut off halfway does not count)?"""
+    return bool(folder) and os.path.isfile(route(folder, IMAGES + '/dizin.json'))
+
+
+def image_progress(folder, start, seen):
+    """Image dump progress -> {'kind': 'images', 'stage': 0 client starting, 1 images being written, 2 done; 'percent', 'elapsed_sec'}.
+    The page count is not known before the dump: the percentage advances slowing down with time (like progress())."""
+    now = time.time()
+    try:
+        written = sum(1 for e in os.scandir(route(folder, IMAGES)) if e.stat().st_mtime >= start - 1)
+    except OSError:
+        written = 0
+    stage = 2 if images_ready(folder) else 1 if written else 0
+    t = now - seen.setdefault(stage, now)
+    percent = 100 if stage == 2 else 15 + 84 * (1 - math.exp(-t / 20)) if stage == 1 else 14 * (1 - math.exp(-t / 6))
+    seen['percent'] = max(seen.get('percent', 0), int(percent))
+    return {'kind': 'images', 'stage': stage, 'percent': seen['percent'], 'elapsed_sec': int(now - start)}
+
+
+def dump_images(folder, cmd, env, logs, notify=None, duration=240, stop=None):
+    """Have the plugin dump the game images (the panel's character editor, in-game pages, World Editor) in a separate start without a window,
+    without playing -> are they there. cmd, env: client.command with the BepInEx arguments and ready interops (warm_up first)."""
+    _hidden(folder, cmd + IMAGE_RUN, env, logs, lambda: images_ready(folder), image_progress, notify, duration, stop)
+    return images_ready(folder)
+
+
+def _hidden(folder, cmd, env, logs, done, report, notify, duration, stop=None):
+    """Run a windowless client (warm_up, dump_images) until done() or duration runs out or it exits or stop is set, then close it.
+    report: (folder, start, seen) -> progress for notify every half second."""
+    if stop is not None and stop.is_set():
+        return
+    start, seen = time.time(), {}
+    p = PR.open_client(folder, cmd, env, logs)
     WARMING.append(p)
     last = start + duration
-    while time.time() < last and p.poll() is None and not generated(folder):
+    while time.time() < last and p.poll() is None and not done() and not (stop is not None and stop.is_set()):
         if notify:
-            notify(progress(folder, start, seen))
+            notify(report(folder, start, seen))
         time.sleep(0.5)
     if notify:
-        notify(progress(folder, start, seen))
+        notify(report(folder, start, seen))
     PR.close_client(p)
     try:
         p.wait(timeout=30)
     except subprocess.TimeoutExpired:
         PR.kill(p.pid)
     WARMING.remove(p)
-    if generated(folder):                          # ready(): if the client code changes it warms up again
-        d = _registry(folder)
-        d['warmup'] = fingerprint(folder)
-        _write_registry(folder, d)
     last = time.time() + 15
     while os.name != 'nt' and time.time() < last:   # Wine starts every Windows process in its own session: closing the group does not reach the client
         remaining = warmup_processes()
@@ -198,12 +237,11 @@ def warm_up(folder, cmd, env, logs, notify=None, duration=300):
         for pid in remaining:
             PR.kill(pid)
         time.sleep(0.5)
-    return generated(folder)
 
 
 def stop_warm_up():
-    """The panel is closing: close a running warm-up client (it has no window and nothing else tracks it; left open, the next PLAY would
-    find "another DarkOrbit client")."""
+    """The panel is closing (or the image preparation is stopped): close a running warm-up or image client (it has no window and nothing else
+    tracks it; left open, the next PLAY would find "another DarkOrbit client")."""
     for p in list(WARMING):
         PR.close_client(p)
     for pid in warmup_processes() if WARMING and os.name != 'nt' else ():     # Wine: the client is in its own session (see warm_up)

@@ -18,11 +18,16 @@ P = dict(
     p_ack=0.55,                     # the asker acknowledges an answer ("ok ty")
     p_share=0.45,                   # the asker of a personal question shares his own answer ("ben 20")
     # --- bot to bot
-    p_bot_reply=0.65,               # a bot's question gets an answer from another bot
-    p_bot_react=0.22,               # a bot's statement gets a reaction
+    p_bot_reply=0.72,               # a bot's question gets an answer from another bot (0.65 before 2026-11-23: 56% of questions unanswered)
+    p_bot_react=0.3,                # a bot's statement gets a reaction (0.22 before 2026-11-23: "sıkıldım", "uykum var" went unanswered)
     p_event_react=0.6,              # a bot's news (level up, new ship, boss) gets a gz
-    max_depth=4,                    # lines in one bot-to-bot exchange (the opener counts)
-    spontaneous_per_min=0.55,       # expected spontaneous openers per minute (scaled by online bots / 20, capped)
+    p_followup=0.25,                # the asker questions a game answer ("u sure?", "why?") instead of a plain thanks
+    p_opinion=0.35,                 # a third bot adds its view to a game answer (agrees, another map, disagrees)
+    p_defend=0.4,                   # the one disagreed with holds his ground ("trust me")
+    max_depth=5,                    # lines in one bot-to-bot exchange (the opener counts): question, answer, "why?", reason, thanks
+    channel_topic_sec=1200.0,       # the same opener (or question topic) in one channel, by anyone, at most once in this time
+    spontaneous_per_min=0.46,       # expected spontaneous openers per minute (scaled by online bots / 20, capped); 0.55 before
+    #                                 2026-11-23: fewer topics now that each one runs longer (follow-ups, second opinions)
     quiet_after_human=60.0,         # bots do not open new topics this long after a human wrote
     bot_gap_sec=420.0,              # minimum gap between two spontaneous openers of the same bot
     # --- timing (seconds)

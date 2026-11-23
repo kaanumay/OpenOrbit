@@ -299,7 +299,8 @@ async function pickItem(title = T('Select item')) {
       multiplier = k; seg.querySelectorAll('button').forEach(b => b.classList.remove('on', 'info')); e.currentTarget.classList.add('on', 'info'); render(); } }, T(name))));
     const search = h('input', { class: 'input', placeholder: T('Search by name or ID…'), oninput: e => { q = e.target.value; limit = 120; render(); } });
     const m = modal({ title: title, wide: true, onclose: () => { if (!done) res(null); }, body: h('div', { class: 'stack', style: { gap: '10px' } },
-      search, seg, !GI.index ? h('div', { class: 'small muted' }, T('The game images are prepared once the game has been started with BepInEx.')) : null, grid) });
+      search, seg, !GI.index ? h('div', { class: 'row wrap images-hint' }, h('span', { class: 'small muted' }, T('The game images are not prepared yet: items show without their icons.')),
+        btn(T('Prepare the game images'), () => prepareImages(true), 'sm', 'zap')) : null, grid) });     // stays: the world being edited is not left
     render();
   });
 }

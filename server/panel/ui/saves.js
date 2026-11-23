@@ -220,9 +220,9 @@ function seLock() {
     h('div', { class: 'card se-bar' }, btn(T('Saves'), seClose, 'ghost', 'arrowL'),
       h('div', { class: 'se-bar-name' }, h('b', null, SE.name || SE.slot), h('div', { class: 'small muted' }, T('Character editor')))),
     h('div', { class: 'card empty se-lock' }, art('drone_lock'), h('h3', null, T("The game's images aren't ready yet")),
-      h('p', null, T("The character editor shows items with the game's own icons, names and descriptions. Install the game and open it once with PLAY: the images are prepared on the first launch, then the editor opens.")),
-      h('div', { class: 'row', style: { justifyContent: 'center', gap: '8px' } }, btn(T('Client page'), () => go('client'), 'primary', 'monitor'),
-        btn(T('Try again'), () => renderEditor(), '', 'refresh')))));
+      h('p', null, T("The character editor shows items with the game's own icons, names and descriptions. They are made once from the installed game (about a minute, with the game closed); then the editor opens.")),
+      h('div', { class: 'row', style: { justifyContent: 'center', gap: '8px' } }, imagesButton('primary'),
+        btn(T('Client page'), () => go('client'), 'ghost', 'monitor'), btn(T('Try again'), () => renderEditor(), '', 'refresh')))));
 }
 
 // apply the actions to the draft (save_editor.OPS); on success the new view is drawn -> was it successful

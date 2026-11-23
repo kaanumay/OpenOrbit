@@ -278,7 +278,8 @@ class Profile:
         if d is not None:
             self.d = d
         elif not created:
-            self.d = SM.migrate_obj(json.load(open(path, encoding='utf8')))   # old-format profile (imported, --profile=...)
+            with open(path, encoding='utf8') as fh:
+                self.d = SM.migrate_obj(json.load(fh))   # old-format profile (imported, --profile=...)
         else:
             self.d = self._from_seed(self.seed)
             self.dirty = True

@@ -14,13 +14,14 @@ INTERVAL_SEC = 2.0
 def _world_info(w):
     now = time.time()
     alive = [n for n in list(w.npcs.values()) if n.alive]
+    bots = sum(1 for n in alive if getattr(n, 'bot', None) is not None)      # bot pilots shown as ships (bot/ship.py BotShip) are not aliens
     t = w.npcs.get(w.target) if w.target else None
-    out = {'alien': len(alive), 'box': len(w.boxes), 'ore': len(getattr(w, 'ores', {})),
+    out = {'alien': len(alive) - bots, 'bot_ships': bots, 'box': len(w.boxes), 'ore': len(getattr(w, 'ores', {})),
            'target': (t.d.get('name') if t and t.alive else None), 'in_combat': bool(now - getattr(w, 'last_combat', 0) < 10),
            'dead': bool(w.hero_dead), 'safe': bool(w.in_station())}
     perf = getattr(w, 'perf', None)
     if perf:
-        out['loop'] = perf.summary()               # duration of the loop step (ms; dunya.Olcum)
+        out['loop'] = dict(perf.summary(), slow_ms=perf.SLOW_MS)     # duration of the loop step (ms; world.Metrics) and its slow threshold
     run = getattr(w, 'gate', None)
     g = getattr(run, 'g', None) if run else None
     if g:
@@ -52,6 +53,10 @@ def snapshot(game):
          'position': {'map': H.name(k.get('mapId')), 'map_id': k.get('mapId'), 'x': int(k.get('x', 0)), 'y': int(k.get('y', 0))},
          'events': sorted(CAL.active()), 'play_sec': int(played),
          'session_start': s.play_start if s else None}         # duration of Discord Rich Presence (panel/discord_rp.py)
+    bp = getattr(getattr(game, 'BOT', None), 'ACTIVE', None)    # the running bot pack (bot/manager.py); read without its lock: counts only
+    if bp is not None:
+        d['bots'] = {'total': len(bp.bots), 'online': sum(1 for b in list(bp.bots) if b.online),
+                     'max_online': bp.setting('max_online', 0), 'max_concrete': bp.setting('max_concrete', 40)}
     if w:
         try:
             x, y = w.hero_pos()

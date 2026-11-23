@@ -707,13 +707,28 @@ def heard_bot(y, b, channel, text, now, route=None, recipient=None):
         return
     lang = meta.get('lang')
     target = meta.get('reply_to')
-    if target and target.lower() in y.name_index and meta.get('kind') in ('answer', 'react', 'askback'):
+    if target and target.lower() in y.name_index and meta.get('kind') in ('answer', 'react', 'askback', 'followup', 'opinion'):
         a = y.name_index[target.lower()]                     # the bot that asked: thanks, shares, or answers the question asked back
         if not a.online or a is b:
             return
         pa = PE.of(a)
         slots = dict(name=short_name(b.name, pa))
+        if meta.get('kind') == 'followup':                    # "why?" / "u sure?" to the bot that answered him
+            say(y, a, 'sure_yes' if meta.get('fu') == 'sure' else 'why_generic', channel, now, slots=slots, lang=lang, heard=text, no_ask=True,
+                meta=dict(kind='answer', reply_to=b.name, depth=depth + 1, topic=meta.get('topic'), qkey=('fu', b.name, round(now, 1)), fu=True))
+            return
+        if meta.get('kind') == 'opinion':                     # someone disagreed with his answer: now and then he holds his ground
+            if str(meta.get('act', '')).startswith('disagree') and a.r.random() < P['p_defend']:
+                say(y, a, 'defend', channel, now, slots=slots, lang=lang, heard=text, no_ask=True,
+                    meta=dict(kind='end', reply_to=b.name, depth=depth + 1, topic=meta.get('topic')))
+            return
+        if meta.get('kind') == 'answer' and meta.get('qm') is not None:
+            _opinion(y, b, a, meta, channel, key, text, now, depth)
+        shared = st.__dict__.setdefault('shared', {})            # (bot uid, topic) -> when he told his own (age, playtime ...)
         if meta.get('kind') == 'askback' and meta.get('topic'):
+            if now - shared.get((a.uid, meta['topic']), -1e9) < 120:
+                return                                        # he told his own a moment ago (to another answer): not twice
+            shared[(a.uid, meta['topic'])] = now
             m = NLU.Msg(text)
             m.topics.add(meta['topic'])
             m.question, m.you = True, True
@@ -728,7 +743,12 @@ def heard_bot(y, b, channel, text, now, route=None, recipient=None):
             if len(st.acked) > 500:
                 st.acked = {k: v for k, v in st.acked.items() if now - v < 3600}
             personal = meta.get('topic') in PERSONAL or str(meta.get('act', '')).startswith(('self_', 'doing_', 'howareyou'))
-            if personal and meta.get('topic') and a.r.random() < P['p_share']:
+            if personal and meta.get('topic') and a.r.random() < P['p_share'] and not _asks_back(y, b) \
+                    and now - shared.get((a.uid, meta['topic']), -1e9) >= 120:
+                # (when the answer ends with "and you?" he answers that one: not twice "2008'den beri" + "ilk başladığımda 2008")
+                shared[(a.uid, meta['topic'])] = now
+                if len(shared) > 500:
+                    st.shared = {k: v for k, v in shared.items() if now - v < 120}
                 m = NLU.Msg(text)                               # "ben 20", "ben de 2-3'te kasıyorum": he shares his own
                 m.topics.add(meta['topic'])
                 m.question, m.you = True, True
@@ -736,6 +756,10 @@ def heard_bot(y, b, channel, text, now, route=None, recipient=None):
                 if mv:
                     say(y, a, mv[0], channel, now, slots=dict(mv[1], **slots), lang=lang, heard=text,
                         meta=dict(kind='end', depth=depth + 1, topic=meta['topic']), no_ask=True)
+            elif not personal and not meta.get('fu') and meta.get('act') in FOLLOW_UP and a.r.random() < P['p_followup']:
+                fu = 'why' if meta['act'] in WHY_OK and a.r.random() < 0.5 else 'sure'
+                say(y, a, 'ask_' + fu, channel, now, slots=slots, lang=lang, heard=text, question=True,
+                    meta=dict(kind='followup', reply_to=b.name, depth=depth + 1, topic=meta.get('topic'), fu=fu))
             elif not personal and a.r.random() < P['p_ack']:
                 say(y, a, 'ack', channel, now, slots=slots, lang=lang, heard=text, meta=dict(kind='end', depth=depth + 1))
         elif meta.get('kind') == 'react' and str(meta.get('act', '')).startswith('congrats') and qkey not in st.acked \
@@ -757,18 +781,24 @@ def heard_bot(y, b, channel, text, now, route=None, recipient=None):
     if random.random() >= p:
         return
     qkey = (b.name, round(now, 1))
-    ranked = sorted(lst, key=lambda c: -_weight(c, m))
-    for i, c in enumerate(ranked[:2]):
-        if i and random.random() > 0.25:
+    from .. import playstyle as PL
+    news = meta.get('kind') == 'event'
+    many = news or m.all                                      # news and "how old are you all": a few voices, each its own
+    ranked = sorted(lst, key=lambda c: -_weight(c, m) * ((1.0 + max(0.0, c.memory.relation(b.name, now))) if news else 1.0))
+    for i, c in enumerate(ranked[:3 if many else 2]):
+        if i and random.random() > (0.45 if many else 0.25):
             break
-        mv = (meta['react'], {}, False) if meta.get('react') else move(y, c, m, b.name, False, lang)
+        if i and PL.quiet(c):
+            continue
+        mv = (_react_act(c, b, meta, now), {}, False) if meta.get('react') else move(y, c, m, b.name, False, lang)
         if mv is None:
             continue
         act, slots, q = mv
         pc = PE.of(c)
-        ask_back = act.startswith('self_') and c.r.random() < P['p_askback']
+        ask_back = not i and act.startswith('self_') and c.r.random() < P['p_askback']
         t = say(y, c, act, channel, now + i * 3, slots=dict(slots, name=short_name(b.name, pc)), lang=lang, heard=text,
-                meta=dict(kind='answer' if m.question else 'react', reply_to=b.name, depth=depth + 1, topic=m.topic, qkey=qkey))
+                meta=dict(kind='answer' if m.question else 'react', reply_to=b.name, depth=depth + 1, topic=m.topic, qkey=qkey,
+                          qm=m if m.question else None, slots=slots))
         if t is not None and ask_back:
             say(y, c, 'askback_' + m.topic if LX.act(lang, 'askback_' + m.topic) else 'askback', channel, t,
                 slots=dict(name=short_name(b.name, pc)), lang=lang, delay=c.r.uniform(1.0, 3.0), question=True,
@@ -796,6 +826,73 @@ def meta_msg(text, meta):
     m.after = bool(meta.get('after'))
     m.lang = meta.get('lang')
     return m
+
+
+OPINION = ('ans_laser', 'ans_ship', 'ans_pick', 'ans_worth_yes', 'ans_worth_no', 'ans_map', 'ans_level', 'ans_where_alien', 'ans_where_boss')
+FOLLOW_UP = OPINION + ('ans_uri', 'ans_credits')             # answers the asker may question ("u sure?")
+WHY_OK = ('ans_laser', 'ans_ship', 'ans_pick', 'ans_worth_yes', 'ans_worth_no')     # ... or ask "why?" (an opinion, not a map)
+
+
+def _asks_back(y, b):
+    """b has an "and you?" queued (it goes out right after his answer)."""
+    st = state(y).meta
+    return any(x[1] is b and (st.get((b.uid, x[3])) or {}).get('kind') == 'askback' for x in y.outgoing)
+
+
+def _canon(item):
+    m = NLU.read(str(item))
+    return (m.ships or m.lasers or [NLU.fold(str(item))])[0]
+
+
+def _react_act(c, b, meta, now):
+    """c's reaction to b's news, by c's persona and its relations: a pilot who dislikes b laughs at his loss, an aggressive one (or one
+    with a grudge against the same enemy) wants revenge, the others say rip / gz."""
+    if meta.get('react_spite') and c.memory.relation(b.name, now) < -0.2:
+        return meta['react_spite']
+    foe = meta.get('foe')
+    if meta.get('react_aggr') and (PE.of(c).aggr > 0.6 or (foe and c.memory.relation(foe, now) < -0.15)):
+        return meta['react_aggr']
+    return meta['react']
+
+
+def _opinion(y, b, a, meta, channel, key, text, now, depth):
+    """A third bot that read b's answer to a's question adds its own view: agrees, names another map, or disagrees (each bot its own
+    opinion of ships and lasers; maps from the game data)."""
+    act0 = str(meta.get('act', ''))
+    seen = state(y).__dict__.setdefault('opined', {})        # only the first answer to a question draws a view
+    if act0 not in OPINION or meta.get('qkey') in seen:
+        return
+    seen[meta.get('qkey')] = now
+    if len(seen) > 500:
+        state(y).opined = {k: v for k, v in seen.items() if now - v < 3600}
+    if random.random() >= P['p_opinion']:
+        return
+    from .. import playstyle as PL
+    lang, qm = meta.get('lang'), meta['qm']
+    busy = {t['who'].lower() for t in state(y).turns.get(key, ()) if now - t['t'] < 40}       # those who just answered say no more
+    lst = [c for c in y.listeners(channel, _who(b), alive=False) if c is not b and c is not a and c.name.lower() not in busy
+           and _lang_for(c, lang) == lang and not PL.quiet(c)]
+    if not lst:
+        return
+    c = max(lst, key=lambda c: _weight(c, qm))
+    mv = move(y, c, qm, a.name, False, lang)
+    if mv is None or mv[0] not in OPINION:
+        return
+    mine, theirs = mv[1], meta.get('slots') or {}
+    if act0.startswith('ans_worth') and mv[0].startswith('ans_worth'):
+        o = 'agree' if mv[0] == act0 else 'disagree_yes' if mv[0] == 'ans_worth_yes' else 'disagree_no'
+        slots = dict(item=theirs.get('item') or mine.get('item'))
+    elif mine.get('item') and theirs.get('item'):
+        o = 'agree' if _canon(mine['item']) == _canon(theirs['item']) else 'disagree'      # "nosto" is "nostromo"
+        slots = dict(item=mine['item'])
+    elif mine.get('map1') and theirs.get('map1'):
+        o = 'agree' if mine['map1'] == theirs['map1'] or mine['map1'] in str(theirs.get('maps', '')).split(', ') + str(theirs.get('maps', '')).split() \
+            else 'also_map'
+        slots = dict(map1=mine['map1'])
+    else:
+        return
+    say(y, c, o, channel, now, slots=dict(slots, name=short_name(b.name, PE.of(c))), lang=lang, heard=text, no_ask=True,
+        meta=dict(kind='opinion', act=o, reply_to=b.name, depth=depth + 1, topic=meta.get('topic')))
 
 
 # ------------------------------------------------------------------------------------------------- spontaneous talk
@@ -850,8 +947,16 @@ def spontaneous(y, now):
     anger = (getattr(getattr(b, 'mood', None), 'd', None) or {}).get('anger', 0.0)
     whine = now - st.__dict__.get('complained', -1e9) >= P['complaint_sec'] * (1.0 - 0.8 * min(1.0, anger))   # an angry one complains sooner
     said = st.__dict__.setdefault('opener_acts', {})
+    from ..chat_engine import channel_path
+    ck = _key(channel, channel_path(b, channel))
+    lately = st.__dict__.setdefault('channel_topics', {})    # (channel, act or question topic) -> time: not the third "hangi lazer?" in an hour
+    gap = P['channel_topic_sec']
     rows = [o for o in OPENERS if (o[3] is None or o[3](b)) and (o[0] not in ('rollcall', 'ask_anyone_map') or quiet > 300)
-            and (whine or not o[0].startswith('complain')) and now - said.get((b.uid, o[0]), -1e9) >= OPENER_GAP.get(o[0], 3600)]
+            and (whine or not o[0].startswith('complain')) and now - said.get((b.uid, o[0]), -1e9) >= OPENER_GAP.get(o[0], 3600)
+            and (_mood_weight(b, o[0]) > 2.0 or now - lately.get((ck, o[0]), -1e9) >= gap)      # (a really tired one still says so)
+            and not (o[2].get('question') and now - lately.get((ck, o[2].get('topic')), -1e9) < gap)]
+    if not rows:
+        return False
     for _ in range(3):                                         # its lines of that topic used up lately: another topic
         act, _, meta, _ = b.r.choices(rows, weights=[o[1] * _mood_weight(b, o[0]) for o in rows])[0]
         t = _open(y, b, act, meta, channel, now)
@@ -864,6 +969,11 @@ def spontaneous(y, now):
         return False
     st.opened[b.uid] = now
     said[(b.uid, act)] = now
+    lately[(ck, act)] = now
+    if meta.get('question') and meta.get('topic'):
+        lately[(ck, meta['topic'])] = now
+    if len(lately) > 400:
+        st.channel_topics = {k: v for k, v in lately.items() if now - v < gap}
     if len(said) > 3000:
         st.opener_acts = {k: v for k, v in said.items() if now - v < 3600}
     if act.startswith('complain'):
@@ -916,23 +1026,55 @@ def _quiet(y, b, channel, now):
 EVENT_ACTS = {'level': ('tell_level', dict(acts=['brag'], topic='level', react='congrats')),
               'new_ship': ('tell_ship', dict(acts=['brag'], topic='ship', react='congrats_ship')),
               'i_killed_boss': ('tell_boss', dict(acts=['brag'], topic='boss', react='congrats')),
-              'death_npc': ('tell_death', dict(topic='alien', react='sympathy')),
+              'death_npc': ('tell_death', dict(topic='alien', react='sympathy_short', react_spite='laugh')),
               'quest_done': ('tell_quest', dict(topic='quest', react='congrats_small')),
-              'gate_done': ('tell_gate', dict(topic='gate', react='congrats'))}
+              'gate_done': ('tell_gate', dict(topic='gate', react='congrats')),
+              'mode_done': ('tell_mode', dict(acts=['brag'], topic='gate', react='congrats_small')),
+              'pvp_win': ('tell_pvp_win', dict(acts=['brag'], topic='pvp', react='congrats_small', react_aggr='laugh')),
+              'pvp_loss': ('tell_pvp_loss', dict(topic='pvp', react='sympathy_short', react_aggr='revenge', react_spite='laugh')),
+              'event_start': ('tell_event_start', dict(topic='event', react='react_event')),
+              'event_end': ('tell_event_end', dict(topic='event', react='react_event_end'))}
 
 
 def event_line(y, b, kind, now, channel='company', **slots):
-    """A bot tells what just happened to it (level, new ship, boss) -> True if a line was queued. Others may congratulate."""
+    """A bot tells what just happened to it (level, new ship, boss, a PvP kill or loss) -> True if a line was queued. Others may
+    congratulate, or say rip / want revenge (_react_act)."""
     act, meta = EVENT_ACTS[kind]
     if kind == 'level' and int(slots.get('level') or b.level) < 6 and b.r.random() < 0.97:
         return False                                          # nobody announces level 2 or 3
+    from .. import playstyle as PL
+    if kind not in ('level', 'new_ship', 'i_killed_boss') and PL.quiet(b) and b.r.random() < 0.85:
+        return False                                          # a lurker keeps the small news to himself
     meta = dict(meta, kind='event', depth=1)
+    if kind in ('pvp_win', 'pvp_loss') and slots.get('name'):
+        meta['foe'] = slots['name'] if kind == 'pvp_loss' else None
+        slots['name'] = short_name(slots['name'], PE.of(b))
+    if 'map' in slots and not re.match(r'^[1-5]-[1-8]$', str(slots['map'] or '')):
+        slots['map'] = ''                                    # where it happened, not where he is now; a gate map has no name people use
     return say(y, b, act, channel, now, slots=slots, meta=meta, delay=b.r.uniform(2, 9)) is not None
 
 
+def calendar_line(y, key, started, now):
+    """An event of the calendar started or ended: in each company channel one talkative bot that speaks the language says so (the
+    event's short name of its language). -> number of lines queued."""
+    import event_calendar as CAL
+    from .. import playstyle as PL
+    n = 0
+    for fac in (1, 2, 3):
+        bots = [b for b in y.bots if b.online and b.company == fac and not PL.quiet(b)]
+        if not bots:
+            continue
+        b = max(bots, key=lambda b: (0.25 + PE.of(b).talk) * b.r.random())
+        lang = PE.of(b).lang
+        name = (((LX.DATA.get(lang) or {}).get('names') or {}).get('ev_' + key) or (LX.DATA['en'].get('names') or {}).get('ev_' + key)
+                or re.sub(r'\s*\(.*?\)', '', (CAL.EVENTS.get(key) or {}).get('name') or key).strip().lower())
+        n += event_line(y, b, 'event_start' if started else 'event_end', now, event=name)
+    return n
+
+
 def witness(y, b, sub, now, **slots):
-    """A bot saw something next to it (a boss kill, a pilot destroyed)."""
-    return say(y, b, 'witness_boss' if sub == 'boss' else 'witness_death', 'company', now, slots=slots,
+    """A bot saw something next to it (a boss kill, a pilot destroyed, a boss or event alien appearing)."""
+    return say(y, b, {'boss': 'witness_boss', 'spawn': 'witness_spawn'}.get(sub, 'witness_death'), 'company', now, slots=slots,
                meta=dict(kind='react', depth=2), delay=b.r.uniform(2, 8)) is not None
 
 

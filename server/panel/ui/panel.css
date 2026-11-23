@@ -423,6 +423,19 @@ input[type=range]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px rg
 .prep-stage.running { color: var(--accent); }
 .prep-stage .dot-sm { width: 6px; height: 6px; border-radius: 50%; background: var(--line-2); }
 @media (prefers-reduced-motion: reduce) { .prep .meter-bar span, .play-btn::after, .dot.err { animation: none; } }
+/* readiness line (client, plugin, game images) and the hints that start "Prepare the game images" */
+.ready-card { display: grid; gap: 8px; }
+.ready-item { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); }
+.ready-item svg { width: 15px; height: 15px; flex: none; }
+.ready-item.ok svg { color: var(--ok); } .ready-item.miss { color: var(--text); } .ready-item.miss svg { color: var(--err); }
+.images-hint { gap: 10px; margin-bottom: 10px; } .images-hint .desc { margin: 0; }
+/* live card: slow loop and its history */
+.kv b.warn { color: var(--warn); }
+.kv .loop-row { align-items: center; }
+.loop-spark { width: 160px; height: 26px; flex: none; overflow: visible; }
+.loop-spark .avg { fill: none; stroke: var(--accent); stroke-width: 1.5; vector-effect: non-scaling-stroke; }
+.loop-spark .lim { stroke: var(--warn); stroke-width: 1; stroke-dasharray: 3 3; vector-effect: non-scaling-stroke; opacity: .7; }
+.loop-row.warn .loop-spark .avg { stroke: var(--warn); }
 .spin { width: 14px; height: 14px; border: 2px solid rgba(64, 223, 255, .22); border-top-color: var(--accent); border-radius: 50%;
   animation: spin .8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }

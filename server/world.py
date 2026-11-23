@@ -1523,6 +1523,7 @@ class World:
                 n.summoned = True
                 n.ab['scheduled'] = key
                 self.log('   timetabled alien: %s (%s)' % (n.d['name'], hm))
+                BG.witness(self, 'spawn', *n.mover.pos(now), name=n.d.get('name', ''))      # bots next to it call it out in chat
 
     def drifter_killed(self, n):
         key = n.ab.get('scheduled')
