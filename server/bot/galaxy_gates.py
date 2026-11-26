@@ -34,7 +34,7 @@ def stock(bot):
 
 
 def difficulty(gate):
-    """The gate's waves -> ([(wave's total HP+shield, damage per second of those hitting at the same time)], kill rewards)."""
+    """Cache each wave's durability, weapons and movement, and the gate's kill rewards."""
     if gate in _difficulty:
         return _difficulty[gate]
     import ast
@@ -43,14 +43,18 @@ def difficulty(gate):
         waves = ast.literal_eval(waves)
     out, reward = [], {}
     for d in waves:
-        ehp = dps = 0.0
+        ehp, threats = 0.0, []
         for u in d.get('alien_spawns', []):
             n = u.get('count', 1)
             ehp += n * (u.get('hp', 0) + u.get('shield', 0))
-            dps += min(n, 2) * u.get('damage', 0) * K.COMBAT['npc_hit_chance'] * 0.6 / K.NPC_INTERVAL  # the player pulls them one by one, escapes out of range
+            npc = K.NPC['types'].get(u.get('type'), {})
+            speed = u.get('speed', npc.get('speed', 0))
+            reach = npc.get('range') or K.COMBAT['npc_range' if speed > 0 else 'npc_fixed_range']
+            damage = min(n, 2) * u.get('damage', 0) * K.COMBAT['npc_hit_chance'] * 0.6 / K.NPC_INTERVAL
+            threats.append((speed, reach, damage))
             for k, v in (u.get('reward') or {}).items():
                 reward[k] = reward.get(k, 0) + v * n
-        out.append((ehp, dps))
+        out.append((ehp, threats))
     _difficulty[gate] = (out, reward)
     return _difficulty[gate]
 
@@ -59,13 +63,19 @@ def estimate(bot, gate):
     """Run estimate -> (time s, expected number of deaths). In a gate players use their best ammo (the strongest in stock x2-x4);
     between waves the shield refills and the ship is repaired."""
     from . import weapons as WP
+    from . import playstyle
     waves, _ = difficulty(gate)
     d = bot.value()
     s = WP.stock(bot)
     multiplier = max([WP.multiplier(c) for c in ('ammunition_laser_ucb-100', WP.MCB50, WP.MCB25, WP.LCB) if s.get(c, 0) > 1000] or [1])
     dps = max(1.0, d['dps'] * multiplier * 1.15)                 # rockets
     duration = death = 0.0
-    for ehp, incoming_dps in waves:
+    distance = playstyle.combat_distance(bot, K.COMBAT['laser_range'])
+    skill = playstyle.skill(bot, 'combat')
+    for ehp, threats in waves:
+        # A pilot that can outrun and outrange a wave avoids fire while holding its orbit.
+        incoming_dps = sum(damage * (1 - skill) if d['speed'] >= speed and distance > reach else damage
+                           for speed, reach, damage in threats)
         t = ehp / dps
         duration += t
         death += t * incoming_dps / max(1.0, d['ehp'] * 3)
@@ -127,9 +137,12 @@ def _draw(bot, st, gate):
 
 
 def target_gate(bot):
-    """The gate to collect parts for: not built and the first gate the bot can probably pass (players' order: ABG, then the others)."""
+    """Choose a passable, unbuilt gate, prioritizing the least completed and using the normal gate order for ties."""
     st = state(bot)
-    for k in ORDER:
+    times = bot.k.get('gate_times', {})
+    completed = st.get('done', ())
+    # Keep the normal unlock order for ties, then explore other passable gates.
+    for k in sorted(ORDER, key=lambda key: times.get(key, {}).get('number', int(key in completed))):
         if k in st['built'] or GATES[k].get('not_producible'):
             continue
         duration, death = estimate(bot, k)

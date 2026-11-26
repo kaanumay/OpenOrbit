@@ -728,6 +728,7 @@ class Session:
         self.world.map_msgs = lambda: TEMPLATE.world_msgs(map_id, 'entry')
         self.world.on_home = self.respawn_home
         self.world.session_tick = self.tick                        # Assembly, Dispatch, Skylab timers
+        self.world.resource_msgs = self.shop.resource_msgs
         self.world.grant = self.shop.reward                       # the equipment in an alien's extra reward (The Stinger: Caucasus)
         self.world.pet = self.pet
         self.pet.attach(self.world)

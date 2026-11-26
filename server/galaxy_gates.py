@@ -807,7 +807,7 @@ class Gates:
         # Double Rewards Day in Dispatch too (by collection time; client dispatch_gate_description, forum 160341). Items: forum and in-game
         # windows: UCB-100, ABR and Schism x1; Kronos's RSB-75/UBR-100/energy x2; for a lucky reward the probability is the same, the count x2
         x2 = 2 if CAL.is_active('gg_double_reward') else 1
-        first = self.gate(key).get('done', 0) == 0         # first completion: Epsilon LF-4, Zeta Havoc, Kronos Spartan guaranteed (forum)
+        first = self.gate(key).get('done', 0) == 0         # first completion: Epsilon LF-4 and Zeta Havoc guaranteed (forum)
         rm =reward_msgs or (lambda tot, **kw: self.m.money_msgs() if self.m else [])
         self.p.ach('gate', type='%s_GATE' % key.upper(), dispatch=dispatch)      # the client's GalaxyGateType (STREUNER_GATE ...)
         if CAL.is_active('battle_for_influence') and not dispatch:          # Battle for Influence: the points of a gate victory (official forum 131012)
@@ -816,9 +816,17 @@ class Gates:
         if not dispatch and self.m:                                         # event points (Hatching Out: Alpha/Beta/Gamma 160 VPP)
             import event_points as OP
             ev_msgs = OP.gate(self.p, key, lambda l, n: self.m.prize(l, n, 'gate'))
-        cbs = self.p.cbs_mods() if not dispatch and getattr(self.p, 'cbs_mods', None) else {}
-        ep = int(R['ep'] * x2 * multiplier * (1 + (0 if dispatch else self.p.mods().get('gate_ep', 0)) + cbs.get('ep', 0)))
-        honor = int(R['honor'] * x2 * multiplier * (1 + cbs.get('honor', 0)))
+        ep_factor = honor_factor = x2 * multiplier
+        if not dispatch:
+            import booster
+            import skill_tree
+            boosts = booster.mods(self.p)
+            cbs = self.p.cbs_mods() if getattr(self.p, 'cbs_mods', None) else {}
+            ep_factor *= 1 + boosts.get('ep', 0) + cbs.get('ep', 0) + self.p.mods().get('gate_ep', 0)
+            gear_honor = sum(mods.get('honor', 0) for mods in (self.p.formation(), self.p.design_mods(), self.p.ship_mods()))
+            honor_factor *= (1 + gear_honor) * (1 + boosts.get('honor', 0) + cbs.get('honor', 0)) * (1 + skill_tree.mods(self.p).get('honor', 0))
+        ep = int(round(R['ep'] * ep_factor, 8))
+        honor = int(round(R['honor'] * honor_factor, 8))
         ep, honor, uri = SET.amount('ep', ep, 'gate'), SET.amount('honor', honor, 'gate'), SET.amount('uridium', int(R['uridium'] * multiplier), 'gate')   # panel
         tot = self.p.gain(ep=ep, honor=honor, uridium=uri, reason='galaxy_gate_done')
         msgs = rm(tot, ep=ep, honor=honor, uridium=uri) + ev_msgs

@@ -13755,6 +13755,7 @@
  "technology": {
   "_source": "belgeler/wiki/extras_cpu_tech.md (wiki: effects); visuals from the client's code (VisualModifierCommand visual, 0|n|A|S|SBU, 0|n|ECI, 0|n|BT, 0|n|NNK). Most durations and cooldowns are neither on the wiki nor in the client: adaptation. Items go into the profile's \"technology\" counter via Assembly (roadmap Stage 5). Cooldown: Backup Shield 2 and Battle Repair Bot 2 600 s, Speed Burst 180 s (darkorbitwiki event pages); for Burning Trail, Explosive Charging Blob and NPC Nuke only the old fandom 20 min exists, the current wiki and client give no number: 120 s adaptation remained (BT/ECB/NNK have \"minutes\" units in the client but no value). Cooldowns also run while offline (the fandom's \"stops while not logged in\" rule is not in a current source: adaptation).",
   "ammo_types": [
+   "ammunition_laser_a-bl",
    "ammunition_laser_lcb-10",
    "ammunition_laser_mcb-25",
    "ammunition_laser_mcb-50",

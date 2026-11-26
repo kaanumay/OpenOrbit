@@ -1288,7 +1288,7 @@ def approach(w, n, pos, now):
     dist = math.hypot(pos[0] - nx, pos[1] - ny)
     pl = PL.profile(n.bot)
     # its own preferred distance (playstyle.py), inside the laser range: a long-range pilot held 600-930 units off and never fired
-    wanted = min((280 + 300 * (1 - n.bot.o('aggression'))) * pl['range'], LASER_RANGE - 60)
+    wanted = PL.combat_distance(n.bot, LASER_RANGE)
     pvp = n.target in w.npcs and w.npcs[n.target].bot is not None or n.target not in w.npcs
     sk = PL.skill(n.bot, 'pvp' if pvp else 'combat')
     if dist > min(wanted + 120, LASER_RANGE) or dist < 120:

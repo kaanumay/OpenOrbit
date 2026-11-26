@@ -109,6 +109,7 @@ class ReturnPass:
         self.hero = None                 # the session binds it: whether tied to a veteran in Return of Hero (shops.py)
         self.returning = True            # single player: the player is always the returning hero (Return track open)
         self.open = False                # whether the window is open (PointsInfoCommand when the points change)
+        self.missions_dirty = False
         self.rid = {'view': 0, 'mission': None}   # last requestIds of the open window (pushed refreshes reuse them)
         if shop is not None:
             shop.on_bought.append(self.bought)
@@ -153,12 +154,12 @@ class ReturnPass:
     def refresh_msgs(self):
         """Fresh view, points and missions for the window that is already open. The client only asks for the view when the
         window is first opened, and accepts a pushed view only with its last requestId (UIRecallBattlePassSystem.OnViewCommand
-        compares it), so reuse the ids of its last requests."""
+        compares it). Mission list pushes use requestId zero after the requested list has arrived."""
         if not self.open:
             return []
         msgs = [self.view_cmd(self.rid['view']), self.points_cmd()]
         if self.rid.get('mission') is not None:
-            msgs.append(self.mission_cmd(self.rid['mission']))
+            msgs.append(self.mission_cmd(0))
         return msgs
 
     def bought(self, loot, amount):
@@ -281,6 +282,7 @@ class ReturnPass:
         if name == 'RecallBattlePassLevelPurchaseRequest':
             return self.purchase(f, rid)
         if name == 'RecallBattlePassMissionRequest':
+            self.missions_dirty = False
             self.rid['mission'] = rid
             return [self.mission_cmd(rid)]
         if name == 'RecallBattlePassMissionRefreshRequest':
@@ -362,6 +364,19 @@ class ReturnPass:
         self.log('   Recall Battle Pass quest refreshed: %d -> %d%s' % (q, new, '' if free else ' (%d U)' % REFRESH_U))
         return done(0, [] if free or not self.m else self.m.money_msgs())
 
+    def window_update(self, fields):
+        if fields.get('itemId') == 'recallBattlePass' and fields.get('maximized') is False:
+            self.open = False
+            self.rid['mission'] = None
+            self.missions_dirty = False
+
+    def tick(self, now):
+        if self.missions_dirty:
+            self.missions_dirty = False
+            if self.active():
+                return [self.mission_cmd(0, now)]
+        return []
+
     # ------------------------------------------------------------ quest progress
     def event(self, kind, kw):
         if not self.p.d.get('return_pass') or not self.active():
@@ -371,9 +386,14 @@ class ReturnPass:
         for q in st.get('daily', []) + st.get('weekly', []) + st.get('seasonal', []):
             if q in st['done']:
                 continue
-            m, fin = GT.advance(self.p, MISSIONS[q]['definition']['rootCase'], st['value'].setdefault(str(q), {}), kind, kw,
+            values = st['value'].setdefault(str(q), {})
+            watching = self.rid['mission'] is not None and not self.missions_dirty
+            before = values.copy() if watching else None
+            m, fin = GT.advance(self.p, MISSIONS[q]['definition']['rootCase'], values, kind, kw,
                                 self.p.d['position'].get('mapId'),
                                 notify=False)
+            if watching and (fin or values != before):
+                self.missions_dirty = True
             msgs += m
             if fin:
                 done.append(q)

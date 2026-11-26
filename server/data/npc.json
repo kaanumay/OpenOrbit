@@ -8989,11 +8989,11 @@
     },
     {
      "tip": "pm_blighted_kristallon",
-     "count": 2
+     "count": 4
     }
    ],
    "bonus_boxes": 12,
-   "_source": "types from spacemap-config.xml; counts are an adaptation (X-7)",
+   "_source": "types from spacemap-config.xml; counts are an adaptation (X-7). On 2026-11-26 four distinct Blighted Kristallons were visible together on 1-7; four is an observed lower bound.",
    "scheduled": [
     {
      "tip": "215",
@@ -9373,11 +9373,11 @@
     },
     {
      "tip": "pm_blighted_kristallon",
-     "count": 2
+     "count": 3
     }
    ],
    "bonus_boxes": 12,
-   "_source": "types from spacemap-config.xml; counts are an adaptation (X-7)",
+   "_source": "types from spacemap-config.xml; counts are an adaptation (X-7). On 2026-11-26 three distinct Blighted Kristallons were visible together on 3-7; three is an observed lower bound.",
    "scheduled": [
     {
      "tip": "215",

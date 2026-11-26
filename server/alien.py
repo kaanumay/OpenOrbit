@@ -822,7 +822,8 @@ class Abilities:
             st['reload'] = now + 1.0
             r = LOW['regeneration']
             if now - n.last_hit >= r['cooldown_sec']:
-                n.hp = min(n.d['hp'], n.hp + int(n.d['hp'] * r['hp_ratio_per_sec']))
+                if not (n.gate and getattr(self.w.gate, 'corners', None)):
+                    n.hp = min(n.d['hp'], n.hp + int(n.d['hp'] * r['hp_ratio_per_sec']))
                 n.shield = min(n.d['shield'], n.shield + int(n.d['shield'] * r['shield_ratio_per_sec']))
                 if self.w.target == n.id:
                     self.w.send([self.w.selection(n)])

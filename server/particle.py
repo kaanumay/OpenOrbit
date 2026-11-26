@@ -165,7 +165,9 @@ def hangar_fields(p, iid, loot):
     st = ensure(p, iid) or {}
     f = {'modifiers': modifiers_str(p, iid), 'star': st.get('star', 0)}
     if loot in CANNONS:
-        f['extAttributes'] = [mod('TupleTwoModule', param0='baseDamage', param1=str(int(base_damage(p, iid))))]
+        # The tooltip adds this percentage to the client's own base damage.
+        percent = round(100 * (C['star'][f['star']] - 1))
+        f['extAttributes'] = [mod('TupleTwoModule', param0='baseDamage', param1=str(percent))]
         if CANNONS[loot]['ship']:
             import ship_module as GM                           # the tooltip's ship by numeric id (ReturnShips)
             f['ships'] = GM.ship_ids([CANNONS[loot]['ship']])

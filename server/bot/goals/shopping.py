@@ -138,6 +138,10 @@ def ship_affinity(bot, ship):
     return 0.92 + 0.16 * (zlib.crc32(('%s|%s' % (bot.name, ship)).encode()) % 1000) / 999.0
 
 
+def replaces_flax(drones, loot):
+    return loot == 'drone_iris' and drones.get('drone_flax', 0) > 0 and not K.drone_room(drones, loot)
+
+
 def _candidates(bot):
     e = bot.k['gear']
     shield_share = bot.shield_share()
@@ -147,6 +151,10 @@ def _candidates(bot):
     out = []
 
     def attempt(loot, owner=0, filler=None, force=False):
+        if K.ITEMS['lasers'].get(loot, K.ITEMS['shield_generators'].get(loot, {})).get('pet_only'):
+            return
+        if loot in K.ITEMS['drones'] and not (K.drone_room(e['drone'], loot) or replaces_flax(e['drone'], loot)):
+            return
         f = K.price(loot, owner)
         if not f or f[1] <= 0:
             return
@@ -156,6 +164,8 @@ def _candidates(bot):
         else:
             group = 'laser' if loot in K.ITEMS['lasers'] else 'shield' if loot in K.ITEMS['shield_generators'] else \
                 'speed' if loot in K.ITEMS['speed_generators'] else 'drone'
+            if replaces_flax(e['drone'], loot):
+                y['drone']['drone_flax'] -= 1
             y[group][loot] = y[group].get(loot, 0) + 1
         if filler:                                        # the drone's empty slots get filled by the laser to be bought later
             y['laser'][filler[0]] = y['laser'].get(filler[0], 0) + filler[1]
@@ -185,12 +195,15 @@ def _candidates(bot):
         attempt(loot)
     # a drone only opens laser slots: with no spare laser the gain was counted as 0 and Flax was never bought (player report 2026-10-31);
     # the empty slots count as filled with the best (purchasable) laser at hand
-    backup = sum(e.get('laser', {}).values()) - len(slot['laser'])
+    backup = sum(n for loot, n in e.get('laser', {}).items()
+                 if loot in K.ITEMS['lasers'] and not K.ITEMS['lasers'][loot].get('pet_only')) - len(slot['laser'])
     best = max((l for l in e.get('laser', {}) if l in lasers), key=lasers.get, default=None)
     for loot, d in K.ITEMS['drones'].items():
         n = e.get('drone', {}).get(loot, 0)
-        if K.drone_room(e.get('drone', {}), loot) and K.price(loot, n):
-            missing = max(0, d.get('slot', 1) - backup)
+        replacing = replaces_flax(e['drone'], loot)
+        if (K.drone_room(e['drone'], loot) or replacing) and K.price(loot, n):
+            old_slots = K.ITEMS['drones']['drone_flax']['slot'] if replacing else 0
+            missing = max(0, d.get('slot', 1) - old_slots - backup)
             attempt(loot, n, (best, missing) if best and missing else None)
     for loot in K.ships():
         if loot != e['ship']:
@@ -299,8 +312,18 @@ def buy(bot, c):
     from .. import playstyle as PL
     for _ in range(PL.trip_items(bot, MAX_TRIP_ITEMS)):
         increase, currency, price, loot = c
+        drones = bot.k['gear']['drone']
+        replacing = replaces_flax(drones, loot)
+        if loot in K.ITEMS['drones'] and not (replacing or K.drone_room(drones, loot)):
+            break
         if not bot.pay(currency, price):
             break
+        if replacing:
+            import upgrades
+            drones['drone_flax'] -= 1
+            if not drones['drone_flax']:
+                del drones['drone_flax']
+            bot.k['credits'] += int(upgrades.ITEMS['drone_flax']['selling'])
         bot.add(loot)
         bot.ist('purchase')
         bot.mood.it(morale=0.12 + min(0.3, increase / max(1.0, bot.value()['power'])))

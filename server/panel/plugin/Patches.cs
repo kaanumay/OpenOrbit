@@ -13,6 +13,7 @@ using DG.Tweening.Core;
 using HarmonyLib;
 using Il2CppInterop.Runtime;
 using net.bigpoint.darkorbit.com.module.porting.halloffame;
+using net.bigpoint.darkorbit.com.module.porting.hangar;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -24,6 +25,9 @@ public class Plugin : BasePlugin
     public override void Load()
     {
         var h = new Harmony("openorbit.patch");
+        Apply("Omega AutoTactic box selection", () => SelectedBoxes.Apply(h));
+        Apply("drone equipment removal", () => DroneRemoval.Apply(h));
+        Apply("P.E.T. destruction log", () => PetDestructionLog.Apply(h));
         Apply("müzayede sayacı", () => Auction.Apply(h));
         Apply("rütbe penceresi", () => RankWindow.Apply(h));
         Apply("mağaza tutarı", () => ShopAmount.Apply(h));
@@ -63,6 +67,55 @@ public class Plugin : BasePlugin
         if (Array.IndexOf(targets, null) >= 0)
             throw new MissingMethodException("istemcide beklenen metot yok (1.1.115 değil mi?)");
     }
+}
+
+static class SelectedBoxes
+{
+    public static void Apply(Harmony h)
+    {
+        var target = AccessTools.DeclaredMethod(typeof(UnitComponentSystem.__c__DisplayClass10_0),
+            nameof(UnitComponentSystem.__c__DisplayClass10_0._GetCollectables_b__0));
+        Plugin.Find(target);
+        h.Patch(target, prefix: new HarmonyMethod(typeof(SelectedBoxes), nameof(MatchType)));
+    }
+
+    static bool MatchType(UnitComponentSystem.__c__DisplayClass10_0 __instance, string __0, ref bool __result)
+    {
+        // A single localized menu entry can represent several comma-separated box type IDs.
+        var type = __instance.keyVal.Value.TypeID;
+        __result = __0 == type || (__0 != null && __0.Contains(',') && Array.IndexOf(__0.Split(','), type) >= 0);
+        return false;
+    }
+}
+
+static class DroneRemoval
+{
+    public static void Apply(Harmony h)
+    {
+        var target = AccessTools.DeclaredMethod(typeof(HangarEquipmentMoveExtensions), nameof(HangarEquipmentMoveExtensions.TrySendEquipmentMove));
+        Plugin.Find(target);
+        h.Patch(target, prefix: new HarmonyMethod(typeof(DroneRemoval), nameof(SetInventorySlot)));
+    }
+
+    static void SetInventorySlot(HangarShipMoveItemsRequest __1)
+    {
+        // A bulk removal has no destination slot. The wire format requires a string.
+        if (__1.source == "drone" && __1.destination == "inventory" && __1.slotSet == null)
+            __1.slotSet = "";
+    }
+}
+
+// The native command also plays the sound, clears effects and logs the destruction.
+static class PetDestructionLog
+{
+    public static void Apply(Harmony h)
+    {
+        var target = AccessTools.DeclaredMethod(typeof(PetPetIsDestroyed), "Run");
+        Plugin.Find(target);
+        h.Patch(target, prefix: new HarmonyMethod(typeof(PetDestructionLog), nameof(SkipDuplicateLog)));
+    }
+
+    static bool SkipDuplicateLog() => false;
 }
 
 // Auction counter (CANLI_TEST H175; the client's own bug, the server sends the right time in every list):

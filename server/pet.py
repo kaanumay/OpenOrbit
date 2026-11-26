@@ -1768,7 +1768,10 @@ class Pet:
         px, py = self.pos(now)
         reach, full = kamikaze_cfg['range'], kamikaze_cfg['damage']
         hit = [(n, math.hypot(n.mover.pos(now)[0] - px, n.mover.pos(now)[1] - py)) for n in list(w.npcs.values()) if n.alive]
-        hit = [(n, d) for n, d in hit if d <= reach]
+        from bot import ship as bot_ship
+        faction = self.p.d['pilot'].get('factionId')
+        hit = [(n, d) for n, d in hit if d <= reach and
+               (not getattr(n, 'bot', None) or n.bot.company != faction or bot_ship.relation(w, n.bot) == 3)]
         assets = self.assets_in_blast(px, py, reach)
         self.charge_end = 0.0
         self.ready[KAMIKAZE] = now + kamikaze_cfg.get('cooldown_sec', 0)
@@ -1785,7 +1788,11 @@ class Pet:
                 if o is w or not o.running or o.hero_dead or o.map_id != w.map_id:
                     continue
                 d = math.hypot(o.hero_pos(now)[0] - px, o.hero_pos(now)[1] - py)
-                if d <= reach and not PVP.attack_error(w, o, now):
+                if d > reach:
+                    continue
+                if faction and faction == o.p.d['pilot'].get('factionId') and 3 not in (PVP.KL.relation(w.p, o.p), PVP.KL.relation(o.p, w.p)):
+                    continue
+                if not PVP.attack_error(w, o, now):
                     players.append((o, d))
         near = min([d for _, d in hit + players], default=0.0)
         for n, d in hit:

@@ -187,6 +187,10 @@ def state(bot):
     return st
 
 
+def combat_distance(bot, laser_range):
+    return min((280 + 300 * (1 - bot.o('aggression'))) * profile(bot)['range'], laser_range - 60)
+
+
 def skill(bot, d):
     return state(bot)['skill'][d]
 

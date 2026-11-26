@@ -445,6 +445,7 @@ class World:
         self.alien = ALN.Abilities(self)                             # alien abilities (alien.py)
         self.CFG_TYPES = CFG['types']
         self.event = EVT.MapEvents(self)                     # the calendar's map events (event_maps.py)
+        self.resource_msgs = None              # Session inventory updates for collected materials.
         self.grant = None                                             # session: shop.reward (the equipment in an alien's extra reward)
         self.range_warned = None                                      # the target an out-of-range warning was sent for (once)
         self.combat_sent = (None, 0.0)                                # last combat state line (combat_state)
@@ -2328,16 +2329,21 @@ class World:
                 self.log('   P.E.T. collected a box: %s' % b['tip'])
             return True
 
+    def collect_material(self, loot, count):
+        total = self.p.add_resource(loot, count)
+        if self.resource_msgs:
+            return self.resource_msgs(loot, total, count)
+        return [legacy('0|LM|ST|LOT|%s|%d' % (loot, count))]
+
     def box_extra(self, extra, boost):
         """The resources dropped with an alien (extra_loot box) when their box is collected -> messages."""
         msgs = []
         for loot, c in sorted((extra or {}).items()):
             c = int(c * boost)
             if loot == 'resource_pet-fuel' and self.grant:
-                msgs += self.grant(loot, c)              # into the P.E.T.'s tank (storage fuel is never burnt)
+                msgs += self.grant(loot, c)
             else:
-                self.p.add_resource(loot, c)
-                msgs.append(legacy('0|LM|ST|LOT|%s|%d' % (loot, c)))
+                msgs += self.collect_material(loot, c)
             msgs += self.quest('loot', loot=loot, amount=c, box=True)
         return msgs
 
@@ -2661,7 +2667,9 @@ class World:
                 box[loot] = box.get(loot, 0) + cnt
                 continue
             elif cnt > 0:
-                self.p.add_resource(loot, cnt)
+                msgs += self.collect_material(loot, cnt)
+                msgs += self.quest('loot', loot=loot, amount=cnt)
+                continue
             if cnt > 0:
                 msgs.append(legacy('0|LM|ST|LOT|%s|%d' % (loot, cnt)))
                 msgs += self.quest('loot', loot=loot, amount=cnt)           # collection quests (Palladium …)

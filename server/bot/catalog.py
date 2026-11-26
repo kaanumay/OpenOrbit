@@ -68,11 +68,11 @@ def ships():
 
 
 def lasers():
-    return {k: v['damage'] for k, v in ITEMS['lasers'].items() if price(k)}
+    return {k: v['damage'] for k, v in ITEMS['lasers'].items() if not v.get('pet_only') and price(k)}
 
 
 def shield_generators():
-    return {k: v for k, v in ITEMS['shield_generators'].items() if price(k)}
+    return {k: v for k, v in ITEMS['shield_generators'].items() if not v.get('pet_only') and price(k)}
 
 
 def speed_generators():
@@ -110,10 +110,10 @@ def outfit(gear, shield_share=0.6):
     g = ITEMS['ships'].get(gear['ship']) or ITEMS['ships']['ship_phoenix']
     drone_slots = sum(ITEMS['drones'].get(d, {}).get('slot', 1) * n for d, n in gear.get('drone', {}).items())
     fitted = sorted(((ITEMS['lasers'][l]['damage'], ITEMS['lasers'][l].get('alien_extra', 0)) for l, n in gear.get('laser', {}).items()
-                     for _ in range(n) if l in ITEMS['lasers']), reverse=True)[:g['laser'] + drone_slots]
+                     for _ in range(n) if l in ITEMS['lasers'] and not ITEMS['lasers'][l].get('pet_only')), reverse=True)[:g['laser'] + drone_slots]
     lasers = [d for d, _ in fitted]
     shields = sorted(((ITEMS['shield_generators'][k]['shield'], ITEMS['shield_generators'][k]['absorb'])
-                 for k, n in gear.get('shield', {}).items() for _ in range(n) if k in ITEMS['shield_generators']), reverse=True)
+                 for k, n in gear.get('shield', {}).items() for _ in range(n) if k in ITEMS['shield_generators'] and not ITEMS['shield_generators'][k].get('pet_only')), reverse=True)
     speeds = sorted((ITEMS['speed_generators'][k]['speed'] for k, n in gear.get('speed', {}).items() for _ in range(n)
                  if k in ITEMS['speed_generators']), reverse=True)
     slot = g['generators']
