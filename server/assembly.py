@@ -291,14 +291,15 @@ class Assembly:
             return [self.update(key)]
         now = time.time()
         with self.p.lock:
-            self.st['production'][key] = dict(count=amount, end_time=now + SET.duration(r['duration_sec'] * amount, 'assembly'), previous=self.st['counter'].get(key, 0))
+            # the whole batch takes one recipe's time (player report 2026-11-25: with a batch the time was multiplied by the amount)
+            self.st['production'][key] = dict(count=amount, end_time=now + SET.duration(r['duration_sec'], 'assembly'), previous=self.st['counter'].get(key, 0))
             if key not in self.st['seen']:
                 self.st['seen'].append(key)
             if r['usage'] != NO_LIMIT or r['scale'] != 1:
                 self.st['daily'][key] = [period_of(key), self.used_today(key) + amount]
             self.p.dirty = True
         self.p.ach('assembly_build', recipe=key, count=amount)
-        self.log('   Assembly: %s x%d started (%d s; %s)' % (key, amount, r['duration_sec'] * amount, need))
+        self.log('   Assembly: %s x%d started (%d s; %s)' % (key, amount, r['duration_sec'], need))
         return INV.update_msgs(self.m, self.p, list(need), removed) + [self.update(key, f.get('targetItemId', 0))]
 
     def collect(self, f, now=None):
