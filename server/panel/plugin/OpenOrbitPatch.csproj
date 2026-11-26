@@ -27,6 +27,7 @@
     <Reference Include="$(ClientDir)\BepInEx\interop\Unity.TextMeshPro.dll" Private="false" />
     <Reference Include="$(ClientDir)\BepInEx\interop\UnityEngine.CoreModule.dll" Private="false" />
     <Reference Include="$(ClientDir)\BepInEx\interop\UnityEngine.UI.dll" Private="false" />
+    <Reference Include="$(ClientDir)\BepInEx\interop\UnityEngine.UIModule.dll" Private="false" />
     <Reference Include="$(ClientDir)\BepInEx\interop\UnityEngine.AssetBundleModule.dll" Private="false" />
     <Reference Include="$(ClientDir)\BepInEx\interop\UnityEngine.ImageConversionModule.dll" Private="false" />
   </ItemGroup>

@@ -41,6 +41,12 @@ public class Plugin : BasePlugin
             OldUpgrade.Apply(h);
             AddComponent<OldUpgradeWatcher>();
         });
+        Apply("GM konsolu", () =>
+        {
+            GmConsole.Log = Log;
+            GmConsole.Apply(h);
+            AddComponent<GmWatcher>();
+        });
         Apply("görsel dökümü", () =>
         {
             ImageDump.Log = Log;
