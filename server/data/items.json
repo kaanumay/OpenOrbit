@@ -5078,6 +5078,26 @@
    "cargo": 1500,
    "base_speed": 300,
    "source": "client"
+  },
+  "ship_admin": {
+   "hp": 10100000,
+   "laser": 20,
+   "generators": 30,
+   "extra": 30,
+   "rocket": 1,
+   "cargo": 5000,
+   "base_speed": 600,
+   "source": "client"
+  },
+  "ship_police": {
+   "hp": 10100000,
+   "laser": 50,
+   "generators": 30,
+   "extra": 30,
+   "rocket": 1,
+   "cargo": 50000,
+   "base_speed": 666,
+   "source": "client"
   }
  },
  "_ships_source": "belgeler/wiki/ships.md (wiki): HP, laser/generator/extra slots, cargo, base speed. Design derivatives (G-*, V-*, A-/C-/S-, BB-Solemn, Raven, Ronin, Ignite) with the base ship's values (\"base\"). Liberator base speed from the recording: with 2× G3N-7900 350 is shown, the wiki says 300; 330 was used.",

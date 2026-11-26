@@ -358,8 +358,20 @@ def safe_point(s):
     return x + (hx - x) * f, y + (hy - y) * f
 
 
-def roam_point(s, cfg, rnd=random):
-    """A far patrol point away from the threats (inside the work area when one is drawn, out of the areas to avoid)."""
+ROAM_CELL = 2000              # patrol (fork): the map is covered in cells this big; a visited cell is avoided for ROAM_FORGET seconds
+ROAM_FORGET = 600
+ROAM_VISIT_W = 3000          # a patrol point's score: the cost of a recently visited cell (fading with time)
+
+
+def roam_cell(x, y):
+    return int(x // ROAM_CELL), int(y // ROAM_CELL)
+
+
+def roam_point(s, cfg, rnd=random, visited=None, now=0.0):
+    """A patrol point away from the threats (inside the work area when one is drawn, out of the areas to avoid). The candidates are spread
+    over the whole map (or work area), not around the ship: drawn around the ship and clamped to the map, they piled up in the corner the
+    ship was in and the patrol stayed there (user report: the quest patrol in the lower right corner). visited ({cell: time}, roam_cell):
+    the cells the ship has flown through lately cost more, so the patrol goes to the parts of the map it has not seen."""
     hx, hy = s['hero']
     thr = threats(s, cfg, None)
     best, best_score = None, None
@@ -371,14 +383,19 @@ def roam_point(s, cfg, rnd=random):
             lo_x = hi_x = (w[0] + w[2]) / 2
         if lo_y > hi_y:
             lo_y = hi_y = (w[1] + w[3]) / 2
-    for _ in range(12):
-        a, r = rnd.uniform(0, 2 * math.pi), rnd.uniform(2500, 6000)
-        x = max(lo_x, min(hi_x, hx + math.cos(a) * r))
-        y = max(lo_y, min(hi_y, hy + math.sin(a) * r))
-        if walled(s, x, y):
+    span = max(hi_x - lo_x, hi_y - lo_y)
+    near = min(2500, span / 3)                     # not right next to the ship (a small work area: a third of it)
+    for _ in range(16):
+        x, y = rnd.uniform(lo_x, hi_x), rnd.uniform(lo_y, hi_y)
+        if dist(hx, hy, x, y) < near or walled(s, x, y):
             continue
         score = ((danger(x, y, thr) + area_cost(x, y, cfg)) * DANGER_W
                  + (path_danger(hx, hy, x, y, thr) + path_area_cost(hx, hy, x, y, cfg) + wall_cost(s, hx, hy, x, y)) * PATH_W)
+        if visited:
+            t = visited.get(roam_cell(x, y))
+            if t is not None and now - t < ROAM_FORGET:
+                score += ROAM_VISIT_W * (1 - (now - t) / ROAM_FORGET)
+        score += rnd.uniform(0, 200)                  # ties: not always the same point
         if best_score is None or score < best_score:
             best, best_score = (x, y), score
     return best

@@ -365,11 +365,48 @@ def skylab(game):
                     instant_price=SET.price('service_price', SKY.TRANSPORT['fast_uridium'], 'skylab'))
 
 
-SKYLAB_ACTIONS = ('upgrade', 'instantUpgrade', 'instantFinishUpgrade', 'abortUpgrade', 'setActive', 'setInactive', 'startTransport')
+SKYLAB_ACTIONS = ('upgrade', 'instantUpgrade', 'instantFinishUpgrade', 'abortUpgrade', 'setActive', 'setInactive', 'startTransport', 'instantMax')
+
+
+def skylab_instant_max(s, module):
+    """Quick upgrade (fork): instant upgrades, one level after the other, up to the module's highest level (module 'ALL': every module; the
+    base and solar modules first, as the others need their level and energy), each through the game's own SkylabActionRequest and prices. A running
+    upgrade is finished first. Stops at the first refusal (uridium, energy, base module level ...)."""
+    sky = s.skylab
+    first = ['BASE_MODULE', 'SOLAR_MODULE', 'XENO_MODULE', 'STORAGE_MODULE']
+    keys = [k for k in first if k in SKY.ORDER] + [k for k in SKY.ORDER if k not in first] if module == 'ALL' else [module]
+    if any(k not in SKY.MODULES for k in keys):
+        raise Error(400, 'module')
+    levels, errors = 0, {}
+    for _pass in range(len(keys) * 25):
+        progress = False
+        for k in keys:
+            if k in errors and module != 'ALL':
+                continue
+            sub = 'instantFinishUpgrade' if sky.module(k).get('upgrade') else 'instantUpgrade'
+            if sub == 'instantUpgrade' and sky.level(k) >= SKY.MODULES[k]['maximum']:
+                continue
+            sky.last_operation = ([], [])
+            handle(s, 'SkylabActionRequest', {'construction': k, 'subaction': sub, 'transportMode': ''})
+            err = sky.last_operation[0]
+            if err:
+                errors[k] = err[0]
+                continue
+            errors.pop(k, None)
+            levels += sub == 'instantUpgrade'
+            progress = True
+        if not progress:
+            break
+    name = lambda c: error_name(c) if isinstance(c, dict) else KEY_NAMES.get(c, str(c))
+    left = [k for k in keys if sky.level(k) < SKY.MODULES[k]['maximum'] and SKY.MODULES[k]['group']]
+    first = next((errors[k] for k in keys if k in errors and k in left), None)       # why it stopped: the first module still short of its top
+    return {'done': levels > 0 or not left, 'levels': levels, 'left': left, 'errors': [name(first)] if first is not None else [], 'achievements': []}
 
 
 def skylab_action(game, b):
     s = session(game)
+    if b.get('operation') == 'instantMax':
+        return skylab_instant_max(s, str(b.get('module') or ''))
     if b.get('operation') not in SKYLAB_ACTIONS:
         raise Error(400, 'operation')
     f = {'construction': str(b.get('module') or ''), 'subaction': b['operation'], 'transportMode': str(b.get('mod') or '')}

@@ -69,7 +69,7 @@ SYSTEM_PROMPT = ("You are a real human player of a DarkOrbit-like space MMO, typ
 SYSTEM_MULTI = SYSTEM_PROMPT.replace('Always write in English.', "Each pilot writes in his own chat language, given as 'Chats in ...' in his "
                             "description (English if none is given), the casual way native gamers type in that language; game names "
                             "(maps like 2-3, ships, aliens, MMO, EIC, VRU) stay as they are.")
-MULTILINGUAL = False                 # when the Brain is set up: if the selected provider is not the built-in model
+MULTILINGUAL = False                 # when the Brain is set up: another provider, or the built-in model with bots in its LOCAL_LANGS (prompt)
 STRONG = False                     # same condition: a fast, wide-context model (memory book, consequences, gossip, wide history)
 LANG_NAME = {'tr': 'Turkish', 'en': 'English', 'de': 'German', 'es': 'Spanish', 'fr': 'French', 'pl': 'Polish', 'pt': 'Portuguese',
           'ru': 'Russian'}
@@ -142,6 +142,12 @@ def is_english(text, lang):
 def harmful(text):
     return bool(_HARMFUL.search(str(text or '')) or (_HARMFUL_LANG and _HARMFUL_LANG.search(_normalize(text)))
                 or (_HARMFUL_EXACT and _HARMFUL_EXACT.search(str(text or '').lower())))
+
+
+def own_lang(b):
+    """Whether this bot chats in its own language (multilingual filters and style); False: English only (the built-in model's English
+    bots: a line with foreign letters is silenced)."""
+    return MULTILINGUAL and (STRONG or SPC.lang(b) != 'en')
 
 
 def lang_note(b):
@@ -565,7 +571,10 @@ class Brain:
         self.slot = int(y.setting('llm_batch', 4) or 4)
         global MULTILINGUAL, STRONG
         self.server = PRV.client(self.slot, log)              # the built-in model or the user's provider
-        MULTILINGUAL = STRONG = not isinstance(self.server, LS.Server)
+        STRONG = not isinstance(self.server, LS.Server)
+        # each bot in its own language: every one with another provider; with the built-in model only its LOCAL_LANGS (the other bots were
+        # set to English on load), and then an English bot keeps the English-only filter (own_lang)
+        MULTILINGUAL = STRONG or any(SPC.lang(b) != 'en' for b in y.bots)
         self.ready = False
         self.queue = []
         self.counter = itertools.count()
@@ -966,7 +975,7 @@ class Brain:
             (dec['not'] + ' ') if dec else '')
         x = self.ask(k, schema, max_count=160, temperature=0.7)
         text = ' '.join(str(x.get('text') or '').split())
-        if len(text.split()) < 4 or (not MULTILINGUAL and _FOREIGN.search(text)) or harmful(text):
+        if len(text.split()) < 4 or (not own_lang(b) and _FOREIGN.search(text)) or harmful(text):
             if not dec:
                 return
             from . import society
@@ -1275,11 +1284,11 @@ class Brain:
         is applied (lowercase, abbreviation, rare typo); no capitals or emoji are added."""
         text = ' '.join(str(text or '').split())[:140]
         text = re.sub(r'''[\s'"}\]{\[,]+$''', '', re.sub(r'''^[\s'"{\[]+''', '', text))     # JSON residue ('} ...)
-        if not MULTILINGUAL and _FOREIGN.search(text):
+        if not own_lang(b) and _FOREIGN.search(text):
             return ''
-        if MULTILINGUAL and is_english(text, SPC.lang(b)):
+        if own_lang(b) and is_english(text, SPC.lang(b)):
             return ''                                        # a Turkish-speaking bot wrote in English (player report 2026-10-30)
-        text = ' '.join((_EMOJI if MULTILINGUAL else _SYMBOL).sub('', text).split())
+        text = ' '.join((_EMOJI if own_lang(b) else _SYMBOL).sub('', text).split())
         if not text or re.search(r'\d{3,}\s*(k\b|credits?|cr\b|uri\b|uridium|ep\b|exp\b|xp\b|honou?r|power|hp\b|dmg|damage)|'
                                   r'\b(credits?|uridium|uri|ep|honou?r|power)\s*:?\s*\d{3,}', text, re.I):
             return ''                                        # status numbers (numbers like age, year are free)
@@ -1313,4 +1322,4 @@ class Brain:
                        flags=re.I)                           # the model garbling company names (mmoo, iec)
         u = dict(b.k['personality'].get('style') or {})
         u.update(emoji=0.0, punctuation=0.0, uppercase=0.0, error=u.get('error', 0.05) * 0.4)
-        return SPC.apply_style(text, u, b.r, SPC.lang(b) if MULTILINGUAL else 'en')
+        return SPC.apply_style(text, u, b.r, SPC.lang(b) if own_lang(b) else 'en')

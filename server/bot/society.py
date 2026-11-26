@@ -15,6 +15,7 @@ directory, clan, group, whisper, mail, ranking and auction see them on their own
 """
 import os, random, re, time
 
+import admin_mode as YM
 import player_profile as PF
 import paths as PTH
 from . import name_style as NS
@@ -254,9 +255,13 @@ def handshake(y, b, now):
     if b.r.random() > 0.3 * (0.3 + b.o('sociability')) * min(1.3, PL.like(b, 'social')) or b.target is None \
             or b.target.name not in ('grinding', 'quest'):
         return
-    nearby = [o for o in y.on_map.get(b.game_map, ()) if o is not b and o.company == b.company and o.online and o.dead_until <= now]
+    nearby = [o for o in y.on_map.get(b.game_map, ()) if o is not b and (o.company == b.company or same_clan(b, o)) and o.online
+              and o.dead_until <= now]
     if not nearby:
         return
+    clan = [o for o in nearby if same_clan(b, o)]          # its clan first, whatever the company (user request 2026-11-26)
+    if clan and b.r.random() < 0.7:
+        nearby = clan
     acquaintances = [o for o in nearby if b.memory.relation(o.name, now) > 0]
     o = b.r.choice(acquaintances) if acquaintances and b.r.random() < 0.6 else b.r.choice(nearby)
     b.memory.event(o.name, 'hunted_together', now)
@@ -328,12 +333,13 @@ def party(y, b, now):
         return
     cands = []
     for o in y.bots:
-        if o is b or not o.online or o.company != b.company or o.dead_until > now or abs(o.level - b.level) > 6:
+        clan = same_clan(b, o)                           # a clan mate of another company too (user request 2026-11-26)
+        if o is b or not o.online or (o.company != b.company and not clan) or o.dead_until > now or abs(o.level - b.level) > 6:
             continue
         rel = b.memory.relation(o.name, now)
         friend = o.name in (b.k.get('friends') or [])
-        if (rel > 0.12 or friend) and GR.group_of(o.uid) is None:
-            cands.append((rel + 0.4 * friend + 0.1 * (o.game_map == b.game_map), o))
+        if (rel > 0.12 or friend or clan) and GR.group_of(o.uid) is None:
+            cands.append((rel + 0.4 * friend + 0.5 * clan + 0.1 * (o.game_map == b.game_map), o))
     if not cands:
         return
     o = max(cands, key=lambda x: x[0] + b.r.uniform(0, 0.3))[1]
@@ -360,7 +366,10 @@ def decide_group(y, b, name, uid, now):
     p *= min(1.4, PL.like(b, 'social') ** 0.7)             # a lone wolf rarely groups (playstyle.py)
     if b.target is not None and b.target.name == 'quest':
         p -= 0.15
-    if o is not None and int(o.profile.d['pilot'].get('factionId', 0)) != b.company:
+    clan = o is not None and bool(b.k.get('clan')) and int(o.profile.d['pilot'].get('clanId') or 0) == int(b.k.get('clan') or 0)
+    if clan:
+        p += 0.3                                         # a clan mate, whatever its company
+    elif o is not None and int(o.profile.d['pilot'].get('factionId', 0)) != b.company:
         p -= 0.5
     return b.r.random() < max(0.03, min(0.95, p))
 
@@ -490,6 +499,11 @@ def clan_actions(y, b, now):
         kl.handle('LeaveClanRequest', {})
         b.k['clan'] = None
         b.event('left_clan', now, clan=k['name'])
+
+
+def same_clan(a, b):
+    """Two bots in the same clan, whatever their company (clans can mix companies)."""
+    return bool(a.k.get('clan')) and a.k.get('clan') == b.k.get('clan')
 
 
 def clan_relation(a, b):
@@ -696,6 +710,8 @@ def lot_importance(b, lot):
     from . import extras as EX
     loot = lot['loot']
     if loot.startswith('ship_'):
+        if loot in YM.MOD_SHIPS:
+            return 0                                     # bots never fly the moderator ships
         g, current = K.ITEMS['ships'].get(loot) or {}, K.ITEMS['ships'].get(b.k['gear']['ship']) or {}
         # only those with values and better than the current one (designs that are only appearance, "goliath_design_jade", are not ships)
         if not g.get('hp') or g['hp'] + 20000 * (g['laser'] + g['generators']) <= current.get('hp', 0) + 20000 * (

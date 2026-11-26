@@ -8,6 +8,7 @@ conveys it in its own language).
 import time
 
 import map_links as H
+import admin_mode as YM
 import player_profile as PF
 from . import catalog as K
 from .personality import EMOTION_BASELINE
@@ -31,7 +32,7 @@ def catalog():
     """The editor's options: ships (excluding designs), items, ammo, maps."""
     E = K.ITEMS
     out = {'ships': [{'loot': l, 'name': _short(l), 'laser': v['laser'], 'gen': v['generators'], 'extras': v.get('extra', 1)}
-                       for l, v in sorted(E['ships'].items(), key=lambda x: (x[1]['hp'], x[0])) if 'base' not in v],
+                       for l, v in sorted(E['ships'].items(), key=lambda x: (x[1]['hp'], x[0])) if 'base' not in v and l not in YM.MOD_SHIPS],
            'ammunition': [{'loot': l, 'name': _short(l)} for l in list(E['laser_ammo']) + list(E['rockets'])],
            'maps': [{'id': m, 'name': H.name(m)} for m in K.MAPS]}
     for multiplier, key in CATEGORY.items():

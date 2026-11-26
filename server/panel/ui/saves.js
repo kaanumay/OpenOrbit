@@ -97,7 +97,7 @@ function saveMenu(k, ev) {
   ].filter(Boolean));
 }
 const statusBadges = k => [k.in_use ? badge(T('IN GAME'), 'ok') : null, k.draft ? badge(T('UNSAVED CHANGES'), 'warn') : null,
-  k.corrupt ? badge(T('CORRUPT'), 'err') : null];
+  k.corrupt ? badge(T('CORRUPT'), 'err') : null, k.admin ? badge(T('ADMIN'), 'info') : null];
 
 // active save: wide scene (ship, company portrait, level, wallet, actions)
 function saveScene(k) {
@@ -173,7 +173,8 @@ function trash(entries) {
 }
 
 // ================================================================== CHARACTER EDITOR
-const SE = { slot: null, name: '', v: null, tab: 'pilot', ship: null, config: null, busy: false, catalog: null, search: '', ammoFilled: false, invKind: 'all', resourceSearch: '' };
+const SE = { slot: null, name: '', v: null, tab: 'pilot', ship: null, config: null, busy: false, catalog: null, search: '', ammoFilled: false, invKind: 'all', resourceSearch: '',
+  sel: new Set(), selMode: false, invGroup: true, invSort: 'name', invEquipped: false };
 const SE_TABS = [
   ['pilot', N('Pilot'), 'user', 'pilotSheet_normal'], ['hangar', N('Hangar'), 'hangar', 'hangar_normal'], ['drones', N('Drones'), 'drone', null],
   ['pet', 'P.E.T.', 'paw', 'pet_normal'], ['inventory', N('Inventory'), 'box', 'assembly_normal'], ['ammunition', N('Ammunition'), 'ammo', null],
@@ -233,10 +234,30 @@ async function seApply(...ops) {
   SE.busy = false; document.body.classList.remove('se-busy');
   if (v && SE.slot) {
     SE.v = v; seRender();
+    seNotes(v.notes);
     if (!v.discarded) return true;
     toast(T('The save changed after it was opened in the editor (the game was played or a backup restored): the old draft was discarded.'), 'info', 7000);
   }
   return false;
+}
+
+// what a batch operation did (save_editor.NOTES): copies of an item, identical items, copy of a ship's setup
+function seNotes(notes) {
+  for (const n of notes || []) {
+    if (n.kind === 'duplicate') toast(!n.made ? T('No free slot: no copy was made.') : n.fitted ? T('{0} copies made, {1} equipped.', n.made, n.fitted)
+      : T('{0} copies added to the inventory.', n.made), n.made ? 'ok' : 'info');
+    else if (n.kind === 'match') toast(T('{0} identical items updated.', n.count), 'ok');
+    else if (n.kind === 'copy_config') toast(T('{0} items copied.', n.copied) + (n.skipped ? ' ' + T('{0} left out: no slot for them, or not compatible with this ship.', n.skipped) : ''),
+      n.skipped ? 'info' : 'ok', 7000);
+    else if (n.kind === 'equip_many') toast(T('{0} items equipped.', n.done) + (n.skipped ? ' ' + T('{0} left in the inventory: no free slot, or equipped on another ship.', n.skipped) : ''),
+      n.done ? (n.skipped ? 'info' : 'ok') : 'info', n.skipped ? 7000 : 4200);
+    else if (n.kind === 'unequip_many') toast(T('{0} items unequipped.', n.done), 'ok');
+    else if (n.kind === 'remove') toast(T('{0} items deleted.', n.count), n.count ? 'ok' : 'info');
+    else if (n.kind === 'replace') toast(T('{0} items replaced.', n.count) + (n.refused ? ' ' + T("{0} couldn't be equipped in their old place: they are in the inventory.", n.refused) : ''),
+      n.refused ? 'info' : 'ok', 7000);
+    else if (n.kind === 'design_all') toast(T('{0} of {1} drones done.', n.done, n.drones) + (n.made ? ' ' + T('{0} added from the catalog.', n.made) : ''), n.done ? 'ok' : 'info');
+    else if (n.kind === 'level_many') toast(T('{0} items changed.', n.count), n.count ? 'ok' : 'info');
+  }
 }
 
 // Search box: the editor (all tabs and item tiles) is rebuilt when typing pauses, not on every key; the cursor stays in place
@@ -252,13 +273,14 @@ function seRender() {
   if (S.page !== 'saves' || !SE.slot || !SE.v) return;
   const v = SE.v, c = $('#content'), sc = c.scrollTop;
   const tab = SE_TABS.find(s => s[0] === SE.tab) || SE_TABS[0];
+  seSelIndex(v);
   c.replaceChildren(h('div', { class: 'stack ke-editor' }, seBar(v),
     v.read_only ? h('div', { class: 'alert warning' }, icon('lock'), h('div', null, h('b', null, T('The save is in the game right now: view only.')), ' ',
       T('Close the game and the server to make changes. While the game is running, use the in-game Hangar and Shop pages for equipment and purchases.'))) : null,
     h('div', { class: 'se-layout' },
       h('aside', { class: 'se-side' }, seIdentity(v), seMenu(v)),
       h('div', { class: 'se-main' }, h('div', { class: 'se-main-head' }, seTabIcon(tab, 30), h('div', null, h('h2', null, T(tab[1])), h('div', { class: 'small muted' }, seTabDescription(tab[0])))),
-        SE_RENDER[tab[0]](v)))));
+        SE_RENDER[tab[0]](v))), seSelBar(v)));
   c.scrollTop = sc;
 }
 
@@ -307,7 +329,7 @@ function seMenu(v) {
   const n = { hangar: v.ships.length, drones: v.drones.length, inventory: v.inventory.filter(e => !seIsEquipped(e)).length, boosters: v.boosters.length,
     sources: v.sources.length + v.ores.filter(c => c[2]).length, ammunition: v.ammunition.filter(c => c[1]).length };
   return h('nav', { class: 'card se-menu' }, SE_TABS.map(s => h('button', { class: s[0] === SE.tab ? 'on' : '', type: 'button',
-    onclick: () => { if (SE.tab !== s[0]) { SE.tab = s[0]; $('#content').scrollTop = 0; seRender(); } } },
+    onclick: () => { if (SE.tab !== s[0]) { SE.tab = s[0]; seSelClear(); $('#content').scrollTop = 0; seRender(); } } },
   seTabIcon(s, 20), h('span', null, T(s[1])), n[s[0]] ? h('span', { class: 'se-count' }, fmtN(n[s[0]])) : s[0] === 'pet' && !v.pet ? h('span', { class: 'se-count none' }, '—') : null)));
 }
 
@@ -359,12 +381,21 @@ function seItemButton(props, e, ...kids) {
 }
 const seIsEditable = e => !!(e.maximum || e.level || e.rng || SE.v.rights[e.lootId]);
 function seCell(e, tgt) {
-  return seItemButton({ class: 'se-cell full', type: 'button', onclick: ev => !SE.v.read_only && seItemMenu(ev.currentTarget, e, tgt) }, e,
-    itemIcon(e.lootId, 44), ...lvlBadge(e));
+  const on = SE.sel.has(e.id);
+  return seItemButton({ class: 'se-cell full' + (on ? ' picked' : ''), type: 'button',
+    onclick: ev => { if (SE.v.read_only) return; if (SE.selMode) return seSelToggle([e.id]); seItemMenu(ev.currentTarget, e, tgt); } }, e,
+  itemIcon(e.lootId, 44), ...lvlBadge(e), on ? h('span', { class: 'se-tick' }, icon('check')) : null);
 }
 const seEmptyCell = (tgt, iconEl = 'plus', title = T('Empty slot: equip')) => h('button', { class: 'se-cell vacant', type: 'button', title: title, disabled: SE.v.read_only,
   onclick: () => sePickEquip(tgt) }, icon(iconEl));
 function seSlotBox(name, c, tgt, extra) {
+  const ids = c.items.map(e => e.id), all = ids.length && ids.every(i => SE.sel.has(i));
+  // the slot's own buttons: in selection mode select all its items, otherwise take them all off (this config only)
+  const own = SE.v.read_only || !ids.length ? null : SE.selMode
+    ? h('button', { class: 'se-slot-tool' + (all ? ' on' : ''), type: 'button', title: all ? T('Deselect this slot') : T('Select this slot'), onclick: () => seSelToggle(ids) }, icon('check'))
+    : h('button', { class: 'se-slot-tool', type: 'button', title: T('Unequip everything in this slot'),
+      onclick: () => seApply({ operation: 'unequip_many', items: ids, ship: SE.ship, config: +SE.config }) }, icon('download'));
+  extra = [extra, own];
   return h('div', { class: 'se-slot' + (c.items.length >= c.capacity && c.capacity ? ' filled' : '') },
     h('div', { class: 'se-slot-head' }, h('b', null, name), h('span', { class: 'row', style: { gap: '6px' } }, extra, h('span', { class: 'mono' }, c.items.length + ' / ' + c.capacity))),
     h('div', { class: 'se-cells' }, c.items.map(e => seCell(e, tgt)), Array.from({ length: Math.max(0, c.capacity - c.items.length) }, () => seEmptyCell(tgt))));
@@ -373,9 +404,28 @@ function seItemMenu(anchor, e, tgt) {
   popMenu(anchor, [
     { label: T('Unequip (to inventory)'), ic: 'download', fn: () => seApply(moveOp(e.id, 'kick', tgt)) },
     seIsEditable(e) ? { label: T('Edit…'), ic: 'edit', fn: () => seEdit(e) } : null,
+    { label: T('Duplicate…'), ic: 'copy', fn: () => seDuplicate(e, tgt) },
+    { label: T('Fill the free slots with copies'), ic: 'wand', fn: () => seApply({ operation: 'duplicate', item: e.id, fill: true, equip: equipTarget(tgt) }) },
+    { label: T('Replace…'), ic: 'refresh', fn: () => seReplace([e]) },
+    { label: T('Select several…'), ic: 'check', fn: () => { SE.selMode = true; seSelToggle([e.id]); } },
     '-',
     { label: T('Unequip and delete'), ic: 'trash', danger: true, fn: () => seApply(moveOp(e.id, 'kick', tgt), { operation: 'delete', items: [e.id] }) },
   ].filter(Boolean));
+}
+
+// copies of an item, identical to it (level, upgrade, random attributes); from a slot they can be equipped next to it (on drones: the next drones too)
+function seDuplicate(e, tgt) {
+  const count = h('input', { class: 'input num', type: 'number', min: 1, max: 500, value: 1 });
+  const equip = tgt ? h('input', { type: 'checkbox', checked: true }) : null;
+  const m = modal({ title: T('Duplicate item'), sub: itemName(e.lootId),
+    body: [h('div', { class: 'se-edit-head' }, itemIcon(e.lootId, 56), h('div', { class: 'small muted' }, T('The copies are identical: same level, upgrade and attributes.'))),
+      field(T('Number of copies'), count),
+      equip ? h('label', { class: 'row small', style: { gap: '8px', marginTop: '10px' } }, equip, T('Equip the copies in the free slots (the rest go to the inventory)')) : null],
+    foot: [btn(T('Cancel'), () => m.close(), 'ghost'), btn(T('Duplicate'), async () => {
+      const n = Math.max(1, Math.min(500, Math.round(+count.value) || 1));
+      m.close();
+      seApply({ operation: 'duplicate', item: e.id, count: n, equip: equip && equip.checked ? equipTarget(tgt) : undefined });
+    }, 'primary', 'copy')] });
 }
 
 // ---- item editing: upgrade level (Assembly), the level of the P.E.T. gear/protocol, the CPU's allowance and random attributes
@@ -448,6 +498,10 @@ function seEdit(e) {
       sections.push(h('div', { class: 'se-edit line' }, h('div', { class: 'lbl' }, T('Stars')), stars));
     }
   }
+  const twins = v.inventory.filter(x => x.lootId === e.lootId && x.id !== e.id).length;
+  const all = twins ? h('input', { type: 'checkbox' }) : null;
+  if (all) sections.push(h('label', { class: 'row small se-edit line', style: { gap: '8px' } }, all,
+    T('Apply to all identical items ({0} more): same level, upgrade and attributes', twins)));
   const m = modal({ title: T('Edit item'), sub: itemName(e.lootId), wide: !!pool,
     body: [h('div', { class: 'se-edit-head' }, itemIcon(e.lootId, 56), h('div', { class: 'small muted' }, T('Changes go to the draft; pressing Save writes them to the save.'))), ...sections],
     foot: [btn(T('Cancel'), () => m.close(), 'ghost'), btn(T('Apply'), async () => {
@@ -465,6 +519,7 @@ function seEdit(e) {
         if (pool.star) o.star = st.star;
         ops.push(o);
       }
+      if (all && all.checked) ops.push({ operation: 'match', item: e.id });
       if (!ops.length) return m.close();
       if (await seApply(...ops)) { m.close(); toast(T('Item updated (in the draft).'), 'ok'); }
     }, 'primary', 'check')] });
@@ -480,13 +535,14 @@ function groupItems(entries) {
   return Object.values(gr).sort((a, b) => itemName(a[0].lootId).localeCompare(itemName(b[0].lootId)));
 }
 // put in an empty slot: those in the inventory that fit, or give from the catalog and put in
+const SE_DESIGN_SLOTS = ['design', 'visual'];          // a drone's two design slots: with bonuses, look only
 function sePickEquip(tgt) {
   const v = SE.v;
   const eligible = v.inventory.filter(e => seIsUsable(e) && (tgt.target === 'ship' ? e.targets.includes('ship') && e.slot === tgt.slot
-    : tgt.target === 'drone' ? e.targets.includes('drone') && (tgt.slot === 'design') === (e.slot === 'design')
+    : tgt.target === 'drone' ? e.targets.includes('drone') && (SE_DESIGN_SLOTS.includes(tgt.slot) ? e.slot === tgt.slot : !SE_DESIGN_SLOTS.includes(e.slot))
       : e.targets.includes('pet') && (tgt.slot === 'heat' ? e.heat : e.pet_slot === tgt.slot)))
     .sort((a, b) => seIsEquipped(b) - seIsEquipped(a));          // items of the other config first: free copies stay free
-  const title = tgt.target === 'drone' ? (tgt.slot === 'design' ? T('Drone design') : T('Drone equipment')) : slotName(tgt.slot);
+  const title = tgt.target === 'drone' ? (tgt.slot === 'design' ? T('Drone design') : tgt.slot === 'visual' ? T('Drone look') : T('Drone equipment')) : slotName(tgt.slot);
   const m = modal({ title: T('{0}: equip an item', title), wide: true, body: [
     eligible.length ? h('div', { class: 'se-selection' }, groupItems(eligible).map(gr => seItemButton({ class: 'se-selection-item', type: 'button',
       onclick: () => { m.close(); seApply(moveOp(gr[0].id, 'equip', tgt)); } }, gr[0], itemIcon(gr[0].lootId, 56), ...lvlBadge(gr[0]),
@@ -501,9 +557,12 @@ function sePickEquip(tgt) {
 async function seCatalog(o = {}) {
   if (!SE.catalog) { const r = await act(() => api('/api/editor/catalog')); if (!r) return; SE.catalog = r; }
   let entries = SE.catalog.items;
-  if (o.equip) entries = entries.filter(([, , gy, py, dr]) => o.equip.target === 'ship' ? gy === o.equip.slot
-    : o.equip.target === 'pet' ? (o.equip.slot === 'heat' ? py === 'lasers' || py === 'generators' : py === o.equip.slot) : dr && (o.equip.slot === 'design') === (gy === null && !py));
+  if (o.equip) entries = entries.filter(([, , gy, py, dr, ds]) => o.equip.target === 'ship' ? gy === o.equip.slot
+    : o.equip.target === 'pet' ? (o.equip.slot === 'heat' ? py === 'lasers' || py === 'generators' : py === o.equip.slot)
+      : dr && (SE_DESIGN_SLOTS.includes(o.equip.slot) ? ds === o.equip.slot : !ds));
   if (o.on) entries = entries.filter(([l]) => l.startsWith(o.on));
+  if (o.pick) entries = entries.filter(([l, , gy, py, , ds]) => (ds || !/^(ammunition|resource|ship|drone|booster|package|deal)_/.test(l))
+    && (!o.slot || gy === o.slot || py === o.slot || ds === o.slot));
   const tally = {}; for (const [, k] of entries) tally[k] = (tally[k] || 0) + 1;
   const categories = ['all', ...SE.catalog.categories.filter(k => tally[k])];
   const st = { multiplier: o.multiplier && tally[o.multiplier] ? o.multiplier : categories.length === 2 ? categories[1] : 'all', search: '', sec: null };
@@ -526,18 +585,20 @@ async function seCatalog(o = {}) {
   const count = h('input', { class: 'input num', type: 'number', min: 1, value: 1 });
   const single = l => l.startsWith('ship_') || l.startsWith('drone_formation_');
   const renderSub = () => {
-    if (!st.sec) return sub.replaceChildren(h('span', { class: 'small muted' }, o.equip ? T('Pick an item: it is granted and equipped straight into the slot.') : T('Pick an item (double-click adds it right away).')));
+    if (!st.sec) return sub.replaceChildren(h('span', { class: 'small muted' }, o.pick ? T('Pick the item that replaces the selection.') : o.equip ? T('Pick an item: it is granted and equipped straight into the slot.') : T('Pick an item (double-click adds it right away).')));
     sub.replaceChildren(...[itemIcon(st.sec, 48), h('div', { class: 'grow', style: { minWidth: 0 } }, h('b', null, itemName(st.sec)), h('div', { class: 'mono small dim' }, st.sec)),
-      single(st.sec) ? null : h('label', { class: 'row small' }, T('Quantity'), count), btn(o.equip ? T('Grant and equip') : T('Add'), add, 'primary', 'plus')].filter(Boolean));
+      single(st.sec) || o.pick ? null : h('label', { class: 'row small' }, T('Quantity'), count),
+      btn(o.pick ? T('Choose') : o.equip ? T('Grant and equip') : T('Add'), add, 'primary', o.pick ? 'check' : 'plus')].filter(Boolean));
   };
   async function add() {
     if (!st.sec) return;
+    if (o.pick) { m.close(); return o.pick(st.sec); }
     const n = single(st.sec) ? 1 : Math.max(1, Math.round(+count.value) || 1), lid = st.sec;
     const ok = await seApply({ operation: 'give', items: [[lid, n]], equip: o.equip ? equipTarget(o.equip) : undefined });
     if (ok) { toast(T('Added: {0}', (n > 1 ? fmtN(n) + ' × ' : '') + itemName(lid)), 'ok'); if (o.equip) m.close(); }
   }
   const m = modal({ title: o.title ? T('Catalog: {0}', o.title) : T('Add item'), wide: true,
-    sub: T("Items are granted through the game's reward path: ships to the hangar, equipment to the inventory, ammo and resources to their counters."),
+    sub: o.pick ? T('The new items go where the old ones were equipped, in every config.') : T("Items are granted through the game's reward path: ships to the hangar, equipment to the inventory, ammo and resources to their counters."),
     body: [h('div', { class: 'se-catalog' }, left, h('div', { class: 'se-cat-right' }, search, grid)), sub], foot: [btn(T('Close'), () => m.close(), 'ghost')] });
   m.box.classList.add('se-catalog-modal');
   render();
@@ -578,7 +639,28 @@ function sePilot(v) {
     seCard(T('Account'), 'info', h('div', { class: 'kv' },
       h('div', null, T('Clan'), h('b', null, p.clan ? '[' + p.clan + ']' : '—')), h('div', null, T('Rank'), h('b', null, p.rank ?? '—')),
       h('div', null, T('Play time'), h('b', null, fmtDur(p.play_sec))), h('div', null, T('Created'), h('b', null, fmtWhen(p.created))),
-      h('div', null, T('Uridium bank'), h('b', null, fmtN(p.bank))), h('div', null, T('Quests'), h('b', null, T('{0} taken · {1} completed', v.quests.active, v.quests.done))))));
+      h('div', null, T('Uridium bank'), h('b', null, fmtN(p.bank))), h('div', null, T('Quests'), h('b', null, T('{0} taken · {1} completed', v.quests.active, v.quests.done))))),
+    seAdminCard());
+}
+
+// the save's admin settings (settings.py 'manager' group, kept in the save's settings.json): saved at once, not part of the editor's draft
+function seAdminCard() {
+  const slot = SE.slot, box = h('div', { class: 'se-admin' }, h('div', { class: 'small muted' }, T('Loading…')));
+  const draw = r => {
+    if (!r || SE.slot !== slot) return;
+    const on = !!r.values.admin_mode;
+    const set = (key, x) => act(() => api('/api/saves/admin', { id: slot, values: { [key]: x } })).then(n => { if (n) { draw(n); toast(T('Saved.'), 'ok'); } });
+    box.replaceChildren(...r.schema.map(s => {
+      const v = r.values[s.key];
+      const ctl = s.type === 'bool' ? h('label', { class: 'switch' }, h('input', { type: 'checkbox', checked: !!v, onchange: e => set(s.key, e.target.checked) }), h('span'))
+        : h('div', { class: 'seg' }, (s.options || []).map((name, i) => h('button', { class: i === v ? 'on info' : '', type: 'button', onclick: () => i !== v && set(s.key, i) }, name)));
+      return h('div', { class: 'se-admin-row' + (s.key !== 'admin_mode' && !on ? ' off' : '') + (s.key === 'admin_mode' ? ' lead' : '') },
+        h('div', { class: 'grow' }, h('b', null, s.name), h('div', { class: 'small muted' }, s.description)), ctl);
+    }), h('div', { class: 'small dim' }, r.in_use ? T('The game is running with this save: most of these apply at the next login.')
+      : T("Saved right away (not part of the editor's changes); they apply when you play this save.")));
+  };
+  api('/api/saves/admin?id=' + encodeURIComponent(slot)).then(draw).catch(e => box.replaceChildren(h('div', { class: 'small muted' }, String(e.message || e))));
+  return seCard(T('Admin'), 'shield', h('p', { class: 'desc' }, T('Whether this save plays as an administrator in the game. Each save has its own setting.')), box);
 }
 
 function seHangar(v) {
@@ -594,10 +676,12 @@ function seHangar(v) {
     title: itemName(t), disabled: ro, onclick: () => t !== g.appearance && seApply({ operation: 'design', ship: g.id, lootId: t }) }, shipImage(t, 46, f))),
   ro ? null : h('button', { class: 'se-design add', type: 'button', title: T('Add design'), onclick: () => seCatalog({ multiplier: 'design', on: 'ship_' + base + '_design_', title: T('{0} designs', itemName(g.lootId)) }) }, icon('plus')));
   const tools = h('div', { class: 'row wrap', style: { gap: '6px' } },
+    ro ? null : seSelModeButton(),
     g.active ? null : btn(T('Make active ship'), () => seApply({ operation: 'active_ship', ship: g.id }), 'sm primary', 'check', { disabled: ro }),
     SE.config !== g.active_config ? btn(T('Use this config'), () => seApply({ operation: 'config', ship: g.id, config: +SE.config }), 'sm', 'check', { disabled: ro }) : null,
     btn(g.favorite ? T('Remove from favourites') : T('Make favourite'), () => seApply({ operation: 'favorite', ship: g.id, favorite: !g.favorite }), 'sm', 'star', { disabled: ro }),
     btn(T('Transfer…'), () => seTransfer(v, g), 'sm', 'copy', { disabled: ro, title: T("Moves this ship's equipment to another ship.") }),
+    btn(T('Copy to…'), () => seCopyConfig(v, g), 'sm', 'copy', { disabled: ro || v.ships.length < 2, title: T("Copies this ship's equipment to another ship; this ship keeps its own.") }),
     btn(T('Clear'), async () => await confirmBox(T('Empty config {0}?', SE.config), T('Items on the ship, drones and P.E.T. go back to the inventory.'), { ok: T('Clear'), danger: true })
       && seApply({ operation: 'clean_up', ship: g.id, config: +SE.config }), 'sm', 'trash', { disabled: ro }),
     btn(T('Remove'), async () => await confirmBox(T('Remove {0}?', itemName(g.lootId)), T('The ship leaves the hangar; its equipment goes to the inventory. Until you save, Discard undoes it.'),
@@ -619,6 +703,22 @@ function seHangar(v) {
     h('div', { class: 'se-slots' }, g.slots.map(y => seSlotBox(slotName(y), cfg[y], { target: 'ship', slot: y }))));
 }
 
+// copy of the setup: the target gets copies of the items (the source keeps its own); what the target has no slot for is left out
+function seCopyConfig(v, g) {
+  let target = null;
+  const entries = h('div', { class: 'se-ships sar' }, v.ships.filter(x => x.id !== g.id).map(x => h('button', { class: 'se-ship', type: 'button', onclick: ev => {
+    target = x.id; entries.querySelectorAll('.se-ship').forEach(b => b.classList.toggle('on', b === ev.currentTarget)); } },
+  shipImage(x.appearance, 54, companyLower(v.pilot.company)), h('span', { class: 'se-ship-name' }, itemName(x.lootId)))));
+  const drones = h('input', { type: 'checkbox', checked: true }), adapt = h('input', { type: 'checkbox', checked: true });
+  const line = (cb, text) => h('label', { class: 'row small', style: { gap: '8px', marginTop: '10px' } }, cb, text);
+  const m = modal({ title: T('Copy equipment'), wide: true,
+    sub: T('The ship you choose gets copies of both configs of {0}, which keeps its own equipment. On a smaller ship the slots are filled as far as they go; the equipment it has now goes to the inventory.', itemName(g.lootId)),
+    body: [entries, line(drones, T('Also copy the drone and P.E.T. equipment')),
+      line(adapt, T('Adapt unstable modules and Quantum Fluid Cores to the chosen ship (otherwise those that do not fit it are left out)'))],
+    foot: [btn(T('Cancel'), () => m.close(), 'ghost'), btn(T('Copy'), () => { if (!target) return toast(T('Choose a ship.'), 'err'); m.close();
+      seApply({ operation: 'copy_config', ship: g.id, target, drones: drones.checked, adapt: adapt.checked }); }, 'primary', 'copy')] });
+}
+
 function seTransfer(v, g) {
   let target = null;
   const entries = h('div', { class: 'se-ships sar' }, v.ships.filter(x => x.id !== g.id).map(x => h('button', { class: 'se-ship', type: 'button', onclick: ev => {
@@ -633,7 +733,8 @@ function seDrones(v) {
   const new_ = ['drone_flax', 'drone_iris', 'drone_apis', 'drone_zeus'].map(l => h('button', { class: 'se-drone-add', type: 'button', disabled: ro,
     title: T('Add {0}', itemName(l)), onclick: () => seApply({ operation: 'give', items: [[l, 1]] }) }, droneImage(l, 1, 40), h('span', null, itemName(l)), icon('plus')));
   const card = d => {
-    const c = dcfg[d.id] || { items: [] }, tgt = { target: 'drone', drone: d.id }, tgtDesign = { target: 'drone', drone: d.id, slot: 'design' };
+    const c = dcfg[d.id] || { items: [] }, tgt = { target: 'drone', drone: d.id }, tgtDesign = { target: 'drone', drone: d.id, slot: 'design' },
+      tgtLook = { target: 'drone', drone: d.id, slot: 'visual' };
     const upgradeLabel = h('b', { class: 'se-lv-value sm' }, '+' + d.upgrade);
     return h('div', { class: 'card se-drone' },
       h('div', { class: 'se-drone-image' }, droneImage(d.lootId, d.level, 76)),
@@ -651,14 +752,31 @@ function seDrones(v) {
         h('div', { class: 'se-cells' }, c.items.map(e => seCell(e, tgt)), Array.from({ length: Math.max(0, d.capacity - c.items.length) }, () => seEmptyCell(tgt)),
           h('span', { class: 'se-divider' }),
           c.design ? seCell(c.design, tgtDesign) : seEmptyCell(tgtDesign, 'wand', T('Design slot')),
-          c.appearance ? seCell(c.appearance, tgtDesign) : seEmptyCell(tgtDesign, 'wand', T('Look slot')))));
+          c.appearance ? seCell(c.appearance, tgtLook) : seEmptyCell(tgtLook, 'wand', T('Look slot')))));
   };
   return h('div', { class: 'stack' },
     h('div', { class: 'card se-card' }, h('div', { class: 'row wrap between', style: { gap: '12px' } }, shipPicker(v, g),
       h('span', { class: 'pill' }, icon('drone'), T('Drones'), ' ', h('b', null, v.drones.filter(d => !d.single).length + ' / ' + v.max_drones))),
     h('p', { class: 'desc', style: { margin: '10px 0 8px' } }, T("Equipment lives in the selected ship's selected config (as in the game, every ship has two configs).")),
-    ro ? null : h('div', { class: 'se-drone-extras' }, new_)),
+    ro ? null : h('div', { class: 'se-drone-extras' }, new_),
+    ro || !v.drones.length ? null : h('div', { class: 'row wrap', style: { gap: '8px', marginTop: '12px' } },
+      btn(T('Design on all drones…'), () => seDesignAll(v, 'design'), 'sm', 'wand', { title: T('The same design on every drone of this config.') }),
+      btn(T('Look on all drones…'), () => seDesignAll(v, 'visual'), 'sm', 'wand', { title: T('The same look on every drone of this config.') }))),
     v.drones.length ? h('div', { class: 'se-drones' }, v.drones.map(card)) : h('div', { class: 'card empty' }, icon('drone'), h('div', null, T('No drones.'))));
+}
+
+// the same design (or look) on every drone of the selected ship's config: one from the inventory, or from the catalog
+function seDesignAll(v, slot) {
+  const g = seShip(v), apply = lid => seApply({ operation: 'design_all', lootId: lid, ship: g.id, config: +SE.config });
+  const kinds = groupItems(v.inventory.filter(e => e.slot === slot).map(e => Object.assign({}, e, { upgrade: 0, level: 0, rng: null })));
+  const title = slot === 'design' ? T('Design on all drones') : T('Look on all drones');
+  const m = modal({ title, wide: true, sub: T('{0} drones, config {1}. Free copies are used first; missing ones are added. What was in that slot goes back to the inventory.', v.drones.length, SE.config), body: [
+    kinds.length ? h('div', { class: 'se-selection' }, kinds.map(gr => seItemButton({ class: 'se-selection-item', type: 'button', onclick: () => { m.close(); apply(gr[0].lootId); } },
+      gr[0], itemIcon(gr[0].lootId, 56), h('span', { class: 'name' }, itemName(gr[0].lootId)), h('span', { class: 'se-qty' }, '×' + gr.length))))
+      : h('div', { class: 'empty' }, icon('box'), h('div', null, T('None in the inventory.'))),
+    h('div', { class: 'se-selection-bottom' }, h('span', { class: 'small muted' }, T('Or pick any of them from the catalog.')),
+      btn(T('From the catalog…'), () => { m.close(); seCatalog({ title, slot, pick: apply }); }, 'primary sm', 'plus'))],
+  foot: [btn(T('Close'), () => m.close(), 'ghost')] });
 }
 
 function sePet(v) {
@@ -696,31 +814,189 @@ function sePet(v) {
         .map(y => seSlotBox(slotName(y), pc[y], { target: 'pet', slot: y, set: y === 'heat' ? 'heat' : '' })))));
 }
 
+// ---- selection: several items at once (inventory, ship, drone and P.E.T. slots). SE.sel holds item ids; in selection mode a click on an item
+// selects it instead of opening its menu; the bar at the bottom acts on all of them (save_editor: equip_many, unequip_many, remove, replace ...)
+function seSelIndex(v) {
+  SE.idx = new Map(v.inventory.map(e => [e.id, e]));
+  const fitted = c => { for (const e of c.items || []) if (!SE.idx.has(e.id)) SE.idx.set(e.id, e); };
+  for (const g of v.ships) {
+    for (const cfg of Object.values(g.configs)) Object.values(cfg).forEach(fitted);
+    for (const per of Object.values(g.drones)) for (const d of Object.values(per)) { fitted(d); [d.design, d.appearance].filter(Boolean).forEach(e => fitted({ items: [e] })); }
+    for (const pc of Object.values(g.pet || {})) Object.values(pc).forEach(fitted);
+  }
+  for (const i of [...SE.sel]) if (!SE.idx.has(i)) SE.sel.delete(i);           // deleted or replaced meanwhile
+}
+function seSelClear() { SE.sel.clear(); SE.selMode = false; }
+function seSelToggle(ids) {
+  const all = ids.every(i => SE.sel.has(i));
+  for (const i of ids) all ? SE.sel.delete(i) : SE.sel.add(i);
+  if (SE.sel.size) SE.selMode = true;
+  seRender();
+}
+const seSelModeButton = () => btn(SE.selMode ? T('Done selecting') : T('Select several'), () => { SE.selMode ? seSelClear() : SE.selMode = true; seRender(); },
+  'sm' + (SE.selMode ? ' primary' : ''), 'check', { title: T('Click items to select them, then act on all of them at once.') });
+// fitted where: "Goliath · config 1, 2"
+const seWhere = e => !e.ship || !e.configs?.length ? '' : (e.ship === SE.ship ? '' : itemName(SE.v.ships.find(g => g.id === e.ship)?.lootId || '') + ' · ')
+  + (e.configs.length > 1 ? T('Configs {0}', e.configs.join(' + ')) : T('Config {0}', e.configs[0]));
+
+function seSelBar(v) {
+  if (v.read_only || (!SE.selMode && !SE.sel.size)) return null;
+  const es = [...SE.sel].map(i => SE.idx.get(i)).filter(Boolean), ids = es.map(e => e.id), g = seShip(v);
+  const here = es.filter(e => e.ship === g.id && e.configs?.includes(String(SE.config)));
+  const fitted = es.filter(seIsEquipped), leveled = es.filter(e => e.maximum || e.level);
+  const kinds = new Set(es.map(e => e.lootId)).size;
+  const go = async (...ops) => { if (await seApply(...ops)) { SE.sel.clear(); seRender(); } };
+  return h('div', { class: 'card se-selbar' },
+    h('div', { class: 'se-selbar-count' }, h('b', null, T('{0} selected', fmtN(es.length))), es.length ? h('span', { class: 'small muted' }, T('{0} kinds', kinds)) : null,
+      !es.length ? h('span', { class: 'small muted' }, T('Click items to select them.')) : null),
+    h('div', { class: 'row wrap', style: { gap: '6px' } },
+      btn(T('Equip on {0} · config {1}', itemName(g.lootId), SE.config), () => go({ operation: 'equip_many', items: ids, ship: g.id, config: +SE.config }), 'sm primary', 'download',
+        { disabled: !es.length, title: T('Each item goes where it belongs (ship, drones or P.E.T.) while there is room.') }),
+      btn(T('Equip on both configs'), () => go({ operation: 'equip_many', items: ids, ship: g.id, config: 1 }, { operation: 'equip_many', items: ids, ship: g.id, config: 2 }), 'sm', 'download',
+        { disabled: !es.length, title: T('Each item is equipped in config 1 and config 2 of {0} (as in the game, the same item can be in both).', itemName(g.lootId)) }),
+      here.length ? btn(T('Unequip from this config'), () => go({ operation: 'unequip_many', items: here.map(e => e.id), ship: g.id, config: +SE.config }), 'sm', 'upload') : null,
+      fitted.length ? btn(T('Unequip everywhere'), () => go({ operation: 'unequip_many', items: fitted.map(e => e.id) }), 'sm', 'upload') : null,
+      leveled.length ? btn(T('Level…'), () => seLevelMany(leveled), 'sm', 'edit') : null,
+      btn(T('Replace…'), () => seReplace(es), 'sm', 'refresh', { disabled: !es.length }),
+      btn(T('Duplicate…'), () => seDuplicateMany(es), 'sm', 'copy', { disabled: !es.length }),
+      btn(T('Delete'), async () => await confirmBox(T('Delete {0} items?', es.length), fitted.length
+        ? T('{0} of them are equipped: they are taken off first. Until you save, Cancel undoes it.', fitted.length) : T('Until you save, Cancel undoes it.'), { ok: T('Delete'), danger: true })
+        && go({ operation: 'remove', items: ids }), 'sm danger', 'trash', { disabled: !es.length }),
+      btn(T('Clear selection'), () => { SE.sel.clear(); seRender(); }, 'sm ghost', 'x', { disabled: !es.length }),
+      btn(T('Done selecting'), () => { seSelClear(); seRender(); }, 'sm ghost')));
+}
+
+// the same upgrade level (each item up to its own limit) and/or P.E.T. level for the selection
+function seLevelMany(es) {
+  const top = Math.max(0, ...es.map(e => e.maximum || 0)), pet = es.some(e => e.level);
+  const st = { upgrade: Math.max(0, ...es.map(e => e.upgrade || 0)), level: Math.max(1, ...es.map(e => e.level || 0)), doUp: top > 0, doLv: pet };
+  const out = h('b', { class: 'se-lv-value' }, '+' + st.upgrade), seg = h('div', { class: 'seg' });
+  const renderSeg = () => seg.replaceChildren(...[1, 2, 3, 4].map(n => h('button', { class: n === st.level ? 'on info' : '', onclick: () => { st.level = n; renderSeg(); } }, T('Lv {0}', n))));
+  renderSeg();
+  const check = (key, text) => h('label', { class: 'row small', style: { gap: '8px' } }, h('input', { type: 'checkbox', checked: st[key], onchange: e => { st[key] = e.target.checked; } }), text);
+  const m = modal({ title: T('Level of {0} items', es.length), body: [
+    top ? h('div', { class: 'stack', style: { gap: '8px' } }, check('doUp', T('Upgrade level (each item up to its own limit)')),
+      h('div', { class: 'row', style: { gap: '10px' } }, slider({ min: 0, max: top, value: st.upgrade, oninput: e => { st.upgrade = +e.target.value; out.textContent = '+' + st.upgrade; } }), out)) : null,
+    pet ? h('div', { class: 'stack', style: { gap: '8px', marginTop: '12px' } }, check('doLv', T('P.E.T. gear and protocol level')), seg) : null],
+  foot: [btn(T('Cancel'), () => m.close(), 'ghost'), btn(T('Apply'), async () => {
+    const op = { operation: 'level_many', items: es.map(e => e.id) };
+    if (st.doUp && top) op.upgrade = st.upgrade;
+    if (st.doLv && pet) op.level = st.level;
+    m.close();
+    if ('upgrade' in op || 'level' in op) seApply(op);
+  }, 'primary', 'check')] });
+}
+
+// replace the selection with another item, one for one, where they were equipped (catalog filtered to their slot when they share one)
+function seReplace(es) {
+  const slots = [...new Set(es.map(e => e.slot))];
+  const slot = slots.length === 1 && slots[0] !== 'other' ? slots[0] : null;
+  seCatalog({ title: T('Replace {0} items', es.length), slot, pick: async lid => {
+    const keep = h('input', { type: 'checkbox', checked: true });
+    if (!await confirmBox(T('Replace {0} items with {1}?', es.length, itemName(lid)),
+      T('Each one is deleted and a new {0} takes its place (where it was equipped, in every config). Until you save, Cancel undoes it.', itemName(lid)),
+      { ok: T('Replace'), detail: es.some(e => e.upgrade) ? h('label', { class: 'row small', style: { gap: '8px', marginTop: '10px' } }, keep, T('Keep the upgrade level (up to the new item’s limit)')) : null })) return;
+    if (await seApply({ operation: 'replace', items: es.map(e => e.id), lootId: lid, keep_level: keep.checked })) { SE.sel.clear(); seRender(); }
+  } });
+}
+
+function seDuplicateMany(es) {
+  const count = h('input', { class: 'input num', type: 'number', min: 1, max: 500, value: 1 });
+  const m = modal({ title: T('Duplicate {0} items', es.length), body: [h('div', { class: 'small muted' }, T('Each selected item gets this many identical copies (same level, upgrade and attributes), in the inventory.')),
+    field(T('Copies of each'), count)],
+  foot: [btn(T('Cancel'), () => m.close(), 'ghost'), btn(T('Duplicate'), () => { m.close();
+    seApply({ operation: 'duplicate_many', items: es.map(e => e.id), count: Math.max(1, Math.min(500, Math.round(+count.value) || 1)) }); }, 'primary', 'copy')] });
+}
+
+// keep at most N unequipped items of each kind (the best upgraded ones stay)
+function seTrim(v) {
+  const keep = h('input', { class: 'input num', type: 'number', min: 0, value: 1 });
+  const sel = [...new Set([...SE.sel].map(i => SE.idx.get(i)?.lootId).filter(Boolean))];
+  const only = h('input', { type: 'checkbox', checked: sel.length > 0, disabled: !sel.length });
+  const m = modal({ title: T('Clean up the inventory'), sub: T('Deletes the surplus of each kind of unequipped item; equipped items are never touched. The most upgraded ones are kept.'),
+    body: [field(T('Keep at most, of each kind'), keep), h('label', { class: 'row small', style: { gap: '8px', marginTop: '10px' } }, only,
+      sel.length ? T('Only the kinds of the selected items ({0})', sel.length) : T('Only the kinds of the selected items (select some first)'))],
+    foot: [btn(T('Cancel'), () => m.close(), 'ghost'), btn(T('Clean up'), () => { m.close();
+      seApply({ operation: 'trim', keep: Math.max(0, Math.round(+keep.value) || 0), lootIds: only.checked ? sel : undefined }); }, 'danger', 'trash')] });
+}
+
+const SE_SORT = [['name', N('Name')], ['kind', N('Kind')], ['count', N('Quantity')], ['upgrade', N('Upgrade')], ['new', N('Newest')]];
 function seInventory(v) {
   const g = seShip(v), ro = v.read_only;
-  const empty = v.inventory.filter(e => !seIsEquipped(e));          // inventory tab: only items equipped nowhere (delete, edit)
-  const kinds = [...new Set(empty.map(e => e.slot))];
+  // by default the items that can still go into the selected config: equipped nowhere, or only in the ship's other config (shown with a badge)
+  const pool = SE.invEquipped ? v.inventory : v.inventory.filter(seIsUsable);
+  const equipOp = (id, config) => ({ operation: 'equip_many', items: [id], ship: g.id, config: config || +SE.config });
+  const kinds = [...new Set(pool.map(e => e.slot))];
   if (SE.invKind !== 'all' && !kinds.includes(SE.invKind)) SE.invKind = 'all';
   const q = SE.search.toLowerCase();
-  const entries = empty.filter(e => (SE.invKind === 'all' || e.slot === SE.invKind) && (!q || itemName(e.lootId).toLowerCase().includes(q) || e.lootId.includes(q)));
-  const grid = h('div', { class: 'se-inv' }, groupItems(entries).map(gr => {
-    const e = gr[0];
-    return seItemButton({ class: 'se-inv-item', type: 'button', onclick: ev => !ro && popMenu(ev.currentTarget, [
-      e.targets.includes('ship') ? { label: T('Equip on the selected ship ({0}, config {1})', itemName(g.lootId), SE.config), ic: 'download', fn: () => seApply(moveOp(e.id, 'equip', { target: 'ship' })) } : null,
-      seIsEditable(e) ? { label: T('Edit…'), ic: 'edit', fn: () => seEdit(e) } : null,
-      '-',
-      { label: T('Delete one'), ic: 'trash', danger: true, fn: () => seApply({ operation: 'delete', items: [e.id] }) },
-      gr.length > 1 ? { label: T('Delete all ({0})', gr.length), ic: 'trash', danger: true, fn: () => seApply({ operation: 'delete', items: gr.map(x => x.id) }) } : null,
-    ].filter(Boolean)) }, e, itemIcon(e.lootId, 54), ...lvlBadge(e), gr.length > 1 ? h('span', { class: 'se-qty' }, '×' + gr.length) : null, h('span', { class: 'name' }, itemName(e.lootId)));
-  }));
+  const entries = pool.filter(e => (SE.invKind === 'all' || e.slot === SE.invKind) && (!q || itemName(e.lootId).toLowerCase().includes(q) || e.lootId.includes(q)));
+  // groups: identical items (same kind, upgrade, level; equipped ones by where they are) in one tile, or each item alone
+  const gr = {};
+  for (const e of entries) {
+    const k = SE.invGroup ? [e.lootId, e.upgrade || 0, e.level || 0, e.rng ? e.id : '', seIsEquipped(e) ? e.ship + ':' + e.configs.join(',') : ''].join('|') : e.id;
+    (gr[k] = gr[k] || []).push(e);
+  }
+  const by = { name: (a, b) => 0, kind: (a, b) => slotName(a[0].slot).localeCompare(slotName(b[0].slot)), count: (a, b) => b.length - a.length,
+    upgrade: (a, b) => (b[0].upgrade || 0) - (a[0].upgrade || 0), new: (a, b) => Math.max(...b.map(e => e.id)) - Math.max(...a.map(e => e.id)) }[SE.invSort] || (() => 0);
+  const groups = Object.values(gr).sort((a, b) => by(a, b) || itemName(a[0].lootId).localeCompare(itemName(b[0].lootId)));
+  const tile = es => {
+    const e = es[0], ids = es.map(x => x.id), n = ids.filter(i => SE.sel.has(i)).length, where = seWhere(e);
+    const can = e.targets.length > 0, usable = can && seIsUsable(e), here = e.ship === g.id && e.configs.includes(String(SE.config));
+    const other = String(3 - SE.config), both = e.ship === g.id && e.configs.length > 1;
+    return seItemButton({ class: 'se-inv-item' + (n ? ' picked' : '') + (seIsEquipped(e) ? ' fitted' : ''), type: 'button',
+      title: usable && !SE.selMode ? T('Right-click: equip on config {0}', SE.config) : where || undefined,
+      onclick: ev => { if (ro) return; if (SE.selMode) return seSelToggle(ids); popMenu(ev.currentTarget, [
+        usable ? { label: T('Equip on {0} · config {1}', itemName(g.lootId), SE.config), ic: 'download', fn: () => seApply(equipOp(e.id)) } : null,
+        can && !both && (!e.ship || e.ship === g.id) ? { label: T('Equip on both configs'), ic: 'download',
+          fn: () => seApply(...['1', '2'].filter(c => !e.configs.includes(c)).map(c => equipOp(e.id, +c))) } : null,
+        here ? { label: T('Unequip from config {0}', SE.config), ic: 'upload', fn: () => seApply({ operation: 'unequip_many', items: [e.id], ship: g.id, config: +SE.config }) } : null,
+        e.ship === g.id && e.configs.includes(other) && !here ? { label: T('Unequip from config {0}', other), ic: 'upload',
+          fn: () => seApply({ operation: 'unequip_many', items: [e.id], ship: g.id, config: +other }) } : null,
+        seIsEquipped(e) ? { label: T('Unequip everywhere'), ic: 'upload', fn: () => seApply({ operation: 'unequip_many', items: ids }) } : null,
+        seIsEditable(e) ? { label: T('Edit…'), ic: 'edit', fn: () => seEdit(e) } : null,
+        { label: T('Duplicate…'), ic: 'copy', fn: () => seDuplicate(e) },
+        { label: es.length > 1 ? T('Replace all ({0})…', es.length) : T('Replace…'), ic: 'refresh', fn: () => seReplace(es) },
+        { label: T('Select several…'), ic: 'check', fn: () => { SE.selMode = true; seSelToggle(ids); } },
+        '-',
+        { label: T('Delete one'), ic: 'trash', danger: true, fn: () => seApply({ operation: 'remove', items: [e.id] }) },
+        es.length > 1 ? { label: T('Delete all ({0})', es.length), ic: 'trash', danger: true, fn: () => seApply({ operation: 'remove', items: ids }) } : null,
+      ].filter(Boolean)); },
+      // right-click: equip one of them on the selected config (in selection mode: deselect one)
+      oncontextmenu: ev => { if (ro) return; ev.preventDefault();
+        if (SE.selMode) { if (n) { SE.sel.delete(ids.find(i => SE.sel.has(i))); seRender(); } return; }
+        const x = es.find(seIsUsable); if (can && x) seApply(equipOp(x.id)); } },
+    e, itemIcon(e.lootId, 54), ...lvlBadge(e),
+    es.length > 1 ? h('span', { class: 'se-qty' }, (n && n < es.length ? n + '/' : '') + '×' + es.length) : null,
+    n ? h('span', { class: 'se-tick' }, icon('check')) : null,
+    h('span', { class: 'name' }, itemName(e.lootId)), where ? h('span', { class: 'se-where' + (here ? ' here' : '') }, where) : null);
+  };
+  const shown = groups.flat().map(e => e.id);
+  const toggle = (on, text, fn) => h('label', { class: 'row small se-toggle' }, h('input', { type: 'checkbox', checked: on, onchange: e => { fn(e.target.checked); seRender(); } }), text);
   return h('div', { class: 'stack' },
     h('div', { class: 'card se-card' }, h('div', { class: 'row wrap', style: { gap: '10px' } },
       h('input', { class: 'input game-search', placeholder: T('Search…'), value: SE.search, oninput: e => seSearch(e, v => { SE.search = v; }) }),
-      h('span', { class: 'spacer' }), ro ? null : btn(T('Add item'), () => seCatalog({}), 'primary sm', 'plus')),
+      h('label', { class: 'row small', style: { gap: '6px' } }, T('Sort'), h('select', { class: 'input', style: { width: 'auto' }, onchange: e => { SE.invSort = e.target.value; seRender(); } },
+        SE_SORT.map(([k, t]) => h('option', { value: k, selected: k === SE.invSort }, T(t))))),
+      h('span', { class: 'spacer' }),
+      ro ? null : seSelModeButton(),
+      ro ? null : btn(T('Clean up…'), () => seTrim(v), 'sm', 'trash', { title: T('Keep at most N unequipped items of each kind.') }),
+      ro ? null : btn(T('Add item'), () => seCatalog({}), 'primary sm', 'plus')),
+    h('div', { class: 'row wrap between', style: { gap: '12px', marginTop: '12px' } }, shipPicker(v, g),
+      h('span', { class: 'small muted' }, SE.invEquipped ? T('All items, with where they are equipped.')
+        : T('Items you can still equip in config {0}: free ones, and those only in config {1} (badge).', SE.config, 3 - SE.config))),
+    h('div', { class: 'row wrap', style: { gap: '16px', marginTop: '10px' } },
+      toggle(SE.invGroup, T('Group identical items'), x => { SE.invGroup = x; }),
+      toggle(SE.invEquipped, T('Also show equipped items'), x => { SE.invEquipped = x; }),
+      h('span', { class: 'small muted' }, T('{0} items · {1} kinds', fmtN(entries.length), new Set(entries.map(e => e.lootId)).size)),
+      SE.selMode && shown.length ? h('span', { class: 'row', style: { gap: '6px' } },
+        btn(T('Select all shown'), () => { shown.forEach(i => SE.sel.add(i)); seRender(); }, 'sm ghost'),
+        btn(T('Invert'), () => { shown.forEach(i => SE.sel.has(i) ? SE.sel.delete(i) : SE.sel.add(i)); seRender(); }, 'sm ghost')) : null),
     kinds.length > 1 ? h('div', { class: 'seg', style: { marginTop: '12px', flexWrap: 'wrap' } }, ['all', ...kinds].map(t => h('button', { class: t === SE.invKind ? 'on info' : '',
-      onclick: () => { SE.invKind = t; seRender(); } }, t === 'all' ? T('All') : t === 'design' ? T('Drone designs') : slotName(t)))) : null),
-    entries.length ? h('div', { class: 'card se-card' }, grid) : h('div', { class: 'card empty' }, icon('box'), h('div', null, empty.length ? T('No items match the search.') : T('Inventory is empty: everything is equipped.'))));
+      onclick: () => { SE.invKind = t; seRender(); } }, t === 'all' ? T('All') : t === 'design' ? T('Drone designs') : t === 'visual' ? T('Drone looks') : slotName(t)))) : null),
+    entries.length ? h('div', { class: 'card se-card' }, h('div', { class: 'se-inv' + (SE.selMode ? ' selecting' : '') }, groups.map(tile)))
+      : h('div', { class: 'card empty' }, icon('box'), h('div', null, pool.length ? T('No items match the search.') : T('Inventory is empty: everything is equipped.'))));
 }
+
 
 function seAmmo(v) {
   const ro = v.read_only, groups = {};

@@ -77,8 +77,18 @@ def full(uid, a):
 
 
 def multilingual(uid=None):
-    """Whether the bots can speak their own languages (the built-in Qwen3 4B is English only)."""
+    """Whether the selected provider writes every language (the built-in Qwen3 4B only a few: LOCAL_LANGS)."""
     return (uid or setting()['selected']) != LOCAL
+
+
+# the languages the built-in Qwen3 4B writes well enough (user request 2026-11-26: bots answered only in English); with it a bot of
+# another language (Turkish, Polish, Russian ...: weak in the trial) chats in English. Another provider writes every language.
+LOCAL_LANGS = ('en', 'fr', 'de', 'es', 'pt')
+
+
+def speaks(lang, uid=None):
+    """Whether the bots' language model can chat in this language."""
+    return multilingual(uid) or lang in LOCAL_LANGS
 
 
 def mask(key):

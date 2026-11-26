@@ -6,7 +6,10 @@ re-reads the file when it changes (within a second).
                              keys replace theirs (lists, the per-map alien / priority lists and the map's areas whole); enabled and the
                              profiles are kept
   POST /api/pilot/start|stop
-  POST /api/pilot/profile    {action: save | load | delete, name}  settings profiles (config.profile_action) """
+  POST /api/pilot/profile    {action: save | load | delete, name}  settings profiles (config.profile_action)
+  GET  /api/pilot/saves      [{id, name, pilot, enabled, online, state, active}] every save's Auto Mode (fork)
+Every request takes an optional save (slot: ?slot= or the body's slot; default the active save): each save has its own pilot.json, and on a
+multi-client server every session runs the bot of its own save, so Auto Mode can be on for one save and off for another. """
 import json, os, threading, time
 
 import paths as PTH
@@ -18,8 +21,23 @@ _AMMO, _ROCKETS = [], []
 _LOCK = threading.Lock()            # the panel's server answers requests on several threads: one read-modify-write at a time
 
 
-def _cfg_path():
-    return C.path_for(PTH.profile_path())
+def _slot(slot):
+    """A save of save/slots (default: the active save) -> its id. Only an existing slot folder's own name (no path)."""
+    slot = str(slot or '').strip() or PTH.active_slot()
+    if not slot or os.path.basename(slot) != slot or slot.startswith('.') or not os.path.isfile(PTH.profile_path(slot)):
+        raise ValueError('Save not found.')
+    return slot
+
+
+def _cfg_path(slot=None):
+    return C.path_for(PTH.profile_path(_slot(slot)))
+
+
+def _online(st):
+    try:
+        return bool(st) and time.time() - float(st.get('updated') or 0) <= ONLINE_SEC
+    except (TypeError, ValueError):
+        return False
 
 
 def _ammo():
@@ -35,14 +53,31 @@ def _ammo():
     return _AMMO
 
 
-def state():
-    st = C.read_json(C.status_path(PTH.LOGS, PTH.profile_path()))
+def state(slot=None):
+    slot = _slot(slot)
+    st = C.read_json(C.status_path(PTH.LOGS, PTH.profile_path(slot)))
     st = st if isinstance(st, dict) else {}
-    try:
-        online = bool(st) and time.time() - float(st.get('updated') or 0) <= ONLINE_SEC
-    except (TypeError, ValueError):
-        online = False
-    return dict(config=C.load(_cfg_path()), status=st if online else None, online=online, ammo=_ammo(), rockets=_ROCKETS)
+    online = _online(st)
+    return dict(config=C.load(_cfg_path(slot)), status=st if online else None, online=online, ammo=_ammo(), rockets=_ROCKETS, slot=slot)
+
+
+def saves():
+    """Every save's Auto Mode: on/off, whether its pilot is in the game now (the bot's status file is fresh) and what the bot is doing."""
+    root, active = os.path.dirname(PTH.slot_dir('x')), PTH.active_slot()
+    out = []
+    for slot in sorted(os.listdir(root)) if os.path.isdir(root) else []:
+        prof = PTH.profile_path(slot)
+        if not os.path.isfile(prof):
+            continue
+        meta = C.read_json(os.path.join(os.path.dirname(prof), 'slot.json'))
+        meta = meta if isinstance(meta, dict) else {}
+        st = C.read_json(C.status_path(PTH.LOGS, prof))
+        st = st if isinstance(st, dict) else {}
+        on = _online(st)
+        out.append({'id': slot, 'name': meta.get('name') or slot, 'enabled': bool(C.load(C.path_for(prof)).get('enabled')), 'online': on,
+                    'state': st.get('state') if on else None, 'active': slot == active})
+    out.sort(key=lambda x: (not x['active'], x['name'].lower()))
+    return out
 
 
 def handles(path):
@@ -50,9 +85,11 @@ def handles(path):
 
 
 def get(path, q):
+    if path == '/api/pilot/saves':
+        return {'saves': saves()}
     if path != '/api/pilot':
         raise ValueError('Unknown request: %s' % path)
-    return state()
+    return state(q.get('slot'))
 
 
 def merge(cur, patch):
@@ -66,7 +103,7 @@ def merge(cur, patch):
 
 def post(path, b):
     with _LOCK:
-        p = _cfg_path()
+        p = _cfg_path(b.get('slot'))
         cur = C.load(p)
         if path == '/api/pilot':
             patch = b.get('config')
@@ -80,4 +117,4 @@ def post(path, b):
             C.save(p, cur)
         else:
             raise ValueError('Unknown request: %s' % path)
-    return state()
+    return state(b.get('slot'))

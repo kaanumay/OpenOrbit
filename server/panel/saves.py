@@ -288,8 +288,16 @@ class Saves:
         out.update(id=slot, name=m.get('name') or slot, not_=m.get('not', ''), save_created=m.get('created'),
                    last_played=m.get('last_played'), last_save=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(st.st_mtime)),
                    size=st.st_size, backup_count=len(self.backup_files(slot)), active=(slot == self.active()),
-                   in_use=self.in_use(slot), world=m.get('world') or 'standard', draft=self._draft_valid(slot))
+                   in_use=self.in_use(slot), world=m.get('world') or 'standard', draft=self._draft_valid(slot), admin=self.is_admin(slot))
         return out
+
+    def is_admin(self, slot):
+        """Whether the save plays in admin mode (its own game settings: admin_mode)."""
+        try:
+            d = _read_json(os.path.join(self.dir(slot), 'settings.json'))
+        except (OSError, ValueError):
+            return False
+        return isinstance(d, dict) and d.get('admin_mode') is True
 
     def list(self):
         out = []

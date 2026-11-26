@@ -1742,7 +1742,9 @@
   "ship_spectrum-plus": 10,
   "ship_tartarus-plus": 10,
   "ship_tempest": 10,
-  "ship_zephyr": 10
+  "ship_zephyr": 10,
+  "ship_admin": 10,
+  "ship_police": 10
  },
  "_ship_type": "ship type in the rank formula: the client's game.xml shipId (Phoenix 1 ... Goliath 10, Citadel 11, Aegis 12, Spearhead 13); designs and derivatives use the base ship's id (recording: Liberator 5 -> 5,000 points). Those whose base is not a classic ship (Tartarus ...) 10 (adaptation)",
  "formula": {

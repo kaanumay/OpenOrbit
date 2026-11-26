@@ -1467,10 +1467,36 @@ def write_legacy_upgrade(folder=None, slot=None):
         log('old upgrade costs could not be written: %s' % e)
 
 
+# the admin settings (settings.py group 'manager') belong to the save: they are set in its character editor (/api/saves/admin), not on the Game
+# settings page; presets, templates, reset and copy leave them as they are
+ADMIN_KEYS = [s['key'] for s in SET.SCHEMA if s.get('group') == 'manager']
+
+
+def api_save_admin(slot, values=None):
+    """The save's admin settings (read; with values: change them first)."""
+    if not slot or not SAV.exists(slot):
+        raise Error(_('Save not found.'))
+    path = settings_file(slot)
+    if values is not None:
+        with _settings_lock:
+            vals = SET.read(path)
+            for k, v in values.items():
+                if k in ADMIN_KEYS:
+                    vals[k] = v
+            SET.write(path, vals)
+        log('admin settings of %s: %s' % (slot, {k: v for k, v in values.items() if k in ADMIN_KEYS}))
+        if slot == SAV.active():
+            write_legacy_upgrade()
+    vals = SET.read(path)
+    return {'schema': [_schema_row(s) for s in SET.SCHEMA if s['key'] in ADMIN_KEYS],
+            'values': {k: vals.get(k, SET.DEFAULTS[k]) for k in ADMIN_KEYS}, 'in_use': SAV.in_use(slot)}
+
+
 def api_settings():
     ready = {k: dict(p, name=_(p['name']), description=_(p['description'])) for k, p in SET.PRESETS.items()}
     slot = SAV.active()
-    return {'schema': [_schema_row(s) for s in SET.SCHEMA], 'groups': [{'key': k, 'name': _(a)} for k, a in SET.GROUPS],
+    return {'schema': [_schema_row(s) for s in SET.SCHEMA if s['key'] not in ADMIN_KEYS],
+            'groups': [{'key': k, 'name': _(a)} for k, a in SET.GROUPS if k != 'manager'],
             'values': game_settings(), 'default': SET.DEFAULTS, 'ready': ready, 'templates': read_json(TEMPLATES, {}),
             'server_running': MANAGER.running(), 'record': slot, 'save_name': SAV.meta(slot).get('name', slot) if slot else None,
             'saves': [{'id': s, 'name': SAV.meta(s).get('name', s)} for s in SAV.slots() if s != slot]}
@@ -1894,6 +1920,8 @@ def h_get(path, q):
         return season_banners()
     if path == '/api/saves':
         return {'entries': SAV.list(), 'active': SAV.active(), 'trash': SAV.deleted(), 'companies': COMPANIES}
+    if path == '/api/saves/admin':                  # the save's admin settings (character editor)
+        return api_save_admin(slot_arg(q))
     if path == '/api/editor':                       # character editor: the save's draft (save_editor.py)
         return SAV.editor_open(slot_arg(q))
     if path == '/api/editor/catalog':               # the character editor's item catalog
@@ -2100,8 +2128,13 @@ def h_post(path, b):
         slot = SAV.active()
         if not slot:
             raise Error(_('No save.'))
-        with _settings_lock:                          # not between another request's read and write of this file
+        with _settings_lock:                          # not between another request's read and write of this file; the save's admin settings stay
+            keep = {k: v for k, v in game_settings().items() if k in ADMIN_KEYS}
             SAV.copy_settings(str(b.get('source') or ''), slot)
+            f = settings_file()
+            vals = {k: v for k, v in SET.read(f).items() if k not in ADMIN_KEYS}
+            vals.update(keep)
+            SET.write(f, vals)
         log('settings copied: %s -> %s' % (b.get('source'), slot))
         write_legacy_upgrade()
         return api_settings()
@@ -2109,7 +2142,7 @@ def h_post(path, b):
         with _settings_lock:
             f = settings_file()
             vals = SET.read(f)
-            keys = b.get('keys') or list(SET.BY_KEY)
+            keys = b.get('keys') or [k for k in SET.BY_KEY if k not in ADMIN_KEYS]
             for k in keys:
                 vals.pop(k, None)
             SET.write(f, vals)
@@ -2123,8 +2156,8 @@ def h_post(path, b):
             raise Error(_('Preset not found.'))
         with _settings_lock:
             f = settings_file()
-            vals = {k: v for k, v in SET.read(f).items() if k not in SET.BY_KEY}     # event choices stay
-            vals.update(preset)
+            vals = {k: v for k, v in SET.read(f).items() if k not in SET.BY_KEY or k in ADMIN_KEYS}     # event choices and admin stay
+            vals.update({k: v for k, v in preset.items() if k not in ADMIN_KEYS})
             SET.write(f, vals)
         write_legacy_upgrade()
         return api_settings()
@@ -2134,7 +2167,7 @@ def h_post(path, b):
             raise Error(_('Give the template a name.'))
         with _settings_lock:
             user = read_json(TEMPLATES, {})
-            vals = {k: v for k, v in game_settings().items() if k in SET.BY_KEY and v != SET.DEFAULTS[k]}
+            vals = {k: v for k, v in game_settings().items() if k in SET.BY_KEY and k not in ADMIN_KEYS and v != SET.DEFAULTS[k]}
             user[name] = {'name': name, 'description': b.get('description') or _('Your own settings'), 'values': vals}
             write_json(TEMPLATES, user)
         return api_settings()
@@ -2194,6 +2227,8 @@ def h_post(path, b):
             SAV.set_active(sid)
         log('new save: %s' % sid)
         return {'id': sid}
+    if path == '/api/saves/admin':
+        return api_save_admin(str(b.get('id') or ''), b.get('values') or {})
     if path == '/api/saves/active':
         return {'id': SAV.set_active(slot_arg(b))}
     if path == '/api/saves/rename':

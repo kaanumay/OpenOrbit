@@ -36,6 +36,7 @@ public class Plugin : BasePlugin
         Apply("otomatik kuşanma ayarı", () => AutoEquip.Apply(h));
         Apply("gemi motor izi", () => ShipTrail.Apply(h));
         Apply("görev metinleri", () => QuestTexts.Apply(h));
+        Apply("pilot points past 50", () => ResearchPoints.Apply(h));
         Apply("eski yükseltme sistemi", () =>
         {
             OldUpgrade.Apply(h);
@@ -380,5 +381,39 @@ static class ShipTrail
             return;
         foreach (var trail in go.GetComponentsInChildren<TrailRenderer>(true))
             trail.Clear();
+    }
+}
+
+// Pilot points past 50 (fork; the server's skill_points_max setting): UIPilotSheetSystem.SatisfyExchange greys the Exchange button once the
+// pilot has 50 points (SkillTreeData.GetUserResearchPointCount, the points spent, + the unspent ones < 50: a constant in the client, user
+// report 2026-11-23). The server decides the cap (skill_tree.Abilities.required: -1 at its cap, a conversion past it fails), so while
+// SatisfyExchange runs GetUserResearchPointCount answers a very low count and only the log disks decide. Elsewhere (the "50 of 50" line)
+// nothing changes.
+static class ResearchPoints
+{
+    static bool inExchange;
+
+    internal static void Apply(Harmony h)
+    {
+        MethodBase exchange = AccessTools.Method(typeof(UIPilotSheetSystem), nameof(UIPilotSheetSystem.SatisfyExchange)),
+            count = AccessTools.Method(typeof(SkillTreeData), nameof(SkillTreeData.GetUserResearchPointCount));
+        Plugin.Find(exchange, count);
+        h.Patch(exchange, prefix: new HarmonyMethod(typeof(ResearchPoints), nameof(Before)),
+            finalizer: new HarmonyMethod(typeof(ResearchPoints), nameof(After)));
+        h.Patch(count, postfix: new HarmonyMethod(typeof(ResearchPoints), nameof(Count)));
+    }
+
+    static void Before() => inExchange = true;
+
+    static Exception After(Exception __exception)
+    {
+        inExchange = false;
+        return __exception;
+    }
+
+    static void Count(ref int __result)
+    {
+        if (inExchange)
+            __result = -1000000;
     }
 }

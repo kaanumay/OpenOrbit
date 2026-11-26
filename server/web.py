@@ -383,7 +383,11 @@ def cdn_file(base):
         return None
     p = os.path.join(CDN_DIR, *rel.split('/'))
     root = os.path.normcase(os.path.realpath(CDN_DIR))     # Windows: a drive part ('/C:../C:../save/...', '/D:/x') leaves the folder in join
-    if not os.path.normcase(os.path.realpath(p)).startswith(root + os.sep):
+    try:
+        inside = os.path.normcase(os.path.realpath(p)).startswith(root + os.sep)
+    except OSError:                                    # an unreadable drive (a locked BitLocker volume) in the path: outside anyway
+        return None
+    if not inside:
         return None
     if not os.path.isfile(p) and not cdn_fetch(rel, p):
         return None

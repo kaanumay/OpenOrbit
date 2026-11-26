@@ -1055,6 +1055,8 @@ class Cbs:
         if old and not self.hp('battle_station_replace_module'):
             return self.error('REPLACE_RIGHT_MISSING')
         secs = D['swap_sec'] if a['state'] == 'built' else D['install_sec']
+        if SET.get('cbs_instant'):                      # fork: the player's station is built at once (modules installed, station built)
+            secs = 0
         old_loot = (self.module(old['iid']) or {}).get('loot', '') if old else ''
         y = {'iid': iid, 'install_end': now + secs, 'install_sec': secs}
         h = self.host
@@ -1115,8 +1117,9 @@ class Cbs:
             return self.error('UNSPECIFIED')
         k = D['build_min']
         minutes = max(k[0], min(k[1], minutes or k[0]))
+        instant = bool(SET.get('cbs_instant'))          # fork: finished at the next tick (a second) instead of after the building time
         with self.lock:
-            a.update(state='building', build_end=now + minutes * 60, build_sec=minutes * 60, owner='player')
+            a.update(state='building', build_end=now if instant else now + minutes * 60, build_sec=minutes * 60, owner='player')
             if self.host is not None:
                 a['clan'] = self.clan()['id']
             a.pop('rival', None)

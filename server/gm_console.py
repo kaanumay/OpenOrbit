@@ -26,7 +26,6 @@ When the panel's "GM console" setting (gm_console, developer) is on, dailyRank 6
 """
 import json, math, os, random, time
 
-import settings as SET
 
 REQUESTS = ('CCInitRequest', 'CCommandRequest')
 ADMIN_RANK = 6000
@@ -37,13 +36,10 @@ BOOK_MAX = 100                                           # most single items per
 
 
 def enabled(profile=None):
-    """Only the server's own player: off for a friend server's guest and for the extra players of a multi-client setup even if the server's
-    setting is on (the same rule as admin_mode.is_open; the extra local players used to get the console and dailyRank 6000)."""
-    if not SET.get('gm_console') or getattr(profile, 'guest', None) is not None:
-        return False
-    import admin_mode as AM
-    host = AM._host()
-    return profile is None or host is None or profile is host
+    """The GM console: the player's own save (admin_mode._setting, fork: per save, extra clients of a multi-client setup included);
+    never a friend server's guest."""
+    import admin_mode as YM
+    return bool(YM._setting(profile, 'gm_console'))
 
 
 def mod(_cls, **f):

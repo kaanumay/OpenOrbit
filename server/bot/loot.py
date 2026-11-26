@@ -235,7 +235,8 @@ def assembly(bot):
             continue
         if not _enough(bot, r['parts']):
             continue
-        earnings = sum(value(l, n) for l, n in r['result'].items())
+        from . import blacklight as BLK
+        earnings = sum(max(value(l, n), BLK.worth(bot, l)) for l, n in r['result'].items())     # BL gear for a raider (Prometheus, A-BL)
         cost = sum(value(p, n) for p, n in r['parts'].items() if not p.startswith('resource_collectable'))
         if earnings - cost > best_score:
             en, best_score = key, earnings - cost

@@ -113,17 +113,54 @@ def run(pilot, s, now, key, end):
     return 'gate_trip'
 
 
+def gate_list(pilot):
+    """The gates of Galaxy gate mode: the checked list (gates.keys, in order), else the single gate (gates.key)."""
+    c = pilot.cfg['gates']
+    return list(c['keys']) or ([c['key']] if c['key'] else [])
+
+
+def next_gate(pilot, keys, after):
+    """The next gate of the list after `after` (round the list) that can be played: not set aside this round, not completed this round unless
+    repeat, and built or buildable -> its key or None."""
+    repeat = pilot.cfg['gates']['repeat']
+    i = keys.index(after) if after in keys else -1
+    for k in keys[i + 1:] + keys[:i + 1]:
+        if k in pilot.gate_skipped or (k in pilot.gate_played and not repeat):
+            continue
+        if can_build(pilot, k):
+            return k
+    return None
+
+
 def goal(pilot, s, now):
-    """Galaxy gate mode, off the gate map -> a label (it took the ship) or None."""
-    key = pilot.cfg['gates']['key']
-    if not key:
+    """Galaxy gate mode, off the gate map -> a label (it took the ship) or None. With a list of gates (fork): each one in turn; a completed
+    gate passes to the next one of the list (round and round with repeat, else once each), a gate that cannot be played (not built, no
+    life, no route) is set aside and the next one is played; the mode ends when none is left."""
+    keys = gate_list(pilot)
+    if not keys:
         pilot.mode_end('gate_none')
         return 'gate_trip'
+    if pilot.gate_key not in keys:
+        pilot.gate_key = keys[0]
+    key = pilot.gate_key
     if pilot.gate_done and not pilot.act.in_gate():
         pilot.gate_done = False
-        info = pilot.act.gate_info(key)
-        if not pilot.cfg['gates']['repeat'] or info is None or not can_build(pilot, key):
+        pilot.gate_played.add(key)
+        pilot.gate_skipped.clear()                  # a new round of tries for the ones set aside (parts or uridium may be there now)
+        nxt = next_gate(pilot, keys, key)
+        if nxt is None:
             pilot.mode_end('gate_done')
             return 'gate_trip'
-        pilot.note('{0} completed: playing it again.', info['name'])
-    return run(pilot, s, now, key, pilot.mode_end)
+        info = pilot.act.gate_info(nxt) or {}
+        pilot.note('{0} completed: playing it again.' if nxt == key else 'Next gate: {0}.', info.get('name', nxt))
+        pilot.gate_key = key = nxt
+
+    def cannot(reason):                             # this gate cannot be played now: the next one of the list, else the mode ends
+        pilot.gate_skipped.add(key)
+        nxt = next_gate(pilot, keys, key) if len(keys) > 1 else None
+        if nxt is None:
+            pilot.mode_end(reason)
+            return
+        pilot.note('Next gate: {0}.', (pilot.act.gate_info(nxt) or {}).get('name', nxt))
+        pilot.gate_key = nxt
+    return run(pilot, s, now, key, cannot)

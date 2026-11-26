@@ -101,6 +101,8 @@ SCHEMA = [
                                                      'the map or a module is hit.', apply_mode='map', lo=0.1, hi=10.0, limit=1000.0),
     _c('cbs_damage', 'Clan Battle Station damage', 'combat', 'Damage dealt by the weapon modules of every Clan Battle Station (to aliens, and by a rival station '
                                                             'to you).', lo=0.0, hi=10.0, limit=1000.0),
+    _b('cbs_instant', 'Instant battle station', 'combat', 'Your own Clan Battle Station is built at once: its modules are installed and the '
+                                                          'station is finished without waiting (bot clans still take their time).'),
     _b('cbs_deflector', 'Battle station shields', 'combat', "Other clans' Clan Battle Stations are protected by their deflector shield while it is up. When off, their deflectors don't stop your attacks: a station another clan has just built can be destroyed at once and the asteroid taken. Your own station's deflector still protects it.", default=True),
     # ---------------------------------------------------------------- rewards
     _c('credits', 'Credit gain', 'reward', 'Credits earned from aliens, boxes, missions, gates and events (sales and refunds excluded).', hi=50.0, limit=100000.0),
@@ -164,6 +166,8 @@ SCHEMA = [
     _c('ore_abundance', 'Ore abundance', 'world', 'Number of collectable ores (Prometium, Endurium, Terbium …) on the maps.',
        apply_mode='map', hi=10.0, limit=50.0),
     _c('ore_respawn', 'Ore respawn time', 'world', 'Time until a collected ore is replaced. Lower value: faster.', lo=0.01, hi=5.0, limit=100.0),
+    _n('skill_points_max', 'Pilot points (most)', 'world', 'How many pilot points (skill tree) log disks can be turned into (game value 50). '
+       'The points past 50 cost the last price, 3,202 log disks each.', lo=50, hi=200, default=50, limit=1000),
     _n('max_quests', 'Quests at the same time', 'world', 'How many quests you can run at the same time in the quest window (game value 5). When all slots are '
                                                          'taken, no new quest can be accepted until one is completed or cancelled. Lowering it does not '
                                                          'cancel running quests.', lo=1, hi=10, default=5, unit='quests', limit=100),
@@ -178,6 +182,10 @@ SCHEMA = [
                                                       "real game only at the station). When off, only at the station.", default=True),
     _b('clan_cooldown', 'Clan 48-hour rules', 'world', 'After leaving a clan you cannot found or join another clan for 48 hours; the clan name/tag can only '
                                                        'be changed every 48 hours. When off there is no waiting time.', default=True),
+    _b('clan_unlimited', 'Clans without member limit', 'world', 'A clan can have any number of members (yours and the bot clans). When off, '
+                                                                'at most 50 members per clan, as in the game.'),
+    _b('mod_ships_players', 'Moderator ships for players', 'world', 'Players can own and fly the moderator ships (Admin and Police). When off, '
+                                                                    'only a save in admin mode can. Bots never get them.', apply_mode='login', default=False),
     # ---------------------------------------------------------------- gates and modes
     _c('gate_part', 'Gate part chance', 'gate', "Chance of getting a gate part per energy in the Galaxy Gate generator (the game's value is 13%; the "
                                                 "window's odds list changes too).", lo=0.1, hi=7.0, limit=1000.0),

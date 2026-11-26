@@ -58,6 +58,7 @@ import event_appearances as EG
 import tips as IP
 import season as SE
 import skill_tree as SKL
+import admin_mode as YM
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ITEMS = DATA.shared('items.json')
@@ -1395,7 +1396,9 @@ class Shop:
             if GM.unstable(loot):                       # Restabilize list (live test H41: it came only at login)
                 msgs.append(GM.list_cmd(self.p))
         elif loot.startswith('ship_') and loot in ITEMS['ships']:
-            if loot not in {s['lootId'] for s in self.p.d['ships'].values()}:
+            if not YM.ship_allowed(self.p, loot):
+                self.log('   moderator ship not given: %s (setting mod_ships_players)' % loot)
+            elif loot not in {s['lootId'] for s in self.p.d['ships'].values()}:
                 self.p.add_ship(loot)
                 msgs.append(legacy('0|LM|ST|LOT|%s|1' % loot))
                 msgs += self.pending_designs(loot) + self.ship_count_msgs([loot])
@@ -1482,6 +1485,7 @@ class Shop:
         contents are merged so the logbook does not fill up). Those still not recognized stay in the store, with a warning in the log. The session calls this once per connection,
         before the login messages -> the moved [(lootId, count)]."""
         moved, opened = [], {}
+        self.leave_mod_ship()
         # designs whose ship is bought later: a ship bought from the shop did not hand out the waiting ones (user report 2026-10-24: Assembly's
         # Spectrum Legend was also missing after Spectrum was bought)
         for base in sorted({s['lootId'] for s in self.p.d['ships'].values()}):
@@ -1490,7 +1494,12 @@ class Shop:
             n = int(n)
             if n <= 0 or not hidden(loot):
                 continue
-            if loose_item(loot):
+            if loot in ITEMS['ships']:                # a ship that waited in the store (the admin ships): it goes to the hangar once
+                if not YM.ship_allowed(self.p, loot):
+                    continue                          # a moderator ship stays in the store while this player may not fly it
+                if loot not in {s['lootId'] for s in self.p.d['ships'].values()}:
+                    self.p.add_ship(loot)
+            elif loose_item(loot):
                 for _ in range(n):
                     self.p.new_item(loot)
             elif loot in SE.RESERVES:
@@ -1811,6 +1820,17 @@ class Shop:
                 items.append(self.hangar_item(self.item_id(loot), loot, n))
         return items
 
+    def leave_mod_ship(self):
+        """At login: a player flying a moderator ship it may no longer fly (admin mode or mod_ships_players turned off) goes back to
+        another ship of its own, in its own position."""
+        if YM.ship_allowed(self.p, self.p.ship()['lootId']):
+            return
+        sid = next((k for k in sorted(self.p.d['ships'], key=int) if YM.ship_allowed(self.p, self.p.ship(k)['lootId'])), None)
+        if sid is not None:
+            old = self.p.ship()['lootId']
+            self.activate({'shipId': sid}, in_station=True, travel=False)
+            self.log('   moderator ship left: %s -> %s' % (old, self.p.ship()['lootId']))
+
     def ships_cmd(self):
         """Hangar list: owned ships (the active one marked), a design list for each, the shared inventory. Ship name with appearance
         (e.g. ship_sentinel_design_sentinel-phantasm): the client (HangarShipsCommandHandlerEvent) finds the slot layout by the name
@@ -1818,7 +1838,8 @@ class Shop:
         base name was gone, the first MANAGE after a design change threw NullReferenceException (live round 2)."""
         t = copy(self.ships_tpl)
         t.pop('_m', None)
-        sids = sorted(self.p.d['ships'], key=int)
+        sids = [sid for sid in sorted(self.p.d['ships'], key=int)       # a moderator ship this player may not fly is hidden
+                if sid == self.p.d['active_ship'] or YM.ship_allowed(self.p, self.p.ship(sid)['lootId'])]
         t['ships'] = [mod('HangarShipBriefCommand', isActive=sid == self.p.d['active_ship'], lootId=self.p.ship_look(sid),
                           shipId=int(sid), isFavorite=bool(self.p.ship(sid).get('favorite'))) for sid in sids]
         t['allDesignPack'] = [mod('ShipDesignPack', designList=self.designs(sid)) for sid in sids]
@@ -2474,6 +2495,9 @@ class Shop:
             return [reply(0, stack_msg('eqt_error_generic'))], False
         if sid == self.p.d['active_ship']:
             return [reply(1, ok=stack_msg('info_text_switch_active_hangar_success'))], False
+        if not YM.ship_allowed(self.p, self.p.ship(sid)['lootId']):
+            self.log('   moderator ship not allowed: %s (setting mod_ships_players)' % self.p.ship(sid)['lootId'])
+            return [reply(0, stack_msg('eqt_error_generic'))], False
         if not in_station:
             self.log('   ship not changed: not at the station')
             return [reply(0, stack_msg('info_text_switch_hangar_station_only'))], False

@@ -132,8 +132,8 @@ class Manager(ChatEngine):
                 new_.append(k)
             else:
                 k.update(name=roster_row['name'], company=roster_row['company'], personality=roster_row['personality'])      # the name may have been changed in the panel
-            if self.mode == 'advanced' and not multilingual:
-                k['personality'] = dict(k['personality'], lang='en')      # the built-in language model is English only (llm.py; free with other providers)
+            if self.mode == 'advanced' and not multilingual and not PRV.speaks(k['personality'].get('lang', 'en')):
+                k['personality'] = dict(k['personality'], lang='en')      # a language the built-in model writes badly: English (llm_provider.LOCAL_LANGS)
             try:
                 b = Bot(k)
             except Exception as e:                       # one broken record (hand edit, old format) must not keep the whole pack away
@@ -578,10 +578,14 @@ class Manager(ChatEngine):
                 if a.r.random() >= p:
                     continue
                 f = a.r.choice([f for f in companies if f != a.company])
-                target = a.r.choice(companies[f])
+                from . import society as TP
+                others = [h for h in companies[f] if not TP.same_clan(a, h)]     # never its own clan, whatever the company
+                if not others:
+                    continue
+                target = a.r.choice(others)
                 if a.k.get('clan'):
                     from . import society as TP
-                    combat = [h for h in companies[f] if TP.clan_relation(a, h) == 3]
+                    combat = [h for h in others if TP.clan_relation(a, h) == 3]
                     if combat:
                         target = a.r.choice(combat)        # clan war: a member of the enemy clan on the map first
                 if target.dead_until > now or a.k.get('clan') and TP.clan_relation(a, target) in (1, 2):

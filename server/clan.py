@@ -31,6 +31,11 @@ RIGHTS = ['hiremember', 'firemember', 'editranks', 'news', 'roundmail', 'tax', '
           'diplo_war', 'battle_station_replace_module', 'battle_station_deflector', 'battle_station_build']      # + Ö5 (CBS)
 MAX_TAX = 5               # official forum 127471, 127585: clan tax 0-5%
 MAX_MEMBERS = 50                # official forum 127471, 127585 (11.2): at most 50 players per clan (client err_clan_full)
+
+
+def is_full(k, margin=0):
+    """Whether clan k has no room left (margin: that many places before the limit). No limit with the panel's clan_unlimited setting (fork)."""
+    return not SET.get('clan_unlimited') and len(k['members']) >= MAX_MEMBERS - margin
 APPLICATION_FEE = 1500         # application to a clan (forum 127471, 127585 11.4; darkorbitwiki guides/clan): does not go to the treasury; not returned
 #                               on acceptance, refunded on rejection or withdrawal
 PAYOUT_FIRST, PAYOUT_INCREASE, PAYOUT_CAP = 5000000, 10000000, 250000000      # weekly limit from the treasury to a member (forum 127471): the week they joined
@@ -93,6 +98,45 @@ def text(key, **args):
 NEWS_KEYS = {'found': 'clan_found', 'left': 'success_clan_left', 'leader': 'info_clan_changeLeader',
              'war': 'diplo_declare_war_info', 'war2': 'diplo_declare_war_info2', 'peace': 'diplo_stop_war_msg',
              'peace2': 'diplo_stop_war_msg2'}      # the client builds the news from the language key (%username%, %clanname%)
+# The client leaves the names out of those texts (user report 2026-11-22: "L'utilisateur  a quitté le clan.", "Le clan  a mis fin à la
+# guerre"; the founding news came out empty too): the news is sent as plain text (type "user") written here, in the player's login language
+# (web_settings.json next to the profile; English otherwise). {user}: the pilot, {clan}: the other clan.
+NEWS_TEXT = {
+    'found': {'en': 'The clan was founded by {user}.', 'fr': 'Clan fondé par {user}.', 'de': 'Der Clan wurde von {user} gegründet.',
+              'es': 'Clan fundado por {user}.', 'pl': 'Klan założony przez {user}.', 'pt': 'Clã fundado por {user}.',
+              'ru': 'Клан основан пилотом {user}.', 'tr': 'Klan {user} tarafından kuruldu.'},
+    'left': {'en': '{user} left the clan.', 'fr': '{user} a quitté le clan.', 'de': '{user} hat den Clan verlassen.', 'es': '{user} ha dejado el clan.',
+             'pl': '{user} opuścił klan.', 'pt': '{user} saiu do clã.', 'ru': '{user} покинул клан.', 'tr': '{user} klandan ayrıldı.'},
+    'leader': {'en': '{user} is the new clan leader.', 'fr': '{user} est le nouveau chef du clan.', 'de': '{user} ist der neue Clanleiter.',
+               'es': '{user} es el nuevo líder del clan.', 'pl': '{user} jest nowym przywódcą klanu.', 'pt': '{user} é o novo líder do clã.',
+               'ru': '{user} - новый глава клана.', 'tr': '{user} klanın yeni lideri.'},
+    'war': {'en': 'The clan {clan} declared war on your clan.', 'fr': 'Le clan {clan} a déclaré la guerre à votre clan.',
+            'de': 'Der Clan {clan} hat eurem Clan den Krieg erklärt.', 'es': 'El clan {clan} ha declarado la guerra a tu clan.',
+            'pl': 'Klan {clan} wypowiedział wojnę twojemu klanowi.', 'pt': 'O clã {clan} declarou guerra ao teu clã.',
+            'ru': 'Клан {clan} объявил войну вашему клану.', 'tr': '{clan} klanı klanınıza savaş ilan etti.'},
+    'war2': {'en': 'Your clan declared war on the clan {clan}.', 'fr': 'Votre clan a déclaré la guerre au clan {clan}.',
+             'de': 'Euer Clan hat dem Clan {clan} den Krieg erklärt.', 'es': 'Tu clan ha declarado la guerra al clan {clan}.',
+             'pl': 'Twój klan wypowiedział wojnę klanowi {clan}.', 'pt': 'O teu clã declarou guerra ao clã {clan}.',
+             'ru': 'Ваш клан объявил войну клану {clan}.', 'tr': 'Klanınız {clan} klanına savaş ilan etti.'},
+    'peace': {'en': 'The clan {clan} ended the war with your clan.', 'fr': 'Le clan {clan} a mis fin à la guerre contre votre clan.',
+              'de': 'Der Clan {clan} hat den Krieg mit eurem Clan beendet.', 'es': 'El clan {clan} ha terminado la guerra con tu clan.',
+              'pl': 'Klan {clan} zakończył wojnę z twoim klanem.', 'pt': 'O clã {clan} terminou a guerra com o teu clã.',
+              'ru': 'Клан {clan} закончил войну с вашим кланом.', 'tr': '{clan} klanı klanınızla savaşı bitirdi.'},
+    'peace2': {'en': 'Your clan ended the war with the clan {clan}.', 'fr': 'Votre clan a mis fin à la guerre contre le clan {clan}.',
+               'de': 'Euer Clan hat den Krieg mit dem Clan {clan} beendet.', 'es': 'Tu clan ha terminado la guerra con el clan {clan}.',
+               'pl': 'Twój klan zakończył wojnę z klanem {clan}.', 'pt': 'O teu clã terminou a guerra com o clã {clan}.',
+               'ru': 'Ваш клан закончил войну с кланом {clan}.', 'tr': 'Klanınız {clan} klanıyla savaşı bitirdi.'},
+}
+
+
+def news_lang(p):
+    """The player's login language (web.py's web_settings.json next to the profile) for the news texts; 'en' if unknown."""
+    try:
+        with open(os.path.join(os.path.dirname(os.path.abspath(p.path)), 'web_settings.json'), encoding='utf8') as fh:
+            lang = str(json.load(fh).get('lang') or '')
+    except (OSError, ValueError, TypeError, AttributeError):
+        return 'en'
+    return lang.split('_')[0].lower() if lang else 'en'
 
 
 def name(p):
@@ -652,7 +696,11 @@ class Clan:
         """Client (MyClanDataVo.AddNews): if type is "user" the context is plain text; otherwise the context is a language key (%username%,
         %clanname% are replaced). The founding news is the client's "clan_found" text (live test 2026-10-17: both came out empty)."""
         k = self.k
-        kind, text = ('user', n['text']) if n['type'] in ('news', 'user') else (n['type'], NEWS_KEYS.get(n['type'], n['text']))
+        if n['type'] in NEWS_TEXT:                          # written here with the names (see NEWS_TEXT)
+            forms = NEWS_TEXT[n['type']]
+            kind, text = 'user', forms.get(news_lang(self.p), forms['en']).format(user=n.get('name') or '?', clan=n.get('clan_name') or k['name'])
+        else:
+            kind, text = ('user', n['text']) if n['type'] in ('news', 'user') else (n['type'], NEWS_KEYS.get(n['type'], n['text']))
         return mod('ClanNewsInfoCommand', type=kind, clanNewsId=n['id'], userName=n['name'], clanId=k['id'], context=text,
                    userId=n['who'], clanName=n.get('clan_name') or k['name'], insertDate=n['date'])
 
@@ -939,7 +987,7 @@ class Clan:
                 return reply(False, 'err_clan_apply')
             if c['company'] and int(c['company']) != int(self.p.d['pilot'].get('factionId', 0)):     # clan bound to a company
                 return reply(False, 'err_clan_other_fractionID')
-            if len(c['members']) >= MAX_MEMBERS:
+            if is_full(c):
                 return reply(False, 'err_clan_full')
         import inventory as INV
         if INV.spend(self.p, {'currency_credits': APPLICATION_FEE}, 'clan_hl_clan_bewerbung') is None:
@@ -1112,7 +1160,7 @@ class Clan:
             other = next((c for c in CLANS.values() if b['name'] in c['members']), None)
             if accept and other is not None:
                 return reply(False, err('clan_user_in_clan'))
-            if accept and len(k['members']) >= MAX_MEMBERS:
+            if accept and is_full(k):
                 k['applications'].append(b)
                 return reply(False, err('err_clan_full'))
             if accept:

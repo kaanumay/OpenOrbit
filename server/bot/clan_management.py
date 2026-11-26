@@ -202,7 +202,7 @@ def write_description(b, k, kl, now, force=False):
     from . import clan_stations as CBA
     pvp = b.o('aggression') > 0.6 or any(d['type'] == 3 for d in k['diplomacy'])
     cbs = CBA.stations(k)
-    full = len(k['members']) >= KL.MAX_MEMBERS - 2
+    full = KL.is_full(k, margin=2)
     signature = [pvp, bool(cbs), full]
     y = save(k)
     if not force and y.get('description_signature') == signature and now - y.get('description_time', 0) < b.r.uniform(4, 9) * DAY:

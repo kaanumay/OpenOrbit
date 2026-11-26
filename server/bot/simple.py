@@ -2,7 +2,7 @@
 aliens, and on seeing an enemy player they attack or flee depending on strength (ship.py's tactics), and respawn on the same map when they die.
 
 Pack settings:
-  basit_haritalar  {map class: bot count} (X-1, X-2, X-3, X-4, 4-X, X-5, X-6, X-7, X-8, 4-5): separately for each company's map
+  basit_haritalar  {map class: bot count} (X-1, X-2, X-3, X-4, 4-X, X-5, X-6, X-7, X-8, 4-5, 5-X, BL): separately for each company's map
   basit_guc        strength ratio (0.5 weak .. 2 strong): multiplier of the map's typical equipment
   basit_dost       enemy / friendly ratio: the share of those from the map's company (0-1)
 The roster is generated from these numbers when the pack is created (panel/bots.py); map assignment and equipment are here, deterministic by seed.
@@ -13,7 +13,7 @@ import map_links as H
 from .brain import Goal, target
 from . import catalog as K
 
-DEFAULT_MAPS = {'X-1': 2, 'X-2': 2, 'X-3': 2, 'X-4': 2, '4-X': 3, 'X-5': 1, 'X-6': 1, 'X-7': 1, 'X-8': 1, '4-5': 2}
+DEFAULT_MAPS = {'X-1': 2, 'X-2': 2, 'X-3': 2, 'X-4': 2, '4-X': 3, 'X-5': 1, 'X-6': 1, 'X-7': 1, 'X-8': 1, '4-5': 2, '5-X': 4, 'BL': 8}      # pirate maps never empty; BL: several groups per map
 
 # map class -> (ship, laser, laser count share, shield generator, drone count, drone): the typical player on that map
 CLASS_GEAR = {
@@ -27,12 +27,19 @@ CLASS_GEAR = {
     'X-7': ('ship_goliath', 'equipment_weapon_laser_lf-3', 1.0, 'equipment_generator_shield_sg3n-b02', 8, 'drone_iris'),
     'X-8': ('ship_goliath', 'equipment_weapon_laser_lf-3', 1.0, 'equipment_generator_shield_sg3n-b02', 8, 'drone_iris'),
     '4-5': ('ship_goliath', 'equipment_weapon_laser_lf-3', 1.0, 'equipment_generator_shield_sg3n-b02', 8, 'drone_iris'),
+    '5-X': ('ship_goliath', 'equipment_weapon_laser_lf-4', 1.0, 'equipment_generator_shield_sg3n-b02', 8, 'drone_iris'),
+    'BL': ('ship_goliath', 'equipment_weapon_laser_pr-l', 1.0, 'equipment_generator_shield_sg3n-b03', 8, 'drone_iris'),      # Prometheus: made for BL
 }
-CLASS_LEVEL = {'X-1': 3, 'X-2': 5, 'X-3': 7, 'X-4': 9, '4-X': 11, 'X-5': 13, 'X-6': 14, 'X-7': 15, 'X-8': 16, '4-5': 17}
+WELL_EQUIPPED = ('5-X', 'BL')     # never below their map's equipment (the strength ratio only raises it): weaker pilots die there at once
+CLASS_LEVEL = {'X-1': 3, 'X-2': 5, 'X-3': 7, 'X-4': 9, '4-X': 11, 'X-5': 13, 'X-6': 14, 'X-7': 15, 'X-8': 16, '4-5': 17, '5-X': 18, 'BL': 24}
 
 
 def map_class(map_id):
     c = H.map_class(map_id)
+    if c in ('5-1', '5-2', '5-3'):
+        return '5-X'                      # the pirate maps (5-4 needs a key: no bots)
+    if c in ('BL-1', 'BL-2', 'BL-3'):
+        return 'BL'                       # Black Light, each company's own
     return '4-X' if c in ('4-1', '4-2', '4-3', '4-4') else c
 
 
@@ -63,13 +70,16 @@ def gear(map_id, power=1.0, r=random):
     g = K.ITEMS['ships'][ship]
     order = ['equipment_weapon_laser_lf-1', 'equipment_weapon_laser_mp-1', 'equipment_weapon_laser_sll-01',
             'equipment_weapon_laser_lf-2', 'equipment_weapon_laser_lf-3']
-    i = order.index(laser) if laser in order else 0
-    if power >= 1.5 and i + 1 < len(order):
+    i = order.index(laser) if laser in order else -1           # LF-4 and Prometheus (pirate, BL maps) are not on this ladder
+    if 0 <= i and power >= 1.5 and i + 1 < len(order):
         laser = order[i + 1]
     elif power <= 0.6 and i > 0:
         laser = order[i - 1]
     full = max(0.25, min(1.0, pay * power * r.uniform(0.8, 1.1)))
     drones = max(0, min(8, int(round(drones * min(power, 1.3) * r.uniform(0.7, 1.2))))) if drone else 0
+    well = map_class(map_id) in WELL_EQUIPPED
+    if well:
+        full, drones, power = 1.0, max(drones, 8 if drone else 0), max(power, 1.4)        # all slots, every drone, MCB-25
     slot = g['laser'] + drones * (2 if drone == 'drone_iris' else 1)
     return {'ship': ship, 'laser': {laser: max(1, int(round(slot * full)))},
             'shield': {shield: max(1, int(round(g['generators'] * full * 0.8)))}, 'speed': {}, 'drone': {drone: drones} if drones else {},
@@ -118,4 +128,26 @@ class Simple(Goal):
 
     def abstract(self, bot, dt, y):
         from . import abstract_sim as S
+        _bl_group(bot, y)
         S.farm(bot, dt, y)
+
+
+BL_GROUP = (3, 4)                 # simple mode: the bots of a company on a BL map play in groups of this size
+
+
+def _bl_group(bot, y):
+    """Simple mode on a BL map: the bots of a company there form groups of 3-4 (several groups per map, user request 2026-11-26); checked
+    every few minutes."""
+    from . import blacklight as BLK
+    import group as GR
+    now = y.now if y is not None else bot.hour()
+    if y is None or int(bot.game_map) not in BLK.BL_MAPS or now < bot.__dict__.get('_bl_group_t', 0):
+        return
+    bot._bl_group_t = now + bot.r.uniform(120, 300)
+    if GR.group_of(bot.uid) is not None:
+        return
+    free = [o for o in y.on_map.get(bot.game_map, ()) if o is not bot and o.online and o.company == bot.company and GR.group_of(o.uid) is None]
+    if len(free) + 1 < BL_GROUP[0]:
+        return
+    party = [bot] + free[:bot.r.randint(*BL_GROUP) - 1]
+    BLK.form_group(y, bot, party, now, float('inf'))

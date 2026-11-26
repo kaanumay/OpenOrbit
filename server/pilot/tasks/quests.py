@@ -1,8 +1,8 @@
 """Quest mode (pilot.json quests): the active quests lead the bot (act/quests.py says what each condition asks: aliens to destroy on their
 maps, a map to visit, a point to reach, a distance to fly, a time to spend, bonus boxes, an ore, any alien, the quest giver). Only a goal of
 aliens hunts (kill: the quest's aliens and nothing else; grind: the Hunt list of the map); every other goal only fights back. With accept,
-when no active quest can be played and a slot is free, the bot flies to a quest giver and takes the highest-level quest it can play. When no
-quest can be played nor taken, the mode ends (Pilot.mode_end: its 'then', stop or another mode).
+when no active quest can be played and a slot is free, the bot flies to a quest giver and takes the lowest-level quest it can play (then the
+next ones up). When no quest can be played nor taken, the mode ends (Pilot.mode_end: its 'then', stop or another mode).
 A chosen quest (quests.qid; 0: automatic) is the only one played, no other is taken; when it is done (or no longer accepted, or cannot be
 played) the mode ends the same way."""
 from ..act import quests as QA
@@ -119,10 +119,14 @@ def goal(pilot, s, now):
         pilot.note('Quest handed in: {0}.', g['name'])
         pilot.quest_block = now + HANDED_SEC
     else:
-        qid = act.accept_quest()
-        if qid:
+        taken = []
+        for _ in range(c['accept_count']):          # several at once (fork): the lowest levels first, within the free quest slots
+            qid = act.accept_quest()
+            if not qid:
+                break
+            taken.append(qid)
             pilot.note('Quest taken: {0}.', act.quest_name(qid))
-        else:
+        if not taken:
             pilot.note('No quest to take here.')
             pilot.quest_block = now + BLOCK_SEC
             pilot.mode_end('no_quest')

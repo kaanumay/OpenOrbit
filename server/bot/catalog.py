@@ -18,8 +18,9 @@ ITEMS = DATA.shared('items.json')              # read only (audit 2026-11-22: st
 NPC = DATA.load('npc.json')
 COMBAT = NPC['combat']
 
-# maps the bots roam: X-1..X-8, 4-1..4-5 (pirate maps need a key, gates and mode maps need a ticket)
-MAPS = tuple(range(1, 30))
+# maps the bots roam: X-1..X-8, 4-1..4-5, the pirate maps 5-1..5-3 (from 4-5) and Black Light BL-1..BL-3 (from X-8); not 5-4 (Silver
+# Booty Key), gates and mode maps (ticket)
+MAPS = tuple(range(1, 30)) + (91, 92, 93) + (306, 307, 308)
 LASER_INTERVAL = COMBAT['laser_interval_sec']
 NPC_INTERVAL = COMBAT['npc_attack_interval_sec']
 SEARCH_SEC = 9.0             # searching for a target and approaching between two aliens (observed: 6-12 s on 1-x)
@@ -109,6 +110,8 @@ def outfit(gear, shield_share=0.6):
     Laser slots: ship + drones (Flax 1, Iris 2); generator slots are the ship's, shield_share of them go to the shield (by personality)."""
     g = ITEMS['ships'].get(gear['ship']) or ITEMS['ships']['ship_phoenix']
     drone_slots = sum(ITEMS['drones'].get(d, {}).get('slot', 1) * n for d, n in gear.get('drone', {}).items())
+    from . import pet as BP
+    drone_slots += BP.laser_slots(gear)                  # the P.E.T.'s laser slots (bot/pet.py) count like the drones'
     fitted = sorted(((ITEMS['lasers'][l]['damage'], ITEMS['lasers'][l].get('alien_extra', 0)) for l, n in gear.get('laser', {}).items()
                      for _ in range(n) if l in ITEMS['lasers'] and not ITEMS['lasers'][l].get('pet_only')), reverse=True)[:g['laser'] + drone_slots]
     lasers = [d for d, _ in fitted]

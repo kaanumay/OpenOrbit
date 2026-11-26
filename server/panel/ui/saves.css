@@ -385,3 +385,27 @@ body.se-busy .se-main { opacity: .75; transition: opacity .2s .15s; pointer-even
 /* Statistics tab (keIstatistik) */
 .se-stats { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 6px 24px; margin-bottom: 10px; }
 .se-stats .row { gap: 8px; padding: 4px 0; border-bottom: 1px solid var(--line, rgba(255,255,255,.06)); }
+
+/* selection: several items at once (inventory and slots) */
+.se-cell.picked, .se-inv-item.picked { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent), 0 0 14px rgba(64, 223, 255, .35); background: var(--accent-soft); }
+.se-tick { position: absolute; left: 3px; bottom: 3px; display: grid; place-items: center; width: 16px; height: 16px; border-radius: 50%;
+  background: var(--accent); color: #031018; pointer-events: none; }
+.se-tick svg { width: 11px; height: 11px; stroke-width: 3; }
+.se-inv.selecting .se-inv-item:not(.picked) { opacity: .8; }
+.se-inv-item.fitted { border-style: dashed; }
+.se-where { font-size: 10.5px; color: var(--dim); text-align: center; line-height: 1.2; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.se-slot-tool { display: grid; place-items: center; width: 22px; height: 22px; padding: 0; border: 1px solid var(--line-2); border-radius: 3px; background: transparent;
+  color: var(--dim); cursor: pointer; }
+.se-slot-tool svg { width: 13px; height: 13px; }
+.se-slot-tool:hover, .se-slot-tool.on { color: var(--accent); border-color: var(--accent); }
+.se-toggle { gap: 6px; cursor: pointer; }
+.se-selbar { position: sticky; bottom: 10px; z-index: 5; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;
+  margin-top: 12px; border-color: rgba(64, 223, 255, .45); background: rgba(6, 14, 28, .96); box-shadow: 0 6px 24px rgba(0, 0, 0, .5); }
+.se-selbar-count { display: grid; gap: 2px; }
+.se-where.here { color: var(--accent); }
+.se-admin-row { display: flex; flex-direction: row; align-items: center; flex-wrap: wrap; gap: 8px 14px; padding: 10px 12px; border: 1px solid var(--line-2); border-radius: 4px; }
+.se-admin-row > .grow { flex: 1 1 260px; min-width: 0; }
+.se-admin-row > .switch, .se-admin-row > .seg { flex: none; }
+.se-admin-row.lead { border-color: rgba(64, 223, 255, .45); }
+.se-admin-row.off { opacity: .5; }
+.se-admin { display: grid; gap: 10px; align-content: start; }

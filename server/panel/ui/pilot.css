@@ -166,3 +166,13 @@
   .pil-track > i, .pil-range .mark { transition: none; }
   .pil-journal li.new { animation: none; }
 }
+
+/* Auto Mode by save (fork): one switch per save; the selected save's page below */
+.pil-saves { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; padding: 12px 16px; }
+.pil-saves-list { display: flex; flex-wrap: wrap; gap: 8px; }
+.pil-save { display: flex; align-items: center; gap: 10px; min-width: 200px; padding: 8px 12px; border: 1px solid var(--line-2); border-radius: 4px;
+  background: rgba(4, 9, 18, .5); cursor: pointer; }
+.pil-save:hover { border-color: rgba(64, 223, 255, .45); }
+.pil-save.on { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); cursor: default; }
+.pil-save .grow { display: grid; gap: 1px; min-width: 0; }
+.pil-save small { color: var(--dim); font-size: 11.5px; }

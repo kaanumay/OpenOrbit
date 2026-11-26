@@ -1016,6 +1016,7 @@ async function renderSettings() {
   const copySel = h('select', { class: 'input', style: { maxWidth: '240px' } }, (r.saves || []).map(k => h('option', { value: k.id }, k.name)));
   const saveCard = r.record ? h('div', { class: 'card' }, h('h2', null, icon('save'), T("This save's settings: {0}", r.save_name)),
     h('p', { class: 'desc' }, T('Game settings and event choices belong to each save; when the active save changes, the settings change too.')),
+    h('p', { class: 'desc' }, T("Admin mode is set per save, in the save's character editor (Pilot tab).")),
     (r.saves || []).length ? h('div', { class: 'row' }, copySel,
       btn(T('Copy from this save'), async () => {
         const src = r.saves.find(k => k.id === copySel.value);
@@ -2496,7 +2497,7 @@ const HG_SLOT = { laser: N('Lasers'), rocket: N('Rocket launcher'), generators: 
   QuantumFluidCore: 'Quantum Fluid Core', cannon: N('Particle cannons'), cannonShield: N('Breakers'), drive: 'Singularity Drive', lens: N('Lenses'),
   lasers: N('Lasers'), gears: N('Gears'), protocols: N('Protocols'), visual: N('Look'), heat: 'HEAT', design: N('Drone designs'), other: N('More') };
 const slotName = y => HG_SLOT[y] ? T(HG_SLOT[y]) : y;
-const HG = { ship: null, config: null, section: 'ship', drone: null, slot: {}, mode: 'equip', set: '', selected: {} };
+const HG = { ship: null, config: null, section: 'ship', drone: null, slot: {}, mode: 'equip', set: '', selected: {}, picked: {} };
 
 async function renderHangar() {
   await loadGameImages();
@@ -2513,8 +2514,10 @@ async function renderHangar() {
   const kick = (e, target, drone) => h('button', { class: 'hg-item', type: 'button', disabled: lock, title: itemName(e.lootId) + ' — ' + T('click to unequip'),
     onclick: ev => hangarMove({ item: e.id, direction: 'kick', target, drone }, ev.currentTarget) }, iconName(e.lootId, 44));
   const empty = n => Array.from({ length: Math.max(0, n) }, () => h('span', { class: 'hg-item vacant' }));
+  const kickAll = (c, target, drone) => !lock && c.items.length ? h('button', { class: 'hg-tool', type: 'button', title: T('Unequip everything in this slot'),
+    onclick: () => hangarMoveMany(c.items.map(e => ({ item: e.id, direction: 'kick', target, drone }))) }, icon('download')) : null;
   const slotBox = (name, c, target, extra) => h('div', { class: 'hg-slot' }, h('div', { class: 'row between' }, h('b', null, slotName(name)),
-    h('span', { class: 'row', style: { gap: '6px' } }, extra, h('span', { class: 'mono' }, c.items.length + ' / ' + c.capacity))),
+    h('span', { class: 'row', style: { gap: '6px' } }, extra, kickAll(c, target), h('span', { class: 'mono' }, c.items.length + ' / ' + c.capacity))),
     h('div', { class: 'hg-grid' }, c.items.map(e => kick(e, target)), empty(c.capacity - c.items.length)));
   // ships: active first; star is favorite (ships that can be teleported to in the game)
   const ships = h('div', { class: 'hg-ships' }, [...v.ships].sort((a, b) => b.active - a.active || b.favorite - a.favorite).map(g => h('div', { class: 'hg-ship' + (g.id === v.ship ? ' on' : ''),
@@ -2583,7 +2586,7 @@ async function renderHangar() {
 
 // inventory card: in fit mode those that can be fitted into the selected section, in sell mode those that can be sold (identical items in one box, with their count)
 function hangarInventory(v, lock, iconName, lvlBadge) {
-  const sell = HG.mode === 'sell' && HG.section !== 'cpu';
+  const sell = HG.mode === 'sell' && HG.section !== 'cpu', multi = HG.mode === 'multi' && HG.section !== 'cpu';
   // items equipped in another config of this ship can be equipped here too (as in game); they are never sold
   const elsewhere = e => e.configs && e.configs.length > 0;
   const eligible = v.inventory.filter(e => sell ? e.selling && !elsewhere(e)
@@ -2594,15 +2597,20 @@ function hangarInventory(v, lock, iconName, lvlBadge) {
   for (const e of eligible.filter(e => e.slot === HG.slot[key])) (group[e.lootId] = group[e.lootId] || []).push(e);
   for (const es of Object.values(group)) es.sort((a, b) => elsewhere(b) - elsewhere(a));      // items of the other config first: free copies stay free
   for (const id of Object.keys(HG.selected)) if (!v.inventory.find(e => String(e.id) === id && e.selling && !elsewhere(e))) delete HG.selected[id];
+  for (const id of Object.keys(HG.picked)) if (!eligible.find(e => String(e.id) === id)) delete HG.picked[id];
+  const picks = multi ? HG.picked : HG.selected;
+  const picked = eligible.filter(e => HG.picked[e.id]);
   const selected = v.inventory.filter(e => HG.selected[e.id]), total = {};
   for (const e of selected) total[e.selling[0]] = (total[e.selling[0]] || 0) + e.selling[1];
   const boxes = Object.entries(group).sort((a, b) => itemName(a[0]).localeCompare(itemName(b[0]))).map(([lid, es]) => {
-    const n = es.filter(e => HG.selected[e.id]).length;
+    const n = es.filter(e => picks[e.id]).length, choosing = sell || multi;
     const b = h('button', { class: 'hg-item' + (n ? ' on' : ''), type: 'button', disabled: !sell && lock,
-      title: itemName(lid) + (sell ? ' — ' + T('sale value {0}', formatMoney(es[0].selling[0], es[0].selling[1])) + ' · ' + T('click to select, right-click to deselect') : ' — ' + T('click to equip')),
-      onclick: ev => { if (!sell) return hangarMove({ item: es[0].id, direction: 'equip', target: HG.section, drone: HG.drone, set: HG.section === 'pet' ? HG.set : '' }, ev.currentTarget);
-        const e = es.find(x => !HG.selected[x.id]); if (e) { HG.selected[e.id] = true; renderHangar(); } },
-      oncontextmenu: ev => { if (!sell) return; ev.preventDefault(); const e = es.find(x => HG.selected[x.id]); if (e) { delete HG.selected[e.id]; renderHangar(); } } },
+      title: itemName(lid) + (sell ? ' — ' + T('sale value {0}', formatMoney(es[0].selling[0], es[0].selling[1])) + ' · ' + T('click to select, right-click to deselect')
+        : multi ? ' — ' + T('click to select, right-click to deselect') : ' — ' + T('click to equip')),
+      onclick: ev => { if (!choosing) return hangarMove({ item: es[0].id, direction: 'equip', target: HG.section, drone: HG.drone, set: HG.section === 'pet' ? HG.set : '' }, ev.currentTarget);
+        const e = es.find(x => !picks[x.id]); if (e) { picks[e.id] = true; renderHangar(); } },
+      oncontextmenu: ev => { if (!choosing) return; ev.preventDefault(); const e = es.find(x => picks[x.id]); if (e) { delete picks[e.id]; renderHangar(); } },
+      ondblclick: ev => { if (!multi) return; es.forEach(x => { picks[x.id] = true; }); renderHangar(); } },
       iconName(lid, 44), lvlBadge(es[0]), es.length > 1 ? h('span', { class: 'hg-count' }, (n ? n + '/' : '') + fmtN(es.length)) : n ? h('span', { class: 'hg-count' }, '✓') : null);
     b._item = es[0].level ? { upgrade: es[0].level } : null;        // item tooltip: upgrade level
     return b;
@@ -2610,10 +2618,16 @@ function hangarInventory(v, lock, iconName, lvlBadge) {
   return h('div', { class: 'card' },
     h('div', { class: 'row between wrap', style: { gap: '10px' } },
       h('div', { class: 'row', style: { gap: '10px' } }, h('h2', { style: { margin: 0 } }, T('Inventory')),
-        HG.section !== 'cpu' ? h('div', { class: 'seg' }, [['equip', T('Equip')], ['sell', T('Sell')]].map(([k, t]) => h('button', { class: HG.mode === k ? 'on info' : '',
+        HG.section !== 'cpu' ? h('div', { class: 'seg' }, [['equip', T('Equip')], ['multi', T('Select several')], ['sell', T('Sell')]].map(([k, t]) => h('button', { class: HG.mode === k ? 'on info' : '',
           onclick: () => { HG.mode = k; renderHangar(); } }, t))) : null),
       h('div', { class: 'seg', style: { flexWrap: 'wrap' } }, kinds.map(y => h('button', { class: y === HG.slot[key] ? 'on info' : '', onclick: () => { HG.slot[key] = y; renderHangar(); } }, slotName(y))))),
     h('div', { class: 'hg-grid', style: { marginTop: '12px' } }, boxes.length ? boxes : h('div', { class: 'empty' }, sell ? T('No items to sell.') : T('No items to equip.'))),
+    multi ? h('div', { class: 'hg-sell' }, h('span', null, picked.length ? T('{0} items selected', picked.length) : T('Click items to select them (double-click: all of that kind).')),
+      h('div', { class: 'row', style: { gap: '6px' } },
+        btn(T('Select all shown'), () => { eligible.filter(e => e.slot === HG.slot[key]).forEach(e => { HG.picked[e.id] = true; }); renderHangar(); }, 'sm ghost'),
+        btn(T('Clear selection'), () => { HG.picked = {}; renderHangar(); }, 'sm ghost', null, { disabled: !picked.length }),
+        btn(T('Equip selected'), () => hangarMoveMany(picked.map(e => ({ item: e.id, direction: 'equip', target: HG.section, drone: HG.drone, set: HG.section === 'pet' ? HG.set : '' })),
+          () => { HG.picked = {}; }), 'sm primary', null, { disabled: lock || !picked.length }))) : null,
     sell && selected.length ? h('div', { class: 'hg-sell' }, h('span', null, T('{0} items selected', selected.length), ' · ', h('b', null, Object.entries(total).map(([c, n]) => formatMoney(c, n)).join(' + '))),
       h('div', { class: 'row', style: { gap: '6px' } }, btn(T('Clear selection'), () => { HG.selected = {}; renderHangar(); }, 'sm ghost'),
         btn(T('Sell selected'), async () => await confirmBox(T('Sell {0} items?', selected.length), T('You get {0} for them. This cannot be undone.',
@@ -2625,6 +2639,21 @@ async function hangarMove(request, b) {
   b.disabled = true;
   const r = await act(() => api('/api/game/hangar/move', Object.assign({ ship: HG.ship, config: HG.config }, request)));
   if (r && !r.done) toast(r.error === 'station' ? T('Equipment can only be changed in a safe zone.') : gameText(r.error), 'err');
+  renderHangar();
+}
+
+// several moves one after the other (multiple selection, a whole slot); one summary at the end
+async function hangarMoveMany(requests, after) {
+  let done = 0, error = null;
+  for (const r of requests) {
+    const x = await act(() => api('/api/game/hangar/move', Object.assign({ ship: HG.ship, config: HG.config }, r)));
+    if (!x) break;
+    if (x.done) done++;
+    else error = error || x.error;
+  }
+  if (done) toast(T('{0} of {1} done.', done, requests.length), done === requests.length ? 'ok' : 'info');
+  if (error) toast(error === 'station' ? T('Equipment can only be changed in a safe zone.') : gameText(error), 'err');
+  if (after) after();
   renderHangar();
 }
 
@@ -2708,8 +2737,11 @@ async function renderSkylab() {
           && skylabAction(m.id, 'abortUpgrade'), 'sm'));
     } else if (c) {
       buttons.push(btn(rate ? T('Build') : T('Upgrade'), () => skylabAction(m.id, 'upgrade'), 'sm primary'));
-      if (c.uridium) buttons.push(btn(T('Instant ({0} U.)', fmtN(c.uridium)), () => skylabAction(m.id, 'instantUpgrade'), 'sm'));
+      buttons.push(btn(c.uridium ? T('Instant ({0} U.)', fmtN(c.uridium)) : T('Instant'), () => skylabAction(m.id, 'instantUpgrade'), 'sm'));
     }
+    // quick upgrade: instant levels one after the other up to the highest (a running upgrade is finished first)
+    if (m.level < m.maximum && (c || m.remaining != null)) buttons.push(btn(T('Max level'), () => skylabMax(m.id, skModuleName(m.id)), 'sm', 'zap',
+      { title: T('Instant upgrades up to level {0}, paid with uridium like the Instant button.', m.maximum) }));
     if (m.toggleable && !rate && m.remaining == null) buttons.push(btn(m.state === 'ACTIVE' ? T('Close') : T('Open'),
       () => skylabAction(m.id, m.state === 'ACTIVE' ? 'setInactive' : 'setActive'), 'sm ghost'));
     return h('div', { class: 'sk-module' + (m.state === 'ACTIVE' ? ' on' : '') },
@@ -2733,6 +2765,8 @@ async function renderSkylab() {
         btn(T('Fast send ({0} U.)', fmtN(v.instant_price)), () => skylabAction('TRANSPORT_MODULE', 'startTransport', 'fast'), 'sm')));
   $('#content').replaceChildren(h('div', { class: 'stack' },
     gameHeader(v, 'skylab', h('span', { class: 'pill' + (v.energy.used > v.energy.solar ? ' err' : '') }, T('Energy'), ' ', h('b', null, fmtN(v.energy.used) + ' / ' + fmtN(v.energy.solar))),
+      v.modules.some(m => m.level < m.maximum && (m.cost || m.remaining != null)) ? btn(T('Everything to max'), () => skylabMax('ALL', null), 'sm primary', 'zap',
+        { title: T('Every module to its highest level with instant upgrades (base and solar modules first).') }) : null,
       btn(null, () => renderSkylab(), 'icon', 'refresh', { title: T('Refresh') })),
     h('div', { class: 'card' }, h('h2', null, T('Storage')), h('div', { class: 'sk-storage' }, storage)),
     h('div', { class: 'sk-modules' }, modules),
@@ -2746,6 +2780,19 @@ async function skylabAction(module, operation, mod) {
     if (r.errors.length) toast(skText(r.errors[0]), 'err');
     else if (r.achievements.length) toast(skText(r.achievements[r.achievements.length - 1]), 'ok');
     if (r.done && operation === 'startTransport') SK.send = {};
+  }
+  renderSkylab();
+}
+
+async function skylabMax(module, name) {
+  if (!await confirmBox(name ? T('{0} to the highest level?', name) : T('Every module to the highest level?'),
+    T('Instant upgrades one level after the other, paid with uridium at the usual price; a running upgrade is finished first. It stops if uridium or energy runs out.'),
+    { ok: T('Upgrade') })) return;
+  const r = await act(() => api('/api/game/skylab/action', { module, operation: 'instantMax', mod: '', amounts: {} }));
+  if (r) {
+    if (r.levels) toast(T('{0} levels gained.', r.levels), r.left.length ? 'info' : 'ok');
+    if (r.left.length && r.errors.length) toast(skText(r.errors[0]), 'err');
+    else if (!r.levels && !r.left.length) toast(T('Already at the highest level.'), 'ok');
   }
   renderSkylab();
 }

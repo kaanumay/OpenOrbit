@@ -25,7 +25,35 @@ PAGES.push({ id: 'pilot', name: N('Auto Mode'), ic: 'bot', game: true, beta: tru
 GAME_PAGES.push(['pilot', N('Auto Mode'), '', 'bot']);
 RENDER.pilot = () => renderPilot();
 
-const PIL = { data: null, cat: {}, tab: null, seq: 0, timer: null, polling: false, aliensSig: '', alienNames: {}, els: null, journal: 0 };
+const PIL = { data: null, cat: {}, tab: null, seq: 0, timer: null, polling: false, aliensSig: '', alienNames: {}, els: null, journal: 0, slot: null, saves: [], savesAt: 0 };
+// every request names the save whose Auto Mode the page shows (pilot_panel.py: each save has its own pilot.json and its own bot)
+const pilApi = (path, body) => body ? api(path, Object.assign({ slot: PIL.slot }, body)) : api(path + '?slot=' + encodeURIComponent(PIL.slot || ''));
+
+// the saves' strip: every save with its Auto Mode switch (one click, any save) and whether its pilot is in the game; clicking a save shows its page
+function pilSavesStrip() {
+  if (PIL.saves.length < 2 && PIL.saves.every(k => k.id === PIL.slot)) return h('div');
+  return h('div', { class: 'card pil-saves' }, h('span', { class: 'lbl' }, T('Auto Mode by save')),
+    h('div', { class: 'pil-saves-list' }, PIL.saves.map(k => {
+      const cb = h('input', { type: 'checkbox', checked: k.enabled, onchange: async e => {
+        e.target.disabled = true;
+        const r = await act(() => api(e.target.checked ? '/api/pilot/start' : '/api/pilot/stop', { slot: k.id }),
+          e.target.checked ? T('Auto Mode on for {0}.', k.name) : T('Auto Mode off for {0}.', k.name));
+        if (r && k.id === PIL.slot) { PIL.seq++; PIL.data = r; }
+        await pilSavesLoad(true);
+        if (PIL.data?.online && k.id === PIL.slot) pilCommand(); else renderPilot();
+      } });
+      return h('div', { class: 'pil-save' + (k.id === PIL.slot ? ' on' : ''), title: T('Show this save’s Auto Mode'),
+        onclick: e => { if (e.target.closest('.switch') || k.id === PIL.slot) return; PIL.slot = k.id; pilMem('slot', k.id); renderPilot(); } },
+        h('span', { class: 'dot ' + (k.online ? 'ok' : '') }),
+        h('div', { class: 'grow' }, h('b', null, k.name), h('small', null, k.online ? (k.enabled ? T(PIL_STATE[k.state] || PIL_STATE.off) : T('In the game')) : T('Not in the game'))),
+        h('label', { class: 'switch', title: k.enabled ? T('Auto Mode on: click to turn it off') : T('Auto Mode off: click to turn it on') }, cb, h('span')));
+    })));
+}
+async function pilSavesLoad(force) {
+  if (!force && Date.now() - PIL.savesAt < 4000) return;
+  try { PIL.saves = (await api('/api/pilot/saves')).saves || []; PIL.savesAt = Date.now(); } catch (e) { return; }
+  if (PIL.els?.saves?.isConnected) PIL.els.saves.replaceWith(PIL.els.saves = pilSavesStrip());
+}
 const PILC = [];           // settings cards: {id, tab, order, build}
 // the modes: name, icon, the game's sprite on its tile, one line under the name
 const PIL_MODES = {
@@ -62,7 +90,7 @@ const PIL_NOTES = [N('Started in {0} mode.'), N('Stopped.'), N('Stopped: {0}'), 
   N('No safe zone on this map: flying away from the aliens.'), N('Wave cleared: going to the next wave portal.'),
   N('{0} took no damage for {1} s: left alone for a while.'), N('Could not take a box: skipped.'), N('Cargo full but no station within reach.'),
   N('Cargo sold: {0} credits.'), N('Could not buy {0} (budget or money).'), N('Bought {0} {1} for {2} credits.'), N('Bought {0} {1} for {2} uridium.'),
-  N('{0}: life bought ({1} U).'), N('{0} completed: playing it again.'), N('{0}: {1}/{2} parts, the gate cannot be prepared.'), N('{0} prepared.'),
+  N('{0}: life bought ({1} U).'), N('{0} completed: playing it again.'), N('Next gate: {0}.'), N('{0}: {1}/{2} parts, the gate cannot be prepared.'), N('{0} prepared.'),
   N('Entering the {0}.'), N('Enemy pilot nearby: {0}.'), N('Leaving the map for {0}.'), N('Enemy pilot nearby but no safe zone on this map: carrying on.'),
   N('Quest: {0} ({1}).'), N('No quest to play.'), N('Quest handed in: {0}.'), N('Quest taken: {0}.'), N('No quest to take here.'), N('Ship destroyed.'),
   N('Repaired at the base ({0}/{1}).'), N('Used {0}.'), N('Shield low: switched to config {0}.'), N('P.E.T. repaired ({0} U).'), N('P.E.T. launched.'),
@@ -99,17 +127,38 @@ async function renderPilot() {
   clearInterval(PIL.timer);
   pilMapStop();
   await loadGameImages();
-  let d;
-  try { d = await api('/api/pilot'); } catch (e) { return S.page === 'pilot' && gameError(e, 'pilot'); }
+  await pilSavesLoad(true);
   if (S.page !== 'pilot') return;                 // another page was opened meanwhile: drawing here would cover it (and poll for nothing)
+  if (!PIL.slot) PIL.slot = pilMem('slot');
+  if (!PIL.saves.some(k => k.id === PIL.slot)) PIL.slot = (PIL.saves.find(k => k.active) || PIL.saves[0] || {}).id || null;
+  let d;
+  try { d = await pilApi('/api/pilot'); } catch (e) { return S.page === 'pilot' && gameError(e, 'pilot'); }
+  if (S.page !== 'pilot') return;
   PIL.data = d;
-  if (!PIL.data.online) return gameError(new Error(T('Opens once you have logged in to the game.')), 'pilot');     // the other In-game pages' text
+  if (!PIL.data.online) {                               // this save's pilot is not in the game: the strip (its switch) and the other In-game pages' text
+    const saves = pilSavesStrip(), cur = PIL.saves.find(k => k.id === PIL.slot);
+    $('#content').replaceChildren(h('div', { class: 'stack' }, saves, h('div', { class: 'card' }, h('div', { class: 'empty' },
+      h('p', null, T('Opens once you have logged in to the game.')),
+      cur && PIL.saves.length > 1 ? h('p', { class: 'small muted' }, cur.enabled ? T('Auto Mode is on for {0}: it starts flying when this save plays.', cur.name)
+        : T('Auto Mode is off for {0}.', cur.name)) : null,
+      btn(T('Refresh'), () => go('pilot'), '', 'refresh')))));
+    PIL.els = { saves };
+    clearInterval(PIL.timer);
+    PIL.timer = setInterval(async () => {
+      if (!saves.isConnected) return clearInterval(PIL.timer);
+      if (document.visibilityState !== 'visible') return;
+      await pilSavesLoad();
+      if (PIL.saves.find(k => k.id === PIL.slot)?.online) renderPilot();
+    }, 2000);
+    S.timers.push(PIL.timer);
+    return;
+  }
   if (PIL.data.status?.catalog) PIL.cat = PIL.data.status.catalog;
   if (!PIL.tab) { const t = pilMem('tab'); PIL.tab = PIL_TABS.some(([k]) => k === t) ? t : 'mode'; }
-  const e = PIL.els = { header: h('div'), cmd: h('div', { class: 'card pil-cmd' }), rail: h('div', { class: 'pil-rail' }),
+  const e = PIL.els = { saves: pilSavesStrip(), header: h('div'), cmd: h('div', { class: 'card pil-cmd' }), rail: h('div', { class: 'pil-rail' }),
     tabs: h('div', { class: 'seg pil-tabs' }), cards: h('div', { class: 'grid pil-cards' }) };
   PIL.journal = 0;
-  $('#content').replaceChildren(h('div', { class: 'stack pil-page' }, e.header, e.cmd, h('div', { class: 'pil-main' }, pilMapBuild(), e.rail), e.tabs, e.cards));
+  $('#content').replaceChildren(h('div', { class: 'stack pil-page' }, e.saves, e.header, e.cmd, h('div', { class: 'pil-main' }, pilMapBuild(), e.rail), e.tabs, e.cards));
   pilTabs();
   pilCards();
   pilRefresh();
@@ -119,7 +168,8 @@ async function renderPilot() {
     PIL.polling = true;
     const seq = PIL.seq;
     try {
-      const d = await api('/api/pilot');
+      const d = await pilApi('/api/pilot');
+      pilSavesLoad();
       if (seq !== PIL.seq) return;                  // a save went out meanwhile: its answer is newer
       PIL.data = d;
     } catch (err) { return; } finally { PIL.polling = false; }
@@ -162,7 +212,7 @@ function pilRefreshAliens() {
 
 // ------------------------------------------------------------ settings: one path per setting ('flee_hp', 'pet.gear')
 const pilGet = path => path.split('.').reduce((o, k) => (o == null ? o : o[k]), PIL.data.config);
-const pilSave = (values, msg = T('Saved.')) => { PIL.seq++; return act(async () => { PIL.data = await api('/api/pilot', { config: values }); }, msg); };
+const pilSave = (values, msg = T('Saved.')) => { PIL.seq++; return act(async () => { PIL.data = await pilApi('/api/pilot', { config: values }); }, msg); };
 const pilSet = (path, v) => { const [a, b] = path.split('.'); return pilSave(b ? { [a]: { [b]: v } } : { [a]: v }); };
 const pilNum = (path, min, max, step = 1, scale = 1) => h('input', { class: 'input num', type: 'number', min, max, step,
   value: scale === 1 ? pilGet(path) : Math.round(pilGet(path) * scale), 'data-pilnum': path + '|' + scale,
@@ -255,9 +305,9 @@ function pilCommand() {
     p.on = on;
     const b = btn(on ? T('Stop') : T('Start'), async () => {
       b.disabled = true;
-      const r = await act(() => api(on ? '/api/pilot/stop' : '/api/pilot/start', {}));
+      const r = await act(() => pilApi(on ? '/api/pilot/stop' : '/api/pilot/start', {}));
       b.disabled = false;
-      if (r) { PIL.seq++; PIL.data = r; pilCommand(); }
+      if (r) { PIL.seq++; PIL.data = r; pilCommand(); pilSavesLoad(true); }
     }, on ? 'danger' : 'primary', on ? 'stop' : 'play');
     pilFill(p.go, b, h('small', null, on ? T('The server is flying your ship.') : T('Your ship is yours: nothing runs.')));
   }
@@ -1089,21 +1139,39 @@ PILC.push({ id: 'ore', tab: 'mode:hunt', order: 40, build: () => pilCard('cart',
   pilCheck('ore.sell', T('Sell the cargo at the base when it is full, then come back'))) });
 
 // ------------------------------------------------------------ Galaxy gate mode
+// the gates to play (fork): checked ones are played one after the other, in the list's order (round and round with "play again")
+function pilGateList(gates, label) {
+  const box = h('div', { class: 'pil-checks' });
+  const draw = () => {
+    const sel = pilGet('gates.keys') || [];
+    box.replaceChildren(...gates.map(g => h('label', { class: 'pil-check' },
+      h('input', { type: 'checkbox', checked: sel.includes(g.key), onchange: e => {
+        const cur = (pilGet('gates.keys') || []).filter(k => k !== g.key);
+        const list = e.target.checked ? gates.map(x => x.key).filter(k => k === g.key || cur.includes(k)) : cur;     // the gates' own order
+        pilSet('gates.keys', list).then(() => { draw(); pilCards(); });
+      } }), h('span', null, label(g)))));
+  };
+  draw();
+  return box;
+}
+
 PILC.push({ id: 'gates', tab: 'mode:gate', order: 10, build: () => {
   const gates = PIL.cat.gates || [];
-  const cur = gates.find(g => g.key === pilGet('gates.key'));
+  const keys = pilGet('gates.keys') || [];
+  if (!keys.length && pilGet('gates.key')) pilSet('gates.keys', [pilGet('gates.key')]);       // the old single gate becomes the list's first
+  const cur = gates.find(g => g.key === (keys[0] || pilGet('gates.key')));
   const label = g => g.name + ' · ' + (g.ready ? T('ready, {0} lives', g.lives) : g.built ? T('built') : T('parts {0}/{1}', g.parts, g.need));
   return pilCard('star', T('Galaxy gate'),
     T("Builds the gate with the Galaxy Gate Generator's spins when parts are missing (free energy first, then uridium within the build budget), prepares it, buys lives, enters through its portal on X-1 and plays every wave; on the other maps it does not hunt. After a death it repairs at the base and goes back in. Careful: when the last life is lost the gate and its parts are gone."),
-    gates.length ? pilFields(field(T('Gate'), pilSelect('gates.key', [['', T('Choose…')], ...gates.map(g => [g.key, label(g)])])),
-      field(T('Keep at least (lives)'), pilNum('gates.min_lives', 0, 10)), field(T('Lives budget (U)'), pilNum('gates.life_budget', 0, 1e8, 1000)),
+    gates.length ? h('div', null, h('div', { class: 'lbl', style: { marginBottom: '6px' } }, T('Gates to play (one after the other)')), pilGateList(gates, label)) : null,
+    gates.length ? pilFields(field(T('Keep at least (lives)'), pilNum('gates.min_lives', 0, 10)), field(T('Lives budget (U)'), pilNum('gates.life_budget', 0, 1e8, 1000)),
       field(T('Build budget (U)'), pilNum('gates.build_budget', 0, 1e9, 1000)),
       field(T('Leave the gate at (lives, 0: never)'), pilNum('gates.leave_lives', 0, 10))) : pilNoGame(),
     cur ? h('div', { class: 'pil-gauges', style: { margin: '0 0 12px' } },
       pilGauge(T('Waves'), cur.wave, cur.waves, 'var(--accent)', (cur.wave + 1) + ' / ' + cur.waves),
       pilGauge(T('Parts'), cur.parts, cur.need, 'var(--violet)', cur.parts + ' / ' + cur.need),
       pilGauge(T('Lives'), cur.lives, Math.max(cur.lives, 10), 'var(--ok)', String(cur.lives))) : null,
-    pilCheck('gates.repeat', T("Once completed, play it again (built again within the build budget)")),
+    pilCheck('gates.repeat', T('Play the list again and again (each gate built again within the build budget)')),
     h('p', { class: 'desc', style: { marginTop: '12px' } }, T('When the gate is done or cannot be played (not built, no life left, no route):')),
     pilThen('gates', 'gate'));
 } });
@@ -1127,7 +1195,8 @@ PILC.push({ id: 'quests', tab: 'mode:quest', order: 10, build: () => {
     pilFields(field(T('Quest to play'), pilQuestPick())),
     (PIL.cat.quests || []).length ? null : h('p', { class: 'muted small' }, T('No accepted quest: take one in the game (or let the bot take one below).')),
     chosen ? h('p', { class: 'muted small' }, T('Only this quest is played; no other quest is taken.'))
-      : pilCheck('quests.accept', T('Take a new quest at a quest giver when none can be played')),
+      : pilCheck('quests.accept', T('Take a new quest at a quest giver when none can be played (lowest level first, then up)')),
+    chosen ? null : pilFields(field(T('Quests to take at once'), pilNum('quests.accept_count', 1, 20))),
     pilCheck('ore.sell', T('Sell the cargo at the base when it is full, then come back')),     // the Ore card's (Hunt); off: only a sale quest's ore is sold
     h('p', { class: 'desc', style: { marginTop: '12px' } }, chosen ? T('When this quest is done or cannot be played:') : T('When no quest can be played nor taken:')),
     pilThen('quests', 'quest'));
@@ -1228,7 +1297,8 @@ PILC.push({ id: 'players', tab: 'safety', order: 30, build: () => pilCard('users
   T('Players of another company (friend server) and player bots: what to do when one comes close or fires at your ship.'),
   pilCheck('players.enabled', T('Watch for enemy pilots')),
   pilFields(
-    field(T('Reaction'), pilSelect('players.action', [['flee', T('Hide in a safe zone')], ['map', T("Go to another of the mode's maps")], ['stop', T('Stop')]])),
+    field(T('Reaction'), pilSelect('players.action', [['flee', T('Hide in a safe zone')], ['map', T("Go to another of the mode's maps")], ['stop', T('Stop')],
+      ['fight', T('Attack them')]])),
     field(T('Distance'), pilNum('players.distance', 0, 20000, 100)),
     field(T('Stay hidden (s)'), pilNum('players.wait_sec', 0, 3600, 10)),
     field(T('Avoid the map (min)'), pilNum('players.avoid_min', 1, 1440))),
@@ -1236,7 +1306,7 @@ PILC.push({ id: 'players', tab: 'safety', order: 30, build: () => pilCard('users
 
 // ------------------------------------------------------------ Settings
 async function pilProfile(action, name) {
-  const r = await act(() => api('/api/pilot/profile', { action, name }), action === 'delete' ? T('Profile deleted.') : action === 'load' ? T('Profile loaded.') : T('Profile saved.'));
+  const r = await act(() => pilApi('/api/pilot/profile', { action, name }), action === 'delete' ? T('Profile deleted.') : action === 'load' ? T('Profile loaded.') : T('Profile saved.'));
   if (r) { PIL.seq++; PIL.data = r; pilTabs(); pilCards(); pilCommand(); }
 }
 

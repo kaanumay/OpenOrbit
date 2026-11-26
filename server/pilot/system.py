@@ -86,6 +86,8 @@ class Pilot:
         self.danger_until = 0.0         # enemy pilots seen: hidden until then
         self.hide_since = None          # hidden from enemy pilots since then (tasks/players.HIDE_MAX_SEC)
         self.heal_track = None          # (HP, since when) at low HP without a repair robot (no_repair)
+        self.roam_seen = {}             # map -> {patrol cell: last time the ship was there} (brain.roam_point: the patrol covers the map)
+        self.fight_until = 0.0          # enemy pilots seen with the 'fight' reaction: they are the targets until then (tasks/players.py)
         self.no_shelter = None          # the map already noted as having no safe zone to hide in
         self.ended = set()              # the modes that ended in this run (a 'then' back to one of them stops the bot: no ping-pong)
         self.quests_finished = set()    # the quests completed in this run (the 'quest' event)
@@ -100,6 +102,7 @@ class Pilot:
         self.run_mode = mode
         self.errand = ''                # going somewhere (travel, home, sell, quest, gate_trip): see fight_or_collect
         self.hunt_map, self.empty_since, self.gate_done = None, None, False
+        self.gate_key, self.gate_played, self.gate_skipped = None, set(), set()     # Galaxy gate mode's list (tasks/gates.goal)
         self.quest_goal = self.quest_maps = self.quest_aliens = None      # Quests mode: the quest's goal, maps, aliens (tasks/quests.py)
         self.quest_rules = None                                           # and the active quests' restrictions
         self.quest_skip = {}                                              # (quest, condition) -> until when it is set aside
@@ -292,6 +295,7 @@ class Pilot:
             return
         hunt = self.hunt_cfg(now)
         s = act.snapshot(now, hunt)
+        self.roam_seen.setdefault(s['map'], {})[B.roam_cell(*s['hero'])] = now      # where the ship has been (the patrol goes elsewhere)
         hp = B.hp_pct(s)
         SUPPORT.run(self, s, now)                   # abilities, technologies, config, P.E.T. (uses the last step's target)
         ECON.supply(self, now)                      # ammo resupply
@@ -349,6 +353,9 @@ class Pilot:
                 out.update(defend=False, clear_path=False, rockets=False, launcher=False)
             if g['kind'] == 'die':                  # a quest that wants the ship destroyed: no flight, no fight back
                 out.update(flee_hp=0, resume_hp=5, defend=False, clear_path=False)
+        pl = self.cfg['players']
+        if pl['enabled'] and pl['action'] == 'fight' and now < self.fight_until and out.get('pvp') is None:
+            out['pvp'] = ()                         # enemy pilots near: the enemy player bots are the targets (act/players.pvp_targets)
         return out
 
     def safety(self, s, cfg, now):
@@ -519,7 +526,7 @@ class Pilot:
             return
         if cfg['roam'] and MODES.allows(self, 'roam'):
             if self.mode != 'roam' or not act.flying(now):
-                p = B.roam_point(s, cfg)
+                p = B.roam_point(s, cfg, visited=self.roam_seen.setdefault(s['map'], {}), now=now)
                 if p:
                     act.move_to(p[0], p[1], now)
             self.mode = 'roam'

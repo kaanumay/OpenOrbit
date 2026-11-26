@@ -64,7 +64,8 @@ def all_ships():
     """Ships an unstable module can be rolled for: the server's ships (items.json ships)."""
     global _SHIPS
     if _SHIPS is None:
-        _SHIPS = sorted(DATA.shared('items.json')['ships'])
+        import admin_mode as YM
+        _SHIPS = sorted(l for l in DATA.shared('items.json')['ships'] if l not in YM.MOD_SHIPS)     # not the moderator ships
     return _SHIPS
 
 
