@@ -234,7 +234,7 @@ RES_REPLACEMENT = {'drone_have_max': ('items_drone_have_max', {}),
 
 
 # resources that are ingredients in Assembly recipes (those sold in the shop: Prismatic Socket, Nano Case ...; assembly.py)
-ASSEMBLY_PARTS = {l for r in json.load(open(os.path.join(HERE, 'data', 'recipes.json'), encoding='utf8'))['recipes'].values()
+ASSEMBLY_PARTS = {l for r in DATA.load('recipes.json')['recipes'].values()
                   for l in r['parts'] if l.startswith('resource_')}
 STAT_TABLES = (('lasers', 'damage'), ('shield_generators', 'shield'), ('speed_generators', 'speed'))
 # no effect, not sold (hidden in the shop): the Radar CPU (diplomacy colors: bot players). The Serum CPU cures IM-01 infection

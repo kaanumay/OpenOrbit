@@ -21,6 +21,9 @@ NAME_LENGTH, DESCRIPTION_LENGTH = 40, 240
 NEW_QUEST = 900000              # new quests' ids start here (the game's quests < 900000; root state and condition ids are in a separate range)
 NEW_ALIEN = 'custom_'            # key of new alien types (custom_1, custom_2 ...)
 COUNT_MAX = 300                # most of one type on a map
+RECIPE_SEC_MAX = 30 * 86400     # longest Assembly build time
+NEW_RECIPE = re.compile(r'^recipe_custom_\d{1,5}$')          # keys of the world's own Assembly recipes
+RECIPE_PARTS_MAX, RECIPE_RESULTS_MAX = 10, 2   # the most a game recipe has
 # section -> list of (file, path prefix): change count and "revert section to standard"
 SECTIONS = {
     'maps': [('npc.json', '/maps/'), ('map_layout.json', '/maps/'), ('items.json', '/ores/')],
@@ -32,6 +35,7 @@ SECTIONS = {
     'gates': [('gates.json', '/gates/')],
     'events': [('events.json', '/events/')],
     'economy': [('levels.json', '/levels'), ('ranks.json', '/')],
+    'assembly': [('recipes.json', '/recipes/')],
 }
 PATHS = [(d, re.compile(r)) for d, r in (
     # map keys are map ids: map_layout.py and world.py read them with int() (a world code with "/maps/x" broke the server's import)
@@ -39,7 +43,8 @@ PATHS = [(d, re.compile(r)) for d, r in (
     ('quests.json', r'^/quests/\d+$'), ('quest_extras.json', r'^/quests/\d+$'), ('shop', r'^/products/[^/]+$'),
     ('social.json', r'^/auction/lots$'), ('npc.json', r'^/bonus_(boxes|box_4x)$'), ('boxes.json', r'^/boxes/[^/]+$'),
     ('gates.json', r'^/gates/[^/]+$'), ('events.json', r'^/events/[^/]+$'),
-    ('levels.json', r'^/levels$'), ('ranks.json', r'^/(formula|thresholds)$'), ('items.json', r'^/ores/maps/[^/]+$'), ('items.json', r'^/ores/respawn_sec$'))]
+    ('levels.json', r'^/levels$'), ('ranks.json', r'^/(formula|thresholds)$'), ('items.json', r'^/ores/maps/[^/]+$'), ('items.json', r'^/ores/respawn_sec$'),
+    ('recipes.json', r'^/recipes/[^/]+$'))]
 GATE_REWARD = ('ep', 'honor', 'uridium', 'xenomit', 'log_disk', 'voucher')           # the edited numbers of a gate reward
 GATE_ALIEN = ('count', 'hp', 'shield', 'damage', 'speed')                       # the edited values of a wave alien
 PACKAGE = 'package'                                                             # loot.PACKAGE: a row with several items in a box reward
@@ -383,6 +388,7 @@ def revert(did, file=None, route=None, section=None):
 
 
 _RAW = {}
+_RECIPE_ITEMS = {}
 
 
 def raw(file):
@@ -565,6 +571,8 @@ def clean_up(did, file, route, v):
             raise WorldError(_('A number was expected.'))
     if file == 'events.json':
         return _clean_event(part[1], v, world_data(did, 'npc.json')['types'])
+    if file == 'recipes.json':
+        return _clean_recipe(part[1], v)
     if file == 'items.json':
         if part[-1] == 'respawn_sec':
             lo, hi = sorted(_int(x, 1, 86400) for x in (v if isinstance(v, list) and len(v) == 2 else [15, 30]))
@@ -619,6 +627,48 @@ def _clean_box(kind, v):
         if not rows:
             raise WorldError(_('A box needs at least one reward.'))
         out['reward'] = rows
+    return out
+
+
+def recipe_items():
+    """(ingredients, results) a recipe may use: ingredients are what the game's recipes already ask for (the server knows how to count and take
+    them); results are what the game's recipes give, those ingredients, and any ammunition or resource."""
+    if 'v' not in _RECIPE_ITEMS:
+        r = raw('recipes.json')['recipes'].values()
+        parts = {l for x in r for l in x['parts']}
+        result = {l for x in r for l in x['result']} | {l for l in parts if not l.startswith(('recipe_', 'currency_'))}
+        result |= {l for l in raw('client_items.json')['items'] if l.startswith(('ammunition_', 'resource_'))}
+        _RECIPE_ITEMS['v'] = (sorted(parts), sorted(result))
+    return _RECIPE_ITEMS['v']
+
+
+def _recipe_rows(v, allowed_, most):
+    if not isinstance(v, dict):
+        raise WorldError(_('Recipe not found.'))
+    rows = {str(l): _int(n, 1, 10 ** 9) for l, n in v.items() if str(l) in allowed_}
+    if not rows or len(rows) != len(v) or len(rows) > most:
+        raise WorldError(_('A recipe needs 1 to {0} ingredients and 1 or 2 results from the lists.').replace('{0}', str(RECIPE_PARTS_MAX)))
+    return rows
+
+
+def _clean_recipe(key, v):
+    """Assembly recipe: a game recipe with its build time, ingredients, results or availability changed, or the world's own recipe
+    (recipe_custom_<n>: always available, no usage limit)."""
+    base = raw('recipes.json')['recipes'].get(key)
+    if (base is None and not NEW_RECIPE.match(key)) or not isinstance(v, dict):
+        raise WorldError(_('Recipe not found.'))
+    out = copy.deepcopy(base) if base else {'usage': 'ALWAYS_USABLE', 'visibility': 'ALWAYS_VISIBLE', 'max_count': None, 'scale': 1.0,
+                                            'stackable': True, 'duration_sec': 60, 'level': 0, 'parts': {}, 'result': {}, 'custom': True}
+    ingredients, results = recipe_items()
+    for field, allowed_, most in (('parts', ingredients, RECIPE_PARTS_MAX), ('result', results, RECIPE_RESULTS_MAX)):
+        if base is None or (field in v and v[field] != base[field]):
+            out[field] = _recipe_rows(v.get(field), set(allowed_), most)
+    if base is None or out['result'] != base['result']:       # several at once only for things that stack
+        out['stackable'] = all(l.startswith(('ammunition_', 'resource_')) for l in out['result'])
+    if 'duration_sec' in v:
+        out['duration_sec'] = _int(v['duration_sec'], 1, RECIPE_SEC_MAX)
+    if v.get('disabled'):
+        out['disabled'] = True
     return out
 
 
@@ -1149,6 +1199,16 @@ def auction(did):
     base = raw('social.json')['auction']['lots']
     return {'lots': [{'loot': l[0], 'group': l[1], 'type': l[2], 'count': l[3], 'instant': l[4], 'price': l[5]} for l in lot],
             'changed': lot != base, 'default_count': len(base)}
+
+
+def assembly(did):
+    """The Assembly's recipes in the world (test recipes left out); the world's own first."""
+    base = raw('recipes.json')['recipes']
+    rows = [{'key': k, 'result': r['result'], 'parts': r['parts'], 'duration_sec': r['duration_sec'], 'disabled': bool(r.get('disabled')),
+             'custom': k not in base, 'changed': r != base.get(k),
+             'standard': {f: base[k][f] for f in ('parts', 'result', 'duration_sec')} if k in base else None}
+            for k, r in world_data(did, 'recipes.json')['recipes'].items() if not k.startswith('recipe_recipe-test')]
+    return sorted(rows, key=lambda x: not x['custom'])
 
 
 def item_list():

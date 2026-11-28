@@ -42,6 +42,11 @@ public class Plugin : BasePlugin
             OldUpgrade.Apply(h);
             AddComponent<OldUpgradeWatcher>();
         });
+        Apply("world recipes", () =>
+        {
+            WorldRecipes.Log = Log;
+            WorldRecipes.Apply(h);
+        });
         Apply("GM konsolu", () =>
         {
             GmConsole.Log = Log;

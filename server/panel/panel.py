@@ -1651,6 +1651,10 @@ def world_get(path, q):
             return WLD.auction(did)
         if section == 'boxes':
             return WLD.boxes(did)
+        if section == 'assembly':
+            ingredients, results = WLD.recipe_items()
+            return {'recipes': WLD.assembly(did), 'ingredients': ingredients, 'results': results,
+                    'max_parts': WLD.RECIPE_PARTS_MAX, 'max_results': WLD.RECIPE_RESULTS_MAX}
         if section == 'gates':
             return {'gates': WLD.gates(did)}
         if section == 'economy':

@@ -31,6 +31,7 @@ const WE_SECTIONS = [
   ['shop', N('Shop'), 'cart', N('Price and currency of products; remove a product from sale.'), true],
   ['auction', N('Auction'), 'gavel', N('Hourly, daily and weekly lots: item, quantity, buy-now price.'), true],
   ['boxes', N('Boxes and Loot'), 'gift', N('Contents of bonus boxes and booty boxes.'), true],
+  ['assembly', N('Assembly'), 'gear', N('Assembly recipes: change ingredients, results and build time, or make your own.'), true],
   ['gates', N('Galaxy Gates'), 'ring', N('Waves, aliens and gate rewards.'), true],
   ['events', N('Events'), 'calendar', N('Which event is on when in this world; the aliens of map events.'), true],
   ['economy', N('Rewards and Economy'), 'star', N('Level thresholds, rank point formula and rank thresholds.'), true],
@@ -238,7 +239,7 @@ function weRenderSection() {
   const area = $('#we-field'); if (!area) return;
   area.parentNode.classList.toggle('narrow', b[0] === 'maps');          // room for the map canvas: menu icon strip
   fill(area, h('div', { class: 'empty' }, h('div', { class: 'spin', style: { margin: '30px auto' } })));
-  ({ general: weGeneral, maps: weMaps, alien_spawns: weAliens, quests: weQuests, shop: weShop, auction: weAuction, boxes: weBoxes, gates: weGates, events: weEvents, economy: weEconomy }[b[0]])(area, b);
+  ({ general: weGeneral, maps: weMaps, alien_spawns: weAliens, quests: weQuests, shop: weShop, auction: weAuction, boxes: weBoxes, assembly: weAssembly, gates: weGates, events: weEvents, economy: weEconomy }[b[0]])(area, b);
 }
 const weTitle = (b, ...extras) => h('div', { class: 'row between wrap we-section-head' }, h('div', null, h('h2', null, weIcon(b[0], 'we-icon large'), T(b[1])),
   h('div', { class: 'muted small' }, T(b[3]))), h('div', { class: 'row wrap', style: { gap: '8px' } }, ...extras));
@@ -282,14 +283,14 @@ const ITEM_CATEGORY = [['all', N('All')], ['ammunition', N('Ammunition')], ['equ
   ['drone', N('Drones')], ['resource', N('Resources')], ['booster', N('Boosters')], ['currency', N('Currency')], ['other', N('More')]];
 const itemCategory = l => { const p = l.split('_')[0]; return ITEM_CATEGORY.some(k => k[0] === p) ? p : 'other'; };
 
-async function pickItem(title = T('Select item')) {
-  if (!DE.items) { const r = await act(() => api('/api/world/items')); if (!r) return null; DE.items = r.items; }
+async function pickItem(title = T('Select item'), only = null) {     // only: the list to choose from
+  if (!only && !DE.items) { const r = await act(() => api('/api/world/items')); if (!r) return null; DE.items = r.items; }
   return new Promise(res => {
     let multiplier = 'all', q = '', limit = 120, done = false;
     const grid = h('div', { class: 'we-picker-grid' });
     const render = () => {
       const s = q.trim().toLowerCase();
-      const list = DE.items.filter(l => (multiplier === 'all' || itemCategory(l) === multiplier) && (!s || l.includes(s) || itemName(l).toLowerCase().includes(s)));
+      const list = (only || DE.items).filter(l => (multiplier === 'all' || itemCategory(l) === multiplier) && (!s || l.includes(s) || itemName(l).toLowerCase().includes(s)));
       fill(grid, ...list.slice(0, limit).map(l => h('button', { type: 'button', class: 'we-picker-item', title: l,
         onclick: () => { done = true; m.close(); res(l); } }, gameIcon(l, 44, null, 'box'), h('span', null, itemName(l)))),
         list.length > limit ? h('button', { type: 'button', class: 'btn sm we-more', onclick: () => { limit += 240; render(); } }, T('{0} more items', fmtN(list.length - limit))) : null,
@@ -1077,6 +1078,81 @@ function boxDetail(o, r) {
 const GATE_REWARD_FIELD = [['ep', N('Experience'), 'source_experience'], ['honor', N('Honor'), 'source_honor'], ['uridium', N('Uridium'), 'source_uridium'],
   ['xenomit', N('Xenomit'), 'resource_ore_xenomit'], ['log_disk', N('Log disk'), 'resource_logfile'], ['voucher', N('Coupon'), '']];
 const ROMAN = n => ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII', 'XIII', 'XIV', 'XV'][n] || String(n + 1);
+
+// ================================================================== ASSEMBLY
+// fmtDur drops the seconds of a duration over a minute; a build time of 90 s must not read as 1 min
+const weBuildTime = s => s > 60 && s < 3600 && s % 60 ? fmtDur(s - s % 60) + ' ' + fmtDur(s % 60) : fmtDur(s);
+
+async function weAssembly(area, b) {
+  const r = await act(() => api('/api/world/section?section=assembly&world=' + encodeURIComponent(DE.did))); if (!r || DE.section !== 'assembly') return;
+  const f = DE.sec.assembly || (DE.sec.assembly = { q: '', filter_by: 'all', limit: 120 });
+  const grid = h('div', { class: 'shop-grid we-shop' });
+  const main = it => Object.keys(it.result)[0] || it.key;
+  const title = it => itemName(main(it)) + ((it.result[main(it)] || 1) > 1 ? ' × ' + fmtN(it.result[main(it)]) : '');
+  const parts = it => h('div', { class: 'row wrap', style: { gap: '4px', justifyContent: 'center' } }, Object.entries(it.parts).slice(0, 5).map(([l, n]) =>
+    h('span', { title: itemName(l) + ' × ' + fmtN(n) }, gameIcon(l, 22, null, 'box'))), Object.keys(it.parts).length > 5 ? h('span', { class: 'small muted' }, '…') : null);
+  const newRecipe = () => {
+    const n = Math.max(0, ...r.recipes.filter(it => it.custom).map(it => +it.key.split('_').pop() || 0)) + 1;
+    editRecipe({ key: 'recipe_custom_' + n, parts: {}, result: {}, duration_sec: 60, disabled: false, custom: true, changed: false, standard: null, fresh: true }, T('New recipe'), r);
+  };
+  const render = () => {
+    const s = f.q.trim().toLowerCase();
+    const has = rows => Object.keys(rows).some(x => x.includes(s) || itemName(x).toLowerCase().includes(s));
+    const l = r.recipes.filter(it => (f.filter_by === 'all' || (f.filter_by === 'changed' ? it.changed : f.filter_by === 'new' ? it.custom : it.disabled))
+      && (!s || it.key.includes(s) || has(it.result) || has(it.parts)));
+    fill(grid, ...l.slice(0, f.limit).map(it => h('button', { type: 'button', class: 'shop-card we-shop-card' + (it.disabled ? ' off' : '') + (it.changed ? ' changed' : ''),
+      onclick: () => editRecipe(it, title(it), r) }, gameIcon(main(it), 64, null, 'box'), h('div', { class: 'shop-name', title: it.key }, title(it)),
+      parts(it), h('div', { class: 'shop-price' }, it.disabled ? T('Switched off') : weBuildTime(it.duration_sec)),
+      it.custom ? h('div', { class: 'small dim' }, T('New recipe')) : null)),
+      l.length > f.limit ? h('button', { type: 'button', class: 'btn sm we-more', onclick: () => { f.limit += 240; render(); } }, T('{0} more recipes', fmtN(l.length - f.limit))) : null,
+      !l.length ? h('div', { class: 'empty small muted' }, T('No recipes.')) : null);
+  };
+  fill(area, h('div', { class: 'stack' }, h('div', { class: 'card' },
+    weTitle(b, h('input', { class: 'input', style: { width: '180px' }, placeholder: T('Search…'), value: f.q, oninput: e => { f.q = e.target.value; f.limit = 120; render(); } }),
+      btn(T('New recipe'), newRecipe, 'sm primary', 'plus')),
+    h('div', { class: 'seg', style: { marginTop: '12px' } }, [['all', N('All')], ['changed', N('Modified')], ['new', N('Your own')], ['off', N('Switched off')]].map(([k, name]) =>
+      h('button', { class: f.filter_by === k ? 'on info' : '', onclick: () => { f.filter_by = k; f.limit = 120; weRenderSection(); } }, T(name)))),
+    h('p', { class: 'small muted', style: { margin: '10px 0 0' } }, T('Ingredients, results and times reach the game through the client plugin the panel installs, when you log in. The "Assembly crafting" time multiplier in Game Settings is applied to the countdown.'))),
+    grid));
+  render();
+}
+
+function editRecipe(it, name, r) {
+  let sec = it.duration_sec, on = !it.disabled;
+  const parts = Object.entries(it.parts).map(x => [...x]), result = Object.entries(it.result).map(x => [...x]);
+  const route = jp('recipes', it.key);
+  const rows = (list, allowed, most, pickTitle) => {
+    const box = h('div', { class: 'stack', style: { gap: '8px' } });
+    const draw = () => fill(box, ...list.map((row, i) => h('div', { class: 'row', style: { gap: '10px', alignItems: 'center' } },
+      gameIcon(row[0], 40, null, 'box'), h('span', { style: { flex: '1', minWidth: '0' }, title: row[0] }, itemName(row[0])),
+      weNumber(row[1], v => { row[1] = v; }, { min: 1, max: 1e9, step: 1, width: 110 }),
+      h('button', { type: 'button', class: 'btn sm ghost', title: T('Remove'), onclick: () => { list.splice(i, 1); draw(); } }, icon('minus')))),
+      list.length < most ? btn(T('Add'), async () => {
+        const loot = await pickItem(pickTitle, allowed.filter(l => !list.some(x => x[0] === l)));
+        if (loot) { list.push([loot, 1]); draw(); }
+      }, 'sm', 'plus') : null);
+    draw();
+    return box;
+  };
+  const reload = () => { m.close(); weRenderSection(); };
+  const save = async () => {
+    if (!parts.length || !result.length) return toast(T('Add at least one ingredient and one result.'), 'err');
+    const value = { parts: Object.fromEntries(parts), result: Object.fromEntries(result), duration_sec: sec };
+    if (!on) value.disabled = true;
+    if (await wePatch('recipes.json', route, value, { ms: 0 })) reload();
+  };
+  const label = t => h('div', { class: 'small muted', style: { textTransform: 'uppercase', letterSpacing: '.06em' } }, t);
+  const m = modal({ title: name, sub: it.key, wide: true, body: h('div', { class: 'stack', style: { gap: '14px' } },
+    label(T('Ingredients')), rows(parts, r.ingredients, r.max_parts, T('Add an ingredient')),
+    label(T('Result')), rows(result, r.results, r.max_results, T('Add a result')),
+    h('div', { class: 'we-field-row' }, h('label', null, T('Build time (seconds)')), weNumber(sec, v => { sec = v; }, { min: 1, max: 2592000, step: 60, width: 130 }),
+      it.standard ? h('span', { class: 'small muted' }, T('Standard: {0}', weBuildTime(it.standard.duration_sec))) : null),
+    h('div', { class: 'we-field-row' }, h('label', null, T('Available')), h('label', { class: 'switch' }, h('input', { type: 'checkbox', checked: on, onchange: e => { on = e.target.checked; } }), h('span')),
+      h('span', { class: 'small muted' }, T("If off, the recipe doesn't appear in the Assembly.")))),
+    foot: [it.custom && !it.fresh ? btn(T('Delete recipe'), async () => { if (await weRevert('recipes.json', route)) reload(); }, 'ghost', 'trash') : null,
+      !it.custom && it.changed ? btn(T('Reset to standard'), async () => { if (await weRevert('recipes.json', route)) reload(); }, 'ghost', 'undo') : null,
+      h('span', { class: 'spacer' }), btn(T('Cancel'), () => m.close(), 'ghost'), btn(T('Save'), save, 'primary', 'check')] });
+}
 
 async function weGates(area, b) {
   const r = await act(() => api('/api/world/section?section=gates&world=' + encodeURIComponent(DE.did))); if (!r || DE.section !== 'gates') return;
