@@ -19,7 +19,7 @@ from . import catalog as K
 EXCHANGE_RATE = 100
 import loot as LOOT                                   # noqa: E402  (the game's loot module: boxes, maps, calendar)
 
-RECIPES = DATA.shared('recipes.json')['recipes']      # read only (game_data.shared)
+RECIPES = DATA.load('recipes.json')['recipes']        # read only; with the world's changes (World Editor > Assembly)
 BOOSTER = K.ITEMS['boosters']
 ORE_LOOT = {v: int(k) for k, v in K.ITEMS['ores']['kinds'].items()}     # resource_ore_* -> cargo ore
 CURRENCY = {'currency_credits': 'credits', 'currency_uridium': 'uridium', 'currency_experience': 'ep', 'currency_honour': 'honor'}
@@ -210,7 +210,7 @@ def _spend(bot, parts):
 
 
 MATERIALS = [(k, tuple(p for p in r['parts'] if p not in CURRENCY)) for k, r in RECIPES.items()
-           if any(p not in CURRENCY for p in r['parts']) and 'test' not in k]      # test recipes are closed to the player too      # money recipes are in technology.produce
+           if any(p not in CURRENCY for p in r['parts']) and 'test' not in k and not r.get('disabled')]      # test recipes are closed to the player too      # money recipes are in technology.produce
 
 
 def assembly(bot):

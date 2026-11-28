@@ -35,7 +35,7 @@ import ranks as RT
 from legacy_protocol import legacy
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-T = json.load(open(os.path.join(HERE, 'data', 'recipes.json'), encoding='utf8'))['recipes']
+T = DATA.load('recipes.json')['recipes']      # with the world's changes (World Editor > Assembly: changed and new recipes)
 DRONES = DATA.shared('items.json')['drones']
 # titles for distinct items assembled (the client's achievement_assembly_item-crafting_1/2 texts: two / four different items; no achievement
 # XML in the client, so the title is granted directly, like the ranking titles)
@@ -103,9 +103,25 @@ def chromin_recipes(now=None):
     return None
 
 
+def client_overrides():
+    """The world's changed and new recipes for the client plugin (Recipes.cs), sent at login before the recipe list: the client keeps its own
+    recipe data, so it has to be told. '0|OOR|reset' restores the client's data (another world may have been played since it started), then
+    one '0|OOR|set|<recipe>|<seconds>|<loot>:<n>,...|<loot>:<n>,...' (build time, ingredients, results) per recipe that differs."""
+    base = DATA.shared('recipes.json')['recipes']
+    pairs = lambda d: ','.join('%s:%d' % x for x in d.items())
+    out = [legacy('0|OOR|reset')]
+    for k, r in T.items():
+        b = base.get(k)
+        if b is None or any(r[f] != b[f] for f in ('duration_sec', 'parts', 'result')):
+            out.append(legacy('0|OOR|set|%s|%d|%s|%s' % (k, r['duration_sec'], pairs(r['parts']), pairs(r['result']))))
+    return out
+
+
 def recipe_event(key, now=None):
     """The active event that ties the recipe to its currency (event_calendar.py 'currency'; None if there is none)."""
     import event_calendar as CAL
+    if T[key].get('custom'):
+        return None                 # a world's own recipe is not tied to an event, whatever it asks for
     ps = set(T[key]['parts'])
     return next((k for k in sorted(CAL.active(now)) if ps & set(CAL.EVENTS[k].get('currency', []))), None)
 
@@ -161,12 +177,15 @@ class Assembly:
     # ------------------------------------------------------------ tarifler
     def visible(self):
         """Recipes shown in the window, in the save's order; then ONLY_WHEN_OWNED recipes held in storage, ones unlocked by a condition, ones not in the
-        save (event_recipes) and ones with production in progress or uncollected (even if the event has ended)."""
+        save (event_recipes) and ones with production in progress or uncollected (even if the event has ended). Recipes switched off in the world are
+        left out, except while their production is in progress or uncollected."""
         out = sorted((k for k, r in T.items() if 'recorded' in r and k not in BOT), key=lambda k: T[k]['recorded'])
         out += sorted(k for k, r in T.items() if 'recorded' not in r and r['visibility'] == 'ONLY_WHEN_OWNED' and self.p.resource(k) > 0)
         out += [k for k, cond in UNLOCK.items() if k not in out and cond(self.p)]
+        out += [k for k, r in T.items() if r.get('custom') and k not in out]      # the world's own recipes
         seen = set(out)
         out += [k for k in event_recipes(self.p) if k not in seen]
+        out = [k for k in out if not T[k].get('disabled') or k in self.st['production']]
         seen = set(out)
         return out + sorted(k for k in self.st['production'] if k in T and k not in seen)
 
@@ -248,7 +267,7 @@ class Assembly:
 
     def login_msgs(self):
         """At login: the recipe list, two empty lists and the filters (the official server's order)."""
-        return [self.content()] + [('AssemblyRecipeContentModule', {'recipes': []})] * 2 + self.filter_msgs()
+        return client_overrides() + [self.content()] + [('AssemblyRecipeContentModule', {'recipes': []})] * 2 + self.filter_msgs()
 
     def filter_msgs(self):
         """The window's filters (the AssemblySetFilterRequest module, per filterType; all categories if none is stored): sent back
@@ -306,7 +325,7 @@ class Assembly:
         key = f.get('recipeLootId', '')
         b = self.st['production'].get(key)
         now = now or time.time()
-        if not b or now < b['end_time']:
+        if not b or key not in T or now < b['end_time']:      # key not in T: the world's recipe was deleted (kept until it is back)
             return [self.update(key)] if key in T else []
         with self.p.lock:
             del self.st['production'][key]
@@ -350,7 +369,7 @@ class Assembly:
         key = f.get('recipeLootId', '')
         b = self.st['production'].get(key)
         now = time.time()
-        if not b or now >= b['end_time']:
+        if not b or key not in T or now >= b['end_time']:
             return [self.update(key)] if key in T else []
         price = max(1, int(math.ceil((b['end_time'] - now) / 60.0)) * SKIP_U_PER_MIN)
         if INV.missing(self.p, {'currency_uridium': price}):
@@ -422,7 +441,7 @@ class Assembly:
             self.shown = set(keys)
         self.up.m, self.up.send, self.up.refresh = self.m, self.send, self.content
         self.up.tick(now)
-        done = [k for k, b in self.st['production'].items() if not b.get('notified') and now >= b['end_time']]
+        done = [k for k, b in self.st['production'].items() if k in T and not b.get('notified') and now >= b['end_time']]
         for k in done:
             with self.p.lock:
                 self.st['production'][k]['notified'] = True
